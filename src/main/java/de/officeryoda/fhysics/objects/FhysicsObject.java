@@ -12,12 +12,12 @@ public abstract class FhysicsObject {
 
     protected FhysicsObject(Vector2 position) {
         this.position = position;
-        this.velocity = Vector2.ZERO;
-        this.acceleration = Vector2.ZERO;
+        this.velocity = Vector2.zero();
+        this.acceleration = Vector2.zero();
     }
 
     protected FhysicsObject() {
-        this(Vector2.ZERO);
+        this(Vector2.zero());
     }
 
     public void applyGravity(double dt, Vector2 gravity) {
@@ -25,6 +25,6 @@ public abstract class FhysicsObject {
         velocity.add(acceleration.multiplyNew(dt));
         position.add(velocity.multiplyNew(dt));
 
-        acceleration.set(Vector2.ZERO);
+        acceleration.set(Vector2.zero());
     }
 }

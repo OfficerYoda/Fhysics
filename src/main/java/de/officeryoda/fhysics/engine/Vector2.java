@@ -10,15 +10,9 @@ import lombok.Data;
 public class Vector2 {
 
     /**
-     * A constant Vector2 with components (0.0, 0.0).
-     */
-    public static final Vector2 ZERO = new Vector2(0.0, 0.0);
-
-    /**
      * The x-component of the vector.
      */
     private double x;
-
     /**
      * The y-component of the vector.
      */
@@ -40,6 +34,15 @@ public class Vector2 {
      */
     public Vector2() {
         this(0.0, 0.0);
+    }
+
+    /**
+     * Gets a constant Vector2 with components (0.0, 0.0).
+     *
+     * @return A Vector2 with components (0.0, 0.0).
+     */
+    public static Vector2 zero() {
+        return new Vector2(0.0, 0.0);
     }
 
     /**

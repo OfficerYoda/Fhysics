@@ -15,8 +15,9 @@ public class Fhysics {
     @Getter
     private final List<Circle> fhysicsObjects;
     private final Vector2 gravity = new Vector2(0, -9.81);
-    private final int updatesPerSecond = 60;
+    private final int updatesPerSecond = 500;
     private final double updatesIntervalSeconds = 1.0 / updatesPerSecond;
+    boolean collision = false;
     @Setter
     private FhysicsObjectDrawer drawer;
 
@@ -26,9 +27,9 @@ public class Fhysics {
         fhysicsObjects.add(new Circle(new Vector2(50, 500), 50));
         fhysicsObjects.add(new Circle(new Vector2(50, 500), 25));
         fhysicsObjects.add(new Circle(new Vector2(100, 200), 15));
+        fhysicsObjects.add(new Circle(new Vector2(600, 500), 20));
 //        fhysicsObjects.add(new Box(new Vector2(300, 400), 50, 100));
 //        fhysicsObjects.add(new Box(new Vector2(300, 31), 50, 100));
-
     }
 
     public void startUpdateLoop() {
@@ -46,8 +47,20 @@ public class Fhysics {
 
     private void update() {
         fhysicsObjects.forEach(obj -> {
-            obj.applyGravity(updatesIntervalSeconds, gravity);
+            if(collision) {
+                obj.applyGravity(updatesIntervalSeconds, gravity);
+            } else {
+                obj.applyGravity(updatesIntervalSeconds, gravity);
+            }
+            checkBottomCollision(obj);
         });
         drawer.repaint();
+    }
+
+    private void checkBottomCollision(Circle circle) {
+        if(circle.getPosition().getY() - circle.getRadius() <= 0) {
+            circle.getVelocity().multiply(-1);
+            collision = true;
+        }
     }
 }
