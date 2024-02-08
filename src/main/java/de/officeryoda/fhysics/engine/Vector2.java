@@ -4,6 +4,7 @@ import lombok.Data;
 
 /**
  * A class representing a 2D vector with double precision.
+ * This class provides basic operations for vector manipulation.
  */
 @Data
 public class Vector2 {
@@ -42,10 +43,10 @@ public class Vector2 {
     }
 
     /**
-     * Adds another vector to this vector.
+     * Adds another Vector2 to this vector.
      *
-     * @param other The vector to be added.
-     * @return A new Vector2 representing the sum of the two vectors.
+     * @param other The Vector2 to be added.
+     * @return The updated Vector2 after addition.
      */
     public Vector2 add(Vector2 other) {
         this.x += other.x;
@@ -54,10 +55,20 @@ public class Vector2 {
     }
 
     /**
-     * Subtracts another vector from this vector.
+     * Creates a new Vector2 by adding another Vector2 to this vector.
      *
-     * @param other The vector to be subtracted.
-     * @return A new Vector2 representing the difference between the two vectors.
+     * @param other The Vector2 to be added.
+     * @return A new Vector2 representing the sum of the two vectors.
+     */
+    public Vector2 addNew(Vector2 other) {
+        return new Vector2(this.x + other.x, this.y + other.y);
+    }
+
+    /**
+     * Subtracts another Vector2 from this vector.
+     *
+     * @param other The Vector2 to be subtracted.
+     * @return The updated Vector2 after subtraction.
      */
     public Vector2 subtract(Vector2 other) {
         this.x -= other.x;
@@ -66,15 +77,35 @@ public class Vector2 {
     }
 
     /**
-     * Multiplies the vector by a scalar value.
+     * Creates a new Vector2 by subtracting another Vector2 from this vector.
      *
-     * @param scalar The scalar value.
-     * @return A new Vector2 representing the scaled vector.
+     * @param other The Vector2 to be subtracted.
+     * @return A new Vector2 representing the difference of the two vectors.
+     */
+    public Vector2 subtractNew(Vector2 other) {
+        return new Vector2(this.x - other.x, this.y - other.y);
+    }
+
+    /**
+     * Multiplies the vector by a scalar.
+     *
+     * @param scalar The scalar value for multiplication.
+     * @return The updated Vector2 after multiplication.
      */
     public Vector2 multiply(double scalar) {
         this.x *= scalar;
         this.y *= scalar;
         return this;
+    }
+
+    /**
+     * Creates a new Vector2 by multiplying the vector by a scalar.
+     *
+     * @param scalar The scalar value for multiplication.
+     * @return A new Vector2 representing the result of the multiplication.
+     */
+    public Vector2 multiplyNew(double scalar) {
+        return new Vector2(this.x * scalar, this.y * scalar);
     }
 
     /**

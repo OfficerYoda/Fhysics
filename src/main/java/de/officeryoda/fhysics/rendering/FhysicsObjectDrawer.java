@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.rendering;
 
-import de.officeryoda.fhysics.Main;
+import de.officeryoda.fhysics.engine.Fhysics;
 import de.officeryoda.fhysics.engine.Vector2;
 import de.officeryoda.fhysics.objects.Box;
 import de.officeryoda.fhysics.objects.Circle;
@@ -8,40 +8,58 @@ import de.officeryoda.fhysics.objects.FhysicsObject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 public class FhysicsObjectDrawer extends JFrame {
 
-    private final List<FhysicsObject> physicsObjects;
+    public final static int TITLE_BAR_HEIGHT = 40;
 
-    public FhysicsObjectDrawer() {
-        this.physicsObjects = Main.objects;
-        initUI();
-    }
+    private final FhysicsPanel fhysicsPanel;
 
-    private void initUI() {
-        setTitle("Fhysics Object Drawer");
+    public FhysicsObjectDrawer(Fhysics fhysics) {
+        setTitle("Falling Sand");
+        setSize(1440, 720);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
-        setLocationRelativeTo(null);
+
+        fhysicsPanel = new FhysicsPanel(fhysics);
+        add(fhysicsPanel);
+
+        setLocationRelativeTo(null); // center the frame on the screen
         setVisible(true);
+    }
+    public void repaintObjects() {
+        fhysicsPanel.repaint();
+    }
+}
+
+class FhysicsPanel extends JPanel {
+
+    private final Color objectColor = Color.decode("#2f2f30");
+    private final Fhysics fhysics;
+
+    public FhysicsPanel(Fhysics fhysics) {
+        this.fhysics = fhysics;
+        Color backgroundColor = Color.decode("#010409");
+        setBackground(backgroundColor);
     }
 
     @Override
-    public void paint(Graphics g) {
-        super.paint(g);
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
         drawAllObjects(g);
     }
 
     private void drawAllObjects(Graphics g) {
-        for(FhysicsObject object : physicsObjects) {
+        g.setColor(objectColor);
+        for(FhysicsObject object : fhysics.getFhysicsObjects()) {
             drawObject(object, g);
         }
     }
 
     private void drawObject(FhysicsObject object, Graphics g) {
-        if(object instanceof Box) {
-            drawBox((Box) object, g);
+        if(object instanceof de.officeryoda.fhysics.objects.Box) {
+            drawBox((de.officeryoda.fhysics.objects.Box) object, g);
         } else if(object instanceof Circle) {
             drawCircle((Circle) object, g);
         } // Add more cases for other FhysicsObject types if needed
