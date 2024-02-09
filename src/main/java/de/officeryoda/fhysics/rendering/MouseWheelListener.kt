@@ -1,17 +1,10 @@
-package de.officeryoda.fhysics.rendering;
+package de.officeryoda.fhysics.rendering
 
-import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelEvent
+import java.awt.event.MouseWheelListener
 
-public class MouseWheelListener implements java.awt.event.MouseWheelListener {
-
-    private final FhysicsPanel fhysicsPanel;
-
-    MouseWheelListener(FhysicsPanel fhysicsPanel) {
-        this.fhysicsPanel = fhysicsPanel;
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        fhysicsPanel.onMouseWheel(e.getWheelRotation());
+class MouseWheelListener internal constructor(private val fhysicsPanel: FhysicsPanel) : MouseWheelListener {
+    override fun mouseWheelMoved(e: MouseWheelEvent) {
+        fhysicsPanel.onMouseWheel(e.wheelRotation)
     }
 }

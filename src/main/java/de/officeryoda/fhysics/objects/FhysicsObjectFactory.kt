@@ -1,42 +1,39 @@
-package de.officeryoda.fhysics.objects;
+package de.officeryoda.fhysics.objects
 
-import de.officeryoda.fhysics.engine.Border;
-import de.officeryoda.fhysics.engine.FhysicsCore;
-import de.officeryoda.fhysics.engine.Vector2;
+import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.Vector2
+import java.util.*
 
-import java.util.Random;
+object FhysicsObjectFactory {
+    private val RANDOM = Random()
 
-public class FhysicsObjectFactory {
+    fun randomCircle(): Circle {
+        val radius = RANDOM.nextDouble(5.0, 35.0)
+        val pos = randomPosInsideBounds(radius)
+        val circle = Circle(pos, radius)
 
-    private static final Random RANDOM = new Random();
+        circle.velocity = randomVector2(-200.0, 200.0)
 
-    public static Circle randomCircle() {
-        double radius = RANDOM.nextDouble(5, 35);
-        Vector2 pos = randomPosInsideBounds(radius);
-        Circle circle = new Circle(pos, radius);
-
-        circle.setVelocity(randomVector2(-200, 200));
-
-        return circle;
+        return circle
     }
 
-    private static Vector2 randomPosInsideBounds(double buffer) {
-        Border border = FhysicsCore.BORDER;
-        double minX = border.leftBorder() + buffer;
-        double maxX = border.rightBorder() - minX - buffer;
-        double x = RANDOM.nextDouble(minX, maxX);
+    private fun randomPosInsideBounds(buffer: Double): Vector2 {
+        val border = FhysicsCore.BORDER
+        val minX = border.leftBorder + buffer
+        val maxX = border.rightBorder - minX - buffer
+        val x = RANDOM.nextDouble(minX, maxX)
 
-        double minY = border.bottomBorder() + buffer;
-        double maxY = border.topBorder() - minY - buffer;
-        double y = RANDOM.nextDouble(minY, maxY);
+        val minY = border.bottomBorder + buffer
+        val maxY = border.topBorder - minY - buffer
+        val y = RANDOM.nextDouble(minY, maxY)
 
-        return new Vector2(x, y);
+        return Vector2(x, y)
     }
 
-    private static Vector2 randomVector2(double min, double max) {
-        double x = RANDOM.nextDouble(min, max);
-        double y = RANDOM.nextDouble(min, max);
+    private fun randomVector2(min: Double, max: Double): Vector2 {
+        val x = RANDOM.nextDouble(min, max)
+        val y = RANDOM.nextDouble(min, max)
 
-        return new Vector2(x, y);
+        return Vector2(x, y)
     }
 }

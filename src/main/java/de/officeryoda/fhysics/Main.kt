@@ -1,21 +1,17 @@
-package de.officeryoda.fhysics;
+package de.officeryoda.fhysics
 
-import de.officeryoda.fhysics.engine.FhysicsCore;
-import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer;
+import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import javax.swing.SwingUtilities
 
-import javax.swing.*;
+fun main() {
+    println("Fhysics")
 
-public class Main {
+    val fhysics = FhysicsCore()
 
-    public static void main(String[] args) {
-        System.out.println("Fhysics");
-
-        FhysicsCore fhysics = new FhysicsCore();
-
-        SwingUtilities.invokeLater(() -> {
-            FhysicsObjectDrawer drawer = new FhysicsObjectDrawer(fhysics);
-            fhysics.setDrawer(drawer);
-            fhysics.startUpdateLoop();
-        });
+    SwingUtilities.invokeLater {
+        val drawer = FhysicsObjectDrawer(fhysics)
+        fhysics.drawer = drawer
+        fhysics.startUpdateLoop()
     }
 }

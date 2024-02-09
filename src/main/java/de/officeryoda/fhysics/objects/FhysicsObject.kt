@@ -1,37 +1,25 @@
-package de.officeryoda.fhysics.objects;
+package de.officeryoda.fhysics.objects
 
-import de.officeryoda.fhysics.engine.FhysicsCore;
-import de.officeryoda.fhysics.engine.Vector2;
-import lombok.Data;
+import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.Vector2.Companion.zero
+import lombok.Data
 
 @Data
-public abstract class FhysicsObject {
+abstract class FhysicsObject protected constructor(
+    val position: Vector2 = zero(),
+    val mass: Double = 1.0
+) {
+    val id = FhysicsCore.nextId()
 
-    private final int id;
+    var velocity = zero()
+    private val acceleration = zero()
 
-    private Vector2 position;
-    private Vector2 velocity;
-    private Vector2 acceleration;
+    fun applyGravity(dt: Double, gravity: Vector2?) {
+        acceleration.add(gravity!!)
+        velocity.add(acceleration.multiplyNew(dt))
+        position.add(velocity.multiplyNew(dt))
 
-    private double mass;
-
-    protected FhysicsObject(Vector2 position, double mass) {
-        this.id = FhysicsCore.nextId();
-        this.position = position;
-        this.velocity = Vector2.zero();
-        this.acceleration = Vector2.zero();
-        this.mass = mass;
-    }
-
-    protected FhysicsObject() {
-        this(Vector2.zero(), 1);
-    }
-
-    public void applyGravity(double dt, Vector2 gravity) {
-        acceleration.add(gravity);
-        velocity.add(acceleration.multiplyNew(dt));
-        position.add(velocity.multiplyNew(dt));
-
-        acceleration.set(Vector2.zero());
+        acceleration.set(zero())
     }
 }

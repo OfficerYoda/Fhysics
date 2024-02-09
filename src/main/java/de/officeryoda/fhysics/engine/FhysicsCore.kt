@@ -1,93 +1,84 @@
-package de.officeryoda.fhysics.engine;
+package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.objects.Circle;
-import de.officeryoda.fhysics.objects.FhysicsObjectFactory;
-import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer;
-import lombok.Getter;
-import lombok.Setter;
+import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.objects.FhysicsObjectFactory
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import java.util.*
+import java.util.function.Consumer
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+class FhysicsCore {
+    val fhysicsObjects: MutableList<Circle> = ArrayList()
+    private val gravity = Vector2(0.0, -9.81)
+    private val updatesPerSecond = 500
 
-public class FhysicsCore {
+    var drawer: FhysicsObjectDrawer? = null
 
-    public static final Border BORDER = new Border(0, 600, 0, 400);
-    private static int objectCount;
-    @Getter
-    private final List<Circle> fhysicsObjects;
-    private final Vector2 gravity = new Vector2(0, -9.81);
-    private final int updatesPerSecond = 500;
-    @Setter
-    private FhysicsObjectDrawer drawer;
-
-    public FhysicsCore() {
-        this.fhysicsObjects = new ArrayList<>();
-
-        for(int i = 0; i < 50; i++) {
-            fhysicsObjects.add(FhysicsObjectFactory.randomCircle());
+    init {
+        for (i in 0..49) {
+            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
         }
     }
 
-    public static int nextId() {
-        return objectCount++;
-    }
-
-    public void startUpdateLoop() {
-        Timer updateTimer = new Timer(true);
-        int updateIntervalMillis = (int) (1f / updatesPerSecond * 1000);
-        updateTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                update();
+    fun startUpdateLoop() {
+        val updateTimer = Timer(true)
+        val updateIntervalMillis = (1f / updatesPerSecond * 1000).toInt()
+        updateTimer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                update()
             }
-        }, 0, updateIntervalMillis);
+        }, 0, updateIntervalMillis.toLong())
     }
 
-    private void update() {
-
-        double updatesIntervalSeconds = 1.0 / updatesPerSecond;
-        fhysicsObjects.forEach(obj -> {
-            obj.applyGravity(updatesIntervalSeconds, Vector2.zero());
-//            obj.applyGravity(updatesIntervalSeconds, gravity);
-            checkBorderCollision(obj);
-            checkObjectCollision(obj);
-        });
-        drawer.repaintObjects();
+    private fun update() {
+        val updatesIntervalSeconds = 1.0 / updatesPerSecond
+        fhysicsObjects.forEach(Consumer<Circle> { obj: Circle ->
+            obj.applyGravity(updatesIntervalSeconds, Vector2.zero())
+//                        obj.applyGravity(updatesIntervalSeconds, gravity)
+            checkBorderCollision(obj)
+            checkObjectCollision(obj)
+        })
+        drawer!!.repaintObjects()
     }
 
-    private void checkObjectCollision(Circle obj1) {
-        fhysicsObjects.forEach(obj2 -> {
-            if(obj1.getId() == obj2.getId()) return;
-            CollisionHandler.handleElasticCollision(obj1, obj2);
-        });
+    private fun checkObjectCollision(obj1: Circle) {
+        fhysicsObjects.stream().forEach(Consumer { obj2: Circle ->
+            if (obj1.id == obj2.id) return@Consumer
+            CollisionHandler.handleElasticCollision(obj1, obj2)
+        })
     }
 
-    private void checkBorderCollision(Circle circle) {
-        Vector2 pos = circle.getPosition();
-        Vector2 velocity = circle.getVelocity();
-        double radius = circle.getRadius();
+    private fun checkBorderCollision(circle: Circle) {
+        val pos = circle.position
+        val velocity = circle.velocity
+        val radius = circle.radius
 
         // check top/bottom border
-        if(pos.getY() + radius > BORDER.topBorder()) {
-            velocity.setY(-velocity.getY());
-//            velocity.set(Vector2.zero());
-            pos.setY(BORDER.topBorder() - radius);
-//            velocity.setX(Math.random() * 400 - 200);
-        } else if(pos.getY() - radius < BORDER.bottomBorder()) {
-            velocity.setY(-velocity.getY());
-            pos.setY(BORDER.bottomBorder() + radius);
-//            velocity.setX(Math.random() * 400 - 200);
+        if (pos.y + radius > BORDER.topBorder) {
+            velocity.y = -velocity.y
+//            velocity.set(Vector2.zero())
+            pos.y = BORDER.topBorder - radius
+//            velocity.x = Math.random() * 400 - 200
+        } else if (pos.y - radius < BORDER.bottomBorder) {
+            velocity.y = -velocity.y
+            pos.y = BORDER.bottomBorder + radius
+//                        velocity.x = Math.random() * 400 - 200
         }
 
         // check left/right border
-        if(pos.getX() - radius < BORDER.leftBorder()) {
-            velocity.setX(-velocity.getX());
-            pos.setX(BORDER.leftBorder() + radius);
-        } else if(pos.getX() + radius > BORDER.rightBorder()) {
-            velocity.setX(-velocity.getX());
-            pos.setX(BORDER.rightBorder() - radius);
+        if (pos.x - radius < BORDER.leftBorder) {
+            velocity.x = -velocity.x
+            pos.x = BORDER.leftBorder + radius
+        } else if (pos.x + radius > BORDER.rightBorder) {
+            velocity.x = -velocity.x
+            pos.x = BORDER.rightBorder - radius
+        }
+    }
+
+    companion object {
+        val BORDER: Border = Border(0.0, 600.0, 0.0, 400.0)
+        private var objectCount = 0
+        fun nextId(): Int {
+            return objectCount++
         }
     }
 }

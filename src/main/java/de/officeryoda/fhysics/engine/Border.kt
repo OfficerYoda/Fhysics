@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.engine;
+package de.officeryoda.fhysics.engine
 
-public record Border(double leftBorder, double rightBorder, double bottomBorder,  double topBorder) {
-}
+@JvmRecord
+data class Border(@JvmField val leftBorder: Double, @JvmField val rightBorder: Double, @JvmField val bottomBorder: Double, @JvmField val topBorder: Double)
