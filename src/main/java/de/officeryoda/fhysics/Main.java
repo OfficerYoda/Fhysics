@@ -8,11 +8,11 @@ import javax.swing.*;
 public class Main {
 
     public static void main(String[] args) {
+        System.out.println("Fhysics");
 
         Fhysics fhysics = new Fhysics();
 
         SwingUtilities.invokeLater(() -> {
-//            FhysicsObjectDrawer drawer = new FhysicsObjectDrawer(fhysics);
             FhysicsObjectDrawer drawer = new FhysicsObjectDrawer(fhysics);
             fhysics.setDrawer(drawer);
             fhysics.startUpdateLoop();

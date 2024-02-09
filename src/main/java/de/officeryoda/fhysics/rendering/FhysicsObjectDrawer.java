@@ -1,7 +1,9 @@
 package de.officeryoda.fhysics.rendering;
 
+import de.officeryoda.fhysics.engine.Border;
 import de.officeryoda.fhysics.engine.Fhysics;
 import de.officeryoda.fhysics.engine.Vector2;
+import de.officeryoda.fhysics.engine.Vector2Int;
 import de.officeryoda.fhysics.objects.Box;
 import de.officeryoda.fhysics.objects.Circle;
 import de.officeryoda.fhysics.objects.FhysicsObject;
@@ -14,18 +16,38 @@ public class FhysicsObjectDrawer extends JFrame {
     private final FhysicsPanel fhysicsPanel;
 
     public FhysicsObjectDrawer(Fhysics fhysics) {
-        setTitle("Falling Sand");
-        setSize(1440, 720);
+        setTitle("Fhysics");
+
+        setWindowSize();
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        fhysicsPanel = new FhysicsPanel(fhysics);
+        double zoom = calculateZoom();
+        fhysicsPanel = new FhysicsPanel(fhysics, zoom);
         add(fhysicsPanel);
 
         addMouseWheelListener(new MouseWheelListener(fhysicsPanel));
 
         setLocationRelativeTo(null); // center the frame on the screen
         setVisible(true);
+    }
+
+    private void setWindowSize() {
+        Insets insets = new Insets(31, 8, 8, 8); // these will be the values
+        Border border = Fhysics.BORDER;
+        double borderWidth = border.rightBorder() - border.leftBorder();
+        double borderHeight = border.topBorder() - border.bottomBorder();
+
+        double ratio = borderHeight / borderWidth;
+        final int widowWidth = 1440;
+        setSize(widowWidth, (int) (widowWidth * ratio + insets.top));
+    }
+
+    private double calculateZoom() {
+        Border border = Fhysics.BORDER;
+        double borderWidth = border.rightBorder() - border.leftBorder();
+        int windowWidth = getWidth() - (8 + 8); // -(insets.left[8] + insets.right[8])
+        return windowWidth / borderWidth;
     }
 
     public void repaintObjects() {
@@ -40,10 +62,10 @@ class FhysicsPanel extends JPanel {
 
     private double zoom;
 
-    public FhysicsPanel(Fhysics fhysics) {
+    public FhysicsPanel(Fhysics fhysics, double zoom) {
         this.fhysics = fhysics;
         Color backgroundColor = Color.decode("#010409");
-        this.zoom = 3;
+        this.zoom = zoom;
         setBackground(backgroundColor);
     }
 
@@ -59,6 +81,20 @@ class FhysicsPanel extends JPanel {
         for(FhysicsObject object : fhysics.getFhysicsObjects()) {
             drawObject(object, g);
         }
+        drawBorder(g);
+    }
+
+    private void drawBorder(Graphics g) {
+        Border border = Fhysics.BORDER;
+        Insets insets = getInsets();
+
+        int x = transformX(border.leftBorder(), insets);
+        int y = transformY(border.topBorder(), insets);
+        int width = (int) ((border.rightBorder() - border.leftBorder()) * zoom);
+        int height = (int) ((border.topBorder() - border.bottomBorder()) * zoom);
+
+        g.setColor(Color.white);
+        g.drawRect(x, y, width, height);
     }
 
     private void drawObject(FhysicsObject object, Graphics g) {
@@ -66,20 +102,20 @@ class FhysicsPanel extends JPanel {
             drawBox((de.officeryoda.fhysics.objects.Box) object, g);
         } else if(object instanceof Circle) {
             drawCircle((Circle) object, g);
-        } // Add more cases for other FhysicsObject types if needed
+        }
     }
 
     private void drawBox(Box box, Graphics g) {
-        Vector2 pos = transformPosition(box.getPosition());
-        g.fillRect((int) pos.getX(), (int) pos.getY(),
+        Vector2Int pos = transformPosition(box.getPosition());
+        g.fillRect(pos.getX(), pos.getY(),
                 (int) box.getWidth(), (int) box.getHeight());
     }
 
     private void drawCircle(Circle circle, Graphics g) {
-        Vector2 pos = transformPosition(circle.getPosition());
-        double radius = circle.getRadius() * zoom;
-        int diameter = (int) (2 * radius);
-        g.fillOval((int) (pos.getX() - radius), (int) (pos.getY() - radius),
+        Vector2Int pos = transformPosition(circle.getPosition());
+        int radius = (int) (circle.getRadius() * zoom);
+        int diameter = 2 * radius;
+        g.fillOval(pos.getX() - radius, pos.getY() - radius,
                 diameter, diameter);
     }
 
@@ -91,15 +127,22 @@ class FhysicsPanel extends JPanel {
      * @param pos the original position
      * @return the transformed position
      */
-    private Vector2 transformPosition(Vector2 pos) {
+    private Vector2Int transformPosition(Vector2 pos) {
         Insets insets = getInsets();
-        double newX = pos.getX() * zoom + insets.left;
-        double newY = getHeight() - insets.bottom - (pos.getY() * zoom);
-        return new Vector2(newX, newY);
+        int newX = transformX(pos.getX(), insets);
+        int newY = transformY(pos.getY(), insets);
+        return new Vector2Int(newX, newY);
     }
 
+    private int transformX(double x, Insets insets) {
+        return (int) (x * zoom + insets.left);
+    }
+
+    private int transformY(double y, Insets insets) {
+        return (int) (getHeight() - insets.bottom - (y * zoom));
+    }
 
     public void onMouseWheel(int dir) {
-        zoom += dir * -0.1;
+        zoom += dir * -0.01;
     }
 }
