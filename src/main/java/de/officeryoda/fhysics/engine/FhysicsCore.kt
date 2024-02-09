@@ -14,7 +14,7 @@ class FhysicsCore {
     var drawer: FhysicsObjectDrawer? = null
 
     init {
-        for (i in 0..49) {
+        for (i in 1..10) {
             fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
         }
     }
@@ -32,7 +32,7 @@ class FhysicsCore {
     private fun update() {
         val updatesIntervalSeconds = 1.0 / updatesPerSecond
         fhysicsObjects.forEach(Consumer<Circle> { obj: Circle ->
-            obj.applyGravity(updatesIntervalSeconds, Vector2.zero())
+            obj.applyGravity(updatesIntervalSeconds, Vector2.ZERO)
 //                        obj.applyGravity(updatesIntervalSeconds, gravity)
             checkBorderCollision(obj)
             checkObjectCollision(obj)

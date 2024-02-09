@@ -12,7 +12,7 @@ object FhysicsObjectFactory {
         val pos = randomPosInsideBounds(radius)
         val circle = Circle(pos, radius)
 
-        circle.velocity = randomVector2(-200.0, 200.0)
+        circle.velocity.set(randomVector2(-200.0, 200.0))
 
         return circle
     }

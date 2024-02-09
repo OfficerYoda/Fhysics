@@ -1,164 +1,63 @@
 package de.officeryoda.fhysics.engine
 
-import lombok.Data
+import lombok.ToString
 import kotlin.math.sqrt
+import kotlin.time.times
 
 /**
- * A class representing a 2D vector with int precision.
- * This class provides basic operations for vector manipulation.
+ * A 2D vector class providing basic vector operations.
+ *
+ * @property x The x-coordinate of the Vector2Int.
+ * @property y The y-coordinate of the Vector2Int.
  */
-@Data
+@ToString
 class Vector2Int
-/**
- * Constructs a Vector2Int with default values (0, 0).
- */ @JvmOverloads constructor(
-    /**
-     * The x-component of the vector.
-     */
-    var x: Int = 0,
-    /**
-     * The y-component of the vector.
-     */
-    var y: Int = 0
+@JvmOverloads constructor(
+    var x: Int = 0, var y: Int = 0
 ) {
     /**
-     * Constructs a new Vector2Int with specified x and y components.
+     * Calculates the dot product of this Vector2Int with another Vector2Int.
      *
-     * @param x The x-component of the vector.
-     * @param y The y-component of the vector.
+     * @param other The other Vector2Int.
+     * @return The dot product of the two Vector2Int instances.
      */
-
-    /**
-     * Sets the x and y components of the vector.
-     *
-     * @param x The new x-component.
-     * @param y The new y-component.
-     */
-    fun set(x: Int, y: Int) {
-        this.x = x
-        this.y = y
+    fun dot(other: Vector2Int): Int {
+        return this.x * other.x + this.y * other.y
     }
 
     /**
-     * Sets the components of the vector based on another Vector2Int.
+     * Calculates the magnitude (length) of the Vector2Int.
      *
-     * @param vec2 The Vector2Int to copy components from.
-     */
-    fun set(vec2: Vector2Int) {
-        this.x = vec2.x
-        this.y = vec2.y
-    }
-
-    /**
-     * Adds another Vector2Int to this vector.
-     *
-     * @param other The Vector2Int to be added.
-     * @return The updated Vector2Int after addition.
-     */
-    fun add(other: Vector2Int): Vector2Int {
-        this.x += other.x
-        this.y += other.y
-        return this
-    }
-
-    /**
-     * Creates a new Vector2Int by adding another Vector2Int to this vector.
-     *
-     * @param other The Vector2Int to be added.
-     * @return A new Vector2Int representing the sum of the two vectors.
-     */
-    fun addNew(other: Vector2Int): Vector2Int {
-        return Vector2Int(this.x + other.x, this.y + other.y)
-    }
-
-    /**
-     * Subtracts another Vector2Int from this vector.
-     *
-     * @param other The Vector2Int to be subtracted.
-     * @return The updated Vector2Int after subtraction.
-     */
-    fun subtract(other: Vector2Int): Vector2Int {
-        this.x -= other.x
-        this.y -= other.y
-        return this
-    }
-
-    /**
-     * Creates a new Vector2Int by subtracting another Vector2Int from this vector.
-     *
-     * @param other The Vector2Int to be subtracted.
-     * @return A new Vector2Int representing the difference of the two vectors.
-     */
-    fun subtractNew(other: Vector2Int): Vector2Int {
-        return Vector2Int(this.x - other.x, this.y - other.y)
-    }
-
-    /**
-     * Multiplies the vector by a scalar.
-     *
-     * @param scalar The scalar value for multiplication.
-     * @return The updated Vector2Int after multiplication.
-     */
-    fun multiply(scalar: Int): Vector2Int {
-        this.x *= scalar
-        this.y *= scalar
-        return this
-    }
-
-    /**
-     * Creates a new Vector2Int by multiplying the vector by a scalar.
-     *
-     * @param scalar The scalar value for multiplication.
-     * @return A new Vector2Int representing the result of the multiplication.
-     */
-    fun multiplyNew(scalar: Int): Vector2Int {
-        return Vector2Int(this.x * scalar, this.y * scalar)
-    }
-
-    /**
-     * Calculates the magnitude (length) of the vector.
-     *
-     * @return The magnitude of the vector.
+     * @return The magnitude of the Vector2Int.
      */
     fun magnitude(): Double {
         return sqrt(sqrMagnitude().toDouble())
     }
 
     /**
-     * Calculates the dot product of this vector and another Vector2.
+     * Calculates the squared magnitude (length) of the Vector2Int.
      *
-     * @param other The Vector2Int to calculate the dot product with.
-     * @return The dot product of the two vectors.
-     */
-    fun dot(other: Vector2Int): Double {
-        return (x * other.x + this.y * other.y).toDouble()
-    }
-
-    /**
-     * Calculates the squared magnitude of the vector.
-     *
-     * @return The squared magnitude of the vector.
+     * @return The squared magnitude of the Vector2Int.
      */
     fun sqrMagnitude(): Int {
         return x * x + y * y
     }
 
     /**
-     * Calculates the Euclidean distance between this vector and another Vector2.
+     * Calculates the Euclidean distance between this Vector2Int and another Vector2Int.
      *
-     * @param other The Vector2 to calculate the distance to.
-     * @return The Euclidean distance between this vector and the specified Vector2.
+     * @param other The other Vector2Int.
+     * @return The distance between the two Vector2Int instances.
      */
     fun distance(other: Vector2Int): Double {
         return sqrt(sqrDistance(other).toDouble())
     }
 
     /**
-     * Calculates the squared Euclidean distance between this vector and another Vector2.
-     * This method is computationally less expensive than distance() as it avoids the square root operation.
+     * Calculates the squared Euclidean distance between this Vector2Int and another Vector2Int.
      *
-     * @param other The Vector2 to calculate the squared distance to.
-     * @return The squared Euclidean distance between this vector and the specified Vector2.
+     * @param other The other Vector2Int.
+     * @return The squared distance between the two Vector2Int instances.
      */
     fun sqrDistance(other: Vector2Int): Int {
         val dx = this.x - other.x
@@ -166,14 +65,112 @@ class Vector2Int
         return dx * dx + dy * dy
     }
 
+    /**
+     * Sets the components of this Vector2Int to be equal to another Vector2.
+     *
+     * @param other The Vector2Int whose components will be copied.
+     */
+    fun set(other: Vector2Int) {
+        this.x = other.x
+        this.y = other.y
+    }
+
+    /**
+     * Adds another Vector2Int to this Vector2Int.
+     *
+     * @param other The Vector2Int to add.
+     * @return The result of the addition.
+     */
+    operator fun plus(other: Vector2Int): Vector2Int {
+        return Vector2Int(this.x + other.x, this.y + other.y)
+    }
+
+    /**
+     * Subtracts another Vector2Int from this Vector2Int.
+     *
+     * @param other The Vector2Int to subtract.
+     * @return The result of the subtraction.
+     */
+    operator fun minus(other: Vector2Int): Vector2Int {
+        return Vector2Int(this.x - other.x, this.y - other.y)
+    }
+
+    /**
+     * Multiplies the Vector2Int by a scalar.
+     *
+     * @param scalar The scalar value.
+     * @return The result of the multiplication.
+     */
+    operator fun times(scalar: Double): Vector2Int {
+        return Vector2Int((this.x * scalar).toInt(), (this.y * scalar).toInt())
+    }
+
+    /**
+     * Divides the Vector2Int by a scalar.
+     *
+     * @param scalar The scalar value.
+     * @return The result of the division.
+     * @throws IllegalArgumentException if division by zero is attempted.
+     */
+    operator fun div(scalar: Double): Vector2Int {
+        if (scalar == 0.0) {
+            throw IllegalArgumentException("Division by zero")
+        }
+        return Vector2Int((this.x / scalar).toInt(), (this.y / scalar).toInt())
+    }
+
+    /**
+     * Adds another Vector2Int to this Vector2Int in-place.
+     *
+     * @param other The Vector2Int to add.
+     */
+    operator fun plusAssign(other: Vector2Int) {
+        this.x += other.x
+        this.y += other.y
+    }
+
+    /**
+     * Subtracts another Vector2Int from this Vector2Int in-place.
+     *
+     * @param other The Vector2Int to subtract.
+     */
+    operator fun minusAssign(other: Vector2Int) {
+        this.x -= other.x
+        this.y -= other.y
+    }
+
+    /**
+     * Multiplies the Vector2Int by a scalar in-place.
+     *
+     * @param scalar The scalar value.
+     */
+    operator fun timesAssign(scalar: Double) {
+        this.x = this.x.times(scalar).toInt()
+        this.y = this.y.times(scalar).toInt()
+    }
+
+    /**
+     * Divides the Vector2Int by a scalar in-place.
+     *
+     * @param scalar The scalar value.
+     * @throws IllegalArgumentException if division by zero is attempted.
+     */
+    operator fun divAssign(scalar: Double) {
+        this.x = this.x.div(scalar).toInt()
+        this.y = this.y.div(scalar).toInt()
+    }
+
+    /**
+     * Companion object providing utility functions for Vector2Int.
+     */
     companion object {
         /**
-         * Gets a constant Vector2Int with components (0, 0).
+         * Creates a Vector2Int with both components set to zero.
          *
-         * @return A Vector2Int with components (0, 0).
+         * @return The zero Vector2.
          */
-        fun zero(): Vector2Int {
-            return Vector2Int(0, 0)
-        }
+        @JvmStatic
+        val ZERO: Vector2Int
+            get() = Vector2Int(0, 0)
     }
 }
