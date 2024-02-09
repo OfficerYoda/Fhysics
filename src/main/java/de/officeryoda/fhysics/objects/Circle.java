@@ -11,7 +11,7 @@ public class Circle extends FhysicsObject {
     private final double radius;
 
     public Circle(Vector2 position, double radius) {
-        super(position);
+        super(position, Math.PI * radius * radius); // treat area as mass
         this.radius = radius;
     }
 }

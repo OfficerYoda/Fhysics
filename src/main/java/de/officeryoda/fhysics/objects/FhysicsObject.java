@@ -13,15 +13,18 @@ public abstract class FhysicsObject {
     private Vector2 velocity;
     private Vector2 acceleration;
 
-    protected FhysicsObject(Vector2 position) {
+    private double mass;
+
+    protected FhysicsObject(Vector2 position, double mass) {
         this.id = FhysicsCore.nextId();
         this.position = position;
         this.velocity = Vector2.zero();
         this.acceleration = Vector2.zero();
+        this.mass = mass;
     }
 
     protected FhysicsObject() {
-        this(Vector2.zero());
+        this(Vector2.zero(), 1);
     }
 
     public void applyGravity(double dt, Vector2 gravity) {
