@@ -27,7 +27,7 @@ public class Fhysics {
         fhysicsObjects.add(new Circle(new Vector2(50, 500), 50));
         fhysicsObjects.add(new Circle(new Vector2(50, 500), 25));
         fhysicsObjects.add(new Circle(new Vector2(100, 200), 15));
-        fhysicsObjects.add(new Circle(new Vector2(600, 500), 20));
+        fhysicsObjects.add(new Circle(new Vector2(720, 360), 10));
 //        fhysicsObjects.add(new Box(new Vector2(300, 400), 50, 100));
 //        fhysicsObjects.add(new Box(new Vector2(300, 31), 50, 100));
     }
@@ -54,7 +54,7 @@ public class Fhysics {
             }
             checkBottomCollision(obj);
         });
-        drawer.repaint();
+        drawer.repaintObjects();
     }
 
     private void checkBottomCollision(Circle circle) {

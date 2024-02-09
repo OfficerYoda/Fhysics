@@ -11,8 +11,6 @@ import java.awt.*;
 
 public class FhysicsObjectDrawer extends JFrame {
 
-    public final static int TITLE_BAR_HEIGHT = 40;
-
     private final FhysicsPanel fhysicsPanel;
 
     public FhysicsObjectDrawer(Fhysics fhysics) {
@@ -24,9 +22,12 @@ public class FhysicsObjectDrawer extends JFrame {
         fhysicsPanel = new FhysicsPanel(fhysics);
         add(fhysicsPanel);
 
+        addMouseWheelListener(new MouseWheelListener(fhysicsPanel));
+
         setLocationRelativeTo(null); // center the frame on the screen
         setVisible(true);
     }
+
     public void repaintObjects() {
         fhysicsPanel.repaint();
     }
@@ -37,9 +38,12 @@ class FhysicsPanel extends JPanel {
     private final Color objectColor = Color.decode("#2f2f30");
     private final Fhysics fhysics;
 
+    private double zoom;
+
     public FhysicsPanel(Fhysics fhysics) {
         this.fhysics = fhysics;
         Color backgroundColor = Color.decode("#010409");
+        this.zoom = 3;
         setBackground(backgroundColor);
     }
 
@@ -73,24 +77,29 @@ class FhysicsPanel extends JPanel {
 
     private void drawCircle(Circle circle, Graphics g) {
         Vector2 pos = transformPosition(circle.getPosition());
-        double radius = circle.getRadius();
-        double diameter = 2 * radius;
+        double radius = circle.getRadius() * zoom;
+        int diameter = (int) (2 * radius);
         g.fillOval((int) (pos.getX() - radius), (int) (pos.getY() - radius),
-                (int) diameter, (int) diameter);
+                diameter, diameter);
     }
 
     /**
      * Transforms the position to make objects with y-pos 0
      * appear at the bottom of the window instead of at the top.
-     * Takes into account the window's height, top insets, and left insets.
+     * Takes into account the window's height, top insets, left insets, and zoom factor.
      *
      * @param pos the original position
      * @return the transformed position
      */
     private Vector2 transformPosition(Vector2 pos) {
         Insets insets = getInsets();
-        double newX = pos.getX() + insets.left;
-        double newY = getHeight() - insets.bottom - pos.getY();
+        double newX = pos.getX() * zoom + insets.left;
+        double newY = getHeight() - insets.bottom - (pos.getY() * zoom);
         return new Vector2(newX, newY);
+    }
+
+
+    public void onMouseWheel(int dir) {
+        zoom += dir * -0.1;
     }
 }
