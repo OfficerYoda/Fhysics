@@ -46,6 +46,27 @@ public class Vector2Int {
     }
 
     /**
+     * Sets the x and y components of the vector.
+     *
+     * @param x The new x-component.
+     * @param y The new y-component.
+     */
+    public void set(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * Sets the components of the vector based on another Vector2Int.
+     *
+     * @param vec2 The Vector2Int to copy components from.
+     */
+    public void set(Vector2Int vec2) {
+        this.x = vec2.x;
+        this.y = vec2.y;
+    }
+
+    /**
      * Adds another Vector2Int to this vector.
      *
      * @param other The Vector2Int to be added.
@@ -125,28 +146,30 @@ public class Vector2Int {
      *
      * @return The squared magnitude of the vector.
      */
-    public double sqrMagnitude() {
+    public int sqrMagnitude() {
         return x * x + y * y;
     }
 
     /**
-     * Sets the x and y components of the vector.
+     * Calculates the Euclidean distance between this vector and another Vector2.
      *
-     * @param x The new x-component.
-     * @param y The new y-component.
+     * @param other The Vector2 to calculate the distance to.
+     * @return The Euclidean distance between this vector and the specified Vector2.
      */
-    public void set(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public double distance(Vector2Int other) {
+        return Math.sqrt(sqrDistance(other));
     }
 
     /**
-     * Sets the components of the vector based on another Vector2Int.
+     * Calculates the squared Euclidean distance between this vector and another Vector2.
+     * This method is computationally less expensive than distance() as it avoids the square root operation.
      *
-     * @param vec2 The Vector2Int to copy components from.
+     * @param other The Vector2 to calculate the squared distance to.
+     * @return The squared Euclidean distance between this vector and the specified Vector2.
      */
-    public void set(Vector2Int vec2) {
-        this.x = vec2.x;
-        this.y = vec2.y;
+    public int sqrDistance(Vector2Int other) {
+        int dx = this.x - other.x;
+        int dy = this.y - other.y;
+        return dx * dx + dy * dy;
     }
 }

@@ -46,6 +46,16 @@ public class Vector2 {
     }
 
     /**
+     * Sets the components of the vector based on another Vector2.
+     *
+     * @param vec2 The Vector2 to copy components from.
+     */
+    public void set(Vector2 vec2) {
+        this.x = vec2.x;
+        this.y = vec2.y;
+    }
+
+    /**
      * Adds another Vector2 to this vector.
      *
      * @param other The Vector2 to be added.
@@ -141,12 +151,25 @@ public class Vector2 {
     }
 
     /**
-     * Sets the components of the vector based on another Vector2.
+     * Calculates the Euclidean distance between this vector and another Vector2.
      *
-     * @param vec2 The Vector2 to copy components from.
+     * @param other The Vector2 to calculate the distance to.
+     * @return The Euclidean distance between this vector and the specified Vector2.
      */
-    public void set(Vector2 vec2) {
-        this.x = vec2.x;
-        this.y = vec2.y;
+    public double distance(Vector2 other) {
+        return Math.sqrt(sqrDistance(other));
+    }
+
+    /**
+     * Calculates the squared Euclidean distance between this vector and another Vector2.
+     * This method is computationally less expensive than distance() as it avoids the square root operation.
+     *
+     * @param other The Vector2 to calculate the squared distance to.
+     * @return The squared Euclidean distance between this vector and the specified Vector2.
+     */
+    public double sqrDistance(Vector2 other) {
+        double dx = this.x - other.x;
+        double dy = this.y - other.y;
+        return dx * dx + dy * dy;
     }
 }

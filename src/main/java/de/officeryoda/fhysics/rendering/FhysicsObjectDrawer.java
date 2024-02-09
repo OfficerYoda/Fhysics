@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.rendering;
 
 import de.officeryoda.fhysics.engine.Border;
-import de.officeryoda.fhysics.engine.Fhysics;
+import de.officeryoda.fhysics.engine.FhysicsCore;
 import de.officeryoda.fhysics.engine.Vector2;
 import de.officeryoda.fhysics.engine.Vector2Int;
 import de.officeryoda.fhysics.objects.Box;
@@ -15,7 +15,7 @@ public class FhysicsObjectDrawer extends JFrame {
 
     private final FhysicsPanel fhysicsPanel;
 
-    public FhysicsObjectDrawer(Fhysics fhysics) {
+    public FhysicsObjectDrawer(FhysicsCore fhysics) {
         setTitle("Fhysics");
 
         setWindowSize();
@@ -34,7 +34,7 @@ public class FhysicsObjectDrawer extends JFrame {
 
     private void setWindowSize() {
         Insets insets = new Insets(31, 8, 8, 8); // these will be the values
-        Border border = Fhysics.BORDER;
+        Border border = FhysicsCore.BORDER;
         double borderWidth = border.rightBorder() - border.leftBorder();
         double borderHeight = border.topBorder() - border.bottomBorder();
 
@@ -44,7 +44,7 @@ public class FhysicsObjectDrawer extends JFrame {
     }
 
     private double calculateZoom() {
-        Border border = Fhysics.BORDER;
+        Border border = FhysicsCore.BORDER;
         double borderWidth = border.rightBorder() - border.leftBorder();
         int windowWidth = getWidth() - (8 + 8); // -(insets.left[8] + insets.right[8])
         return windowWidth / borderWidth;
@@ -58,11 +58,11 @@ public class FhysicsObjectDrawer extends JFrame {
 class FhysicsPanel extends JPanel {
 
     private final Color objectColor = Color.decode("#2f2f30");
-    private final Fhysics fhysics;
+    private final FhysicsCore fhysics;
 
     private double zoom;
 
-    public FhysicsPanel(Fhysics fhysics, double zoom) {
+    public FhysicsPanel(FhysicsCore fhysics, double zoom) {
         this.fhysics = fhysics;
         Color backgroundColor = Color.decode("#010409");
         this.zoom = zoom;
@@ -85,7 +85,7 @@ class FhysicsPanel extends JPanel {
     }
 
     private void drawBorder(Graphics g) {
-        Border border = Fhysics.BORDER;
+        Border border = FhysicsCore.BORDER;
         Insets insets = getInsets();
 
         int x = transformX(border.leftBorder(), insets);

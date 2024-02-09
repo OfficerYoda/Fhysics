@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Fhysics {
+public class FhysicsCore {
 
     public static final Border BORDER = new Border(0, 600, 0, 400);
 
@@ -22,7 +22,7 @@ public class Fhysics {
     @Setter
     private FhysicsObjectDrawer drawer;
 
-    public Fhysics() {
+    public FhysicsCore() {
         this.fhysicsObjects = new ArrayList<>();
 
         fhysicsObjects.add(new Circle(new Vector2(50, 305), 5));
@@ -50,8 +50,16 @@ public class Fhysics {
         fhysicsObjects.forEach(obj -> {
             obj.applyGravity(updatesIntervalSeconds, gravity);
             checkBorderCollision(obj);
+            checkObjectCollision(obj);
         });
         drawer.repaintObjects();
+    }
+
+    private void checkObjectCollision(Circle obj1) {
+        fhysicsObjects.forEach(obj2 -> {
+            if(obj1.equals(obj2)) return;
+            CollisionHandler.handleCollision(obj1, obj2);
+        });
     }
 
     private void checkBorderCollision(Circle circle) {
