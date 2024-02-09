@@ -142,6 +142,16 @@ public class Vector2Int {
     }
 
     /**
+     * Calculates the dot product of this vector and another Vector2.
+     *
+     * @param other The Vector2Int to calculate the dot product with.
+     * @return The dot product of the two vectors.
+     */
+    public double dot(Vector2Int other) {
+        return this.x * other.x + this.y * other.y;
+    }
+
+    /**
      * Calculates the squared magnitude of the vector.
      *
      * @return The squared magnitude of the vector.

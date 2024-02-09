@@ -4,7 +4,7 @@ import de.officeryoda.fhysics.engine.Vector2;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class Box extends FhysicsObject{
 

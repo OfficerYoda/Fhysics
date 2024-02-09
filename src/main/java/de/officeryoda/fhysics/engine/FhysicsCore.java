@@ -13,7 +13,7 @@ import java.util.TimerTask;
 public class FhysicsCore {
 
     public static final Border BORDER = new Border(0, 600, 0, 400);
-
+    private static int objectCount;
     @Getter
     private final List<Circle> fhysicsObjects;
     private final Vector2 gravity = new Vector2(0, -9.81);
@@ -25,12 +25,21 @@ public class FhysicsCore {
     public FhysicsCore() {
         this.fhysicsObjects = new ArrayList<>();
 
+        fhysicsObjects.add(new Circle(new Vector2(50, 200), 20));
+        fhysicsObjects.add(new Circle(new Vector2(400, 190), 20));
+
         fhysicsObjects.add(new Circle(new Vector2(50, 305), 5));
         fhysicsObjects.add(new Circle(new Vector2(250, 150), 12));
         fhysicsObjects.add(new Circle(new Vector2(100, 200), 15));
         fhysicsObjects.add(new Circle(new Vector2(500, 360), 10));
 //        fhysicsObjects.add(new Box(new Vector2(300, 400), 50, 100));
 //        fhysicsObjects.add(new Box(new Vector2(300, 31), 50, 100));
+
+        fhysicsObjects.getFirst().setVelocity(new Vector2(200, 0));
+    }
+
+    public static int nextId() {
+        return objectCount++;
     }
 
     public void startUpdateLoop() {
@@ -48,7 +57,8 @@ public class FhysicsCore {
 
     private void update() {
         fhysicsObjects.forEach(obj -> {
-            obj.applyGravity(updatesIntervalSeconds, gravity);
+//            obj.applyGravity(updatesIntervalSeconds, gravity);
+            obj.applyGravity(updatesIntervalSeconds, Vector2.zero());
             checkBorderCollision(obj);
             checkObjectCollision(obj);
         });
@@ -57,8 +67,8 @@ public class FhysicsCore {
 
     private void checkObjectCollision(Circle obj1) {
         fhysicsObjects.forEach(obj2 -> {
-            if(obj1.equals(obj2)) return;
-            CollisionHandler.handleCollision(obj1, obj2);
+            if(obj1.getId() == obj2.getId()) return;
+            CollisionHandler.handleElasticCollision(obj1, obj2);
         });
     }
 
@@ -69,13 +79,14 @@ public class FhysicsCore {
 
         // check top/bottom border
         if(pos.getY() + radius > BORDER.topBorder()) {
-            velocity.set(Vector2.zero());
+            velocity.setY(-velocity.getY());
+//            velocity.set(Vector2.zero());
             pos.setY(BORDER.topBorder() - radius);
-            velocity.setX(Math.random() * 400 - 200);
+//            velocity.setX(Math.random() * 400 - 200);
         } else if(pos.getY() - radius < BORDER.bottomBorder()) {
             velocity.setY(-velocity.getY());
             pos.setY(BORDER.bottomBorder() + radius);
-            velocity.setX(Math.random() * 400 - 200);
+//            velocity.setX(Math.random() * 400 - 200);
         }
 
         // check left/right border
