@@ -1,16 +1,20 @@
 package de.officeryoda.fhysics.objects;
 
+import de.officeryoda.fhysics.engine.FhysicsCore;
 import de.officeryoda.fhysics.engine.Vector2;
 import lombok.Data;
 
 @Data
 public abstract class FhysicsObject {
 
+    private final int id;
+
     private Vector2 position;
     private Vector2 velocity;
     private Vector2 acceleration;
 
     protected FhysicsObject(Vector2 position) {
+        this.id = FhysicsCore.nextId();
         this.position = position;
         this.velocity = Vector2.zero();
         this.acceleration = Vector2.zero();

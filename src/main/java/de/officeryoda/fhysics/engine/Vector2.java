@@ -131,6 +131,30 @@ public class Vector2 {
     }
 
     /**
+     * Normalizes the vector, making it a unit vector (magnitude = 1).
+     *
+     * @return The normalized Vector2.
+     */
+    public Vector2 normalize() {
+        double magnitude = magnitude();
+        if (magnitude != 0) {
+            this.x /= magnitude;
+            this.y /= magnitude;
+        }
+        return this;
+    }
+
+    /**
+     * Calculates the dot product of this vector and another Vector2.
+     *
+     * @param other The Vector2 to calculate the dot product with.
+     * @return The dot product of the two vectors.
+     */
+    public double dot(Vector2 other) {
+        return this.x * other.x + this.y * other.y;
+    }
+
+    /**
      * Calculates the squared magnitude of the vector.
      *
      * @return The squared magnitude of the vector.
