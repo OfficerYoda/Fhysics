@@ -19,7 +19,7 @@ class Vector2
      *
      * @return The normalized Vector2.
      */
-    fun normalize(): Vector2 {
+    fun normalized(): Vector2 {
         val magnitude = magnitude()
         if (magnitude != 0.0) {
             this.x /= magnitude

@@ -6,7 +6,7 @@ import kotlin.math.sqrt
 
 object CollisionHandler {
     fun handleElasticCollision(obj1: Circle, obj2: Circle) {
-        val sqrDst = obj1.position.sqrDistance(obj2.position)
+        val sqrDst: Double = obj1.position.sqrDistance(obj2.position)
         val sqrRadii: Double = (obj1.radius + obj2.radius).pow(2.0)
 
         if (sqrDst < sqrRadii) {
@@ -17,7 +17,7 @@ object CollisionHandler {
 
             // Calculate the normal vector along the line of collision
             // a vector from obj1 in direction of obj2, normalized
-            val collisionNormal = (obj2.position - obj1.position).normalize()
+            val collisionNormal = (obj2.position - obj1.position).normalized()
 
             // Calculate relative velocity along the normal direction
             val relativeVelocityAlongNormal = relativeVelocity.dot(collisionNormal)
@@ -28,7 +28,7 @@ object CollisionHandler {
             // Apply impulse to update velocities
             val restitution = 1.0
             obj1.velocity += collisionNormal * (impulse * obj2.mass * restitution)
-            obj2.velocity -= collisionNormal * (impulse * obj2.mass * restitution)
+            obj2.velocity -= collisionNormal * (impulse * obj1.mass * restitution)
         }
     }
 
@@ -36,7 +36,7 @@ object CollisionHandler {
         // Calculate overlap distance
         val overlap = sqrt(sqrRadii) - sqrt(sqrDst)
 
-        val collisionNormal = (obj2.position - obj1.position).normalize()
+        val collisionNormal = (obj2.position - obj1.position).normalized()
         val moveAmount = collisionNormal * (overlap * 0.5)
 
         // Move circles apart along the collision normal

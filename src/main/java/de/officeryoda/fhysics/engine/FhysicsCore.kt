@@ -14,7 +14,7 @@ class FhysicsCore {
     var drawer: FhysicsObjectDrawer? = null
 
     init {
-        for (i in 1..10) {
+        for (i in 1..65) {
             fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
         }
     }
