@@ -34,13 +34,13 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
     }
 
     private fun setWindowSize() {
-        val insets: Insets = Insets(31, 8, 8, 8) // these will be the values
+        val insets = Insets(31, 8, 8, 8) // these will be the values
         val border: Border = FhysicsCore.BORDER
         val borderWidth: Double = border.rightBorder - border.leftBorder
         val borderHeight: Double = border.topBorder - border.bottomBorder
 
         val ratio: Double = borderHeight / borderWidth
-        val widowWidth: Int = 1440
+        val widowWidth = 1440
         setSize(widowWidth, (widowWidth * ratio + insets.top).toInt())
     }
 
@@ -94,11 +94,12 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         g.drawRect(x, y, width, height)
     }
 
-    private fun drawObject(`object`: FhysicsObject, g: Graphics) {
-        if (`object` is Box) {
-            drawBox(`object`, g)
-        } else if (`object` is Circle) {
-            drawCircle(`object`, g)
+    private fun drawObject(obj: FhysicsObject, g: Graphics) {
+        g.color = obj.color
+        if (obj is Box) {
+            drawBox(obj, g)
+        } else if (obj is Circle) {
+            drawCircle(obj, g)
         }
     }
 

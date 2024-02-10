@@ -14,7 +14,7 @@ class FhysicsCore {
 
     val fhysicsObjects: MutableList<Circle> = ArrayList()
     private val gravity: Vector2 = Vector2(0.0, -9.81)
-    private val updatesPerSecond: Int = 500
+    private val updatesPerSecond: Int = 480
 
 
     private var updateCount = 0
