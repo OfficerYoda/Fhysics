@@ -7,6 +7,9 @@ import java.util.*
 import java.util.function.Consumer
 
 class FhysicsCore {
+
+    private val collisionHandler: CollisionHandler = MinimizeOverlap;
+
     val fhysicsObjects: MutableList<Circle> = ArrayList()
     private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val updatesPerSecond: Int = 500
@@ -48,7 +51,7 @@ class FhysicsCore {
     private fun checkObjectCollision(obj1: Circle) {
         fhysicsObjects.stream().forEach(Consumer { obj2: Circle ->
             if (obj1.id == obj2.id) return@Consumer
-            CollisionHandler.handleElasticCollision(obj1, obj2)
+            collisionHandler.handleCollision(obj1, obj2)
         })
     }
 
