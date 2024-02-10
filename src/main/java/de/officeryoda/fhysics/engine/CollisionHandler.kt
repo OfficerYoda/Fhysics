@@ -13,20 +13,20 @@ object CollisionHandler {
             separateOverlappingCircles(obj1, obj2, sqrRadii, sqrDst)
 
             // Calculate relative velocity before collision; obj2 doesn't move relatively speaking
-            val relativeVelocity = obj2.velocity - obj1.velocity
+            val relativeVelocity: Vector2 = obj2.velocity - obj1.velocity
 
             // Calculate the normal vector along the line of collision
             // a vector from obj1 in direction of obj2, normalized
-            val collisionNormal = (obj2.position - obj1.position).normalized()
+            val collisionNormal: Vector2 = (obj2.position - obj1.position).normalized()
 
             // Calculate relative velocity along the normal direction
-            val relativeVelocityAlongNormal = relativeVelocity.dot(collisionNormal)
+            val relativeVelocityAlongNormal: Double = relativeVelocity.dot(collisionNormal)
 
             // Calculate impulse (change in momentum)
-            val impulse = (2.0 * relativeVelocityAlongNormal) / (obj1.mass + obj2.mass)
+            val impulse: Double = (2.0 * relativeVelocityAlongNormal) / (obj1.mass + obj2.mass)
 
             // Apply impulse to update velocities
-            val restitution = 1.0
+            val restitution: Double = 1.0
             obj1.velocity += collisionNormal * (impulse * obj2.mass * restitution)
             obj2.velocity -= collisionNormal * (impulse * obj1.mass * restitution)
         }
@@ -34,10 +34,10 @@ object CollisionHandler {
 
     private fun separateOverlappingCircles(obj1: Circle, obj2: Circle, sqrRadii: Double, sqrDst: Double) {
         // Calculate overlap distance
-        val overlap = sqrt(sqrRadii) - sqrt(sqrDst)
+        val overlap: Double = sqrt(sqrRadii) - sqrt(sqrDst)
 
-        val collisionNormal = (obj2.position - obj1.position).normalized()
-        val moveAmount = collisionNormal * (overlap * 0.5)
+        val collisionNormal: Vector2 = (obj2.position - obj1.position).normalized()
+        val moveAmount: Vector2 = collisionNormal * (overlap * 0.5)
 
         // Move circles apart along the collision normal
         obj1.position -= moveAmount

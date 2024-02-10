@@ -7,4 +7,5 @@ import lombok.ToString
 
 @EqualsAndHashCode(callSuper = true)
 @ToString
-class Circle(position: Vector2, val radius: Double) : FhysicsObject(position, Math.PI * radius * radius)
+class Circle(position: Vector2, val radius: Double) :
+    FhysicsObject(position, Math.PI * radius * radius)

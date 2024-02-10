@@ -20,7 +20,7 @@ class Vector2
      * @return The normalized Vector2.
      */
     fun normalized(): Vector2 {
-        val magnitude = magnitude()
+        val magnitude: Double = magnitude()
         if (magnitude != 0.0) {
             this.x /= magnitude
             this.y /= magnitude
@@ -73,8 +73,8 @@ class Vector2
      * @return The squared distance between the two Vector2 instances.
      */
     fun sqrDistance(other: Vector2): Double {
-        val dx = this.x - other.x
-        val dy = this.y - other.y
+        val dx: Double = this.x - other.x
+        val dy: Double = this.y - other.y
         return dx * dx + dy * dy
     }
 
@@ -126,9 +126,6 @@ class Vector2
      * @throws IllegalArgumentException if division by zero is attempted.
      */
     operator fun div(scalar: Double): Vector2 {
-        if (scalar == 0.0) {
-            throw IllegalArgumentException("Division by zero")
-        }
         return Vector2(this.x / scalar, this.y / scalar)
     }
 

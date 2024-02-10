@@ -60,8 +60,8 @@ class Vector2Int
      * @return The squared distance between the two Vector2Int instances.
      */
     fun sqrDistance(other: Vector2Int): Int {
-        val dx = this.x - other.x
-        val dy = this.y - other.y
+        val dx: Int = this.x - other.x
+        val dy: Int = this.y - other.y
         return dx * dx + dy * dy
     }
 
@@ -113,9 +113,6 @@ class Vector2Int
      * @throws IllegalArgumentException if division by zero is attempted.
      */
     operator fun div(scalar: Double): Vector2Int {
-        if (scalar == 0.0) {
-            throw IllegalArgumentException("Division by zero")
-        }
         return Vector2Int((this.x / scalar).toInt(), (this.y / scalar).toInt())
     }
 

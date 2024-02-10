@@ -13,7 +13,6 @@ abstract class FhysicsObject protected constructor(
 ) {
     val id = FhysicsCore.nextId()
 
-
     fun applyGravity(dt: Double, gravity: Vector2) {
         acceleration += gravity
         velocity += acceleration * dt

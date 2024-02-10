@@ -7,10 +7,10 @@ import javax.swing.SwingUtilities
 fun main() {
     println("Fhysics")
 
-    val fhysics = FhysicsCore()
+    val fhysics: FhysicsCore = FhysicsCore()
 
     SwingUtilities.invokeLater {
-        val drawer = FhysicsObjectDrawer(fhysics)
+        val drawer: FhysicsObjectDrawer = FhysicsObjectDrawer(fhysics)
         fhysics.drawer = drawer
         fhysics.startUpdateLoop()
     }

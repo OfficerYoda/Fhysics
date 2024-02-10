@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
+import de.officeryoda.fhysics.engine.Border
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.Vector2Int
@@ -33,20 +34,20 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
     }
 
     private fun setWindowSize() {
-        val insets = Insets(31, 8, 8, 8) // these will be the values
-        val border = FhysicsCore.BORDER
-        val borderWidth = border.rightBorder - border.leftBorder
-        val borderHeight = border.topBorder - border.bottomBorder
+        val insets: Insets = Insets(31, 8, 8, 8) // these will be the values
+        val border: Border = FhysicsCore.BORDER
+        val borderWidth: Double = border.rightBorder - border.leftBorder
+        val borderHeight: Double = border.topBorder - border.bottomBorder
 
-        val ratio = borderHeight / borderWidth
-        val widowWidth = 1440
+        val ratio: Double = borderHeight / borderWidth
+        val widowWidth: Int = 1440
         setSize(widowWidth, (widowWidth * ratio + insets.top).toInt())
     }
 
     private fun calculateZoom(): Double {
-        val border = FhysicsCore.BORDER
-        val borderWidth = border.rightBorder - border.leftBorder
-        val windowWidth = width - (8 + 8) // -(insets.left[8] + insets.right[8])
+        val border: Border = FhysicsCore.BORDER
+        val borderWidth: Double = border.rightBorder - border.leftBorder
+        val windowWidth: Int = width - (8 + 8) // -(insets.left[8] + insets.right[8])
         return windowWidth / borderWidth
     }
 
@@ -61,7 +62,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     private var zoom: Double
 
     init {
-        val backgroundColor = Color.decode("#010409")
+        val backgroundColor: Color = Color.decode("#010409")
         this.zoom = zoom
         background = backgroundColor
     }
@@ -81,13 +82,13 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     private fun drawBorder(g: Graphics) {
-        val border = FhysicsCore.BORDER
-        val insets = insets
+        val border: Border = FhysicsCore.BORDER
+        val insets: Insets = insets
 
-        val x = transformX(border.leftBorder, insets)
-        val y = transformY(border.topBorder, insets)
-        val width = ((border.rightBorder - border.leftBorder) * zoom).toInt()
-        val height = ((border.topBorder - border.bottomBorder) * zoom).toInt()
+        val x: Int = transformX(border.leftBorder, insets)
+        val y: Int = transformY(border.topBorder, insets)
+        val width: Int = ((border.rightBorder - border.leftBorder) * zoom).toInt()
+        val height: Int = ((border.topBorder - border.bottomBorder) * zoom).toInt()
 
         g.color = Color.white
         g.drawRect(x, y, width, height)
@@ -102,7 +103,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     private fun drawBox(box: Box, g: Graphics) {
-        val pos = transformPosition(box.position)
+        val pos: Vector2Int = transformPosition(box.position)
         g.fillRect(
             pos.x, pos.y,
             box.width.toInt(), box.height.toInt()
@@ -110,9 +111,9 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     private fun drawCircle(circle: Circle, g: Graphics) {
-        val pos = transformPosition(circle.position)
-        val radius = (circle.radius * zoom).toInt()
-        val diameter = 2 * radius
+        val pos: Vector2Int = transformPosition(circle.position)
+        val radius: Int = (circle.radius * zoom).toInt()
+        val diameter: Int = 2 * radius
         g.fillOval(
             pos.x - radius, pos.y - radius,
             diameter, diameter
@@ -128,9 +129,9 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
      * @return the transformed position
      */
     private fun transformPosition(pos: Vector2): Vector2Int {
-        val insets = insets
-        val newX = transformX(pos.x, insets)
-        val newY = transformY(pos.y, insets)
+        val insets: Insets = insets
+        val newX: Int = transformX(pos.x, insets)
+        val newY: Int = transformY(pos.y, insets)
         return Vector2Int(newX, newY)
     }
 

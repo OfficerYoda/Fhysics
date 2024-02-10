@@ -8,8 +8,8 @@ import java.util.function.Consumer
 
 class FhysicsCore {
     val fhysicsObjects: MutableList<Circle> = ArrayList()
-    private val gravity = Vector2(0.0, -9.81)
-    private val updatesPerSecond = 500
+    private val gravity: Vector2 = Vector2(0.0, -9.81)
+    private val updatesPerSecond: Int = 500
 
     var drawer: FhysicsObjectDrawer? = null
 
@@ -20,9 +20,8 @@ class FhysicsCore {
     }
 
     fun startUpdateLoop() {
-        val updateTimer = Timer(true)
-        val updateIntervalMillis = (1f / updatesPerSecond * 1000).toInt()
-        updateTimer.scheduleAtFixedRate(object : TimerTask() {
+        val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
+        Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 update()
             }
@@ -30,7 +29,7 @@ class FhysicsCore {
     }
 
     private fun update() {
-        val updatesIntervalSeconds = 1.0 / updatesPerSecond
+        val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
         fhysicsObjects.forEach(Consumer<Circle> { obj: Circle ->
             obj.applyGravity(updatesIntervalSeconds, Vector2.ZERO)
 //                        obj.applyGravity(updatesIntervalSeconds, gravity)
@@ -48,9 +47,9 @@ class FhysicsCore {
     }
 
     private fun checkBorderCollision(circle: Circle) {
-        val pos = circle.position
-        val velocity = circle.velocity
-        val radius = circle.radius
+        val pos: Vector2 = circle.position
+        val velocity: Vector2 = circle.velocity
+        val radius: Double = circle.radius
 
         // check top/bottom border
         if (pos.y + radius > BORDER.topBorder) {
@@ -61,7 +60,7 @@ class FhysicsCore {
         } else if (pos.y - radius < BORDER.bottomBorder) {
             velocity.y = -velocity.y
             pos.y = BORDER.bottomBorder + radius
-//                        velocity.x = Math.random() * 400 - 200
+//            velocity.x = Math.random() * 400 - 200
         }
 
         // check left/right border
@@ -76,7 +75,7 @@ class FhysicsCore {
 
     companion object {
         val BORDER: Border = Border(0.0, 600.0, 0.0, 400.0)
-        private var objectCount = 0
+        private var objectCount: Int = 0
         fun nextId(): Int {
             return objectCount++
         }
