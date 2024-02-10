@@ -13,9 +13,11 @@ abstract class FhysicsObject protected constructor(
 ) {
     val id = FhysicsCore.nextId()
 
-    fun applyGravity(dt: Double, gravity: Vector2) {
+    fun update(dt: Double, gravity: Vector2) {
+        val damping: Double = 0.05
+
         acceleration += gravity
-        velocity += acceleration * dt
+        velocity += (acceleration - velocity * damping) * dt
         position += velocity * dt
 
         acceleration.set(Vector2.ZERO)

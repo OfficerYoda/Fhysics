@@ -75,7 +75,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
     private fun drawAllObjects(g: Graphics) {
         g.color = objectColor
-        for (`object` in fhysics.fhysicsObjects) {
+        for (`object` in fhysics.fhysicsObjects.toList()) {
             drawObject(`object`, g)
         }
         drawBorder(g)

@@ -18,6 +18,12 @@ object FhysicsObjectFactory {
         return circle
     }
 
+    fun customCircle(pos: Vector2, radius: Double, vel: Vector2): Circle {
+        val circle: Circle = Circle(pos, radius);
+        circle.velocity += vel
+        return circle;
+    }
+
     private fun randomPosInsideBounds(buffer: Double): Vector2 {
         val border: Border = FhysicsCore.BORDER
         val minX: Double = border.leftBorder + buffer

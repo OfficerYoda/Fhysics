@@ -1,6 +1,5 @@
 package de.officeryoda.fhysics.engine
 
-import lombok.ToString
 import kotlin.math.sqrt
 
 /**
@@ -9,7 +8,6 @@ import kotlin.math.sqrt
  * @property x The x-coordinate of the Vector2.
  * @property y The y-coordinate of the Vector2.
  */
-@ToString
 class Vector2
 @JvmOverloads constructor(
     var x: Double = 0.0, var y: Double = 0.0
@@ -168,6 +166,15 @@ class Vector2
     operator fun divAssign(scalar: Double) {
         this.x /= scalar
         this.y /= scalar
+    }
+
+    /**
+     * Returns a string representation of the Vector2.
+     *
+     * @return A string containing the values of the x and y components.
+     */
+    override fun toString(): String {
+        return "Vector2(x=$x, y=$y)"
     }
 
     /**

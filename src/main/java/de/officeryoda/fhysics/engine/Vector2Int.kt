@@ -158,6 +158,15 @@ class Vector2Int
     }
 
     /**
+     * Returns a string representation of the Vector2Int.
+     *
+     * @return A string containing the values of the x and y components.
+     */
+    override fun toString(): String {
+        return "Vector2Int(x=$x, y=$y)"
+    }
+
+    /**
      * Companion object providing utility functions for Vector2Int.
      */
     companion object {

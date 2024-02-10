@@ -30,13 +30,19 @@ class FhysicsCore {
 
     private fun update() {
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
-        fhysicsObjects.forEach(Consumer<Circle> { obj: Circle ->
-            obj.applyGravity(updatesIntervalSeconds, Vector2.ZERO)
-//                        obj.applyGravity(updatesIntervalSeconds, gravity)
+        fhysicsObjects.forEach(Consumer { obj: Circle ->
+//            obj.applyGravity(updatesIntervalSeconds, Vector2.ZERO)
+            obj.update(updatesIntervalSeconds, gravity)
             checkBorderCollision(obj)
             checkObjectCollision(obj)
         })
         drawer!!.repaintObjects()
+    }
+
+    private fun spawnObjects() {
+        val pos: Vector2 = Vector2(20.0, BORDER.topBorder - 20)
+        val vel: Vector2 = Vector2(50.0, 0.0)
+        fhysicsObjects.add(FhysicsObjectFactory.customCircle(pos, 5.0, vel))
     }
 
     private fun checkObjectCollision(obj1: Circle) {
