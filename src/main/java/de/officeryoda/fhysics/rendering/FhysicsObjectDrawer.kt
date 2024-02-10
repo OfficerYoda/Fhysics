@@ -8,10 +8,12 @@ import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import java.awt.Color
+import java.awt.Font
 import java.awt.Graphics
 import java.awt.Insets
 import javax.swing.JFrame
 import javax.swing.JPanel
+
 
 class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
     private val fhysicsPanel: FhysicsPanel
@@ -71,6 +73,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         super.paintComponent(g)
 
         drawAllObjects(g)
+        drawMSPU(g)
     }
 
     private fun drawAllObjects(g: Graphics) {
@@ -119,6 +122,16 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
             pos.x - radius, pos.y - radius,
             diameter, diameter
         )
+    }
+
+    private fun drawMSPU(g: Graphics) {
+        val mspu = fhysics.getAverageUpdateTime() // Milliseconds per Update
+        val fontSize = height / 30 // Adjust the divisor for the desired scaling
+
+        val font = Font("Spline Sans", Font.PLAIN, fontSize)
+        g.font = font
+        g.color = Color.WHITE
+        g.drawString("MSPU: $mspu", 5, 40)
     }
 
     /**

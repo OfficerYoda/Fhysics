@@ -14,10 +14,10 @@ class FhysicsCore {
 
     val fhysicsObjects: MutableList<Circle> = ArrayList()
     private val gravity: Vector2 = Vector2(0.0, -9.81)
-    private val updatesPerSecond: Int = 480
-
+    private val updatesPerSecond: Int = 240
 
     private var updateCount = 0
+    private val updateTimes = mutableListOf<Long>()
 
     var drawer: FhysicsObjectDrawer? = null
 
@@ -37,8 +37,11 @@ class FhysicsCore {
     }
 
     private fun update() {
+        val startTime: Long = System.currentTimeMillis()
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
+
         spawnObject()
+
         fhysicsObjects.forEach(Consumer { obj: Circle ->
 //            obj.applyGravity(updatesIntervalSeconds, Vector2.ZERO)
             obj.update(updatesIntervalSeconds, gravity)
@@ -46,7 +49,10 @@ class FhysicsCore {
             checkObjectCollision(obj)
         })
         drawer!!.repaintObjects()
+
         updateCount++
+
+        addUpdateTime(System.currentTimeMillis() - startTime)
     }
 
     private fun spawnObject() {
@@ -91,6 +97,20 @@ class FhysicsCore {
             velocity.x = 0.0
             pos.x = BORDER.rightBorder - radius
         }
+    }
+
+    private fun addUpdateTime(updateTime: Long) {
+        val updatesToAverage = 50
+
+        updateTimes.add(updateTime)
+
+        if (updateTimes.size > updatesToAverage) {
+            updateTimes.removeAt(0) // Remove the oldest time if more than specified updates have been recorded
+        }
+    }
+
+    fun getAverageUpdateTime(): Double {
+        return updateTimes.average()
     }
 
     companion object {
