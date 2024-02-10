@@ -1,5 +1,7 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
+import de.officeryoda.fhysics.engine.collisionhandler.MinimizeOverlap
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -8,19 +10,22 @@ import java.util.function.Consumer
 
 class FhysicsCore {
 
-    private val collisionHandler: CollisionHandler = MinimizeOverlap;
+    private val collisionHandler: CollisionHandler = MinimizeOverlap
 
     val fhysicsObjects: MutableList<Circle> = ArrayList()
     private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val updatesPerSecond: Int = 500
 
+
+    private var updateCount = 0
+
     var drawer: FhysicsObjectDrawer? = null
 
-    init {
-        for (i in 1..65) {
-            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
-        }
-    }
+//    init {
+//        for (i in 1..65) {
+//            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
+//        }
+//    }
 
     fun startUpdateLoop() {
         val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
@@ -33,6 +38,7 @@ class FhysicsCore {
 
     private fun update() {
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
+        spawnObject()
         fhysicsObjects.forEach(Consumer { obj: Circle ->
 //            obj.applyGravity(updatesIntervalSeconds, Vector2.ZERO)
             obj.update(updatesIntervalSeconds, gravity)
@@ -40,12 +46,20 @@ class FhysicsCore {
             checkObjectCollision(obj)
         })
         drawer!!.repaintObjects()
+        updateCount++
     }
 
-    private fun spawnObjects() {
-        val pos: Vector2 = Vector2(20.0, BORDER.topBorder - 20)
-        val vel: Vector2 = Vector2(50.0, 0.0)
-        fhysicsObjects.add(FhysicsObjectFactory.customCircle(pos, 5.0, vel))
+    private fun spawnObject() {
+        if (updateCount % 5 != 0) return
+
+        val spawnRows = 2
+        val radius = 0.2
+        val pos = Vector2(2.0, BORDER.topBorder - 2)
+        val yOffset = (objectCount % spawnRows) * 2 * radius
+        pos.y -= yOffset
+
+        val vel = Vector2(20.0, 0.0)
+        fhysicsObjects.add(FhysicsObjectFactory.customCircle(pos, radius, vel))
     }
 
     private fun checkObjectCollision(obj1: Circle) {
@@ -62,29 +76,28 @@ class FhysicsCore {
 
         // check top/bottom border
         if (pos.y + radius > BORDER.topBorder) {
-            velocity.y = -velocity.y
-//            velocity.set(Vector2.zero())
+            velocity.y = 0.0
             pos.y = BORDER.topBorder - radius
-//            velocity.x = Math.random() * 400 - 200
         } else if (pos.y - radius < BORDER.bottomBorder) {
-            velocity.y = -velocity.y
+            velocity.y = 0.0
             pos.y = BORDER.bottomBorder + radius
-//            velocity.x = Math.random() * 400 - 200
         }
 
         // check left/right border
         if (pos.x - radius < BORDER.leftBorder) {
-            velocity.x = -velocity.x
+            velocity.x = 0.0
             pos.x = BORDER.leftBorder + radius
         } else if (pos.x + radius > BORDER.rightBorder) {
-            velocity.x = -velocity.x
+            velocity.x = 0.0
             pos.x = BORDER.rightBorder - radius
         }
     }
 
     companion object {
-        val BORDER: Border = Border(0.0, 600.0, 0.0, 400.0)
+        val BORDER: Border = Border(0.0, 60.0, 0.0, 40.0)
+
         private var objectCount: Int = 0
+
         fun nextId(): Int {
             return objectCount++
         }
