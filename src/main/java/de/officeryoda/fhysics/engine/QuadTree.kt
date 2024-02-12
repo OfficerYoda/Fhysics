@@ -1,5 +1,6 @@
 import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.objects.FhysicsObject
+import java.awt.Graphics
 import java.awt.Rectangle
 
 data class QuadTree(
@@ -31,7 +32,6 @@ data class QuadTree(
         return topLeft.insert(obj) || topRight.insert(obj) || botLeft.insert(obj) || botRight.insert(obj)
     }
 
-
     private fun subdivide() {
         val x = boundary.x
         val y = boundary.y
@@ -52,6 +52,17 @@ data class QuadTree(
         botRight = QuadTree(br, capacity)
 
         divided = true
+    }
+
+    fun draw(g: Graphics, drawRect: (Graphics, Rectangle) -> Unit) {
+        if (!divided) {
+            drawRect(g, boundary)
+        } else {
+            topLeft.draw(g, drawRect)
+            topRight.draw(g, drawRect)
+            botLeft.draw(g,drawRect)
+            botRight.draw(g, drawRect)
+        }
     }
 
     override fun toString(): String {

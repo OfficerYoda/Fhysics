@@ -15,7 +15,7 @@ class FhysicsCore {
     private val collisionHandler: CollisionHandler = MinimizeOverlap
 
     val fhysicsObjects: MutableList<Circle> = ArrayList()
-    val quadTree: QuadTree = QuadTree(Rectangle(60, 60), 4)
+    var quadTree: QuadTree = QuadTree(Rectangle(60, 60), 4)
 
     private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val updatesPerSecond: Int = 240
@@ -42,6 +42,7 @@ class FhysicsCore {
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
 //                update()
+                buildQuadTree()
                 drawer!!.repaintObjects()
             }
         }, 0, updateIntervalMillis.toLong())
@@ -64,6 +65,11 @@ class FhysicsCore {
         updateCount++
 
         addUpdateTime(System.currentTimeMillis() - startTime)
+    }
+
+    private fun buildQuadTree() {
+        quadTree = QuadTree(Rectangle(60, 60),4)
+        fhysicsObjects.forEach { quadTree.insert(it) }
     }
 
     private fun spawnObject() {

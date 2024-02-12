@@ -7,10 +7,7 @@ import de.officeryoda.fhysics.engine.Vector2Int
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
-import java.awt.Color
-import java.awt.Font
-import java.awt.Graphics
-import java.awt.Insets
+import java.awt.*
 import javax.swing.JFrame
 import javax.swing.JPanel
 
@@ -93,6 +90,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         drawAllObjects(g)
 
         drawBorder(g)
+        drawQuadTree(g)
         drawMSPU(g)
     }
 
@@ -101,8 +99,6 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         for (`object` in fhysics.fhysicsObjects.toList()) {
             drawObject(`object`, g)
         }
-
-        drawParticles(g)
     }
 
     private fun drawObject(obj: FhysicsObject, g: Graphics) {
@@ -132,17 +128,27 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         )
     }
 
-    private fun drawParticles(g: Graphics) {
-        particles.forEach { g.fillOval(it.x, it.y, 5, 5) }
+    private fun drawQuadTree(g: Graphics) {
+        fhysics.quadTree.draw(g, ::drawAndTransformRect)
     }
 
     private fun drawBorder(g: Graphics) {
-        val border: Border = FhysicsCore.BORDER
+        val b: Border = FhysicsCore.BORDER
+        val rect = Rectangle(
+            b.leftBorder.toInt(),
+            b.bottomBorder.toInt(),
+            (b.rightBorder).toInt(),
+            (b.topBorder).toInt()
+        )
 
-        val x: Int = transformX(border.leftBorder)
-        val y: Int = transformY(border.topBorder)
-        val width: Int = ((border.rightBorder - border.leftBorder) * zoom).toInt()
-        val height: Int = ((border.topBorder - border.bottomBorder) * zoom).toInt()
+        drawAndTransformRect(g, rect)
+    }
+
+    private fun drawAndTransformRect(g: Graphics, rect: Rectangle) {
+        val x: Int = transformX(rect.x.toDouble())
+        val y: Int = transformY((rect.y + rect.height).toDouble())
+        val width: Int = (rect.width * zoom).toInt()
+        val height: Int = (rect.height * zoom).toInt()
 
         g.color = Color.white
         g.drawRect(x, y, width, height)
@@ -181,10 +187,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     fun onMouseWheel(dir: Int) {
-        zoom += dir * -0.01
+        zoom += dir * -0.2
     }
-
-    private val particles: MutableList<Vector2Int> = ArrayList()
 
     fun onMousePressed(mousePos: Vector2) {
         // inverse Transform mousePosition
