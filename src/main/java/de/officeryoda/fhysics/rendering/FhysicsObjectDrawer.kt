@@ -175,7 +175,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
     private val particles: MutableList<Vector2Int> = ArrayList()
 
-    fun onMouseClick(mousePos: Vector2Int) {
+    fun onMousePressed(mousePos: Vector2Int) {
         mousePos.x -= insets.left;
         mousePos.y -= insets.top;
         particles.add(mousePos)
