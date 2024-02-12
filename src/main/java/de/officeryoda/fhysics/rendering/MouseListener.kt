@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.Vector2Int
+import de.officeryoda.fhysics.engine.Vector2
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
@@ -14,6 +14,6 @@ class MouseListener internal constructor(private val fhysicsPanel: FhysicsPanel)
 
     override fun mousePressed(e: MouseEvent) {
         super.mouseClicked(e)
-        fhysicsPanel.onMousePressed(Vector2Int(e.x, e.y))
+        fhysicsPanel.onMousePressed(Vector2(e.x.toDouble(), e.y.toDouble()))
     }
 }

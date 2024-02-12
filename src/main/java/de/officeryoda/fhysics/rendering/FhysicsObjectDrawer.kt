@@ -11,7 +11,6 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics
 import java.awt.Insets
-import java.util.ArrayList
 import javax.swing.JFrame
 import javax.swing.JPanel
 
@@ -64,6 +63,7 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
 internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JPanel() {
 
     private val objectColor: Color = Color.decode("#2f2f30")
+
     // getInsets doesn't return the right values
     private val insets: Insets
 
@@ -91,7 +91,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
             drawObject(`object`, g)
         }
 
-        drawParticles(g);
+        drawParticles(g)
     }
 
     private fun drawObject(obj: FhysicsObject, g: Graphics) {
@@ -175,10 +175,13 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
     private val particles: MutableList<Vector2Int> = ArrayList()
 
-    fun onMousePressed(mousePos: Vector2Int) {
-        mousePos.x -= insets.left;
-        mousePos.y -= insets.top;
-        particles.add(mousePos)
-        println(mousePos)
+    fun onMousePressed(mousePos: Vector2) {
+        // inverse Transform mousePosition
+        mousePos.x -= insets.left
+        mousePos.y -= insets.top
+        mousePos.y = height - mousePos.y
+        mousePos /= zoom
+
+        fhysics.fhysicsObjects.add(Circle(mousePos, 0.2))
     }
 }

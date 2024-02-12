@@ -2,7 +2,6 @@ package de.officeryoda.fhysics.engine
 
 import lombok.ToString
 import kotlin.math.sqrt
-import kotlin.time.times
 
 /**
  * A 2D vector class providing basic vector operations.
