@@ -2,18 +2,17 @@ package de.officeryoda.fhysics.engine
 
 import QuadTree
 import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
-import de.officeryoda.fhysics.engine.collisionhandler.MinimizeOverlap
+import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
-import java.awt.Rectangle
 import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.function.Consumer
 
 class FhysicsCore {
 
-    private val collisionHandler: CollisionHandler = MinimizeOverlap
+    private val collisionHandler: CollisionHandler = ElasticCollision
 
     val fhysicsObjects: MutableList<Circle> = ArrayList()
     var quadTree: QuadTree = QuadTree(Rectangle2D.Double(0.0,0.0,60.0, 60.0),4)

@@ -2,7 +2,6 @@ package de.officeryoda.fhysics.extensions
 
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.Vector2Int
-import java.awt.Rectangle
 import java.awt.geom.Rectangle2D
 
 /**

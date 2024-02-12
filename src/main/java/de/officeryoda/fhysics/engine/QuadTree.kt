@@ -1,7 +1,6 @@
 import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.objects.FhysicsObject
 import java.awt.Graphics
-import java.awt.Rectangle
 import java.awt.geom.Rectangle2D
 
 data class QuadTree(
