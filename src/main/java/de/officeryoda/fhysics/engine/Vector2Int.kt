@@ -158,6 +158,15 @@ class Vector2Int
     }
 
     /**
+     * Converts this Vector2Int to a Vector2 by converting the x and y coordinates to double values.
+     *
+     * @return The converted Vector2.
+     */
+    fun toDoubleVector2(): Vector2 {
+        return Vector2(x.toDouble(), y.toDouble())
+    }
+
+    /**
      * Returns a string representation of the Vector2Int.
      *
      * @return A string containing the values of the x and y components.
