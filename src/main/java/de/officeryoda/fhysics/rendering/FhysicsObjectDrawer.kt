@@ -11,6 +11,7 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics
 import java.awt.Insets
+import java.util.ArrayList
 import javax.swing.JFrame
 import javax.swing.JPanel
 
@@ -29,7 +30,9 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
         fhysicsPanel = FhysicsPanel(fhysics, zoom)
         add(fhysicsPanel)
 
-        addMouseWheelListener(MouseWheelListener(fhysicsPanel))
+        val mouseListener = MouseListener(fhysicsPanel)
+        addMouseWheelListener(mouseListener)
+        addMouseListener(mouseListener)
 
         setLocationRelativeTo(null) // center the frame on the screen
         isVisible = true
@@ -59,13 +62,17 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
 }
 
 internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JPanel() {
+
     private val objectColor: Color = Color.decode("#2f2f30")
+    // getInsets doesn't return the right values
+    private val insets: Insets
 
     private var zoom: Double
 
     init {
         val backgroundColor: Color = Color.decode("#010409")
         this.zoom = zoom
+        this.insets = Insets(31, 8, 8, 8) // that's just how it is
         background = backgroundColor
     }
 
@@ -73,6 +80,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         super.paintComponent(g)
 
         drawAllObjects(g)
+
+        drawBorder(g)
         drawMSPU(g)
     }
 
@@ -81,20 +90,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         for (`object` in fhysics.fhysicsObjects.toList()) {
             drawObject(`object`, g)
         }
-        drawBorder(g)
-    }
 
-    private fun drawBorder(g: Graphics) {
-        val border: Border = FhysicsCore.BORDER
-        val insets: Insets = insets
-
-        val x: Int = transformX(border.leftBorder, insets)
-        val y: Int = transformY(border.topBorder, insets)
-        val width: Int = ((border.rightBorder - border.leftBorder) * zoom).toInt()
-        val height: Int = ((border.topBorder - border.bottomBorder) * zoom).toInt()
-
-        g.color = Color.white
-        g.drawRect(x, y, width, height)
+        drawParticles(g);
     }
 
     private fun drawObject(obj: FhysicsObject, g: Graphics) {
@@ -124,6 +121,22 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         )
     }
 
+    private fun drawParticles(g: Graphics) {
+        particles.forEach { g.fillOval(it.x, it.y, 5, 5) }
+    }
+
+    private fun drawBorder(g: Graphics) {
+        val border: Border = FhysicsCore.BORDER
+
+        val x: Int = transformX(border.leftBorder)
+        val y: Int = transformY(border.topBorder)
+        val width: Int = ((border.rightBorder - border.leftBorder) * zoom).toInt()
+        val height: Int = ((border.topBorder - border.bottomBorder) * zoom).toInt()
+
+        g.color = Color.white
+        g.drawRect(x, y, width, height)
+    }
+
     private fun drawMSPU(g: Graphics) {
         val mspu = fhysics.getAverageUpdateTime() // Milliseconds per Update
         val fontSize = height / 30 // Adjust the divisor for the desired scaling
@@ -143,21 +156,29 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
      * @return the transformed position
      */
     private fun transformPosition(pos: Vector2): Vector2Int {
-        val insets: Insets = insets
-        val newX: Int = transformX(pos.x, insets)
-        val newY: Int = transformY(pos.y, insets)
+        val newX: Int = transformX(pos.x)
+        val newY: Int = transformY(pos.y)
         return Vector2Int(newX, newY)
     }
 
-    private fun transformX(x: Double, insets: Insets): Int {
-        return (x * zoom + insets.left).toInt()
+    private fun transformX(x: Double): Int {
+        return (x * zoom).toInt()
     }
 
-    private fun transformY(y: Double, insets: Insets): Int {
-        return (height - insets.bottom - (y * zoom)).toInt()
+    private fun transformY(y: Double): Int {
+        return (height - (y * zoom)).toInt()
     }
 
     fun onMouseWheel(dir: Int) {
         zoom += dir * -0.01
+    }
+
+    private val particles: MutableList<Vector2Int> = ArrayList()
+
+    fun onMouseClick(mousePos: Vector2Int) {
+        mousePos.x -= insets.left;
+        mousePos.y -= insets.top;
+        particles.add(mousePos)
+        println(mousePos)
     }
 }
