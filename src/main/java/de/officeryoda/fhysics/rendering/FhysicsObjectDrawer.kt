@@ -44,9 +44,20 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
         val borderHeight: Double = border.topBorder - border.bottomBorder
 
         val ratio: Double = borderHeight / borderWidth
-        val widowWidth = 1440
-        setSize(widowWidth, (widowWidth * ratio + insets.top).toInt())
+        val maxWidth = 1440
+        val maxHeight = 960
+
+        var windowWidth = maxWidth
+        var windowHeight = (windowWidth * ratio + insets.top).toInt()
+
+        if (windowHeight > maxHeight) {
+            windowHeight = maxHeight
+            windowWidth = ((windowHeight - insets.top) / ratio).toInt()
+        }
+
+        setSize(windowWidth, windowHeight)
     }
+
 
     private fun calculateZoom(): Double {
         val border: Border = FhysicsCore.BORDER

@@ -115,7 +115,7 @@ class FhysicsCore {
     }
 
     companion object {
-        val BORDER: Border = Border(0.0, 60.0, 0.0, 40.0)
+        val BORDER: Border = Border(0.0, 60.0, 0.0, 60.0)
 
         private var objectCount: Int = 0
 
