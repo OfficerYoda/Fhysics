@@ -7,6 +7,7 @@ import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import java.awt.Rectangle
+import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.function.Consumer
 
@@ -15,7 +16,7 @@ class FhysicsCore {
     private val collisionHandler: CollisionHandler = MinimizeOverlap
 
     val fhysicsObjects: MutableList<Circle> = ArrayList()
-    var quadTree: QuadTree = QuadTree(Rectangle(60, 60), 4)
+    var quadTree: QuadTree = QuadTree(Rectangle2D.Double(0.0,0.0,60.0, 60.0),4)
 
     private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val updatesPerSecond: Int = 240
@@ -26,12 +27,8 @@ class FhysicsCore {
     var drawer: FhysicsObjectDrawer? = null
 
     init {
-//        for (i in 1..65) {
-//            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
-//        }
-
-        for (i in 1..65) {
-            quadTree.insert(FhysicsObjectFactory.randomCircle())
+        for (i in 1..400) {
+            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
         }
 
         println(quadTree)
@@ -41,9 +38,7 @@ class FhysicsCore {
         val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-//                update()
-                buildQuadTree()
-                drawer!!.repaintObjects()
+                update()
             }
         }, 0, updateIntervalMillis.toLong())
     }
@@ -52,14 +47,16 @@ class FhysicsCore {
         val startTime: Long = System.currentTimeMillis()
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
 
-        spawnObject()
+//        spawnObject()
 
         fhysicsObjects.forEach(Consumer { obj: Circle ->
-//            obj.applyGravity(updatesIntervalSeconds, Vector2.ZERO)
-            obj.update(updatesIntervalSeconds, gravity)
+            obj.update(updatesIntervalSeconds, Vector2.ZERO)
+//            obj.update(updatesIntervalSeconds, gravity)
             checkBorderCollision(obj)
             checkObjectCollision(obj)
         })
+
+        buildQuadTree()
         drawer!!.repaintObjects()
 
         updateCount++
@@ -68,7 +65,7 @@ class FhysicsCore {
     }
 
     private fun buildQuadTree() {
-        quadTree = QuadTree(Rectangle(60, 60),4)
+        quadTree = QuadTree(Rectangle2D.Double(0.0,0.0,60.0, 60.0),4)
         fhysicsObjects.forEach { quadTree.insert(it) }
     }
 
@@ -99,19 +96,23 @@ class FhysicsCore {
 
         // check top/bottom border
         if (pos.y + radius > BORDER.topBorder) {
-            velocity.y = 0.0
+//            velocity.y = 0.0
+            velocity.y = -velocity.y
             pos.y = BORDER.topBorder - radius
         } else if (pos.y - radius < BORDER.bottomBorder) {
-            velocity.y = 0.0
+//            velocity.y = 0.0
+            velocity.y = -velocity.y
             pos.y = BORDER.bottomBorder + radius
         }
 
         // check left/right border
         if (pos.x - radius < BORDER.leftBorder) {
-            velocity.x = 0.0
+//            velocity.x = 0.0
+            velocity.x = -velocity.x
             pos.x = BORDER.leftBorder + radius
         } else if (pos.x + radius > BORDER.rightBorder) {
-            velocity.x = 0.0
+//            velocity.x = 0.0
+            velocity.x = -velocity.x
             pos.x = BORDER.rightBorder - radius
         }
     }

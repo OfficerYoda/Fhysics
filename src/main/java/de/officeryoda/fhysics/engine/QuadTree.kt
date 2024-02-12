@@ -2,9 +2,10 @@ import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.objects.FhysicsObject
 import java.awt.Graphics
 import java.awt.Rectangle
+import java.awt.geom.Rectangle2D
 
 data class QuadTree(
-    private val boundary: Rectangle,
+    private val boundary: Rectangle2D,
     private val capacity: Int
 ) {
     private val objects: MutableList<FhysicsObject> = ArrayList()
@@ -33,28 +34,28 @@ data class QuadTree(
     }
 
     private fun subdivide() {
-        val x = boundary.x
-        val y = boundary.y
-        val hw = boundary.width / 2 // half width
-        val hh = boundary.height / 2 // half height
+        val x: Double = boundary.x
+        val y: Double = boundary.y
+        val hw: Double = boundary.width / 2 // half width
+        val hh: Double = boundary.height / 2 // half height
 
         // top left
-        val tl = Rectangle(x, y + hh, hw, hh)
+        val tl = Rectangle2D.Double(x, y + hh, hw, hh)
         topLeft = QuadTree(tl, capacity)
         // top right
-        val tr = Rectangle(x + hw, y + hh, hw, hh)
+        val tr = Rectangle2D.Double(x + hw, y + hh, hw, hh)
         topRight = QuadTree(tr, capacity)
         // bottom left
-        val bl = Rectangle(x, y, hw, hh)
+        val bl = Rectangle2D.Double(x, y, hw, hh)
         botLeft = QuadTree(bl, capacity)
         // bottom right
-        val br = Rectangle(x + hw, y, hw, hh)
+        val br = Rectangle2D.Double(x + hw, y, hw, hh)
         botRight = QuadTree(br, capacity)
 
         divided = true
     }
 
-    fun draw(g: Graphics, drawRect: (Graphics, Rectangle) -> Unit) {
+    fun draw(g: Graphics, drawRect: (Graphics, Rectangle2D) -> Unit) {
         if (!divided) {
             drawRect(g, boundary)
         } else {

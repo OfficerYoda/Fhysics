@@ -8,6 +8,7 @@ import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import java.awt.*
+import java.awt.geom.Rectangle2D
 import javax.swing.JFrame
 import javax.swing.JPanel
 
@@ -134,19 +135,19 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
     private fun drawBorder(g: Graphics) {
         val b: Border = FhysicsCore.BORDER
-        val rect = Rectangle(
-            b.leftBorder.toInt(),
-            b.bottomBorder.toInt(),
-            (b.rightBorder).toInt(),
-            (b.topBorder).toInt()
+        val rect = Rectangle2D.Double(
+            b.leftBorder,
+            b.bottomBorder,
+            b.rightBorder,
+            b.topBorder
         )
 
         drawAndTransformRect(g, rect)
     }
 
-    private fun drawAndTransformRect(g: Graphics, rect: Rectangle) {
-        val x: Int = transformX(rect.x.toDouble())
-        val y: Int = transformY((rect.y + rect.height).toDouble())
+    private fun drawAndTransformRect(g: Graphics, rect: Rectangle2D) {
+        val x: Int = transformX(rect.x)
+        val y: Int = transformY((rect.y + rect.height))
         val width: Int = (rect.width * zoom).toInt()
         val height: Int = (rect.height * zoom).toInt()
 
