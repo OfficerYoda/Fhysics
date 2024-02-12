@@ -1,10 +1,12 @@
 package de.officeryoda.fhysics.engine
 
+import QuadTree
 import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
 import de.officeryoda.fhysics.engine.collisionhandler.MinimizeOverlap
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import java.awt.Rectangle
 import java.util.*
 import java.util.function.Consumer
 
@@ -13,6 +15,8 @@ class FhysicsCore {
     private val collisionHandler: CollisionHandler = MinimizeOverlap
 
     val fhysicsObjects: MutableList<Circle> = ArrayList()
+    val quadTree: QuadTree = QuadTree(Rectangle(60, 60), 4)
+
     private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val updatesPerSecond: Int = 240
 
@@ -21,11 +25,17 @@ class FhysicsCore {
 
     var drawer: FhysicsObjectDrawer? = null
 
-//    init {
+    init {
 //        for (i in 1..65) {
 //            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
 //        }
-//    }
+
+        for (i in 1..65) {
+            quadTree.insert(FhysicsObjectFactory.randomCircle())
+        }
+
+        println(quadTree)
+    }
 
     fun startUpdateLoop() {
         val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()

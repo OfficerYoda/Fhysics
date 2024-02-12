@@ -9,9 +9,9 @@ object FhysicsObjectFactory {
     private val RANDOM: Random = Random()
 
     fun randomCircle(): Circle {
-        val radius: Double = RANDOM.nextDouble(5.0, 35.0)
+        val radius: Double = RANDOM.nextDouble(0.2, 0.3)
         val pos: Vector2 = randomPosInsideBounds(radius)
-        val circle: Circle = Circle(pos, radius)
+        val circle = Circle(pos, radius)
 
         circle.velocity.set(randomVector2(-200.0, 200.0))
 
@@ -19,9 +19,9 @@ object FhysicsObjectFactory {
     }
 
     fun customCircle(pos: Vector2, radius: Double, vel: Vector2): Circle {
-        val circle: Circle = Circle(pos, radius);
+        val circle = Circle(pos, radius)
         circle.velocity += vel
-        return circle;
+        return circle
     }
 
     private fun randomPosInsideBounds(buffer: Double): Vector2 {
