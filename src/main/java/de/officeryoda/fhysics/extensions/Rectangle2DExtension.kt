@@ -61,7 +61,6 @@ fun Rectangle2D.intersects(circle: Circle): Boolean {
 }
 
 fun Rectangle2D.intersects(box: Box): Boolean {
-    println("Box intersection not tested")
     return this.intersects(
         box.position.x,
         box.position.y,

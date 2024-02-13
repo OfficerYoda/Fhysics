@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
 import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
+import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
@@ -30,6 +31,10 @@ class FhysicsCore {
             circle.radius *= 10
             fhysicsObjects.add(circle)
         }
+
+        fhysicsObjects.add(Box(Vector2(10.0, 10.0), 7.5, 5.0))
+        fhysicsObjects.add(Box(Vector2(40.0, 30.0), 2.5, 10.0))
+        fhysicsObjects.add(Box(Vector2(20.0, 50.0), 4.0, 12.0))
     }
 
     fun startUpdateLoop() {

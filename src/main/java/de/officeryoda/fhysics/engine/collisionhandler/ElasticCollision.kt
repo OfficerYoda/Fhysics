@@ -36,7 +36,7 @@ object ElasticCollision : CollisionHandler() {
     }
 
     override fun handleCollision(obj1: Circle, obj2: Box) {
-        TODO("Not yet implemented")
+
     }
 
     override fun handleCollision(obj1: Box, obj2: Box) {

@@ -154,14 +154,6 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         }
     }
 
-    private fun drawBox(box: Box, g: Graphics) {
-        val pos: Vector2Int = transformPosition(box.position)
-        g.fillRect(
-            pos.x, pos.y,
-            box.width.toInt(), box.height.toInt()
-        )
-    }
-
     private fun drawCircle(circle: Circle, g: Graphics) {
         val pos: Vector2Int = transformPosition(circle.position)
         val radius: Int = (circle.radius * zoom).toInt()
@@ -169,6 +161,14 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         g.fillOval(
             pos.x - radius, pos.y - radius,
             diameter, diameter
+        )
+    }
+
+    private fun drawBox(box: Box, g: Graphics) {
+        val pos: Vector2Int = transformPosition(box.position)
+        g.fillRect(
+            pos.x, pos.y,
+            (box.width * zoom).toInt(), (box.height * zoom).toInt()
         )
     }
 

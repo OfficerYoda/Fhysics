@@ -15,7 +15,7 @@ abstract class FhysicsObject protected constructor(
     val id = FhysicsCore.nextId()
     var color: Color = colorFromIndex()
 
-    fun update(dt: Double, gravity: Vector2) {
+    open fun update(dt: Double, gravity: Vector2) {
         val damping = 0.00
 
         acceleration += gravity
@@ -39,7 +39,11 @@ abstract class FhysicsObject protected constructor(
     }
 
     fun handleCollision(other: FhysicsObject) {
-        other.handleCollision(this) // double dispatch (should not loop infinitely because there should never be a plane FhysicsObject)
+        when (other) {
+            is Circle -> handleCollision(other)
+            is Box -> handleCollision(other)
+            else -> throw IllegalArgumentException("Unsupported object type for collision")
+        }
     }
 
     abstract fun handleCollision(other: Circle)
