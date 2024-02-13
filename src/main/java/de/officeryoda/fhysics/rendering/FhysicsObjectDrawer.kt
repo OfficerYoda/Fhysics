@@ -36,9 +36,9 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
 
     private fun setWindowSize() {
         val insets = Insets(31, 8, 8, 8) // these will be the values
-        val border: Border = FhysicsCore.BORDER
-        val borderWidth: Double = border.rightBorder - border.leftBorder
-        val borderHeight: Double = border.topBorder - border.bottomBorder
+        val border: Rectangle2D = FhysicsCore.BORDER
+        val borderWidth: Double = border.width
+        val borderHeight: Double = border.height
 
         val ratio: Double = borderHeight / borderWidth
         val maxWidth = 1440
@@ -56,8 +56,8 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
     }
 
     private fun calculateZoom(): Double {
-        val border: Border = FhysicsCore.BORDER
-        val borderWidth: Double = border.rightBorder - border.leftBorder
+        val border: Rectangle2D = FhysicsCore.BORDER
+        val borderWidth: Double = border.width
         val windowWidth: Int = width - (8 + 8) // -(insets.left[8] + insets.right[8])
         return windowWidth / borderWidth
     }
@@ -119,7 +119,6 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         fhysics.fhysicsObjects.forEach { it.updateColor() }
         QuadTree.count = 0
         fhysics.quadTree.query(queryRect).forEach { it.color = Color.BLUE; drawObject(it, g) }
-        println("${QuadTree.count} \t/ ${fhysics.fhysicsObjects.count()}")
 
         mousePos *= zoom
         mousePos.x -= insets.left
@@ -172,15 +171,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     private fun drawBorder(g: Graphics) {
-        val b: Border = FhysicsCore.BORDER
-        val rect = Rectangle2D.Double(
-            b.leftBorder,
-            b.bottomBorder,
-            b.rightBorder,
-            b.topBorder
-        )
-
-        drawAndTransformRect(g, rect)
+        drawAndTransformRect(g, FhysicsCore.BORDER)
     }
 
     private fun drawAndTransformRect(g: Graphics, rect: Rectangle2D) {

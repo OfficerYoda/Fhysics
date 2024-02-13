@@ -29,8 +29,6 @@ class FhysicsCore {
         for (i in 1..2400) {
             fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
         }
-
-        println(quadTree)
     }
 
     fun startUpdateLoop() {
@@ -73,7 +71,7 @@ class FhysicsCore {
 
         val spawnRows = 2
         val radius = 0.2
-        val pos = Vector2(2.0, BORDER.topBorder - 2)
+        val pos = Vector2(2.0, BORDER.height - 2)
         val yOffset = (objectCount % spawnRows) * 2 * radius
         pos.y -= yOffset
 
@@ -94,25 +92,25 @@ class FhysicsCore {
         val radius: Double = circle.radius
 
         // check top/bottom border
-        if (pos.y + radius > BORDER.topBorder) {
+        if (pos.y + radius > BORDER.height) {
 //            velocity.y = 0.0
             velocity.y = -velocity.y
-            pos.y = BORDER.topBorder - radius
-        } else if (pos.y - radius < BORDER.bottomBorder) {
+            pos.y = BORDER.height - radius
+        } else if (pos.y - radius < 0) {
 //            velocity.y = 0.0
             velocity.y = -velocity.y
-            pos.y = BORDER.bottomBorder + radius
+            pos.y = radius
         }
 
         // check left/right border
-        if (pos.x - radius < BORDER.leftBorder) {
+        if (pos.x - radius < 0) {
 //            velocity.x = 0.0
             velocity.x = -velocity.x
-            pos.x = BORDER.leftBorder + radius
-        } else if (pos.x + radius > BORDER.rightBorder) {
+            pos.x = radius
+        } else if (pos.x + radius > BORDER.width) {
 //            velocity.x = 0.0
             velocity.x = -velocity.x
-            pos.x = BORDER.rightBorder - radius
+            pos.x = BORDER.width - radius
         }
     }
 
@@ -131,7 +129,8 @@ class FhysicsCore {
     }
 
     companion object {
-        val BORDER: Border = Border(0.0, 60.0, 0.0, 60.0)
+        // x and y must be 0.0
+        val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 60.0, 60.0)
 
         private var objectCount: Int = 0
 

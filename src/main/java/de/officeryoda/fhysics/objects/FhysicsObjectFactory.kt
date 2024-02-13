@@ -1,8 +1,8 @@
 package de.officeryoda.fhysics.objects
 
-import de.officeryoda.fhysics.engine.Border
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
+import java.awt.geom.Rectangle2D
 import java.util.*
 
 object FhysicsObjectFactory {
@@ -25,13 +25,13 @@ object FhysicsObjectFactory {
     }
 
     private fun randomPosInsideBounds(buffer: Double): Vector2 {
-        val border: Border = FhysicsCore.BORDER
-        val minX: Double = border.leftBorder + buffer
-        val maxX: Double = border.rightBorder - minX - buffer
+        val border: Rectangle2D = FhysicsCore.BORDER
+        val minX: Double = buffer
+        val maxX: Double = border.width - minX - buffer
         val x: Double = RANDOM.nextDouble(minX, maxX)
 
-        val minY: Double = border.bottomBorder + buffer
-        val maxY: Double = border.topBorder - minY - buffer
+        val minY: Double = buffer
+        val maxY: Double = border.height - minY - buffer
         val y: Double = RANDOM.nextDouble(minY, maxY)
 
         return Vector2(x, y)
