@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.extensions.contains
+import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.FhysicsObject
 import java.awt.Graphics
 import java.awt.geom.Rectangle2D
@@ -16,33 +16,31 @@ data class QuadTree(
     private lateinit var botRight: QuadTree
     private var divided: Boolean = false
 
-    fun insert(obj: FhysicsObject): Boolean {
-        if (!boundary.contains(obj.position)) {
-            return false
+    fun insert(obj: FhysicsObject) {
+        if (!boundary.intersects(obj)) {
+            return
         }
 
         if (objects.size < capacity) {
             objects.add(obj)
-            return true
+            count++
+            return
         }
 
         if (!divided) {
             subdivide()
         }
 
-        return insertInChildren(obj)
+        insertInChildren(obj)
     }
 
     // probably should have chosen another name
-    private fun insertInChildren(obj: FhysicsObject): Boolean {
-        if (topLeft.insert(obj)) return true
-        if (topRight.insert(obj)) return true
-        if (botLeft.insert(obj)) return true
-        if (botRight.insert(obj)) return true
-
-        // point couldn't be added (this should never happen)
-        System.err.println("Point couldn't be added to de.officeryoda.fhysics.engine.QuadTree.")
-        return false
+    private fun insertInChildren(obj: FhysicsObject) {
+        // need to check every Child due to border Objects
+        topLeft.insert(obj)
+        topRight.insert(obj)
+        botLeft.insert(obj)
+        botRight.insert(obj)
     }
 
     private fun subdivide() {
@@ -65,6 +63,7 @@ data class QuadTree(
         botRight = QuadTree(br, capacity)
 
         objects.forEach { insertInChildren(it) }
+        count -= objects.size
         objects.clear()
 
         divided = true
@@ -79,9 +78,8 @@ data class QuadTree(
             return objectsInRange // empty list
 
         // Check objects at this quad level
-        count += objects.size
         for (i in 0 until objects.size) {
-            if (range.contains(objects[i].position)) {
+            if (range.intersects(objects[i])) {
                 objectsInRange.add(objects[i])
             }
         }

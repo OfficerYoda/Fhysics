@@ -1,6 +1,9 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.*
+import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.QuadTree
+import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.Vector2Int
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
@@ -141,10 +144,10 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
     private fun drawObject(obj: FhysicsObject, g: Graphics) {
         g.color = obj.color
-        if (obj is Box) {
-            drawBox(obj, g)
-        } else if (obj is Circle) {
+        if (obj is Circle) {
             drawCircle(obj, g)
+        } else if (obj is Box) {
+            drawBox(obj, g)
         }
     }
 
@@ -197,9 +200,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         g.color = Color.LIGHT_GRAY
 
         val lineHeight: Int = g.fontMetrics.height
-        g.drawString("MSPU: $mspuRounded", 5, 40)
-        g.drawString("FPS: $fpsRounded", 5, 40 + lineHeight)
-
+        g.drawString("MSPU: $mspuRounded", 5, lineHeight)
+        g.drawString("FPS: $fpsRounded", 5, 2 * lineHeight)
     }
 
     /**
