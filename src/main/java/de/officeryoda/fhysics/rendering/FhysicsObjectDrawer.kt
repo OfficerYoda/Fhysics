@@ -167,8 +167,10 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     private fun drawBox(box: Box, g: Graphics) {
         val pos: Vector2Int = transformPosition(box.position)
         g.fillRect(
-            pos.x, pos.y,
-            (box.width * zoom).toInt(), (box.height * zoom).toInt()
+            pos.x,
+            (pos.y - box.height * zoom).toInt(),
+            (box.width * zoom).toInt(),
+            (box.height * zoom).toInt()
         )
     }
 
