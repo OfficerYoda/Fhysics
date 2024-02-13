@@ -7,7 +7,6 @@ import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import java.awt.geom.Rectangle2D
 import java.util.*
-import java.util.function.Consumer
 
 class FhysicsCore {
 
@@ -46,17 +45,13 @@ class FhysicsCore {
 
 //        spawnObject()
 
-        checks = 0
-        fhysicsObjects.forEach(Consumer { obj: Circle ->
+        fhysicsObjects.forEach { obj: Circle ->
             obj.update(updatesIntervalSeconds, Vector2.ZERO)
 //            obj.update(updatesIntervalSeconds, gravity)
             checkBorderCollision(obj)
-//            checkObjectCollision(obj)
-        })
-        checkObjectCollisionQuadTree(quadTree)
-        println("checks = $checks")
-
+        }
         buildQuadTree()
+        checkObjectCollisionQuadTree(quadTree)
         drawer!!.repaintObjects()
 
         updateCount++
@@ -68,7 +63,6 @@ class FhysicsCore {
         QuadTree.count = 0
         quadTree = QuadTree(Rectangle2D.Double(0.0, 0.0, 60.0, 60.0), quadTreeCapacity)
         fhysicsObjects.forEach { quadTree.insert(it) }
-        println("QuadTree.count = ${QuadTree.count}")
     }
 
     private fun spawnObject() {
@@ -84,13 +78,11 @@ class FhysicsCore {
         fhysicsObjects.add(FhysicsObjectFactory.customCircle(pos, radius, vel))
     }
 
-    var checks = 0
     private fun checkObjectCollisionQuadTree(quadTree: QuadTree) {
         if (!quadTree.divided) {
             val objects = quadTree.objects
             for (obj1 in objects) {
                 for (obj2 in objects) {
-                    checks++
                     if (obj1.id == obj2.id) continue
                     collisionHandler.handleCollision(obj1 as Circle, obj2 as Circle)
                 }
@@ -105,8 +97,7 @@ class FhysicsCore {
 
     private fun checkObjectCollision(obj: Circle) {
         fhysicsObjects.forEach {
-            checks++
-            if (obj.id == it.id) return
+            if (obj.id == it.id) return@forEach
             collisionHandler.handleCollision(obj, it)
         }
     }
@@ -150,7 +141,8 @@ class FhysicsCore {
     }
 
     fun getAverageUpdateTime(): Double {
-        return updateTimes.average()
+        // filterNotNull is not redundant, even if IntelliJ says so
+        return updateTimes.toList().filterNotNull().average()
     }
 
     companion object {

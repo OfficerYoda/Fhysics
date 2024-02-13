@@ -17,11 +17,9 @@ data class QuadTree(
     var divided: Boolean = false
 
     fun insert(obj: FhysicsObject) {
-        if (!boundary.intersects(obj)) {
-            return
-        }
+        if (!boundary.intersects(obj)) return
 
-        if (objects.size < capacity) {
+        if (objects.size < capacity && !divided) {
             objects.add(obj)
             count++
             return
@@ -78,9 +76,9 @@ data class QuadTree(
             return objectsInRange // empty list
 
         // Check objects at this quad level
-        for (i in 0 until objects.size) {
-            if (range.intersects(objects[i])) {
-                objectsInRange.add(objects[i])
+        for (i in 0 until this.objects.size) {
+            if (range.intersects(this.objects[i])) {
+                objectsInRange.add(this.objects[i])
             }
         }
 

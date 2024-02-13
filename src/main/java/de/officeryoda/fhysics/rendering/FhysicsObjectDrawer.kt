@@ -91,11 +91,12 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
         drawAllObjects(g)
 
-        drawBorder(g)
-//        drawQuadTree(g)
-        drawMSPU(g)
+//        drawHighlightQuadTree(g)
 
-        drawHighlightQuadTree(g)
+//        drawBorder(g)
+//        drawQuadTree(g)
+
+        drawMSPU(g)
     }
 
     private var rectSize = 20
@@ -119,9 +120,12 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         queryRect =
             Rectangle2D.Double(currentCenterX - (newWidth / 2), currentCenterY - (newHeight / 2), newWidth, newHeight)
 
-        fhysics.fhysicsObjects.forEach { it.updateColor() }
         QuadTree.count = 0
-        fhysics.quadTree.query(queryRect).forEach { it.color = Color.BLUE; drawObject(it, g) }
+        fhysics.quadTree.query(queryRect).forEach {
+            it.color = Color.BLUE
+            drawObject(it, g)
+            it.updateColor()
+        }
 
         mousePos *= zoom
         mousePos.x -= insets.left
@@ -133,7 +137,6 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
         g.drawRect(rectX.toInt(), rectY.toInt(), rectSize, rectSize)
     }
-
 
     private fun drawAllObjects(g: Graphics) {
         g.color = objectColor
@@ -197,7 +200,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
         val font = Font("Spline Sans", Font.PLAIN, fontSize)
         g.font = font
-        g.color = Color.LIGHT_GRAY
+        g.color = Color.WHITE
 
         val lineHeight: Int = g.fontMetrics.height
         g.drawString("MSPU: $mspuRounded", 5, lineHeight)
@@ -238,6 +241,6 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         mousePos.y = height - mousePos.y
         mousePos /= zoom
 
-        fhysics.fhysicsObjects.add(Circle(mousePos, 0.2))
+        fhysics.fhysicsObjects.add(Circle(mousePos, 1.0))
     }
 }
