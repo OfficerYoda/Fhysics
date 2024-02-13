@@ -1,15 +1,12 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.QuadTree
-import de.officeryoda.fhysics.engine.Border
-import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.Vector2Int
+import de.officeryoda.fhysics.engine.*
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import java.awt.*
 import java.awt.geom.Rectangle2D
+import java.util.*
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
@@ -57,7 +54,6 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
 
         setSize(windowWidth, windowHeight)
     }
-
 
     private fun calculateZoom(): Double {
         val border: Border = FhysicsCore.BORDER
@@ -117,7 +113,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         val newWidth = queryRect.width / zoom
         val newHeight = queryRect.height / zoom
 
-        queryRect = Rectangle2D.Double(currentCenterX - (newWidth / 2), currentCenterY - (newHeight / 2), newWidth, newHeight)
+        queryRect =
+            Rectangle2D.Double(currentCenterX - (newWidth / 2), currentCenterY - (newHeight / 2), newWidth, newHeight)
 
         fhysics.fhysicsObjects.forEach { it.updateColor() }
         QuadTree.count = 0
@@ -197,13 +194,21 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     private fun drawMSPU(g: Graphics) {
-        val mspu = fhysics.getAverageUpdateTime() // Milliseconds per Update
-        val fontSize = height / 30 // Adjust the divisor for the desired scaling
+        val mspu: Double = fhysics.getAverageUpdateTime() // Milliseconds per Update
+        val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
+        val fps: Double = 1000.0 / mspu
+        val fpsRounded: String = String.format(Locale.US, "%.2f", fps)
+
+        val fontSize: Int = height / 30 // Adjust the divisor for the desired scaling
 
         val font = Font("Spline Sans", Font.PLAIN, fontSize)
         g.font = font
-        g.color = Color.WHITE
-        g.drawString("MSPU: $mspu", 5, 40)
+        g.color = Color.LIGHT_GRAY
+
+        val lineHeight: Int = g.fontMetrics.height
+        g.drawString("MSPU: $mspuRounded", 5, 40)
+        g.drawString("FPS: $fpsRounded", 5, 40 + lineHeight)
+
     }
 
     /**
