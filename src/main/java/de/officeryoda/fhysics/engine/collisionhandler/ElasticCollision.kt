@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine.collisionhandler
 
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -32,6 +33,14 @@ object ElasticCollision : CollisionHandler() {
             obj1.velocity += collisionNormal * (impulse * obj2.mass * restitution)
             obj2.velocity -= collisionNormal * (impulse * obj1.mass * restitution)
         }
+    }
+
+    override fun handleCollision(obj1: Circle, obj2: Box) {
+        TODO("Not yet implemented")
+    }
+
+    override fun handleCollision(obj1: Box, obj2: Box) {
+        TODO("Not yet implemented")
     }
 
     private fun separateOverlappingCircles(obj1: Circle, obj2: Circle, sqrRadii: Double, sqrDst: Double) {

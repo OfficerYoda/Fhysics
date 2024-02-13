@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
 import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
 import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import java.awt.geom.Rectangle2D
@@ -10,10 +11,9 @@ import java.util.*
 
 class FhysicsCore {
 
-    private val collisionHandler: CollisionHandler = ElasticCollision
     private val quadTreeCapacity: Int = 4
 
-    val fhysicsObjects: MutableList<Circle> = ArrayList()
+    val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
     var quadTree: QuadTree = QuadTree(Rectangle2D.Double(0.0, 0.0, 60.0, 60.0), quadTreeCapacity)
 
     private val gravity: Vector2 = Vector2(0.0, -9.81)
@@ -25,8 +25,10 @@ class FhysicsCore {
     var drawer: FhysicsObjectDrawer? = null
 
     init {
-        for (i in 1..3000) {
-            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
+        for (i in 1..30) {
+            val circle = FhysicsObjectFactory.randomCircle()
+            circle.radius *= 10
+            fhysicsObjects.add(circle)
         }
     }
 
@@ -45,10 +47,11 @@ class FhysicsCore {
 
 //        spawnObject()
 
-        fhysicsObjects.forEach { obj: Circle ->
-            obj.update(updatesIntervalSeconds, Vector2.ZERO)
+        fhysicsObjects.forEach {
+            it.update(updatesIntervalSeconds, Vector2.ZERO)
 //            obj.update(updatesIntervalSeconds, gravity)
-            checkBorderCollision(obj)
+            if (it is Circle)
+                checkBorderCollision(it)
         }
         buildQuadTree()
         checkObjectCollisionQuadTree(quadTree)
@@ -84,7 +87,7 @@ class FhysicsCore {
             for (obj1 in objects) {
                 for (obj2 in objects) {
                     if (obj1.id == obj2.id) continue
-                    collisionHandler.handleCollision(obj1 as Circle, obj2 as Circle)
+                    obj1.handleCollision(obj2)
                 }
             }
         } else {
@@ -98,7 +101,7 @@ class FhysicsCore {
     private fun checkObjectCollision(obj: Circle) {
         fhysicsObjects.forEach {
             if (obj.id == it.id) return@forEach
-            collisionHandler.handleCollision(obj, it)
+            obj.handleCollision(it)
         }
     }
 
@@ -149,8 +152,9 @@ class FhysicsCore {
         // x and y must be 0.0
         val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 60.0, 60.0)
 
-        private var objectCount: Int = 0
+        val COLLISION_HANDLER: CollisionHandler = ElasticCollision
 
+        private var objectCount: Int = 0
         fun nextId(): Int {
             return objectCount++
         }

@@ -38,6 +38,14 @@ abstract class FhysicsObject protected constructor(
 //        return color
     }
 
+    fun handleCollision(other: FhysicsObject) {
+        other.handleCollision(this) // double dispatch (should not loop infinitely because there should never be a plane FhysicsObject)
+    }
+
+    abstract fun handleCollision(other: Circle)
+
+    abstract fun handleCollision(other: Box)
+
     override fun toString(): String {
         return "FhysicsObject(position=$position, mass=$mass, velocity=$velocity, acceleration=$acceleration, id=$id, color=$color)"
     }

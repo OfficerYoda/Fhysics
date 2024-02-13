@@ -1,11 +1,13 @@
 package de.officeryoda.fhysics.engine.collisionhandler
 
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 object MinimizeOverlap : CollisionHandler() {
+
     override fun handleCollision(obj1: Circle, obj2: Circle) {
         val sqrDst: Double = obj1.position.sqrDistance(obj2.position)
         val sqrRadii: Double = (obj1.radius + obj2.radius).pow(2.0)
@@ -23,5 +25,13 @@ object MinimizeOverlap : CollisionHandler() {
             obj2.position += moveAmount
             obj2.velocity += moveAmount
         }
+    }
+
+    override fun handleCollision(obj1: Circle, obj2: Box) {
+        TODO("Not yet implemented")
+    }
+
+    override fun handleCollision(obj1: Box, obj2: Box) {
+        TODO("Not yet implemented")
     }
 }
