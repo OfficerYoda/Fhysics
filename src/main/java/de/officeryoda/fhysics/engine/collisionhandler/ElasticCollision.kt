@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine.collisionhandler
 
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import kotlin.math.pow
@@ -8,38 +9,48 @@ import kotlin.math.sqrt
 
 object ElasticCollision : CollisionHandler() {
 
-    override fun handleCollision(obj1: Circle, obj2: Circle) {
-        val sqrDst: Double = obj1.position.sqrDistance(obj2.position)
-        val sqrRadii: Double = (obj1.radius + obj2.radius).pow(2.0)
+    override fun handleCollision(circle1: Circle, circle2: Circle) {
+        val sqrDst: Double = circle1.position.sqrDistance(circle2.position)
+        val sqrRadii: Double = (circle1.radius + circle2.radius).pow(2.0)
 
         if (sqrDst < sqrRadii) {
-            separateOverlappingCircles(obj1, obj2, sqrRadii, sqrDst)
+            separateOverlappingCircles(circle1, circle2, sqrRadii, sqrDst)
 
             // Calculate relative velocity before collision; obj2 doesn't move relatively speaking
-            val relativeVelocity: Vector2 = obj2.velocity - obj1.velocity
+            val relativeVelocity: Vector2 = circle2.velocity - circle1.velocity
 
             // Calculate the normal vector along the line of collision
             // a vector from obj1 in direction of obj2, normalized
-            val collisionNormal: Vector2 = (obj2.position - obj1.position).normalized()
+            val collisionNormal: Vector2 = (circle2.position - circle1.position).normalized()
 
             // Calculate relative velocity along the normal direction
             val relativeVelocityAlongNormal: Double = relativeVelocity.dot(collisionNormal)
 
             // Calculate impulse (change in momentum)
-            val impulse: Double = (2.0 * relativeVelocityAlongNormal) / (obj1.mass + obj2.mass)
+            val impulse: Double = (2.0 * relativeVelocityAlongNormal) / (circle1.mass + circle2.mass)
 
             // Apply impulse to update velocities
             val restitution = 1.0
-            obj1.velocity += collisionNormal * (impulse * obj2.mass * restitution)
-            obj2.velocity -= collisionNormal * (impulse * obj1.mass * restitution)
+            val impulseMultiplier = impulse * restitution * collisionNormal
+            circle1.velocity += impulseMultiplier * circle2.mass
+            circle2.velocity -= impulseMultiplier * circle1.mass
+
         }
     }
 
-    override fun handleCollision(obj1: Circle, obj2: Box) {
+    override fun handleCollision(circle: Circle, box: Box) {
+        val closestPoint: Vector2 = getClosestPoint(box, circle.position)
 
+        // Calculate the vector from the circle's center to the closest point on the box
+        val offset: Vector2 = closestPoint - circle.position
+
+        // Check if the distance between the circle's center and the closest point is less than the circle's radius
+        if (offset.sqrMagnitude() < circle.radius * circle.radius) {
+            circle.velocity -= circle.velocity // stop the circle
+        }
     }
 
-    override fun handleCollision(obj1: Box, obj2: Box) {
+    override fun handleCollision(box1: Box, box2: Box) {
         TODO("Not yet implemented")
     }
 
@@ -53,5 +64,12 @@ object ElasticCollision : CollisionHandler() {
         // Move circles apart along the collision normal
         obj1.position -= moveAmount
         obj2.position += moveAmount
+    }
+
+    private fun getClosestPoint(box: Box, externalPoint: Vector2): Vector2 {
+        val closestX = externalPoint.x.coerceIn(box.minX, box.maxX)
+        val closestY = externalPoint.y.coerceIn(box.minY, box.maxY)
+
+        return Vector2(closestX, closestY)
     }
 }

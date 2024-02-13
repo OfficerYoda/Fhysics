@@ -169,6 +169,15 @@ class Vector2
     }
 
     /**
+     * Returns a new Vector2 instance that represents the negation of the current vector.
+     *
+     * @return The negated Vector2.
+     */
+    operator fun unaryMinus(): Vector2 {
+        return Vector2(-this.x, -this.y)
+    }
+
+    /**
      * Converts this Vector2 to a Vector2Int by rounding the x and y coordinates to the nearest integer values.
      *
      * @return The converted Vector2Int.

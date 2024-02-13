@@ -32,7 +32,7 @@ class FhysicsCore {
             fhysicsObjects.add(circle)
         }
 
-        fhysicsObjects.add(Box(Vector2(10.0, 10.0), 7.5, 5.0))
+        fhysicsObjects.add(Box(Vector2(10.0, 10.0), 10.0, 10.0))
         fhysicsObjects.add(Box(Vector2(40.0, 30.0), 2.5, 10.0))
         fhysicsObjects.add(Box(Vector2(20.0, 50.0), 4.0, 12.0))
     }

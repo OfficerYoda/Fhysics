@@ -5,6 +5,17 @@ import de.officeryoda.fhysics.engine.Vector2
 
 class Box(position: Vector2, val width: Double, val height: Double) :
     FhysicsObject(position, width * height) {
+    val minX: Double
+        get() = position.x
+
+    val minY: Double
+        get() = position.y
+
+    val maxX: Double
+        get() = position.x + width
+
+    val maxY: Double
+        get() = position.y + height
 
     override fun update(dt: Double, gravity: Vector2) {
         // don't move
