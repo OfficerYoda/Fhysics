@@ -92,7 +92,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         drawAllObjects(g)
 
         drawBorder(g)
-        drawQuadTree(g)
+//        drawQuadTree(g)
         drawMSPU(g)
 
         drawHighlightQuadTree(g)

@@ -9,12 +9,12 @@ data class QuadTree(
     private val boundary: Rectangle2D,
     private val capacity: Int
 ) {
-    private val objects: MutableList<FhysicsObject> = ArrayList()
-    private lateinit var topLeft: QuadTree
-    private lateinit var topRight: QuadTree
-    private lateinit var botLeft: QuadTree
-    private lateinit var botRight: QuadTree
-    private var divided: Boolean = false
+    val objects: MutableList<FhysicsObject> = ArrayList()
+    lateinit var topLeft: QuadTree
+    lateinit var topRight: QuadTree
+    lateinit var botLeft: QuadTree
+    lateinit var botRight: QuadTree
+    var divided: Boolean = false
 
     fun insert(obj: FhysicsObject) {
         if (!boundary.intersects(obj)) {
