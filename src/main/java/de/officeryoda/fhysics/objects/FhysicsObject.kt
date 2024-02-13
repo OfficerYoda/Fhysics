@@ -4,7 +4,6 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import lombok.ToString
 import java.awt.Color
-import kotlin.random.Random
 
 @ToString
 abstract class FhysicsObject protected constructor(
@@ -14,7 +13,7 @@ abstract class FhysicsObject protected constructor(
     private val acceleration: Vector2 = Vector2.ZERO
 ) {
     val id = FhysicsCore.nextId()
-    val color: Color = colorFromIndex()
+    var color: Color = colorFromIndex()
 
     fun update(dt: Double, gravity: Vector2) {
         val damping = 0.00
@@ -26,9 +25,14 @@ abstract class FhysicsObject protected constructor(
         acceleration.set(Vector2.ZERO)
     }
 
+    fun updateColor() {
+        color = colorFromIndex()
+    }
+
     private fun colorFromIndex(): Color {
-        val colors = listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
-        return colors[Random.nextInt(colors.size)]
+        val colors =
+            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
+        return colors[id % 1]
 //        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
 
 //        return color

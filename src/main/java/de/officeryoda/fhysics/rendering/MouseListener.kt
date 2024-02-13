@@ -13,7 +13,6 @@ class MouseListener internal constructor(private val fhysicsPanel: FhysicsPanel)
     }
 
     override fun mousePressed(e: MouseEvent) {
-        super.mouseClicked(e)
         fhysicsPanel.onMousePressed(Vector2(e.x.toDouble(), e.y.toDouble()))
     }
 }

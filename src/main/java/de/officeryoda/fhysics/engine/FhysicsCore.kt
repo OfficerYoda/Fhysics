@@ -1,6 +1,5 @@
 package de.officeryoda.fhysics.engine
 
-import QuadTree
 import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
 import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
 import de.officeryoda.fhysics.objects.Circle
@@ -13,9 +12,10 @@ import java.util.function.Consumer
 class FhysicsCore {
 
     private val collisionHandler: CollisionHandler = ElasticCollision
+    private val quadTreeCapacity: Int = 4
 
     val fhysicsObjects: MutableList<Circle> = ArrayList()
-    var quadTree: QuadTree = QuadTree(Rectangle2D.Double(0.0,0.0,60.0, 60.0),4)
+    var quadTree: QuadTree = QuadTree(Rectangle2D.Double(0.0, 0.0, 60.0, 60.0), quadTreeCapacity)
 
     private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val updatesPerSecond: Int = 240
@@ -26,7 +26,7 @@ class FhysicsCore {
     var drawer: FhysicsObjectDrawer? = null
 
     init {
-        for (i in 1..400) {
+        for (i in 1..2400) {
             fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
         }
 
@@ -64,7 +64,7 @@ class FhysicsCore {
     }
 
     private fun buildQuadTree() {
-        quadTree = QuadTree(Rectangle2D.Double(0.0,0.0,60.0, 60.0),4)
+        quadTree = QuadTree(Rectangle2D.Double(0.0, 0.0, 60.0, 60.0), quadTreeCapacity)
         fhysicsObjects.forEach { quadTree.insert(it) }
     }
 
@@ -81,11 +81,11 @@ class FhysicsCore {
         fhysicsObjects.add(FhysicsObjectFactory.customCircle(pos, radius, vel))
     }
 
-    private fun checkObjectCollision(obj1: Circle) {
-        fhysicsObjects.stream().forEach(Consumer { obj2: Circle ->
-            if (obj1.id == obj2.id) return@Consumer
-            collisionHandler.handleCollision(obj1, obj2)
-        })
+    private fun checkObjectCollision(obj: Circle) {
+        fhysicsObjects.forEach {
+            if (obj.id == it.id) return
+            collisionHandler.handleCollision(obj, it)
+        }
     }
 
     private fun checkBorderCollision(circle: Circle) {

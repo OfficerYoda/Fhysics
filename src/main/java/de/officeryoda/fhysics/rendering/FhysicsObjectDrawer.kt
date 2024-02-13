@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
+import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Border
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
@@ -11,6 +12,7 @@ import java.awt.*
 import java.awt.geom.Rectangle2D
 import javax.swing.JFrame
 import javax.swing.JPanel
+import javax.swing.SwingUtilities
 
 
 class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
@@ -93,7 +95,46 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         drawBorder(g)
         drawQuadTree(g)
         drawMSPU(g)
+
+        drawHighlightQuadTree(g)
     }
+
+    private var rectSize = 20
+    private fun drawHighlightQuadTree(g: Graphics) {
+        val mousePoint: Point = MouseInfo.getPointerInfo().location
+        SwingUtilities.convertPointFromScreen(mousePoint, this)
+
+        val mousePos = Vector2(mousePoint.x.toDouble(), height - mousePoint.y.toDouble()) / zoom
+
+        var rectX = mousePos.x - rectSize / 2
+        var rectY = mousePos.y - rectSize / 2
+
+        var queryRect = Rectangle2D.Double(rectX, rectY, rectSize.toDouble(), rectSize.toDouble())
+
+        val currentCenterX = queryRect.x + (queryRect.width / 2)
+        val currentCenterY = queryRect.y + (queryRect.height / 2)
+
+        val newWidth = queryRect.width / zoom
+        val newHeight = queryRect.height / zoom
+
+        queryRect = Rectangle2D.Double(currentCenterX - (newWidth / 2), currentCenterY - (newHeight / 2), newWidth, newHeight)
+
+        fhysics.fhysicsObjects.forEach { it.updateColor() }
+        QuadTree.count = 0
+        fhysics.quadTree.query(queryRect).forEach { it.color = Color.BLUE; drawObject(it, g) }
+        println("${QuadTree.count} \t/ ${fhysics.fhysicsObjects.count()}")
+
+        mousePos *= zoom
+        mousePos.x -= insets.left
+        mousePos.y += insets.top
+        mousePos /= zoom
+
+        rectX = (transformX(mousePos.x) - rectSize / 2 + insets.left).toDouble()
+        rectY = (transformY(mousePos.y) - rectSize / 2 + insets.top).toDouble()
+
+        g.drawRect(rectX.toInt(), rectY.toInt(), rectSize, rectSize)
+    }
+
 
     private fun drawAllObjects(g: Graphics) {
         g.color = objectColor
@@ -188,7 +229,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     fun onMouseWheel(dir: Int) {
-        zoom += dir * -0.2
+//        zoom += dir * -0.2
+        rectSize -= dir * 3
     }
 
     fun onMousePressed(mousePos: Vector2) {
