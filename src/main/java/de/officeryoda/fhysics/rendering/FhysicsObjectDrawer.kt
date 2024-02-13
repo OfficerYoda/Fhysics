@@ -52,7 +52,7 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
             windowWidth = ((windowHeight - insets.top) / ratio).toInt()
         }
 
-        setSize(windowWidth, windowHeight)
+        setSize(windowWidth, windowHeight - insets.bottom)
     }
 
     private fun calculateZoom(): Double {
