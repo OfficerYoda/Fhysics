@@ -13,10 +13,10 @@ abstract class FhysicsObject protected constructor(
     private val acceleration: Vector2 = Vector2.ZERO
 ) {
     val id = FhysicsCore.nextId()
-    val color: Color = colorFromIndex()
+    var color: Color = colorFromIndex()
 
     fun update(dt: Double, gravity: Vector2) {
-        val damping = 0.05
+        val damping = 0.00
 
         acceleration += gravity
         velocity += (acceleration - velocity * damping) * dt
@@ -25,9 +25,20 @@ abstract class FhysicsObject protected constructor(
         acceleration.set(Vector2.ZERO)
     }
 
-    private fun colorFromIndex(): Color {
-        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
+    fun updateColor() {
+        color = colorFromIndex()
+    }
 
-        return color
+    private fun colorFromIndex(): Color {
+        val colors =
+            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
+        return colors[id % 1]
+//        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
+//
+//        return color
+    }
+
+    override fun toString(): String {
+        return "FhysicsObject(position=$position, mass=$mass, velocity=$velocity, acceleration=$acceleration, id=$id, color=$color)"
     }
 }

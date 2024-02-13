@@ -2,7 +2,6 @@ package de.officeryoda.fhysics.engine
 
 import lombok.ToString
 import kotlin.math.sqrt
-import kotlin.time.times
 
 /**
  * A 2D vector class providing basic vector operations.
@@ -155,6 +154,15 @@ class Vector2Int
     operator fun divAssign(scalar: Double) {
         this.x = this.x.div(scalar).toInt()
         this.y = this.y.div(scalar).toInt()
+    }
+
+    /**
+     * Converts this Vector2Int to a Vector2 by converting the x and y coordinates to double values.
+     *
+     * @return The converted Vector2.
+     */
+    fun toDoubleVector2(): Vector2 {
+        return Vector2(x.toDouble(), y.toDouble())
     }
 
     /**
