@@ -62,8 +62,10 @@ class FhysicsCore {
     }
 
     private fun buildQuadTree() {
+        QuadTree.count = 0
         quadTree = QuadTree(Rectangle2D.Double(0.0, 0.0, 60.0, 60.0), quadTreeCapacity)
         fhysicsObjects.forEach { quadTree.insert(it) }
+        println("QuadTree.count = ${QuadTree.count}")
     }
 
     private fun spawnObject() {
