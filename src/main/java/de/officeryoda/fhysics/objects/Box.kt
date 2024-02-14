@@ -1,9 +1,8 @@
 package de.officeryoda.fhysics.objects
 
-import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
-import de.officeryoda.fhysics.engine.collision.CollisionPoints
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import java.awt.Color
 
 class Box(position: Vector2, val width: Double, val height: Double) :
@@ -28,11 +27,11 @@ class Box(position: Vector2, val width: Double, val height: Double) :
         // don't move
     }
 
-    override fun testCollision(other: Circle): CollisionPoints {
+    override fun testCollision(other: Circle): CollisionInfo {
         return CollisionFinder.testCollision(other, this)
     }
 
-    override fun testCollision(other: Box): CollisionPoints {
+    override fun testCollision(other: Box): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
     }
 

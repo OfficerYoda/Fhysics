@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.objects
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.collision.CollisionPoints
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
@@ -29,15 +29,15 @@ abstract class FhysicsObject protected constructor(
     }
 
     private fun colorFromIndex(): Color {
-        val colors =
-            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
-        return colors[id % 1]
-//        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
-//
-//        return color
+//        val colors =
+//            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
+//        return colors[id % 1]
+        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
+
+        return color
     }
 
-    fun testCollision(other: FhysicsObject): CollisionPoints {
+    fun testCollision(other: FhysicsObject): CollisionInfo {
         return when (other) {
             is Circle -> testCollision(other)
             is Box -> testCollision(other)
@@ -45,9 +45,9 @@ abstract class FhysicsObject protected constructor(
         }
     }
 
-    abstract fun testCollision(other: Circle): CollisionPoints
+    abstract fun testCollision(other: Circle): CollisionInfo
 
-    abstract fun testCollision(other: Box): CollisionPoints
+    abstract fun testCollision(other: Box): CollisionInfo
 
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, color=$color)"

@@ -7,12 +7,13 @@ import de.officeryoda.fhysics.objects.Circle
 import kotlin.math.sqrt
 
 object CollisionFinder {
-    fun testCollision(circleA: Circle, circleB: Circle): CollisionPoints {
+
+    fun testCollision(circleA: Circle, circleB: Circle): CollisionInfo {
         val sqrDst: Double = circleA.position.sqrDistance(circleB.position)
         val radii: Double = circleA.radius + circleB.radius
         val sqrRadii: Double = radii * radii
 
-        if (sqrDst >= sqrRadii) return CollisionPoints()
+        if (sqrDst >= sqrRadii) return CollisionInfo()
 
         // Calculate the normal vector along the line of collision
         // a vector from circleA in direction of circleB, normalized
@@ -21,15 +22,10 @@ object CollisionFinder {
         // calculate the overlap
         val overlap: Double = radii - sqrt(sqrDst)
 
-        // Calculate collision points by moving each circle along the collision normal
-        val moveAmount: Vector2 = collisionNormal * (overlap * 0.5)
-        val pointInA: Vector2 = circleA.position + moveAmount
-        val pointInB: Vector2 = circleB.position - moveAmount
-
-        return CollisionPoints(pointInA, pointInB, collisionNormal, overlap)
+        return CollisionInfo(circleA, circleB, collisionNormal, overlap)
     }
 
-    fun testCollision(circle: Circle, box: Box): CollisionPoints {
+    fun testCollision(circle: Circle, box: Box): CollisionInfo {
         // calculate the closes point on the box to the circles center
         val closestPoint: Vector2 = getClosestPoint(box, circle.position)
 
@@ -59,12 +55,12 @@ object CollisionFinder {
             circle.velocity += impulseMultiplier * box.mass
         }
 
-        return CollisionPoints()
+        return CollisionInfo()
     }
 
-    fun testCollision(box1: Box, box2: Box): CollisionPoints {
+    fun testCollision(box1: Box, box2: Box): CollisionInfo {
 //        TODO("Not yet implemented")
-        return CollisionPoints()
+        return CollisionInfo()
     }
 
     private fun separateCircleFromBox(circle: Circle, closestPoint: Vector2, offset: Vector2) {

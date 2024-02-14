@@ -1,8 +1,9 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.collision.CollisionPoints
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
+import de.officeryoda.fhysics.engine.collision.MinimizeOverlap
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
@@ -43,15 +44,6 @@ class FhysicsCore {
 //        }
     }
 
-    fun startUpdateLoop() {
-        val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
-        Timer(true).scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                update()
-            }
-        }, 0, updateIntervalMillis.toLong())
-    }
-
     private fun update() {
         val startTime: Long = System.nanoTime()
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
@@ -59,8 +51,8 @@ class FhysicsCore {
 //        spawnObject()
 
         fhysicsObjects.forEach {
-            it.update(updatesIntervalSeconds, Vector2.ZERO)
-//            obj.update(updatesIntervalSeconds, gravity)
+//            it.update(updatesIntervalSeconds, Vector2.ZERO)
+            it.update(updatesIntervalSeconds, gravity)
             checkBorderCollision(it)
         }
 
@@ -73,6 +65,15 @@ class FhysicsCore {
         addUpdateTime(System.nanoTime() - startTime)
     }
 
+    fun startUpdateLoop() {
+        val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
+        Timer(true).scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                update()
+            }
+        }, 0, updateIntervalMillis.toLong())
+    }
+
     private fun buildQuadTree() {
         QuadTree.count = 0
         quadTree = QuadTree(BORDER, quadTreeCapacity)
@@ -83,7 +84,7 @@ class FhysicsCore {
         if (updateCount % 5 != 0) return
 
         val spawnRows = 2
-        val radius = 0.2
+        val radius = 0.5
         val pos = Vector2(2.0, BORDER.height - 2)
         val yOffset = (objectCount % spawnRows) * 2 * radius
         pos.y -= yOffset
@@ -111,15 +112,15 @@ class FhysicsCore {
     private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
         if (objA.id == objB.id) return
         
-        val points: CollisionPoints = objA.testCollision(objB)
+        val points: CollisionInfo = objA.testCollision(objB)
 
-        if(points.depth == -1.0) return
+        if(points.overlap == -1.0) return
 
-        COLLISION_SOLVER.solveCollision(objA, objB, points)
+        MinimizeOverlap.solveCollision(points)
     }
 
     private fun checkBorderCollision(obj: FhysicsObject) {
-        borderBoxes.forEach { obj.testCollision(it) }
+        borderBoxes.forEach { handleCollision(obj, it) }
     }
 
     private fun createBorderBoxes(): List<Box> {
