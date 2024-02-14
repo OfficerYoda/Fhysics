@@ -8,7 +8,7 @@ abstract class FhysicsObject protected constructor(
     val position: Vector2 = Vector2.ZERO,
     val mass: Double = 1.0,
     val velocity: Vector2 = Vector2.ZERO,
-    private val acceleration: Vector2 = Vector2.ZERO
+    val acceleration: Vector2 = Vector2.ZERO
 ) {
     val id = FhysicsCore.nextId()
     var color: Color = colorFromIndex()
@@ -49,6 +49,6 @@ abstract class FhysicsObject protected constructor(
     abstract fun handleCollision(other: Box)
 
     override fun toString(): String {
-        return "FhysicsObject(position=$position, mass=$mass, velocity=$velocity, acceleration=$acceleration, id=$id, color=$color)"
+        return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, color=$color)"
     }
 }

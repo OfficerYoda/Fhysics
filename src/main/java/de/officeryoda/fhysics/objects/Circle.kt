@@ -9,15 +9,15 @@ class Circle(
 ) :
     FhysicsObject(position, Math.PI * radius * radius) {
 
-    override fun toString(): String {
-        return "Circle(position=$position, radius=$radius) - ${super.toString()}"
-    }
-
     override fun handleCollision(other: Circle) {
         FhysicsCore.COLLISION_HANDLER.handleCollision(this, other)
     }
 
     override fun handleCollision(other: Box) {
         FhysicsCore.COLLISION_HANDLER.handleCollision(this, other)
+    }
+
+    override fun toString(): String {
+        return "Circle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, color=$color, radius=$radius)"
     }
 }

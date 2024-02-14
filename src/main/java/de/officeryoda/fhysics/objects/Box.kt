@@ -35,6 +35,6 @@ class Box(position: Vector2, val width: Double, val height: Double) :
     }
 
     override fun toString(): String {
-        return "Box(position=$position, width=$width, height=$height) - ${super.toString()}"
+        return "Box(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, color=$color, width=$width, height=$height)"
     }
 }
