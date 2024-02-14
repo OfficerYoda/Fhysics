@@ -15,7 +15,7 @@ class FhysicsCore {
     private val quadTreeCapacity: Int = 4
 
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
-    var quadTree: QuadTree = QuadTree(Rectangle2D.Double(0.0, 0.0, 60.0, 60.0), quadTreeCapacity)
+    var quadTree: QuadTree = QuadTree(BORDER, quadTreeCapacity)
 
     private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val updatesPerSecond: Int = 240
@@ -26,15 +26,20 @@ class FhysicsCore {
     var drawer: FhysicsObjectDrawer? = null
 
     init {
-        for (i in 1..30) {
-            val circle = FhysicsObjectFactory.randomCircle()
-            circle.radius *= 10
-            fhysicsObjects.add(circle)
-        }
+//        for (i in 1..30) {
+//            val circle = FhysicsObjectFactory.randomCircle()
+//            circle.radius *= 10
+//            fhysicsObjects.add(circle)
+//        }
+//
+//        fhysicsObjects.add(Box(Vector2(10.0, 10.0), 10.0, 10.0))
+//        fhysicsObjects.add(Box(Vector2(40.0, 30.0), 2.5, 10.0))
+//        fhysicsObjects.add(Box(Vector2(20.0, 50.0), 4.0, 12.0))
 
-        fhysicsObjects.add(Box(Vector2(10.0, 10.0), 10.0, 10.0))
-        fhysicsObjects.add(Box(Vector2(40.0, 30.0), 2.5, 10.0))
-        fhysicsObjects.add(Box(Vector2(20.0, 50.0), 4.0, 12.0))
+        fhysicsObjects.add(Box(Vector2(80.0, 30.0), 10.0, 40.0))
+        val circle = Circle(Vector2(40.0, 50.0), 3.0)
+        circle.velocity += Vector2(30.0, 0.0)
+        fhysicsObjects.add(circle)
     }
 
     fun startUpdateLoop() {
@@ -69,7 +74,7 @@ class FhysicsCore {
 
     private fun buildQuadTree() {
         QuadTree.count = 0
-        quadTree = QuadTree(Rectangle2D.Double(0.0, 0.0, 60.0, 60.0), quadTreeCapacity)
+        quadTree = QuadTree(BORDER, quadTreeCapacity)
         fhysicsObjects.forEach { quadTree.insert(it) }
     }
 
@@ -155,7 +160,7 @@ class FhysicsCore {
 
     companion object {
         // x and y must be 0.0
-        val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 60.0, 60.0)
+        val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 100.0, 100.0)
 
         val COLLISION_HANDLER: CollisionHandler = ElasticCollision
 

@@ -2,10 +2,8 @@ package de.officeryoda.fhysics.objects
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
-import lombok.ToString
 import java.awt.Color
 
-@ToString
 abstract class FhysicsObject protected constructor(
     val position: Vector2 = Vector2.ZERO,
     val mass: Double = 1.0,

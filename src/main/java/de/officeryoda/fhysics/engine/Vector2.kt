@@ -8,7 +8,7 @@ import kotlin.math.sqrt
  * @property x The x-coordinate of the Vector2.
  * @property y The y-coordinate of the Vector2.
  */
-class Vector2
+data class Vector2
 @JvmOverloads constructor(
     var x: Double = 0.0, var y: Double = 0.0
 ) {

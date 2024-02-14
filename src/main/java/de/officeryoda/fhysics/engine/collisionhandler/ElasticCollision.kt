@@ -14,7 +14,7 @@ object ElasticCollision : CollisionHandler() {
         val sqrRadii: Double = (circle1.radius + circle2.radius).pow(2.0)
 
         if (sqrDst < sqrRadii) {
-            separateOverlappingCircles(circle1, circle2, sqrRadii, sqrDst)
+            separateOverlappingCircles(circle1, circle2, circle1.radius + circle2.radius, sqrDst)
 
             // Calculate relative velocity before collision; obj2 doesn't move relatively speaking
             val relativeVelocity: Vector2 = circle2.velocity - circle1.velocity
@@ -34,7 +34,6 @@ object ElasticCollision : CollisionHandler() {
             val impulseMultiplier = impulse * restitution * collisionNormal
             circle1.velocity += impulseMultiplier * circle2.mass
             circle2.velocity -= impulseMultiplier * circle1.mass
-
         }
     }
 
@@ -46,17 +45,30 @@ object ElasticCollision : CollisionHandler() {
 
         // Check if the distance between the circle's center and the closest point is less than the circle's radius
         if (offset.sqrMagnitude() < circle.radius * circle.radius) {
-            circle.velocity -= circle.velocity // stop the circle
+            separateCircleFromBox(circle, closestPoint, offset)
+
+            val temp = circle.velocity.copy()
+            circle.velocity -= 2 * temp
         }
+    }
+
+    private fun separateCircleFromBox(circle: Circle, closestPoint: Vector2, offset: Vector2) {
+        // from closestPoint to circle.position
+        val collisionNormal: Vector2 = (circle.position - closestPoint).normalized()
+
+        // Calculate overlap distance
+        val overlap: Double = circle.radius - offset.magnitude()
+
+        circle.position += overlap * collisionNormal
     }
 
     override fun handleCollision(box1: Box, box2: Box) {
         TODO("Not yet implemented")
     }
 
-    private fun separateOverlappingCircles(obj1: Circle, obj2: Circle, sqrRadii: Double, sqrDst: Double) {
+    private fun separateOverlappingCircles(obj1: Circle, obj2: Circle, radii: Double, sqrDst: Double) {
         // Calculate overlap distance
-        val overlap: Double = sqrt(sqrRadii) - sqrt(sqrDst)
+        val overlap: Double = radii - sqrt(sqrDst)
 
         val collisionNormal: Vector2 = (obj2.position - obj1.position).normalized()
         val moveAmount: Vector2 = collisionNormal * (overlap * 0.5)
