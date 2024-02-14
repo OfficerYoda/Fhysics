@@ -3,7 +3,6 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
 import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
 import de.officeryoda.fhysics.objects.Box
-import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -13,9 +12,10 @@ import java.util.*
 class FhysicsCore {
 
     private val quadTreeCapacity: Int = 4
+    var quadTree: QuadTree = QuadTree(BORDER, quadTreeCapacity)
 
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
-    var quadTree: QuadTree = QuadTree(BORDER, quadTreeCapacity)
+    private val borderBoxes: List<Box>
 
     private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val updatesPerSecond: Int = 240
@@ -23,12 +23,14 @@ class FhysicsCore {
     private var updateCount = 0
     private val updateTimes = mutableListOf<Long>()
 
-    var drawer: FhysicsObjectDrawer? = null
+    lateinit var drawer: FhysicsObjectDrawer
 
     init {
-        for (i in 1..50) {
+        borderBoxes = createBorderBoxes()
+
+        for (i in 1..7500) {
             val circle = FhysicsObjectFactory.randomCircle()
-            circle.radius *= 4
+//            circle.radius *= 4
             fhysicsObjects.add(circle)
         }
 
@@ -36,11 +38,6 @@ class FhysicsCore {
 //            val box = FhysicsObjectFactory.randomBox()
 //            fhysicsObjects.add(box)
 //        }
-
-        fhysicsObjects.addFirst(Box(Vector2(30.0, 30.0), 40.0, 40.0))
-//        val circle = Circle(Vector2(50.0, 40.0), 3.0)
-//        circle.velocity += Vector2(30.0, 30.0)
-//        fhysicsObjects.add(circle)
     }
 
     fun startUpdateLoop() {
@@ -61,8 +58,7 @@ class FhysicsCore {
         fhysicsObjects.forEach {
             it.update(updatesIntervalSeconds, Vector2.ZERO)
 //            obj.update(updatesIntervalSeconds, gravity)
-            if (it is Circle)
-                checkBorderCollision(it)
+            checkBorderCollision(it)
         }
         buildQuadTree()
         checkObjectCollisionQuadTree(quadTree)
@@ -109,32 +105,8 @@ class FhysicsCore {
         }
     }
 
-    private fun checkBorderCollision(circle: Circle) {
-        val pos: Vector2 = circle.position
-        val velocity: Vector2 = circle.velocity
-        val radius: Double = circle.radius
-
-        // check top/bottom border
-        if (pos.y + radius > BORDER.height) {
-//            velocity.y = 0.0
-            velocity.y = -velocity.y
-            pos.y = BORDER.height - radius
-        } else if (pos.y - radius < 0) {
-//            velocity.y = 0.0
-            velocity.y = -velocity.y
-            pos.y = radius
-        }
-
-        // check left/right border
-        if (pos.x - radius < 0) {
-//            velocity.x = 0.0
-            velocity.x = -velocity.x
-            pos.x = radius
-        } else if (pos.x + radius > BORDER.width) {
-//            velocity.x = 0.0
-            velocity.x = -velocity.x
-            pos.x = BORDER.width - radius
-        }
+    private fun checkBorderCollision(obj: FhysicsObject) {
+        borderBoxes.forEach { obj.handleCollision(it) }
     }
 
     private fun addUpdateTime(updateTime: Long) {
@@ -153,6 +125,18 @@ class FhysicsCore {
             .filterNotNull() // filterNotNull is not redundant, even if IntelliJ says so
             .map { it / 1E6 } // convert nano to milliseconds
             .average()
+    }
+
+    private fun createBorderBoxes(): List<Box> {
+        val width: Double = BORDER.width
+        val height: Double = BORDER.height
+
+        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0), width, height, Vector2.ZERO)
+        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0), width, height, Vector2.ZERO)
+        val top: Box = FhysicsObjectFactory.customBox(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
+        val bottom: Box = FhysicsObjectFactory.customBox(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
+
+        return listOf(left, right, top, bottom)
     }
 
     companion object {

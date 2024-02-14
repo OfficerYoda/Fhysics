@@ -140,8 +140,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
     private fun drawAllObjects(g: Graphics) {
         g.color = objectColor
-        for (`object` in fhysics.fhysicsObjects.toList()) {
-            drawObject(`object`, g)
+        for (obj in fhysics.fhysicsObjects.toList()) {
+            drawObject(obj, g)
         }
     }
 
@@ -232,7 +232,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     fun onMouseWheel(dir: Int) {
-//        zoom += dir * -0.2
+//        zoom -= dir * 0.2
         rectSize -= dir * 3
     }
 

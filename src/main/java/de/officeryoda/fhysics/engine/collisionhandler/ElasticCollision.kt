@@ -69,7 +69,7 @@ object ElasticCollision : CollisionHandler() {
     }
 
     override fun handleCollision(box1: Box, box2: Box) {
-        TODO("Not yet implemented")
+//        TODO("Not yet implemented")
     }
 
     private fun separateCircleFromBox(circle: Circle, closestPoint: Vector2, offset: Vector2) {
