@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
 import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
+import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
@@ -25,19 +26,20 @@ class FhysicsCore {
     var drawer: FhysicsObjectDrawer? = null
 
     init {
-        for (i in 1..400) {
+        for (i in 1..50) {
             val circle = FhysicsObjectFactory.randomCircle()
             circle.radius *= 4
             fhysicsObjects.add(circle)
         }
-//
-//        fhysicsObjects.add(Box(Vector2(10.0, 10.0), 10.0, 10.0))
-//        fhysicsObjects.add(Box(Vector2(40.0, 30.0), 2.5, 10.0))
-//        fhysicsObjects.add(Box(Vector2(20.0, 50.0), 4.0, 12.0))
 
-//        fhysicsObjects.add(Box(Vector2(80.0, 30.0), 10.0, 40.0))
-//        val circle = Circle(Vector2(40.0, 50.0), 3.0)
-//        circle.velocity += Vector2(30.0, 0.0)
+//        for (i in 1..10) {
+//            val box = FhysicsObjectFactory.randomBox()
+//            fhysicsObjects.add(box)
+//        }
+
+        fhysicsObjects.addFirst(Box(Vector2(30.0, 30.0), 40.0, 40.0))
+//        val circle = Circle(Vector2(50.0, 40.0), 3.0)
+//        circle.velocity += Vector2(30.0, 30.0)
 //        fhysicsObjects.add(circle)
     }
 

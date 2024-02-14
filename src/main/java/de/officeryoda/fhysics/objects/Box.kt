@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.objects
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
+import java.awt.Color
 
 class Box(position: Vector2, val width: Double, val height: Double) :
     FhysicsObject(position, width * height) {
@@ -16,6 +17,10 @@ class Box(position: Vector2, val width: Double, val height: Double) :
 
     val maxY: Double
         get() = position.y + height
+
+    init {
+        color = Color.decode("#4287f5")
+    }
 
     override fun update(dt: Double, gravity: Vector2) {
         // don't move

@@ -16,11 +16,11 @@ object ElasticCollision : CollisionHandler() {
         if (sqrDst < sqrRadii) {
             separateOverlappingCircles(circle1, circle2, circle1.radius + circle2.radius, sqrDst)
 
-            // Calculate relative velocity before collision; obj2 doesn't move relatively speaking
+            // Calculate relative velocity before collision; circle2 doesn't move relatively speaking
             val relativeVelocity: Vector2 = circle2.velocity - circle1.velocity
 
             // Calculate the normal vector along the line of collision
-            // a vector from obj1 in direction of obj2, normalized
+            // a vector from circle1 in direction of circle2, normalized
             val collisionNormal: Vector2 = (circle2.position - circle1.position).normalized()
 
             // Calculate relative velocity along the normal direction
@@ -38,6 +38,7 @@ object ElasticCollision : CollisionHandler() {
     }
 
     override fun handleCollision(circle: Circle, box: Box) {
+        // calculate the closes point on the box to the circles center
         val closestPoint: Vector2 = getClosestPoint(box, circle.position)
 
         // Calculate the vector from the circle's center to the closest point on the box
@@ -47,9 +48,28 @@ object ElasticCollision : CollisionHandler() {
         if (offset.sqrMagnitude() < circle.radius * circle.radius) {
             separateCircleFromBox(circle, closestPoint, offset)
 
-            val temp = circle.velocity.copy()
-            circle.velocity -= 2 * temp
+            // Calculate relative velocity before collision; obx doesn't move relatively speaking
+            val relativeVelocity: Vector2 = box.velocity - circle.velocity
+
+            // Calculate the normal vector along the line of collision
+            // a vector from circle in direction of closestPoint, normalized
+            val collisionNormal: Vector2 = (closestPoint - circle.position).normalized()
+
+            // Calculate relative velocity along the normal direction
+            val relativeVelocityAlongNormal: Double = relativeVelocity.dot(collisionNormal)
+
+            // Calculate impulse (change in momentum)
+            val impulse: Double = (2.0 * relativeVelocityAlongNormal) / (circle.mass + box.mass)
+
+            // Apply impulse to update velocities
+            val restitution = 1.0
+            val impulseMultiplier = impulse * restitution * collisionNormal
+            circle.velocity += impulseMultiplier * box.mass
         }
+    }
+
+    override fun handleCollision(box1: Box, box2: Box) {
+        TODO("Not yet implemented")
     }
 
     private fun separateCircleFromBox(circle: Circle, closestPoint: Vector2, offset: Vector2) {
@@ -59,23 +79,21 @@ object ElasticCollision : CollisionHandler() {
         // Calculate overlap distance
         val overlap: Double = circle.radius - offset.magnitude()
 
-        circle.position += overlap * collisionNormal
+        // update the position based on the overlap
+        // *1.01 because the balls sometimes got stuck to the box and this fixes it
+        circle.position += 1.01 * overlap * collisionNormal
     }
 
-    override fun handleCollision(box1: Box, box2: Box) {
-        TODO("Not yet implemented")
-    }
-
-    private fun separateOverlappingCircles(obj1: Circle, obj2: Circle, radii: Double, sqrDst: Double) {
+    private fun separateOverlappingCircles(circle1: Circle, circle2: Circle, radii: Double, sqrDst: Double) {
         // Calculate overlap distance
         val overlap: Double = radii - sqrt(sqrDst)
 
-        val collisionNormal: Vector2 = (obj2.position - obj1.position).normalized()
+        val collisionNormal: Vector2 = (circle2.position - circle1.position).normalized()
         val moveAmount: Vector2 = collisionNormal * (overlap * 0.5)
 
         // Move circles apart along the collision normal
-        obj1.position -= moveAmount
-        obj2.position += moveAmount
+        circle1.position -= moveAmount
+        circle2.position += moveAmount
     }
 
     private fun getClosestPoint(box: Box, externalPoint: Vector2): Vector2 {
