@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.engine.collisionhandler
+package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle

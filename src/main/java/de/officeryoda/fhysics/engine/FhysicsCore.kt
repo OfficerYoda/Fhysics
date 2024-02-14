@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
-import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
+import de.officeryoda.fhysics.engine.collision.CollisionHandler
+import de.officeryoda.fhysics.engine.collision.ElasticCollision
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
@@ -28,16 +28,18 @@ class FhysicsCore {
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..5000) {
+        for (i in 1..500) {
             val circle = FhysicsObjectFactory.randomCircle()
-//            circle.radius *= 4
+            circle.radius *= 2
             fhysicsObjects.add(circle)
         }
 
-//        for (i in 1..10) {
-//            val box = FhysicsObjectFactory.randomBox()
-//            fhysicsObjects.add(box)
-//        }
+//        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(30.0, 30.0), 40.0, 40.0, Vector2.ZERO))
+
+        for (i in 1..14) {
+            val box = FhysicsObjectFactory.randomBox()
+            fhysicsObjects.add(box)
+        }
     }
 
     fun startUpdateLoop() {
@@ -62,7 +64,7 @@ class FhysicsCore {
         }
         buildQuadTree()
         checkObjectCollisionQuadTree(quadTree)
-        drawer!!.repaintObjects()
+        drawer.repaintObjects()
 
         updateCount++
 
