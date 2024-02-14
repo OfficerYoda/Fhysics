@@ -2,7 +2,6 @@ package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
 import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
-import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
@@ -26,20 +25,20 @@ class FhysicsCore {
     var drawer: FhysicsObjectDrawer? = null
 
     init {
-//        for (i in 1..30) {
-//            val circle = FhysicsObjectFactory.randomCircle()
-//            circle.radius *= 10
-//            fhysicsObjects.add(circle)
-//        }
+        for (i in 1..400) {
+            val circle = FhysicsObjectFactory.randomCircle()
+            circle.radius *= 4
+            fhysicsObjects.add(circle)
+        }
 //
 //        fhysicsObjects.add(Box(Vector2(10.0, 10.0), 10.0, 10.0))
 //        fhysicsObjects.add(Box(Vector2(40.0, 30.0), 2.5, 10.0))
 //        fhysicsObjects.add(Box(Vector2(20.0, 50.0), 4.0, 12.0))
 
-        fhysicsObjects.add(Box(Vector2(80.0, 30.0), 10.0, 40.0))
-        val circle = Circle(Vector2(40.0, 50.0), 3.0)
-        circle.velocity += Vector2(30.0, 0.0)
-        fhysicsObjects.add(circle)
+//        fhysicsObjects.add(Box(Vector2(80.0, 30.0), 10.0, 40.0))
+//        val circle = Circle(Vector2(40.0, 50.0), 3.0)
+//        circle.velocity += Vector2(30.0, 0.0)
+//        fhysicsObjects.add(circle)
     }
 
     fun startUpdateLoop() {
@@ -52,7 +51,7 @@ class FhysicsCore {
     }
 
     private fun update() {
-        val startTime: Long = System.currentTimeMillis()
+        val startTime: Long = System.nanoTime()
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
 
 //        spawnObject()
@@ -69,7 +68,7 @@ class FhysicsCore {
 
         updateCount++
 
-        addUpdateTime(System.currentTimeMillis() - startTime)
+        addUpdateTime(System.nanoTime() - startTime)
     }
 
     private fun buildQuadTree() {
@@ -105,13 +104,6 @@ class FhysicsCore {
             checkObjectCollisionQuadTree(quadTree.topRight)
             checkObjectCollisionQuadTree(quadTree.botLeft)
             checkObjectCollisionQuadTree(quadTree.botRight)
-        }
-    }
-
-    private fun checkObjectCollision(obj: Circle) {
-        fhysicsObjects.forEach {
-            if (obj.id == it.id) return@forEach
-            obj.handleCollision(it)
         }
     }
 
@@ -154,8 +146,11 @@ class FhysicsCore {
     }
 
     fun getAverageUpdateTime(): Double {
-        // filterNotNull is not redundant, even if IntelliJ says so
-        return updateTimes.toList().filterNotNull().average()
+        return updateTimes
+            .toList()
+            .filterNotNull() // filterNotNull is not redundant, even if IntelliJ says so
+            .map { it / 1E6 } // convert nano to milliseconds
+            .average()
     }
 
     companion object {
