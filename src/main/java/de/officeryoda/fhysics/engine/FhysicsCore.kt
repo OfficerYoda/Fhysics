@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.collision.CollisionHandler
+import de.officeryoda.fhysics.engine.collision.CollisionPoints
+import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
@@ -36,10 +37,10 @@ class FhysicsCore {
 
 //        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(30.0, 30.0), 40.0, 40.0, Vector2.ZERO))
 
-        for (i in 1..14) {
-            val box = FhysicsObjectFactory.randomBox()
-            fhysicsObjects.add(box)
-        }
+//        for (i in 1..14) {
+//            val box = FhysicsObjectFactory.randomBox()
+//            fhysicsObjects.add(box)
+//        }
     }
 
     fun startUpdateLoop() {
@@ -62,12 +63,13 @@ class FhysicsCore {
 //            obj.update(updatesIntervalSeconds, gravity)
             checkBorderCollision(it)
         }
+
         buildQuadTree()
         checkObjectCollisionQuadTree(quadTree)
+
         drawer.repaintObjects()
 
         updateCount++
-
         addUpdateTime(System.nanoTime() - startTime)
     }
 
@@ -93,10 +95,9 @@ class FhysicsCore {
     private fun checkObjectCollisionQuadTree(quadTree: QuadTree) {
         if (!quadTree.divided) {
             val objects = quadTree.objects
-            for (obj1 in objects) {
-                for (obj2 in objects) {
-                    if (obj1.id == obj2.id) continue
-                    obj1.handleCollision(obj2)
+            for (objA in objects) {
+                for (objB in objects) {
+                    handleCollision(objA, objB)
                 }
             }
         } else {
@@ -107,8 +108,30 @@ class FhysicsCore {
         }
     }
 
+    private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
+        if (objA.id == objB.id) return
+        
+        val points: CollisionPoints = objA.testCollision(objB)
+
+        if(points.depth == -1.0) return
+
+        COLLISION_SOLVER.solveCollision(objA, objB, points)
+    }
+
     private fun checkBorderCollision(obj: FhysicsObject) {
-        borderBoxes.forEach { obj.handleCollision(it) }
+        borderBoxes.forEach { obj.testCollision(it) }
+    }
+
+    private fun createBorderBoxes(): List<Box> {
+        val width: Double = BORDER.width
+        val height: Double = BORDER.height
+
+        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0), width, height, Vector2.ZERO)
+        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0), width, height, Vector2.ZERO)
+        val top: Box = FhysicsObjectFactory.customBox(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
+        val bottom: Box = FhysicsObjectFactory.customBox(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
+
+        return listOf(left, right, top, bottom)
     }
 
     private fun addUpdateTime(updateTime: Long) {
@@ -129,23 +152,11 @@ class FhysicsCore {
             .average()
     }
 
-    private fun createBorderBoxes(): List<Box> {
-        val width: Double = BORDER.width
-        val height: Double = BORDER.height
-
-        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0), width, height, Vector2.ZERO)
-        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0), width, height, Vector2.ZERO)
-        val top: Box = FhysicsObjectFactory.customBox(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
-        val bottom: Box = FhysicsObjectFactory.customBox(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
-
-        return listOf(left, right, top, bottom)
-    }
-
     companion object {
         // x and y must be 0.0
         val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 100.0, 100.0)
 
-        val COLLISION_HANDLER: CollisionHandler = ElasticCollision
+        val COLLISION_SOLVER: CollisionSolver = ElasticCollision
 
         private var objectCount: Int = 0
         fun nextId(): Int {

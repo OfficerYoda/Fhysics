@@ -2,13 +2,14 @@ package de.officeryoda.fhysics.objects
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.CollisionPoints
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
     val position: Vector2 = Vector2.ZERO,
     val mass: Double = 1.0,
     val velocity: Vector2 = Vector2.ZERO,
-    val acceleration: Vector2 = Vector2.ZERO
+    val acceleration: Vector2 = Vector2.ZERO,
 ) {
     val id = FhysicsCore.nextId()
     var color: Color = colorFromIndex()
@@ -36,17 +37,17 @@ abstract class FhysicsObject protected constructor(
 //        return color
     }
 
-    fun handleCollision(other: FhysicsObject) {
-        when (other) {
-            is Circle -> handleCollision(other)
-            is Box -> handleCollision(other)
+    fun testCollision(other: FhysicsObject): CollisionPoints {
+        return when (other) {
+            is Circle -> testCollision(other)
+            is Box -> testCollision(other)
             else -> throw IllegalArgumentException("Unsupported object type for collision")
         }
     }
 
-    abstract fun handleCollision(other: Circle)
+    abstract fun testCollision(other: Circle): CollisionPoints
 
-    abstract fun handleCollision(other: Box)
+    abstract fun testCollision(other: Box): CollisionPoints
 
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, color=$color)"

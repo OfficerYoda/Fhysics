@@ -1,7 +1,8 @@
 package de.officeryoda.fhysics.objects
 
-import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.CollisionFinder
+import de.officeryoda.fhysics.engine.collision.CollisionPoints
 
 class Circle(
     position: Vector2,
@@ -9,12 +10,12 @@ class Circle(
 ) :
     FhysicsObject(position, Math.PI * radius * radius) {
 
-    override fun handleCollision(other: Circle) {
-        FhysicsCore.COLLISION_HANDLER.handleCollision(this, other)
+    override fun testCollision(other: Circle): CollisionPoints {
+        return CollisionFinder.testCollision(this, other)
     }
 
-    override fun handleCollision(other: Box) {
-        FhysicsCore.COLLISION_HANDLER.handleCollision(this, other)
+    override fun testCollision(other: Box): CollisionPoints {
+        return CollisionFinder.testCollision(this, other)
     }
 
     override fun toString(): String {
