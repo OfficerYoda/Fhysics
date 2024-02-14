@@ -28,7 +28,7 @@ class FhysicsCore {
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..7500) {
+        for (i in 1..5000) {
             val circle = FhysicsObjectFactory.randomCircle()
 //            circle.radius *= 4
             fhysicsObjects.add(circle)
