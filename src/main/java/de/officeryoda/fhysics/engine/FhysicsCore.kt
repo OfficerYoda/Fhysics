@@ -2,7 +2,8 @@ package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
 import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
-import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.objects.Box
+import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import java.awt.geom.Rectangle2D
@@ -10,11 +11,11 @@ import java.util.*
 
 class FhysicsCore {
 
-    private val collisionHandler: CollisionHandler = ElasticCollision
     private val quadTreeCapacity: Int = 4
+    var quadTree: QuadTree = QuadTree(BORDER, quadTreeCapacity)
 
-    val fhysicsObjects: MutableList<Circle> = ArrayList()
-    var quadTree: QuadTree = QuadTree(Rectangle2D.Double(0.0, 0.0, 60.0, 60.0), quadTreeCapacity)
+    val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
+    private val borderBoxes: List<Box>
 
     private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val updatesPerSecond: Int = 240
@@ -22,12 +23,21 @@ class FhysicsCore {
     private var updateCount = 0
     private val updateTimes = mutableListOf<Long>()
 
-    var drawer: FhysicsObjectDrawer? = null
+    lateinit var drawer: FhysicsObjectDrawer
 
     init {
-        for (i in 1..3000) {
-            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
+        borderBoxes = createBorderBoxes()
+
+        for (i in 1..5000) {
+            val circle = FhysicsObjectFactory.randomCircle()
+//            circle.radius *= 4
+            fhysicsObjects.add(circle)
         }
+
+//        for (i in 1..10) {
+//            val box = FhysicsObjectFactory.randomBox()
+//            fhysicsObjects.add(box)
+//        }
     }
 
     fun startUpdateLoop() {
@@ -40,15 +50,15 @@ class FhysicsCore {
     }
 
     private fun update() {
-        val startTime: Long = System.currentTimeMillis()
+        val startTime: Long = System.nanoTime()
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
 
 //        spawnObject()
 
-        fhysicsObjects.forEach { obj: Circle ->
-            obj.update(updatesIntervalSeconds, Vector2.ZERO)
+        fhysicsObjects.forEach {
+            it.update(updatesIntervalSeconds, Vector2.ZERO)
 //            obj.update(updatesIntervalSeconds, gravity)
-            checkBorderCollision(obj)
+            checkBorderCollision(it)
         }
         buildQuadTree()
         checkObjectCollisionQuadTree(quadTree)
@@ -56,12 +66,12 @@ class FhysicsCore {
 
         updateCount++
 
-        addUpdateTime(System.currentTimeMillis() - startTime)
+        addUpdateTime(System.nanoTime() - startTime)
     }
 
     private fun buildQuadTree() {
         QuadTree.count = 0
-        quadTree = QuadTree(Rectangle2D.Double(0.0, 0.0, 60.0, 60.0), quadTreeCapacity)
+        quadTree = QuadTree(BORDER, quadTreeCapacity)
         fhysicsObjects.forEach { quadTree.insert(it) }
     }
 
@@ -84,7 +94,7 @@ class FhysicsCore {
             for (obj1 in objects) {
                 for (obj2 in objects) {
                     if (obj1.id == obj2.id) continue
-                    collisionHandler.handleCollision(obj1 as Circle, obj2 as Circle)
+                    obj1.handleCollision(obj2)
                 }
             }
         } else {
@@ -95,39 +105,8 @@ class FhysicsCore {
         }
     }
 
-    private fun checkObjectCollision(obj: Circle) {
-        fhysicsObjects.forEach {
-            if (obj.id == it.id) return@forEach
-            collisionHandler.handleCollision(obj, it)
-        }
-    }
-
-    private fun checkBorderCollision(circle: Circle) {
-        val pos: Vector2 = circle.position
-        val velocity: Vector2 = circle.velocity
-        val radius: Double = circle.radius
-
-        // check top/bottom border
-        if (pos.y + radius > BORDER.height) {
-//            velocity.y = 0.0
-            velocity.y = -velocity.y
-            pos.y = BORDER.height - radius
-        } else if (pos.y - radius < 0) {
-//            velocity.y = 0.0
-            velocity.y = -velocity.y
-            pos.y = radius
-        }
-
-        // check left/right border
-        if (pos.x - radius < 0) {
-//            velocity.x = 0.0
-            velocity.x = -velocity.x
-            pos.x = radius
-        } else if (pos.x + radius > BORDER.width) {
-//            velocity.x = 0.0
-            velocity.x = -velocity.x
-            pos.x = BORDER.width - radius
-        }
+    private fun checkBorderCollision(obj: FhysicsObject) {
+        borderBoxes.forEach { obj.handleCollision(it) }
     }
 
     private fun addUpdateTime(updateTime: Long) {
@@ -141,16 +120,32 @@ class FhysicsCore {
     }
 
     fun getAverageUpdateTime(): Double {
-        // filterNotNull is not redundant, even if IntelliJ says so
-        return updateTimes.toList().filterNotNull().average()
+        return updateTimes
+            .toList()
+            .filterNotNull() // filterNotNull is not redundant, even if IntelliJ says so
+            .map { it / 1E6 } // convert nano to milliseconds
+            .average()
+    }
+
+    private fun createBorderBoxes(): List<Box> {
+        val width: Double = BORDER.width
+        val height: Double = BORDER.height
+
+        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0), width, height, Vector2.ZERO)
+        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0), width, height, Vector2.ZERO)
+        val top: Box = FhysicsObjectFactory.customBox(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
+        val bottom: Box = FhysicsObjectFactory.customBox(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
+
+        return listOf(left, right, top, bottom)
     }
 
     companion object {
         // x and y must be 0.0
-        val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 60.0, 60.0)
+        val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 100.0, 100.0)
+
+        val COLLISION_HANDLER: CollisionHandler = ElasticCollision
 
         private var objectCount: Int = 0
-
         fun nextId(): Int {
             return objectCount++
         }

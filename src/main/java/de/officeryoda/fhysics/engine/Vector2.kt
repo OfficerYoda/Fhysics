@@ -8,7 +8,7 @@ import kotlin.math.sqrt
  * @property x The x-coordinate of the Vector2.
  * @property y The y-coordinate of the Vector2.
  */
-class Vector2
+data class Vector2
 @JvmOverloads constructor(
     var x: Double = 0.0, var y: Double = 0.0
 ) {
@@ -166,6 +166,15 @@ class Vector2
     operator fun divAssign(scalar: Double) {
         this.x /= scalar
         this.y /= scalar
+    }
+
+    /**
+     * Returns a new Vector2 instance that represents the negation of the current vector.
+     *
+     * @return The negated Vector2.
+     */
+    operator fun unaryMinus(): Vector2 {
+        return Vector2(-this.x, -this.y)
     }
 
     /**

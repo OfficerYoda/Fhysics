@@ -1,6 +1,5 @@
 package de.officeryoda.fhysics.engine
 
-import lombok.ToString
 import kotlin.math.sqrt
 
 /**
@@ -9,8 +8,7 @@ import kotlin.math.sqrt
  * @property x The x-coordinate of the Vector2Int.
  * @property y The y-coordinate of the Vector2Int.
  */
-@ToString
-class Vector2Int
+data class Vector2Int
 @JvmOverloads constructor(
     var x: Int = 0, var y: Int = 0
 ) {
@@ -157,12 +155,30 @@ class Vector2Int
     }
 
     /**
+     * Returns a new Vector2Int instance that represents the negation of the current vector.
+     *
+     * @return The negated Vector2Int.
+     */
+    operator fun unaryMinus(): Vector2Int {
+        return Vector2Int(-this.x, -this.y)
+    }
+
+    /**
      * Converts this Vector2Int to a Vector2 by converting the x and y coordinates to double values.
      *
      * @return The converted Vector2.
      */
     fun toDoubleVector2(): Vector2 {
         return Vector2(x.toDouble(), y.toDouble())
+    }
+
+    /**
+     * Creates and returns a copy (clone) of the Vector2Int.
+     *
+     * @return A new Vector2Int object with the same x and y components.
+     */
+    fun clone(): Vector2Int {
+        return Vector2Int(this.x, this.y)
     }
 
     /**
