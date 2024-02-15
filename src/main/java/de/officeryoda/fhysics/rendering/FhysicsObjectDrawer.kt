@@ -99,17 +99,17 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         drawMSPU(g)
     }
 
-    private var rectSize = 20
+    private var quadTreeHighlightSize = 20
     private fun drawHighlightQuadTree(g: Graphics) {
         val mousePoint: Point = MouseInfo.getPointerInfo().location
         SwingUtilities.convertPointFromScreen(mousePoint, this)
 
         val mousePos = Vector2(mousePoint.x.toDouble(), height - mousePoint.y.toDouble()) / zoom
 
-        var rectX = mousePos.x - rectSize / 2
-        var rectY = mousePos.y - rectSize / 2
+        var rectX = mousePos.x - quadTreeHighlightSize / 2
+        var rectY = mousePos.y - quadTreeHighlightSize / 2
 
-        var queryRect = Rectangle2D.Double(rectX, rectY, rectSize.toDouble(), rectSize.toDouble())
+        var queryRect = Rectangle2D.Double(rectX, rectY, quadTreeHighlightSize.toDouble(), quadTreeHighlightSize.toDouble())
 
         val currentCenterX = queryRect.x + (queryRect.width / 2)
         val currentCenterY = queryRect.y + (queryRect.height / 2)
@@ -121,10 +121,9 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
             Rectangle2D.Double(currentCenterX - (newWidth / 2), currentCenterY - (newHeight / 2), newWidth, newHeight)
 
         QuadTree.count = 0
-        fhysics.quadTree.query(queryRect).forEach {
-            it.color = Color.BLUE
-            drawObject(it, g)
-            it.updateColor()
+        g.color = Color.BLUE
+        fhysics.quadTree.query(queryRect).filterIsInstance<Circle>().forEach {
+            drawCircle(it, g)
         }
 
         mousePos *= zoom
@@ -132,10 +131,10 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         mousePos.y += insets.top
         mousePos /= zoom
 
-        rectX = (transformX(mousePos.x) - rectSize / 2 + insets.left).toDouble()
-        rectY = (transformY(mousePos.y) - rectSize / 2 + insets.top).toDouble()
+        rectX = (transformX(mousePos.x) - quadTreeHighlightSize / 2 + insets.left).toDouble()
+        rectY = (transformY(mousePos.y) - quadTreeHighlightSize / 2 + insets.top).toDouble()
 
-        g.drawRect(rectX.toInt(), rectY.toInt(), rectSize, rectSize)
+        g.drawRect(rectX.toInt(), rectY.toInt(), quadTreeHighlightSize, quadTreeHighlightSize)
     }
 
     private fun drawAllObjects(g: Graphics) {
@@ -233,7 +232,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
     fun onMouseWheel(dir: Int) {
 //        zoom -= dir * 0.2
-        rectSize -= dir * 3
+        quadTreeHighlightSize -= dir * 3
     }
 
     fun onMousePressed(mousePos: Vector2) {

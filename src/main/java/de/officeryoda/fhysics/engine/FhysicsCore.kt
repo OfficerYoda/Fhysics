@@ -3,7 +3,6 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
-import de.officeryoda.fhysics.engine.collision.MinimizeOverlap
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
@@ -30,7 +29,7 @@ class FhysicsCore {
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..500) {
+        for (i in 1..100) {
             val circle = FhysicsObjectFactory.randomCircle()
             circle.radius *= 2
             fhysicsObjects.add(circle)
@@ -42,6 +41,9 @@ class FhysicsCore {
 //            val box = FhysicsObjectFactory.randomBox()
 //            fhysicsObjects.add(box)
 //        }
+
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(50.0,50.0), 0.5, Vector2(30.0, 10.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
     }
 
     private fun update() {
@@ -51,8 +53,8 @@ class FhysicsCore {
 //        spawnObject()
 
         fhysicsObjects.forEach {
-//            it.update(updatesIntervalSeconds, Vector2.ZERO)
-            it.update(updatesIntervalSeconds, gravity)
+            it.update(updatesIntervalSeconds, Vector2.ZERO)
+//            it.update(updatesIntervalSeconds, gravity)
             checkBorderCollision(it)
         }
 
@@ -111,12 +113,13 @@ class FhysicsCore {
 
     private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
         if (objA.id == objB.id) return
-        
+
+
         val points: CollisionInfo = objA.testCollision(objB)
 
-        if(points.overlap == -1.0) return
+        if (points.overlap == -1.0) return
 
-        MinimizeOverlap.solveCollision(points)
+        COLLISION_SOLVER.solveCollision(points)
     }
 
     private fun checkBorderCollision(obj: FhysicsObject) {

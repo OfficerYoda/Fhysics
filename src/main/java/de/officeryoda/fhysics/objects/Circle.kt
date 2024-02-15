@@ -6,7 +6,7 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 
 class Circle(
     position: Vector2,
-    var radius: Double
+    var radius: Double,
 ) :
     FhysicsObject(position, Math.PI * radius * radius) {
 
@@ -19,6 +19,6 @@ class Circle(
     }
 
     override fun toString(): String {
-        return "Circle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, color=$color, radius=$radius)"
+        return "Circle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, radius=$radius)"
     }
 }

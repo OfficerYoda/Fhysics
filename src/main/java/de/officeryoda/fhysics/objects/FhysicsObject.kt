@@ -13,6 +13,7 @@ abstract class FhysicsObject protected constructor(
 ) {
     val id = FhysicsCore.nextId()
     var color: Color = colorFromIndex()
+    var static: Boolean = false
 
     open fun update(dt: Double, gravity: Vector2) {
         val damping = 0.00
@@ -22,10 +23,6 @@ abstract class FhysicsObject protected constructor(
         position += velocity * dt
 
         acceleration.set(Vector2.ZERO)
-    }
-
-    fun updateColor() {
-        color = colorFromIndex()
     }
 
     private fun colorFromIndex(): Color {
@@ -50,6 +47,6 @@ abstract class FhysicsObject protected constructor(
     abstract fun testCollision(other: Box): CollisionInfo
 
     override fun toString(): String {
-        return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, color=$color)"
+        return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"
     }
 }
