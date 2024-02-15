@@ -35,8 +35,6 @@ class FhysicsCore {
             fhysicsObjects.add(circle)
         }
 
-//        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(30.0, 30.0), 40.0, 40.0, Vector2.ZERO))
-
 //        for (i in 1..14) {
 //            val box = FhysicsObjectFactory.randomBox()
 //            fhysicsObjects.add(box)
@@ -98,8 +96,13 @@ class FhysicsCore {
     private fun checkObjectCollisionQuadTree(quadTree: QuadTree) {
         if (!quadTree.divided) {
             val objects = quadTree.objects
-            for (objA in objects) {
-                for (objB in objects) {
+            val numObjects = objects.size
+
+            for (i in 0 until numObjects - 1) {
+                val objA = objects[i]
+
+                for (j in i + 1 until numObjects) {
+                    val objB = objects[j]
                     handleCollision(objA, objB)
                 }
             }
@@ -112,9 +115,6 @@ class FhysicsCore {
     }
 
     private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
-        if (objA.id == objB.id) return
-
-
         val points: CollisionInfo = objA.testCollision(objB)
 
         if (points.overlap == -1.0) return
