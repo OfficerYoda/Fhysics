@@ -1,10 +1,15 @@
 package de.officeryoda.fhysics.objects
 
-import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.CollisionFinder
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import java.awt.Color
 
-class Box(position: Vector2, val width: Double, val height: Double) :
+class Box(
+    position: Vector2,
+    val width: Double,
+    val height: Double,
+) :
     FhysicsObject(position, width * height) {
     val minX: Double
         get() = position.x
@@ -20,21 +25,22 @@ class Box(position: Vector2, val width: Double, val height: Double) :
 
     init {
         color = Color.decode("#4287f5")
+        static = true
     }
 
     override fun update(dt: Double, gravity: Vector2) {
         // don't move
     }
 
-    override fun handleCollision(other: Circle) {
-        FhysicsCore.COLLISION_HANDLER.handleCollision(other, this)
+    override fun testCollision(other: Circle): CollisionInfo {
+        return CollisionFinder.testCollision(other, this)
     }
 
-    override fun handleCollision(other: Box) {
-        FhysicsCore.COLLISION_HANDLER.handleCollision(this, other)
+    override fun testCollision(other: Box): CollisionInfo {
+        return CollisionFinder.testCollision(this, other)
     }
 
     override fun toString(): String {
-        return "Box(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, color=$color, width=$width, height=$height)"
+        return "Box(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height)"
     }
 }

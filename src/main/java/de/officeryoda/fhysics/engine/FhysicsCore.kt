@@ -1,7 +1,8 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.collisionhandler.CollisionHandler
-import de.officeryoda.fhysics.engine.collisionhandler.ElasticCollision
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.collision.CollisionSolver
+import de.officeryoda.fhysics.engine.collision.ElasticCollision
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
@@ -24,32 +25,30 @@ class FhysicsCore {
     private val updateTimes = mutableListOf<Long>()
 
     lateinit var drawer: FhysicsObjectDrawer
+    var isRunning: Boolean = false
 
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..5000) {
+        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(20.0, 40.0), 60.0, 20.0, Vector2(0.0, 0.0)))
+        for (i in 1..1000) {
             val circle = FhysicsObjectFactory.randomCircle()
-//            circle.radius *= 4
+            circle.radius *= 2
             fhysicsObjects.add(circle)
         }
 
-//        for (i in 1..10) {
+//        for (i in 1..14) {
 //            val box = FhysicsObjectFactory.randomBox()
 //            fhysicsObjects.add(box)
 //        }
+
+
+        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0,45.0), 1.0, Vector2(00.0, 00.0)))
+        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(10.0,50.0), 1.0, Vector2(10.0, 00.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
     }
 
-    fun startUpdateLoop() {
-        val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
-        Timer(true).scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                update()
-            }
-        }, 0, updateIntervalMillis.toLong())
-    }
-
-    private fun update() {
+    fun update() {
         val startTime: Long = System.nanoTime()
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
 
@@ -57,16 +56,28 @@ class FhysicsCore {
 
         fhysicsObjects.forEach {
             it.update(updatesIntervalSeconds, Vector2.ZERO)
-//            obj.update(updatesIntervalSeconds, gravity)
+//            it.update(updatesIntervalSeconds, gravity)
             checkBorderCollision(it)
         }
+
         buildQuadTree()
         checkObjectCollisionQuadTree(quadTree)
-        drawer!!.repaintObjects()
+
+        drawer.repaintObjects()
 
         updateCount++
-
         addUpdateTime(System.nanoTime() - startTime)
+    }
+
+    fun startUpdateLoop() {
+        val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
+        Timer(true).scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                if (isRunning) {
+                    update()
+                }
+            }
+        }, 0, updateIntervalMillis.toLong())
     }
 
     private fun buildQuadTree() {
@@ -79,7 +90,7 @@ class FhysicsCore {
         if (updateCount % 5 != 0) return
 
         val spawnRows = 2
-        val radius = 0.2
+        val radius = 0.5
         val pos = Vector2(2.0, BORDER.height - 2)
         val yOffset = (objectCount % spawnRows) * 2 * radius
         pos.y -= yOffset
@@ -91,10 +102,14 @@ class FhysicsCore {
     private fun checkObjectCollisionQuadTree(quadTree: QuadTree) {
         if (!quadTree.divided) {
             val objects = quadTree.objects
-            for (obj1 in objects) {
-                for (obj2 in objects) {
-                    if (obj1.id == obj2.id) continue
-                    obj1.handleCollision(obj2)
+            val numObjects = objects.size
+
+            for (i in 0 until numObjects - 1) {
+                val objA = objects[i]
+
+                for (j in i + 1 until numObjects) {
+                    val objB = objects[j]
+                    handleCollision(objA, objB)
                 }
             }
         } else {
@@ -105,8 +120,28 @@ class FhysicsCore {
         }
     }
 
+    private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
+        val points: CollisionInfo = objA.testCollision(objB)
+
+        if (points.overlap == -1.0) return
+
+        COLLISION_SOLVER.solveCollision(points)
+    }
+
     private fun checkBorderCollision(obj: FhysicsObject) {
-        borderBoxes.forEach { obj.handleCollision(it) }
+        borderBoxes.forEach { handleCollision(obj, it) }
+    }
+
+    private fun createBorderBoxes(): List<Box> {
+        val width: Double = BORDER.width
+        val height: Double = BORDER.height
+
+        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0), width, height, Vector2.ZERO)
+        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0), width, height, Vector2.ZERO)
+        val top: Box = FhysicsObjectFactory.customBox(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
+        val bottom: Box = FhysicsObjectFactory.customBox(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
+
+        return listOf(left, right, top, bottom)
     }
 
     private fun addUpdateTime(updateTime: Long) {
@@ -127,23 +162,11 @@ class FhysicsCore {
             .average()
     }
 
-    private fun createBorderBoxes(): List<Box> {
-        val width: Double = BORDER.width
-        val height: Double = BORDER.height
-
-        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0), width, height, Vector2.ZERO)
-        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0), width, height, Vector2.ZERO)
-        val top: Box = FhysicsObjectFactory.customBox(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
-        val bottom: Box = FhysicsObjectFactory.customBox(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
-
-        return listOf(left, right, top, bottom)
-    }
-
     companion object {
         // x and y must be 0.0
         val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 100.0, 100.0)
 
-        val COLLISION_HANDLER: CollisionHandler = ElasticCollision
+        val COLLISION_SOLVER: CollisionSolver = ElasticCollision
 
         private var objectCount: Int = 0
         fun nextId(): Int {

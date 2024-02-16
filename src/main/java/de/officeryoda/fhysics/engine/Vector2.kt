@@ -13,18 +13,19 @@ data class Vector2
     var x: Double = 0.0, var y: Double = 0.0
 ) {
     /**
-     * Normalizes the Vector2 to have a magnitude of 1.0.
+     * Returns a normalized version of the  Vector2.
      *
      * @return The normalized Vector2.
      */
     fun normalized(): Vector2 {
         val magnitude: Double = magnitude()
-        if (magnitude != 0.0) {
-            this.x /= magnitude
-            this.y /= magnitude
+        return if (magnitude != 0.0) {
+            Vector2(this.x / magnitude, this.y / magnitude)
+        } else {
+            Vector2(0.0, 0.0)  // Handle division by zero, return a default zero vector.
         }
-        return this
     }
+
 
     /**
      * Calculates the dot product of this Vector2 with another Vector2.
@@ -182,7 +183,7 @@ data class Vector2
      *
      * @return The converted Vector2Int.
      */
-    fun toIntVector2(): Vector2Int {
+    fun toVector2Int(): Vector2Int {
         return Vector2Int(x.toInt(), y.toInt())
     }
 

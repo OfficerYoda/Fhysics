@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities
 
 
 class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
+
     private val fhysicsPanel: FhysicsPanel
 
     init {
@@ -32,6 +33,7 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
         val mouseListener = MouseListener(fhysicsPanel)
         addMouseWheelListener(mouseListener)
         addMouseListener(mouseListener)
+        addKeyListener(KeyListener(fhysics))
 
         setLocationRelativeTo(null) // center the frame on the screen
         isVisible = true
@@ -77,9 +79,14 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     // getInsets doesn't return the right values
     private val insets: Insets
 
+    // debug
     private var zoom: Double
+    private var quadTreeHighlightSize = 20
+    private val debugPoints: MutableList<Pair<Vector2, Color>> = ArrayList()
 
     init {
+        INSTANCE = this
+
         val backgroundColor: Color = Color.decode("#010409")
         this.zoom = zoom
         this.insets = Insets(31, 8, 8, 8) // that's just how it is
@@ -91,6 +98,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
         drawAllObjects(g)
 
+        drawDebug(g)
+
 //        drawHighlightQuadTree(g)
 
 //        drawBorder(g)
@@ -99,17 +108,29 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         drawMSPU(g)
     }
 
-    private var rectSize = 20
+    private fun drawDebug(g: Graphics) {
+        val pointSize = 6
+
+        for (pair in debugPoints.toList()) {
+            val pos = transformPosition(pair.first)
+            g.color = pair.second
+            g.fillOval(pos.x - pointSize / 2, pos.y - pointSize / 2, pointSize, pointSize)
+        }
+
+        debugPoints.clear()
+    }
+
     private fun drawHighlightQuadTree(g: Graphics) {
         val mousePoint: Point = MouseInfo.getPointerInfo().location
         SwingUtilities.convertPointFromScreen(mousePoint, this)
 
         val mousePos = Vector2(mousePoint.x.toDouble(), height - mousePoint.y.toDouble()) / zoom
 
-        var rectX = mousePos.x - rectSize / 2
-        var rectY = mousePos.y - rectSize / 2
+        var rectX = mousePos.x - quadTreeHighlightSize / 2
+        var rectY = mousePos.y - quadTreeHighlightSize / 2
 
-        var queryRect = Rectangle2D.Double(rectX, rectY, rectSize.toDouble(), rectSize.toDouble())
+        var queryRect =
+            Rectangle2D.Double(rectX, rectY, quadTreeHighlightSize.toDouble(), quadTreeHighlightSize.toDouble())
 
         val currentCenterX = queryRect.x + (queryRect.width / 2)
         val currentCenterY = queryRect.y + (queryRect.height / 2)
@@ -121,10 +142,9 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
             Rectangle2D.Double(currentCenterX - (newWidth / 2), currentCenterY - (newHeight / 2), newWidth, newHeight)
 
         QuadTree.count = 0
-        fhysics.quadTree.query(queryRect).forEach {
-            it.color = Color.BLUE
-            drawObject(it, g)
-            it.updateColor()
+        g.color = Color.BLUE
+        fhysics.quadTree.query(queryRect).filterIsInstance<Circle>().forEach {
+            drawCircle(it, g)
         }
 
         mousePos *= zoom
@@ -132,10 +152,10 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         mousePos.y += insets.top
         mousePos /= zoom
 
-        rectX = (transformX(mousePos.x) - rectSize / 2 + insets.left).toDouble()
-        rectY = (transformY(mousePos.y) - rectSize / 2 + insets.top).toDouble()
+        rectX = (transformX(mousePos.x) - quadTreeHighlightSize / 2 + insets.left).toDouble()
+        rectY = (transformY(mousePos.y) - quadTreeHighlightSize / 2 + insets.top).toDouble()
 
-        g.drawRect(rectX.toInt(), rectY.toInt(), rectSize, rectSize)
+        g.drawRect(rectX.toInt(), rectY.toInt(), quadTreeHighlightSize, quadTreeHighlightSize)
     }
 
     private fun drawAllObjects(g: Graphics) {
@@ -233,7 +253,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
     fun onMouseWheel(dir: Int) {
 //        zoom -= dir * 0.2
-        rectSize -= dir * 3
+        quadTreeHighlightSize -= dir * 3
     }
 
     fun onMousePressed(mousePos: Vector2) {
@@ -244,5 +264,20 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         mousePos /= zoom
 
         fhysics.fhysicsObjects.add(Circle(mousePos, 1.0))
+
+        repaint()
+    }
+
+    fun drawDebugPoint(point: Vector2, color: Color) {
+        debugPoints.add(Pair(point, color))
+    }
+
+    fun drawDebugPoint(point: Vector2) {
+        drawDebugPoint(point, Color.RED)
+    }
+
+    companion object {
+
+        lateinit var INSTANCE: FhysicsPanel
     }
 }
