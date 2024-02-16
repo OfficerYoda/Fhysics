@@ -25,26 +25,29 @@ class FhysicsCore {
     private val updateTimes = mutableListOf<Long>()
 
     lateinit var drawer: FhysicsObjectDrawer
+    var isRunning: Boolean = true
 
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..100) {
-            val circle = FhysicsObjectFactory.randomCircle()
-            circle.radius *= 2
-            fhysicsObjects.add(circle)
-        }
+        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(20.0, 40.0), 60.0, 20.0, Vector2(0.0, 0.0)))
+//        for (i in 1..1000) {
+//            val circle = FhysicsObjectFactory.randomCircle()
+//            circle.radius *= 2
+//            fhysicsObjects.add(circle)
+//        }
 
 //        for (i in 1..14) {
 //            val box = FhysicsObjectFactory.randomBox()
 //            fhysicsObjects.add(box)
 //        }
 
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(50.0,50.0), 0.5, Vector2(30.0, 10.0)))
+
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0,45.0), 1.0, Vector2(00.0, 00.0)))
 //        fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
     }
 
-    private fun update() {
+    fun update() {
         val startTime: Long = System.nanoTime()
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
 
@@ -69,7 +72,9 @@ class FhysicsCore {
         val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                update()
+                if (isRunning) {
+                    update()
+                }
             }
         }, 0, updateIntervalMillis.toLong())
     }
