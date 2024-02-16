@@ -2,7 +2,6 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 
 object ElasticCollision : CollisionSolver() {
@@ -27,11 +26,7 @@ object ElasticCollision : CollisionSolver() {
         val restitution = 1.0
         val impulseMultiplier = impulse * restitution * info.normal
 
-        if (objB is Circle) {
-            objA.velocity += impulseMultiplier * objB.mass
-            objB.velocity -= impulseMultiplier * objA.mass
-        } else {
-            objA.velocity += impulseMultiplier * objB.mass
-        }
+        objA.velocity += impulseMultiplier * objB.mass
+        objB.velocity -= impulseMultiplier * objA.mass
     }
 }
