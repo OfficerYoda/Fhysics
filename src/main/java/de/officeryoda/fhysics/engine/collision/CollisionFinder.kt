@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.rendering.FhysicsPanel
+import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -42,16 +43,36 @@ object CollisionFinder {
         offset = closestPointOnEdge - circle.position
 
         FhysicsPanel.INSTANCE.drawPoint(closestPointOnEdge)
+        FhysicsPanel.INSTANCE.drawPoint(offset + circle.position + Vector2(1.0, 0.0), Color.GREEN)
+
+//        println(offset)
+        // this moves the circle to the right position
+//        circle.position.set(closestPointOnEdge + offset.normalized() * circle.radius)
 
         // Calculate collision normal and overlap
-        val collisionNormal: Vector2 = (closestPointOnEdge - circle.position).normalized()
-        val overlap: Double = circle.radius + offset.magnitude()
+        val collisionNormal: Vector2 = (- circle.position + closestPointOnEdge).normalized()
+        val overlap: Double = -offset.magnitude() + circle.radius// overlap for objects coming from the outside
+//        val overlap: Double = -offset.magnitude() - circle.radius // overlap for objects coming from the inside
 
         // Calculate collision normal and overlap
 //        val collisionNormal: Vector2 = (closestPoint - circle.position).normalized()
 //        val overlap: Double = circle.radius - offset.magnitude()
 
         return CollisionInfo(circle, box, collisionNormal, overlap)
+    }
+
+    private fun getOffsetSign(offset: Vector2): Int {
+        // TODO needs refactoring
+        return if (offset.x == 0.0)
+            if (offset.y > 0.0)
+                1
+            else
+                -1
+        else
+            if (offset.x > 0.0)
+                1
+            else
+                -1
     }
 
     fun testCollision(box1: Box, box2: Box): CollisionInfo {
@@ -68,20 +89,17 @@ object CollisionFinder {
     }
 
     private fun getClosestPointOnEdge(box: Box, closestPoint: Vector2): Vector2 {
-
+        // Calculate the distance from the closest point to the box's edges
         val dx1 = closestPoint.x - box.minX
         val dx2 = closestPoint.x - box.maxX
         val dy1 = closestPoint.y - box.minY
         val dy2 = closestPoint.y - box.maxY
 
-        // check if the external point is inside the box
-        val insideBox = dx1 > 0 && dx2 < 0 && dy1 > 0 && dy2 < 0
-
+        // Find the closest point on the box's edge
         val dx = if (abs(dx1) < abs(dx2)) dx1 else dx2
         val dy = if (abs(dy1) < abs(dy2)) dy1 else dy2
 
-        if(!insideBox) return closestPoint
-
+        // return the closest point on the box's edge
         return if (abs(dx) < abs(dy)) {
             Vector2(closestPoint.x - dx, closestPoint.y)
         } else {

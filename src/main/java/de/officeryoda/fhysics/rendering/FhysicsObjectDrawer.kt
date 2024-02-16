@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities
 
 
 class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
-    
+
     private val fhysicsPanel: FhysicsPanel
 
     init {
@@ -82,7 +82,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     // debug
     private var zoom: Double
     private var quadTreeHighlightSize = 20
-    private val debugPoints: MutableList<Vector2> = ArrayList()
+    private val debugPoints: MutableList<Pair<Vector2, Color>> = ArrayList()
 
     init {
         INSTANCE = this
@@ -109,10 +109,12 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     private fun drawDebug(g: Graphics) {
-        g.color = Color.RED
-        for (point in debugPoints) {
-            val p = transformPosition(point)
-            g.fillOval(p.x, p.y, 5, 5)
+        val pointSize: Int = 6
+
+        for (pair in debugPoints.toList()) {
+            val pos = transformPosition(pair.first)
+            g.color = pair.second
+            g.fillOval(pos.x - pointSize / 2, pos.y - pointSize / 2, pointSize, pointSize)
         }
 
         debugPoints.clear()
@@ -266,8 +268,12 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         repaint()
     }
 
+    fun drawPoint(point: Vector2, color: Color) {
+        debugPoints.add(Pair(point, color))
+    }
+
     fun drawPoint(point: Vector2) {
-        debugPoints.add(point)
+        drawPoint(point, Color.RED)
     }
 
     companion object {

@@ -43,7 +43,8 @@ class FhysicsCore {
 //        }
 
 
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0,45.0), 1.0, Vector2(00.0, 00.0)))
+        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0,45.0), 1.0, Vector2(00.0, 00.0)))
+        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(10.0,50.0), 1.0, Vector2(10.0, 00.0)))
 //        fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
     }
 
