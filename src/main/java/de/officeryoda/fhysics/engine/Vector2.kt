@@ -182,7 +182,7 @@ data class Vector2
      *
      * @return The converted Vector2Int.
      */
-    fun toIntVector2(): Vector2Int {
+    fun toVector2Int(): Vector2Int {
         return Vector2Int(x.toInt(), y.toInt())
     }
 

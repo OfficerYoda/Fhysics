@@ -79,9 +79,14 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     // getInsets doesn't return the right values
     private val insets: Insets
 
+    // debug
     private var zoom: Double
+    private var quadTreeHighlightSize = 20
+    private val debugPoints: MutableList<Vector2> = ArrayList()
 
     init {
+        INSTANCE = this
+
         val backgroundColor: Color = Color.decode("#010409")
         this.zoom = zoom
         this.insets = Insets(31, 8, 8, 8) // that's just how it is
@@ -93,6 +98,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
 
         drawAllObjects(g)
 
+        drawDebug(g)
+
 //        drawHighlightQuadTree(g)
 
 //        drawBorder(g)
@@ -101,7 +108,16 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         drawMSPU(g)
     }
 
-    private var quadTreeHighlightSize = 20
+    private fun drawDebug(g: Graphics) {
+        g.color = Color.RED
+        for (point in debugPoints) {
+            val p = transformPosition(point)
+            g.fillOval(p.x, p.y, 5, 5)
+        }
+
+        debugPoints.clear()
+    }
+
     private fun drawHighlightQuadTree(g: Graphics) {
         val mousePoint: Point = MouseInfo.getPointerInfo().location
         SwingUtilities.convertPointFromScreen(mousePoint, this)
@@ -111,7 +127,8 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         var rectX = mousePos.x - quadTreeHighlightSize / 2
         var rectY = mousePos.y - quadTreeHighlightSize / 2
 
-        var queryRect = Rectangle2D.Double(rectX, rectY, quadTreeHighlightSize.toDouble(), quadTreeHighlightSize.toDouble())
+        var queryRect =
+            Rectangle2D.Double(rectX, rectY, quadTreeHighlightSize.toDouble(), quadTreeHighlightSize.toDouble())
 
         val currentCenterX = queryRect.x + (queryRect.width / 2)
         val currentCenterY = queryRect.y + (queryRect.height / 2)
@@ -247,5 +264,14 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         fhysics.fhysicsObjects.add(Circle(mousePos, 1.0))
 
         repaint()
+    }
+
+    fun drawPoint(point: Vector2) {
+        debugPoints.add(point)
+    }
+
+    companion object {
+
+        lateinit var INSTANCE: FhysicsPanel
     }
 }

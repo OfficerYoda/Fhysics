@@ -3,6 +3,8 @@ package de.officeryoda.fhysics.engine.collision
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.rendering.FhysicsPanel
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 object CollisionFinder {
@@ -15,7 +17,8 @@ object CollisionFinder {
         val sqrRadii: Double = radii * radii
 
         // Check if the circles don't overlap
-        if (sqrDst >= sqrRadii) return CollisionInfo()
+        if (sqrDst >= sqrRadii)
+            return CollisionInfo()
 
         // Calculate collision normal and overlap
         val collisionNormal: Vector2 = (circleB.position - circleA.position).normalized()
@@ -28,15 +31,25 @@ object CollisionFinder {
         // Get the closest point on the box to the circle's center
         val closestPoint: Vector2 = getClosestPoint(box, circle.position)
 
-        // Calculate the vector offset from the closest point on the box to the circle's center
-        val offset: Vector2 = closestPoint - circle.position
+        // Calculate the vector offset from the circles center to the closest point
+        var offset: Vector2 = closestPoint - circle.position
 
         // Check if circle doesn't overlap with the box
-        if (offset.sqrMagnitude() >= circle.radius * circle.radius) return CollisionInfo()
+        if (offset.sqrMagnitude() >= circle.radius * circle.radius)
+            return CollisionInfo()
+
+        val closestPointOnEdge: Vector2 = getClosestPointOnEdge(box, closestPoint)
+        offset = closestPointOnEdge - circle.position
+
+        FhysicsPanel.INSTANCE.drawPoint(closestPointOnEdge)
 
         // Calculate collision normal and overlap
-        val collisionNormal: Vector2 = (closestPoint - circle.position).normalized()
-        val overlap: Double = circle.radius - offset.magnitude()
+        val collisionNormal: Vector2 = (closestPointOnEdge - circle.position).normalized()
+        val overlap: Double = circle.radius + offset.magnitude()
+
+        // Calculate collision normal and overlap
+//        val collisionNormal: Vector2 = (closestPoint - circle.position).normalized()
+//        val overlap: Double = circle.radius - offset.magnitude()
 
         return CollisionInfo(circle, box, collisionNormal, overlap)
     }
@@ -54,4 +67,25 @@ object CollisionFinder {
         return Vector2(closestX, closestY)
     }
 
+    private fun getClosestPointOnEdge(box: Box, closestPoint: Vector2): Vector2 {
+
+        val dx1 = closestPoint.x - box.minX
+        val dx2 = closestPoint.x - box.maxX
+        val dy1 = closestPoint.y - box.minY
+        val dy2 = closestPoint.y - box.maxY
+
+        // check if the external point is inside the box
+        val insideBox = dx1 > 0 && dx2 < 0 && dy1 > 0 && dy2 < 0
+
+        val dx = if (abs(dx1) < abs(dx2)) dx1 else dx2
+        val dy = if (abs(dy1) < abs(dy2)) dy1 else dy2
+
+        if(!insideBox) return closestPoint
+
+        return if (abs(dx) < abs(dy)) {
+            Vector2(closestPoint.x - dx, closestPoint.y)
+        } else {
+            Vector2(closestPoint.x, closestPoint.y - dy)
+        }
+    }
 }
