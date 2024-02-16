@@ -25,17 +25,17 @@ class FhysicsCore {
     private val updateTimes = mutableListOf<Long>()
 
     lateinit var drawer: FhysicsObjectDrawer
-    var isRunning: Boolean = true
+    var isRunning: Boolean = false
 
     init {
         borderBoxes = createBorderBoxes()
 
         fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(20.0, 40.0), 60.0, 20.0, Vector2(0.0, 0.0)))
-//        for (i in 1..1000) {
-//            val circle = FhysicsObjectFactory.randomCircle()
-//            circle.radius *= 2
-//            fhysicsObjects.add(circle)
-//        }
+        for (i in 1..1000) {
+            val circle = FhysicsObjectFactory.randomCircle()
+            circle.radius *= 2
+            fhysicsObjects.add(circle)
+        }
 
 //        for (i in 1..14) {
 //            val box = FhysicsObjectFactory.randomBox()

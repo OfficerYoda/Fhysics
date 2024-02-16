@@ -109,7 +109,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     private fun drawDebug(g: Graphics) {
-        val pointSize: Int = 6
+        val pointSize = 6
 
         for (pair in debugPoints.toList()) {
             val pos = transformPosition(pair.first)
@@ -268,12 +268,12 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         repaint()
     }
 
-    fun drawPoint(point: Vector2, color: Color) {
+    fun drawDebugPoint(point: Vector2, color: Color) {
         debugPoints.add(Pair(point, color))
     }
 
-    fun drawPoint(point: Vector2) {
-        drawPoint(point, Color.RED)
+    fun drawDebugPoint(point: Vector2) {
+        drawDebugPoint(point, Color.RED)
     }
 
     companion object {
