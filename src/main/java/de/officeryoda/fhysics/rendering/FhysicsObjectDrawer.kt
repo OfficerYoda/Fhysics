@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities
 
 
 class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
+    
     private val fhysicsPanel: FhysicsPanel
 
     init {
@@ -32,6 +33,7 @@ class FhysicsObjectDrawer(fhysics: FhysicsCore) : JFrame() {
         val mouseListener = MouseListener(fhysicsPanel)
         addMouseWheelListener(mouseListener)
         addMouseListener(mouseListener)
+        addKeyListener(KeyListener(fhysics))
 
         setLocationRelativeTo(null) // center the frame on the screen
         isVisible = true
@@ -243,5 +245,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         mousePos /= zoom
 
         fhysics.fhysicsObjects.add(Circle(mousePos, 1.0))
+
+        repaint()
     }
 }
