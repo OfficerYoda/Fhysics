@@ -7,7 +7,6 @@ import de.officeryoda.fhysics.engine.Vector2Int
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
-import javafx.scene.paint.Paint
 import java.awt.*
 import java.awt.geom.Rectangle2D
 import java.util.*
@@ -137,7 +136,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
     }
 
     private fun drawQuadTree(g: Graphics) {
-        fhysics.quadTree.draw(g, ::drawAndTransformRect)
+//        fhysics.quadTree.draw(g, ::drawAndTransformRect)
     }
 
     private fun drawBorder(g: Graphics) {
