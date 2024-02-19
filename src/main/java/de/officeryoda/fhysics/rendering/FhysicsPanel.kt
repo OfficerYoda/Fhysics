@@ -218,15 +218,6 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         drawDebugPoint(point, Color.RED)
     }
 
-    fun awtColorToFxColor(javafxColor: Color): Paint {
-        return javafx.scene.paint.Color(
-            javafxColor.red  / 255.0,
-            javafxColor.green / 255.0,
-            javafxColor.blue  / 255.0,
-            javafxColor.alpha  / 255.0
-        )
-    }
-
     companion object {
         lateinit var INSTANCE: FhysicsPanel
     }

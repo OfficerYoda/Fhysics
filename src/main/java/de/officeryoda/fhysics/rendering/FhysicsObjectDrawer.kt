@@ -6,6 +6,8 @@ import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
+import javafx.scene.canvas.GraphicsContext
+import javafx.scene.paint.Paint
 import javafx.stage.Stage
 import java.awt.Color
 import java.awt.Insets
@@ -17,9 +19,14 @@ class FhysicsObjectDrawer : Application() {
     val fhysics: FhysicsCore = FhysicsCore()
 
     private lateinit var stage: Stage
+    private lateinit var gc: GraphicsContext
+
     private var zoom: Double = 1.0 // TODO add a minus; leaving it out for now
 
     val OBJECT_COLOR: Color = Color.BLUE
+
+    val width: Double get() = stage.width
+    val height: Double get() = stage.height
 
     fun launch() {
         launch(FhysicsObjectDrawer::class.java)
@@ -29,8 +36,6 @@ class FhysicsObjectDrawer : Application() {
         println("FhysicsFX")
 
         this.stage = stage
-
-//        fhysics = FhysicsCore()
 
         setWindowSize(stage)
         zoom = calculateZoom(stage)
@@ -44,17 +49,21 @@ class FhysicsObjectDrawer : Application() {
         stage.scene = scene
         stage.isResizable = false
 
-        fhysics.drawer = this
-        fhysics.startUpdateLoop()
-
         canvas.setOnScroll { onMouseWheel(it.deltaY) }
         canvas.setOnMousePressed { onMousePressed(Vector2(it.x, it.y)) }
         canvas.setOnKeyPressed { keyPressed(it.text[0]) }
+
+        gc = canvas.graphicsContext2D
+
+        fhysics.drawer = this
+        fhysics.startUpdateLoop()
 
         stage.show()
     }
 
     fun drawFrame() {
+        gc.fill = colorToPaint(OBJECT_COLOR)
+        gc.fillOval(width / 2, height / 2, 10.0, 10.0)
     }
 
     private fun setWindowSize(stage: Stage) {
@@ -84,6 +93,15 @@ class FhysicsObjectDrawer : Application() {
         val borderWidth: Double = border.width
         val windowWidth: Double = stage.width - (8 + 8) // -(insets.left[8] + insets.right[8])
         return windowWidth / borderWidth
+    }
+
+    fun colorToPaint(javafxColor: Color): Paint {
+        return javafx.scene.paint.Color(
+            javafxColor.red  / 255.0,
+            javafxColor.green / 255.0,
+            javafxColor.blue  / 255.0,
+            javafxColor.alpha  / 255.0
+        )
     }
 
     private fun onMouseWheel(delta: Double) {

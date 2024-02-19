@@ -74,9 +74,11 @@ class FhysicsCore {
         val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                if (isRunning) {
-                    update()
-                }
+//                if (isRunning) {
+//                    update()
+//                }
+
+                drawer.drawFrame()
             }
         }, 0, updateIntervalMillis.toLong())
     }
