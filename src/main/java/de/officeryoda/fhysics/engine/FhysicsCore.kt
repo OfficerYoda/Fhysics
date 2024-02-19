@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
+import de.officeryoda.fhysics.engine.collision.MinimizeOverlap
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
@@ -25,27 +26,27 @@ class FhysicsCore {
     private val updateTimes = mutableListOf<Long>()
 
     lateinit var drawer: FhysicsObjectDrawer
-    var isRunning: Boolean = false
+    var isRunning: Boolean = true
 
     init {
         borderBoxes = createBorderBoxes()
 
-        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(20.0, 40.0), 60.0, 20.0, Vector2(0.0, 0.0)))
-        for (i in 1..1000) {
+        for (i in 1..500) {
             val circle = FhysicsObjectFactory.randomCircle()
             circle.radius *= 2
             fhysicsObjects.add(circle)
         }
 
-//        for (i in 1..14) {
-//            val box = FhysicsObjectFactory.randomBox()
-//            fhysicsObjects.add(box)
-//        }
+        for (i in 1..14) {
+            val box = FhysicsObjectFactory.randomBox()
+            fhysicsObjects.add(box)
+        }
 
 
-        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0,45.0), 1.0, Vector2(00.0, 00.0)))
-        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(10.0,50.0), 1.0, Vector2(10.0, 00.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
+//        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(20.0, 40.0), 60.0, 20.0, Vector2(0.0, 0.0)))
+
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0,45.0), 1.0, Vector2(00.0, 00.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(10.0,50.0), 1.0, Vector2(10.0, 00.0)))
     }
 
     fun update() {
