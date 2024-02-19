@@ -20,6 +20,7 @@ class FhysicsCore {
     private val borderBoxes: List<Box>
 
     private val gravity: Vector2 = Vector2(0.0, -9.81)
+//    private val gravity: Vector2 = Vector2(0.0, 0.0)
     private val updatesPerSecond: Int = 240
 
     private var updateCount = 0
@@ -56,8 +57,7 @@ class FhysicsCore {
 //        spawnObject()
 
         fhysicsObjects.forEach {
-            it.update(updatesIntervalSeconds, Vector2.ZERO)
-//            it.update(updatesIntervalSeconds, gravity)
+            it.update(updatesIntervalSeconds, gravity)
             checkBorderCollision(it)
         }
 

@@ -29,7 +29,7 @@ class FhysicsObjectDrawer : Application() {
     private lateinit var stage: Stage
     private lateinit var gc: GraphicsContext
 
-    private var zoom: Double = 1.0 // TODO add a minus; leaving it out for now
+    private var zoom: Double = -1.0
     private var quadTreeHighlightSize: Double = 20.0
     private val debugPoints: MutableList<Pair<Vector2, Color>> = ArrayList()
 
@@ -290,15 +290,14 @@ class FhysicsObjectDrawer : Application() {
     /// =====listener functions=====
 
     private fun onMouseWheel(delta: Double) {
-//        TODO("Not yet implemented")
-//        zoom -= delta * 0.2
+        zoom += delta * 0.01
 //        drawFrame()
     }
 
     private fun onMousePressed(mousePos: Vector2) {
-//        TODO("Not yet implemented")
-//        val transformedMousePos = mousePos / zoom
-//        fhysics.fhysicsObjects.add(Circle(transformedMousePos, 1.0))
+        val transformedMousePos: Vector2 = mousePos / zoom
+        transformedMousePos.y = height - transformedMousePos.y
+        fhysics.fhysicsObjects.add(Circle(transformedMousePos, 1.0))
 //        drawFrame()
     }
 
