@@ -55,6 +55,9 @@ class FhysicsObjectDrawer : Application() {
         stage.scene = scene
         stage.isResizable = false
 
+        // set the background color
+        stage.scene.fill = colorToPaint(Color.decode("#010409"))
+
         canvas.setOnScroll { onMouseWheel(it.deltaY) }
         canvas.setOnMousePressed { onMousePressed(Vector2(it.x, it.y)) }
         canvas.setOnKeyPressed { keyPressed(it.text[0]) }
@@ -74,6 +77,9 @@ class FhysicsObjectDrawer : Application() {
     /// =====draw functions=====
 
     fun drawFrame() {
+        // clear the stage
+        gc.clearRect(0.0, 0.0, width, height)
+
         drawAllObjects()
 
         drawDebug()
@@ -208,7 +214,7 @@ class FhysicsObjectDrawer : Application() {
 
         val lineHeight: Double = font.size
         gc.fillText("MSPU: $mspuRounded", 5.0, lineHeight)
-        gc.strokeText("FPS: $fpsRounded", 5.0, 2 * lineHeight)
+        gc.fillText("FPS: $fpsRounded", 5.0, 2 * lineHeight)
     }
 
     /// =====end draw functions=====
@@ -284,13 +290,13 @@ class FhysicsObjectDrawer : Application() {
     /// =====listener functions=====
 
     private fun onMouseWheel(delta: Double) {
-        TODO("Not yet implemented")
+//        TODO("Not yet implemented")
 //        zoom -= delta * 0.2
 //        drawFrame()
     }
 
     private fun onMousePressed(mousePos: Vector2) {
-        TODO("Not yet implemented")
+//        TODO("Not yet implemented")
 //        val transformedMousePos = mousePos / zoom
 //        fhysics.fhysicsObjects.add(Circle(transformedMousePos, 1.0))
 //        drawFrame()
