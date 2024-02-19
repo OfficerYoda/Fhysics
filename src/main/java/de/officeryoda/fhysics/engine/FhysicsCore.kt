@@ -64,7 +64,7 @@ class FhysicsCore {
         buildQuadTree()
         checkObjectCollisionQuadTree(quadTree)
 
-        drawer.repaintObjects()
+        drawer.drawFrame()
 
         updateCount++
         addUpdateTime(System.nanoTime() - startTime)

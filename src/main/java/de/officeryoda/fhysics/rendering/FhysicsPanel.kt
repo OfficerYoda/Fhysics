@@ -35,7 +35,7 @@ internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JP
         background = backgroundColor
     }
 
-    override fun paintComponent(g: Graphics) {
+    override fun paintComponent(g: Graphics) { // draw Frame
         super.paintComponent(g)
 
         drawAllObjects(g)

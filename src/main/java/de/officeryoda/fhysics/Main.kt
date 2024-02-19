@@ -34,10 +34,6 @@ class Main {
         fun main(args: Array<String>) {
             FhysicsObjectDrawer().launch()
         }
-
-        const val WIDTH = 1440.0
-        const val HEIGHT = 960.0
-        val OBJECT_COLOR: Color = Color.BLUE
     }
 //
 //    override fun start(primaryStage: Stage) {
