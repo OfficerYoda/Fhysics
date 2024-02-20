@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.engine.collision.ElasticCollision
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
-import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import java.awt.geom.Rectangle2D
 import java.util.*
 
@@ -18,9 +17,9 @@ class FhysicsCore {
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
     private val borderBoxes: List<Box>
 
-    private val gravity: Vector2 = Vector2(0.0, -9.81)
+    //    private val gravity: Vector2 = Vector2(0.0, -9.81)
+    private val gravity: Vector2 = Vector2(0.0, 0.0)
 
-    //    private val gravity: Vector2 = Vector2(0.0, 0.0)
     private val updatesPerSecond: Int = 200
 
     private var updateCount = 0
@@ -83,7 +82,6 @@ class FhysicsCore {
     }
 
     private fun buildQuadTree() {
-        QuadTree.count = 0
         quadTree = QuadTree(BORDER, quadTreeCapacity)
         fhysicsObjects.forEach { quadTree.insert(it) }
     }

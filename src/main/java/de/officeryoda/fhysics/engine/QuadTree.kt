@@ -21,7 +21,6 @@ data class QuadTree(
 
         if (objects.size < capacity && !divided) {
             objects.add(obj)
-            count++
             return
         }
 
@@ -61,7 +60,6 @@ data class QuadTree(
         botRight = QuadTree(br, capacity)
 
         objects.forEach { insertInChildren(it) }
-        count -= objects.size
         objects.clear()
 
         divided = true
@@ -113,9 +111,5 @@ data class QuadTree(
         } else {
             "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false)"
         }
-    }
-
-    companion object {
-        var count = 0
     }
 }

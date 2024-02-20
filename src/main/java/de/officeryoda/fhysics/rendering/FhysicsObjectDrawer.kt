@@ -1,7 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
@@ -65,7 +64,7 @@ class FhysicsObjectDrawer : Application() {
 
         scene.setOnScroll { onMouseWheel(it.deltaY) }
         scene.setOnMousePressed { onMousePressed(Vector2(it.x, it.y)) }
-        scene.setOnKeyPressed { keyPressed(it.text[0]) }
+//        scene.setOnKeyPressed { keyPressed(it.text[0]) }
 
         gc = canvas.graphicsContext2D
 
@@ -103,7 +102,7 @@ class FhysicsObjectDrawer : Application() {
 
         drawDebug()
 
-//        drawHighlightQuadTree()
+        drawHighlightQuadTree()
 
 //        drawQuadTree()
 
@@ -163,41 +162,54 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawHighlightQuadTree() {
+        // get the mouse position
         val mousePoint: Point = MouseInfo.getPointerInfo().location
         stage.scene.root.screenToLocal(mousePoint.x.toDouble(), mousePoint.y.toDouble())
 
-        val mousePos: Vector2 = Vector2(mousePoint.x.toDouble(), height - mousePoint.y.toDouble()) / zoom
+        /// ==stuff in world space==
 
-        var rectX: Double = mousePos.x - quadTreeHighlightSize / 2
-        var rectY: Double = mousePos.y - quadTreeHighlightSize / 2
+        // convert mouse position to world space
+        val mousePos = Vector2(
+            mousePoint.x.toDouble() - width / 2 - 52, // the 52 is a magic number to correct the position
+            height - mousePoint.y.toDouble() + titleBarHeight + 27 // the 27 is a magic number to correct the position
+        )
 
-        var queryRect: Rectangle2D.Double =
-            Rectangle2D.Double(rectX, rectY, quadTreeHighlightSize.toDouble(), quadTreeHighlightSize.toDouble())
+        // calculate the query rectangle's position
+        val rectX: Double = mousePos.x / zoom
+        val rectY: Double = mousePos.y / zoom
 
-        val currentCenterX: Double = queryRect.x + (queryRect.width / 2)
-        val currentCenterY: Double = queryRect.y + (queryRect.height / 2)
 
-        val newWidth: Double = queryRect.width / zoom
-        val newHeight: Double = queryRect.height / zoom
+        // calculate the width and height of the query rectangle
+        val queryWidth: Double = quadTreeHighlightSize / zoom
+        val queryHeight: Double = quadTreeHighlightSize / zoom
 
-        queryRect =
-            Rectangle2D.Double(currentCenterX - (newWidth / 2), currentCenterY - (newHeight / 2), newWidth, newHeight)
+        // create the query rectangle
+        val queryRect =
+            Rectangle2D.Double(
+                rectX - queryWidth / 2,
+                rectY - queryHeight / 2,
+                queryWidth,
+                queryHeight
+            )
 
-        QuadTree.count = 0
+        // query the quad tree for objects in query rectangle
+        val queriedObjects = fhysics.quadTree.query(queryRect).filterIsInstance<Circle>().toList()
+
+        // draw the queried objects
         setFillColor(Color.BLUE)
-        fhysics.quadTree.query(queryRect).filterIsInstance<Circle>().forEach {
+        queriedObjects.forEach {
             drawCircle(it)
         }
 
-        mousePos *= zoom
-//        mousePos.x -= insets.left // TODO check if this is necessary
-//        mousePos.y += insets.top
-        mousePos /= zoom
+        /// ==stuff in screen space==
 
-        rectX = (transformX(mousePos.x) - quadTreeHighlightSize / 2/* + insets.left*/)
-        rectY = (transformY(mousePos.y) - quadTreeHighlightSize / 2/* + insets.top*/)
+        // calculate the position of the query rectangle
+        val screenRectX = (transformX(rectX) - quadTreeHighlightSize / 2)
+        val screenRectY = (transformY(rectY) - quadTreeHighlightSize / 2)
 
-        gc.clearRect(rectX, rectY, quadTreeHighlightSize, quadTreeHighlightSize)
+        // draw the query rectangle on screen
+        setStrokeColor(Color.BLUE)
+        gc.strokeRect(screenRectX, screenRectY, quadTreeHighlightSize, quadTreeHighlightSize)
     }
 
     private fun drawQuadTree() {
@@ -321,7 +333,8 @@ class FhysicsObjectDrawer : Application() {
     /// =====listener functions=====
 
     private fun onMouseWheel(delta: Double) {
-        zoom += delta * 0.001
+//        zoom += delta * 0.001
+        quadTreeHighlightSize += delta * 0.1
 //        drawFrame()
     }
 
