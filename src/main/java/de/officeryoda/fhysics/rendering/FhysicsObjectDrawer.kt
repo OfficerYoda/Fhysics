@@ -6,6 +6,7 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
+import javafx.animation.AnimationTimer
 import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.Scene
@@ -15,7 +16,6 @@ import javafx.scene.paint.Paint
 import javafx.scene.text.Font
 import javafx.stage.Stage
 import java.awt.Color
-import java.awt.Insets
 import java.awt.MouseInfo
 import java.awt.Point
 import java.awt.geom.Rectangle2D
@@ -33,45 +33,63 @@ class FhysicsObjectDrawer : Application() {
     private var quadTreeHighlightSize: Double = 20.0
     private val debugPoints: MutableList<Pair<Vector2, Color>> = ArrayList()
 
-    private val width: Double get() = stage.width
-    private val height: Double get() = stage.height
+    private val width: Double get() = stage.scene.width
+    private val height: Double get() = stage.scene.height // use scene height to prevent including the window's title bar
+    private var titleBarHeight: Double = 0.0
 
     /// =====start functions=====
 
-    override fun start(stage: Stage) {
-        println("FhysicsFX")
+    init {
+        INSTANCE = this
+    }
 
+    override fun start(stage: Stage) {
         this.stage = stage
 
-        setWindowSize(stage)
-        zoom = calculateZoom(stage)
+        setWindowSize()
+        zoom = calculateZoom()
 
         val root = Group()
-        val canvas = Canvas(width, height)
-        root.children.add(canvas)
 
-        val scene = Scene(root, width, height)
+        val scene = Scene(root, stage.width, stage.height)
         stage.title = "Fhysics"
         stage.scene = scene
         stage.isResizable = false
+        stage.scene.root.clip = null // to draw things which are partially outside the window
+
+        val canvas = Canvas(width, height)
+        root.children.add(canvas)
 
         // set the background color
         stage.scene.fill = colorToPaint(Color.decode("#010409"))
 
-        canvas.setOnScroll { onMouseWheel(it.deltaY) }
-        canvas.setOnMousePressed { onMousePressed(Vector2(it.x, it.y)) }
-        canvas.setOnKeyPressed { keyPressed(it.text[0]) }
+        scene.setOnScroll { onMouseWheel(it.deltaY) }
+        scene.setOnMousePressed { onMousePressed(Vector2(it.x, it.y)) }
+        scene.setOnKeyPressed { keyPressed(it.text[0]) }
 
         gc = canvas.graphicsContext2D
 
-        fhysics.drawer = this
-        fhysics.startUpdateLoop()
-
         stage.show()
+
+        // calculate the window's title bar height
+        // needs to be done after the stage is shown
+        titleBarHeight = stage.scene.window.height - stage.scene.height
+
+        startAnimationTimer()
     }
 
     fun launch() {
         launch(FhysicsObjectDrawer::class.java)
+    }
+
+    private fun startAnimationTimer() {
+        // draw functions need to be run on the JavaFX Application Thread
+        // to prevent exceptions (just stopping to update the visuals)
+        object : AnimationTimer() {
+            override fun handle(now: Long) {
+                drawFrame()
+            }
+        }.start()
     }
 
     /// =====draw functions=====
@@ -80,6 +98,7 @@ class FhysicsObjectDrawer : Application() {
         // clear the stage
         gc.clearRect(0.0, 0.0, width, height)
 
+        drawBorder()
         drawAllObjects()
 
         drawDebug()
@@ -87,7 +106,6 @@ class FhysicsObjectDrawer : Application() {
 //        drawHighlightQuadTree()
 
 //        drawQuadTree()
-//        drawBorder()
 
         drawStats()
     }
@@ -196,8 +214,8 @@ class FhysicsObjectDrawer : Application() {
         val width: Double = rect.width * zoom
         val height: Double = rect.height * zoom
 
-        setFillColor(Color.WHITE)
-        gc.clearRect(x, y, width, height)
+        setStrokeColor(Color.WHITE)
+        gc.strokeRect(x, y, width, height)
     }
 
     private fun drawStats() {
@@ -217,35 +235,12 @@ class FhysicsObjectDrawer : Application() {
         gc.fillText("FPS: $fpsRounded", 5.0, 2 * lineHeight)
     }
 
-    /// =====end draw functions=====
-
-    private fun setWindowSize(stage: Stage) {
-        val insets = Insets(31, 8, 8, 8) // these will be the values
-        val border: Rectangle2D = FhysicsCore.BORDER
-        val borderWidth: Double = border.width
-        val borderHeight: Double = border.height
-
-        val ratio: Double = borderHeight / borderWidth
-        val maxWidth = 1440.0
-        val maxHeight = 960.0
-
-        var windowWidth: Double = maxWidth
-        var windowHeight: Double = (windowWidth * ratio + insets.top)
-
-        if (windowHeight > maxHeight) {
-            windowHeight = maxHeight
-            windowWidth = ((windowHeight - insets.top) / ratio).toInt().toDouble()
-        }
-
-        stage.width = windowWidth
-        stage.height = windowHeight
+    fun drawDebugPoint(point: Vector2, color: Color) {
+        debugPoints.add(Pair(point, color))
     }
 
-    private fun calculateZoom(stage: Stage): Double {
-        val border: Rectangle2D = FhysicsCore.BORDER
-        val borderWidth: Double = border.width
-        val windowWidth: Double = stage.width - (8 + 8) // -(insets.left[8] + insets.right[8])
-        return windowWidth / borderWidth
+    fun drawDebugPoint(point: Vector2) {
+        drawDebugPoint(point, Color.RED)
     }
 
     /// =====transform functions=====
@@ -272,10 +267,46 @@ class FhysicsObjectDrawer : Application() {
         return height - (y * zoom)
     }
 
+    /// =====window functions=====
+
+    private fun setWindowSize() {
+        val border: Rectangle2D = FhysicsCore.BORDER
+        val borderWidth: Double = border.width
+        val borderHeight: Double = border.height
+
+        val ratio: Double = borderHeight / borderWidth
+        val maxWidth = 1440.0
+        val maxHeight = 960.0 - 39.0 // 39.0 is the height of the window's title bar
+
+        // TODO correctly implement the window's title bar height into the calculation
+
+        var windowWidth: Double = maxWidth
+        var windowHeight: Double = (windowWidth * ratio)
+
+        if (windowHeight > maxHeight) {
+            windowHeight = maxHeight
+            windowWidth = windowHeight / ratio
+        }
+
+        stage.width = windowWidth
+        stage.height = windowHeight
+    }
+
+    private fun calculateZoom(): Double {
+        val border: Rectangle2D = FhysicsCore.BORDER
+        val borderWidth: Double = border.width
+        val windowWidth: Double = stage.width
+        return windowWidth / borderWidth
+    }
+
     /// =====utility functions=====
 
     private fun setFillColor(color: Color) {
         gc.fill = colorToPaint(color)
+    }
+
+    private fun setStrokeColor(color: Color) {
+        gc.stroke = colorToPaint(color)
     }
 
     private fun colorToPaint(javafxColor: Color): Paint {
@@ -290,18 +321,19 @@ class FhysicsObjectDrawer : Application() {
     /// =====listener functions=====
 
     private fun onMouseWheel(delta: Double) {
-        zoom += delta * 0.01
+        zoom += delta * 0.001
 //        drawFrame()
     }
 
     private fun onMousePressed(mousePos: Vector2) {
-        val transformedMousePos: Vector2 = mousePos / zoom
+        val transformedMousePos: Vector2 = mousePos
         transformedMousePos.y = height - transformedMousePos.y
-        fhysics.fhysicsObjects.add(Circle(transformedMousePos, 1.0))
-//        drawFrame()
+        fhysics.fhysicsObjects.add(Circle(transformedMousePos / zoom, 1.0))
+        drawFrame()
     }
 
     private fun keyPressed(pressedChar: Char) {
+        TODO("Add listener for key presses")
         // if pressed char is p toggle isRunning in FhysicsCore
         // if it is Enter or space call the update function
         when (pressedChar) {
@@ -309,6 +341,10 @@ class FhysicsObjectDrawer : Application() {
             ' ' -> fhysics.update() // space
             '\n' -> fhysics.update() // enter
         }
+    }
+
+    companion object {
+        lateinit var INSTANCE: FhysicsObjectDrawer
     }
 }
 

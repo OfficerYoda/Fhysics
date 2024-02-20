@@ -13,7 +13,7 @@ import java.util.*
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
-internal class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JPanel() {
+class FhysicsPanel(private val fhysics: FhysicsCore, zoom: Double) : JPanel() {
 
     private val objectColor: Color = Color.decode("#2f2f30")
 

@@ -3,7 +3,6 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
-import de.officeryoda.fhysics.engine.collision.MinimizeOverlap
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
@@ -20,13 +19,13 @@ class FhysicsCore {
     private val borderBoxes: List<Box>
 
     private val gravity: Vector2 = Vector2(0.0, -9.81)
-//    private val gravity: Vector2 = Vector2(0.0, 0.0)
-    private val updatesPerSecond: Int = 240
+
+    //    private val gravity: Vector2 = Vector2(0.0, 0.0)
+    private val updatesPerSecond: Int = 200
 
     private var updateCount = 0
     private val updateTimes = mutableListOf<Long>()
 
-    lateinit var drawer: FhysicsObjectDrawer
     var isRunning: Boolean = true
 
     init {
@@ -43,11 +42,26 @@ class FhysicsCore {
             fhysicsObjects.add(box)
         }
 
-
 //        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(20.0, 40.0), 60.0, 20.0, Vector2(0.0, 0.0)))
 
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0,45.0), 1.0, Vector2(00.0, 00.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(10.0,50.0), 1.0, Vector2(10.0, 00.0)))
+        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0, 45.0), 1.0, Vector2(00.0, 00.0)))
+        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(10.0, 50.0), 1.0, Vector2(10.0, 00.0)))
+
+        startUpdateLoop()
+    }
+
+    var prevTimer = -1L
+    var prevAnimationTimer = -1L
+
+    private fun startUpdateLoop() {
+        val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
+        Timer(true).scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                if (isRunning) {
+                    update()
+                }
+            }
+        }, 0, updateIntervalMillis.toLong())
     }
 
     fun update() {
@@ -64,21 +78,8 @@ class FhysicsCore {
         buildQuadTree()
         checkObjectCollisionQuadTree(quadTree)
 
-        drawer.drawFrame()
-
         updateCount++
         addUpdateTime(System.nanoTime() - startTime)
-    }
-
-    fun startUpdateLoop() {
-        val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
-        Timer(true).scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                if (isRunning) {
-                    update()
-                }
-            }
-        }, 0, updateIntervalMillis.toLong())
     }
 
     private fun buildQuadTree() {
