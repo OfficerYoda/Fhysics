@@ -26,7 +26,7 @@ import java.util.*
 class FhysicsObjectDrawer : Application() {
 
     // fhysics properties
-    val fhysics: FhysicsCore = FhysicsCore()
+    val fhysics: FhysicsCore = FhysicsCore
 
     // rendering properties
     private lateinit var stage: Stage
@@ -40,8 +40,7 @@ class FhysicsObjectDrawer : Application() {
     /// window size properties
     private val width: Double get() = stage.scene.width
     private val height: Double get() = stage.scene.height // use scene height to prevent including the window's title bar
-    private val titleBarHeight: Double =
-        39.0 // that's the default height of the window's title bar (in windows), I calculated it at a pont in time
+    private val titleBarHeight: Double = 39.0 // that's the default height of the window's title bar (in windows)
 
     /// =====start functions=====
 
@@ -232,8 +231,8 @@ class FhysicsObjectDrawer : Application() {
         gc.strokeRect(x, y, width, height)
 
         // draw transparent fill
-        val quadTreeCapacity = 4.0 // temporary
-        setFillColor(Color(66, 164, 245, (contentCount / quadTreeCapacity * 128).toInt()))
+        val quadTreeCapacity = fhysics.QUAD_TREE_CAPACITY
+        setFillColor(Color(66, 164, 245, (contentCount.toDouble() / quadTreeCapacity * 128).toInt()))
         gc.fillRect(x, y, width, height)
     }
 
