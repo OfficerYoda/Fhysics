@@ -10,6 +10,7 @@ object ElasticCollision : CollisionSolver() {
         // separate the objects to prevent tunneling and other anomalies
         separateOverlappingObjects(info)
 
+        // Get the objects
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
@@ -20,13 +21,16 @@ object ElasticCollision : CollisionSolver() {
         val relativeVelocityAlongNormal: Double = relativeVelocity.dot(info.normal)
 
         // Calculate impulse (change in momentum)
-        val impulse: Double = (2.0 * relativeVelocityAlongNormal) / (objA.mass + objB.mass)
+        val impulse: Double = (2.0*relativeVelocityAlongNormal) / (objA.mass + objB.mass)
 
         // Apply impulse to update velocities
         val restitution = 1.0
         val impulseMultiplier = impulse * restitution * info.normal
 
-        objA.velocity += impulseMultiplier * objB.mass
-        objB.velocity -= impulseMultiplier * objA.mass
+        // Apply impulse to the objects
+        if(!objA.static)
+            objA.velocity += impulseMultiplier * objB.mass
+        if(!objB.static)
+            objB.velocity -= impulseMultiplier * objA.mass
     }
 }

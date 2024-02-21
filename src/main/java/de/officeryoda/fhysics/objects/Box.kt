@@ -9,8 +9,8 @@ class Box(
     position: Vector2,
     val width: Double,
     val height: Double,
-) :
-    FhysicsObject(position, width * height) {
+) : FhysicsObject(position, width * height) {
+
     val minX: Double
         get() = position.x
 
@@ -26,10 +26,6 @@ class Box(
     init {
         color = Color.decode("#4287f5")
         static = true
-    }
-
-    override fun update(dt: Double, gravity: Vector2) {
-        // don't move
     }
 
     override fun testCollision(other: Circle): CollisionInfo {

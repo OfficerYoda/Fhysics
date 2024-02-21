@@ -17,8 +17,8 @@ class FhysicsCore {
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
     private val borderBoxes: List<Box>
 
-    //    private val gravity: Vector2 = Vector2(0.0, -9.81)
     private val gravity: Vector2 = Vector2(0.0, 0.0)
+//    private val gravity: Vector2 = Vector2(0.0, -9.81)
 
     private val updatesPerSecond: Int = 200
 
@@ -41,16 +41,29 @@ class FhysicsCore {
             fhysicsObjects.add(box)
         }
 
-//        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(20.0, 40.0), 60.0, 20.0, Vector2(0.0, 0.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(0.0, 0.0), 100.0, 10.0, Vector2(0.0, 0.0)))
+//
+//        for (i in 1 until 200) {
+//            val circle = FhysicsObjectFactory.customCircle(
+//                Vector2(i * 5.0, 15.0 + i * 4.5 + 1),
+//                0.5,
+//                Vector2(0.0, 0.0)
+//            )
+//            fhysicsObjects.add(circle)
+//        }
 
-        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0, 45.0), 1.0, Vector2(00.0, 00.0)))
-        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(10.0, 50.0), 1.0, Vector2(10.0, 00.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(10.0, 50.0), 1.0, Vector2(10.0, 0.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(20.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0, 50.0), 1.0, Vector2(10.0, 0.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(40.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(50.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(60.0, 50.0), 1.0, Vector2(10.0, 0.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(70.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(80.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(90.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
 
         startUpdateLoop()
     }
-
-    var prevTimer = -1L
-    var prevAnimationTimer = -1L
 
     private fun startUpdateLoop() {
         val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
@@ -70,7 +83,7 @@ class FhysicsCore {
 //        spawnObject()
 
         fhysicsObjects.forEach {
-            it.update(updatesIntervalSeconds, gravity)
+            it.updatePosition(updatesIntervalSeconds, gravity)
             checkBorderCollision(it)
         }
 
@@ -157,7 +170,6 @@ class FhysicsCore {
     fun getAverageUpdateTime(): Double {
         return updateTimes
             .toList()
-            .filterNotNull() // filterNotNull is not redundant, even if IntelliJ says so
             .map { it / 1E6 } // convert nano to milliseconds
             .average()
     }
