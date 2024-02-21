@@ -40,7 +40,8 @@ class FhysicsObjectDrawer : Application() {
     /// window size properties
     private val width: Double get() = stage.scene.width
     private val height: Double get() = stage.scene.height // use scene height to prevent including the window's title bar
-    private val titleBarHeight: Double = 39.0 // that's the default height of the window's title bar (in windows), I calculated it at a pont in time
+    private val titleBarHeight: Double =
+        39.0 // that's the default height of the window's title bar (in windows), I calculated it at a pont in time
 
     /// =====start functions=====
 
@@ -103,7 +104,7 @@ class FhysicsObjectDrawer : Application() {
 
         drawDebugPoints()
 //        drawHighlightQuadTree()
-//        drawQuadTree()
+        drawQuadTree()
 //        drawBorder()
 
         drawStats()
@@ -217,17 +218,23 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawBorder() {
-        transformAndDrawRect(FhysicsCore.BORDER)
+        transformAndDrawRect(FhysicsCore.BORDER, 0)
     }
 
-    private fun transformAndDrawRect(rect: Rectangle2D) {
+    private fun transformAndDrawRect(rect: Rectangle2D, contentCount: Int) {
         val x: Double = transformX(rect.x)
         val y: Double = transformY((rect.y + rect.height))
         val width: Double = rect.width * zoom
         val height: Double = rect.height * zoom
 
+        // draw Border
         setStrokeColor(Color.WHITE)
         gc.strokeRect(x, y, width, height)
+
+        // draw transparent fill
+        val quadTreeCapacity = 4.0 // temporary
+        setFillColor(Color(66, 164, 245, (contentCount / quadTreeCapacity * 128).toInt()))
+        gc.fillRect(x, y, width, height)
     }
 
     private fun drawStats() {

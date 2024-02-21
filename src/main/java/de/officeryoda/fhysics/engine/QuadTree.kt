@@ -3,7 +3,7 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.FhysicsObject
 import java.awt.geom.Rectangle2D
-import kotlin.reflect.KFunction1
+import kotlin.reflect.KFunction2
 
 data class QuadTree(
     private val boundary: Rectangle2D,
@@ -93,9 +93,9 @@ data class QuadTree(
         return objectsInRange
     }
 
-    fun draw(drawRect: KFunction1<Rectangle2D, Unit>) {
+    fun draw(drawRect: KFunction2<Rectangle2D, Int, Unit>) {
         if (!divided) {
-            drawRect(boundary)
+            drawRect(boundary, objects.size)
         } else {
             topLeft.draw(drawRect)
             topRight.draw(drawRect)
