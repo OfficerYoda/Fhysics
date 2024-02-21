@@ -25,18 +25,22 @@ import java.util.*
 
 class FhysicsObjectDrawer : Application() {
 
+    // fhysics properties
     val fhysics: FhysicsCore = FhysicsCore()
 
+    // rendering properties
     private lateinit var stage: Stage
     private lateinit var gc: GraphicsContext
 
+    // default properties
     private var zoom: Double = -1.0
     private var quadTreeHighlightSize: Double = 20.0
     private val debugPoints: MutableList<Pair<Vector2, Color>> = ArrayList()
 
+    /// window size properties
     private val width: Double get() = stage.scene.width
     private val height: Double get() = stage.scene.height // use scene height to prevent including the window's title bar
-    private var titleBarHeight: Double = 0.0
+    private val titleBarHeight: Double = 39.0 // that's the default height of the window's title bar (in windows), I calculated it at a pont in time
 
     /// =====start functions=====
 
@@ -48,10 +52,8 @@ class FhysicsObjectDrawer : Application() {
         this.stage = stage
 
         setWindowSize()
-        zoom = calculateZoom()
 
         val root = Group()
-
         val scene = Scene(root, stage.width, stage.height)
         stage.title = "Fhysics"
         stage.scene = scene
@@ -70,13 +72,11 @@ class FhysicsObjectDrawer : Application() {
 
         gc = canvas.graphicsContext2D
 
-        stage.show()
-
-        // calculate the window's title bar height
-        // needs to be done after the stage is shown
-        titleBarHeight = stage.scene.window.height - stage.scene.height
+        zoom = calculateZoom()
 
         startAnimationTimer()
+
+        stage.show()
     }
 
     fun launch() {
@@ -282,33 +282,36 @@ class FhysicsObjectDrawer : Application() {
     /// =====window functions=====
 
     private fun setWindowSize() {
+        // calculate the window size
         val border: Rectangle2D = FhysicsCore.BORDER
         val borderWidth: Double = border.width
         val borderHeight: Double = border.height
 
+        // calculate the aspect ratio based on world space
         val ratio: Double = borderHeight / borderWidth
         val maxWidth = 1440.0
-        val maxHeight = 960.0 - 39.0 // 39.0 is the height of the window's title bar
+        val maxHeight = 960.0
 
-        // TODO correctly implement the window's title bar height into the calculation
-
+        // calculate the window size
         var windowWidth: Double = maxWidth
-        var windowHeight: Double = (windowWidth * ratio)
+        var windowHeight: Double = windowWidth * ratio
 
+        // stretch the window horizontally if the window is too tall
         if (windowHeight > maxHeight) {
             windowHeight = maxHeight
             windowWidth = windowHeight / ratio
         }
 
-        stage.width = windowWidth
-        stage.height = windowHeight
+        stage.width = windowWidth + 16 // the 16 is a magic number to correct the width
+        stage.height = windowHeight + titleBarHeight
     }
 
     private fun calculateZoom(): Double {
-        val border: Rectangle2D = FhysicsCore.BORDER
-        val borderWidth: Double = border.width
-        val windowWidth: Double = stage.width
-        return windowWidth / borderWidth
+        // normal zoom amount
+        val borderHeight: Double = FhysicsCore.BORDER.height
+        val windowHeight: Double = stage.height - titleBarHeight
+
+        return windowHeight / borderHeight
     }
 
     /// =====utility functions=====
