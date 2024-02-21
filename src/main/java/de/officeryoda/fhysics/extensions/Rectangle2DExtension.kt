@@ -27,6 +27,52 @@ fun Rectangle2D.contains(vector2Int: Vector2Int): Boolean {
     return contains(vector2Int.x.toDouble(), vector2Int.y.toDouble())
 }
 
+/**
+ * Checks if the Rectangle contains the specified FhysicsObject.
+ *
+ * @param obj The FhysicsObject to check for containment.
+ * @return True if the Rectangle contains the FhysicsObject, false otherwise.
+ */
+fun Rectangle2D.contains(obj: FhysicsObject): Boolean {
+    if (obj is Circle) {
+        return contains(obj)
+    } else if (obj is Box) {
+        return contains(obj)
+    }
+
+    System.err.println("Unknown FhysicsObject: $obj")
+    return false
+}
+
+/**
+ * Checks if the Rectangle contains the specified Circle.
+ *
+ * @param circle The Circle to check for containment.
+ * @return True if the Rectangle contains the Circle, false otherwise.
+ */
+fun Rectangle2D.contains(circle: Circle): Boolean {
+    // basically an AABB check
+    val radiusOffset = Vector2(circle.radius, circle.radius)
+    return contains(circle.position - radiusOffset) && contains(circle.position + radiusOffset)
+}
+
+/**
+ * Checks if the Rectangle contains the specified Box.
+ *
+ * @param box The Box to check for containment.
+ * @return True if the Rectangle contains the Box, false otherwise.
+ */
+fun Rectangle2D.contains(box: Box): Boolean {
+    // an AABB check
+    return contains(box.position) && contains(box.position + Vector2(box.width, box.height))
+}
+
+/**
+ * Checks if the Rectangle intersects with the specified FhysicsObject.
+ *
+ * @param obj The FhysicsObject to check for intersection.
+ * @return True if the Rectangle intersects with the FhysicsObject, false otherwise.
+ */
 fun Rectangle2D.intersects(obj: FhysicsObject): Boolean {
     if (obj is Circle) {
         return intersects(obj)
@@ -38,6 +84,12 @@ fun Rectangle2D.intersects(obj: FhysicsObject): Boolean {
     return false
 }
 
+/**
+ * Checks if the Rectangle intersects with the specified Circle.
+ *
+ * @param circle The Circle to check for intersection.
+ * @return True if the Rectangle intersects with the Circle, false otherwise.
+ */
 fun Rectangle2D.intersects(circle: Circle): Boolean {
 // Check if the rectangle intersects with the circle
     if (this.intersects(
@@ -60,6 +112,12 @@ fun Rectangle2D.intersects(circle: Circle): Boolean {
     return false
 }
 
+/**
+ * Checks if the Rectangle intersects with the specified Box.
+ *
+ * @param box The Box to check for intersection.
+ * @return True if the Rectangle intersects with the Box, false otherwise.
+ */
 fun Rectangle2D.intersects(box: Box): Boolean {
     return this.intersects(
         box.position.x,
