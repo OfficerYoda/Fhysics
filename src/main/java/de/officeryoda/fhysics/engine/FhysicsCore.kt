@@ -35,16 +35,27 @@ object FhysicsCore {
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..3000) {
-            val circle = FhysicsObjectFactory.randomCircle()
-//            circle.radius *= 2
-            fhysicsObjects.add(circle)
-        }
+//        for (i in 1..3000) {
+//            val circle = FhysicsObjectFactory.randomCircle()
+////            circle.radius *= 2
+//            fhysicsObjects.add(circle)
+//        }
 
 //        for (i in 1..14) {
 //            val box = FhysicsObjectFactory.randomBox()
 //            fhysicsObjects.add(box)
 //        }
+
+        // create four spheres in the top left quadrant which move to the right
+        val pos = Vector2(2.0, BORDER.height - 20)
+        val vel = Vector2(20.0, 0.0)
+        val radius = 0.5
+        for (i in 1..5) {
+            val yOffset = (i - 1) * 10 * radius
+            val xOffset = (i - 1) * 10 * radius
+            val circle = FhysicsObjectFactory.customCircle(Vector2(pos.x + xOffset, pos.y - yOffset), radius, vel)
+            fhysicsObjects.add(circle)
+        }
 
         startUpdateLoop()
     }
