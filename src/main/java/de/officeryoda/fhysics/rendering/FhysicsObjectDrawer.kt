@@ -97,14 +97,12 @@ class FhysicsObjectDrawer : Application() {
         // clear the stage
         gc.clearRect(0.0, 0.0, width, height)
 
-        drawBorder()
         drawAllObjects()
 
-        drawDebug()
-
-        drawHighlightQuadTree()
-
+        drawDebugPoints()
+//        drawHighlightQuadTree()
 //        drawQuadTree()
+//        drawBorder()
 
         drawStats()
     }
@@ -144,7 +142,7 @@ class FhysicsObjectDrawer : Application() {
         )
     }
 
-    private fun drawDebug() {
+    private fun drawDebugPoints() {
         val pointSize = 6.0
 
         for (pair in debugPoints.toList()) {
@@ -333,7 +331,7 @@ class FhysicsObjectDrawer : Application() {
     /// =====listener functions=====
 
     private fun onMouseWheel(delta: Double) {
-//        zoom += delta * 0.001
+        zoom += delta * 0.01
         quadTreeHighlightSize += delta * 0.1
 //        drawFrame()
     }
