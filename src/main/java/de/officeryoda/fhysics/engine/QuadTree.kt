@@ -2,8 +2,8 @@ package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.FhysicsObject
-import java.awt.Graphics
 import java.awt.geom.Rectangle2D
+import kotlin.reflect.KFunction1
 
 data class QuadTree(
     private val boundary: Rectangle2D,
@@ -21,7 +21,6 @@ data class QuadTree(
 
         if (objects.size < capacity && !divided) {
             objects.add(obj)
-            count++
             return
         }
 
@@ -61,7 +60,6 @@ data class QuadTree(
         botRight = QuadTree(br, capacity)
 
         objects.forEach { insertInChildren(it) }
-        count -= objects.size
         objects.clear()
 
         divided = true
@@ -95,14 +93,14 @@ data class QuadTree(
         return objectsInRange
     }
 
-    fun draw(g: Graphics, drawRect: (Graphics, Rectangle2D) -> Unit) {
+    fun draw(drawRect: KFunction1<Rectangle2D, Unit>) {
         if (!divided) {
-            drawRect(g, boundary)
+            drawRect(boundary)
         } else {
-            topLeft.draw(g, drawRect)
-            topRight.draw(g, drawRect)
-            botLeft.draw(g, drawRect)
-            botRight.draw(g, drawRect)
+            topLeft.draw(drawRect)
+            topRight.draw(drawRect)
+            botLeft.draw(drawRect)
+            botRight.draw(drawRect)
         }
     }
 
@@ -113,9 +111,5 @@ data class QuadTree(
         } else {
             "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false)"
         }
-    }
-
-    companion object {
-        var count = 0
     }
 }
