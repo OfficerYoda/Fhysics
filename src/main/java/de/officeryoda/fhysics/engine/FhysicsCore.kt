@@ -30,37 +30,16 @@ class FhysicsCore {
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..500) {
+        for (i in 1..3000) {
             val circle = FhysicsObjectFactory.randomCircle()
-            circle.radius *= 2
+//            circle.radius *= 2
             fhysicsObjects.add(circle)
         }
 
-        for (i in 1..14) {
-            val box = FhysicsObjectFactory.randomBox()
-            fhysicsObjects.add(box)
-        }
-
-//        fhysicsObjects.add(FhysicsObjectFactory.customBox(Vector2(0.0, 0.0), 100.0, 10.0, Vector2(0.0, 0.0)))
-//
-//        for (i in 1 until 200) {
-//            val circle = FhysicsObjectFactory.customCircle(
-//                Vector2(i * 5.0, 15.0 + i * 4.5 + 1),
-//                0.5,
-//                Vector2(0.0, 0.0)
-//            )
-//            fhysicsObjects.add(circle)
+//        for (i in 1..14) {
+//            val box = FhysicsObjectFactory.randomBox()
+//            fhysicsObjects.add(box)
 //        }
-
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(10.0, 50.0), 1.0, Vector2(10.0, 0.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(20.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(30.0, 50.0), 1.0, Vector2(10.0, 0.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(40.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(50.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(60.0, 50.0), 1.0, Vector2(10.0, 0.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(70.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(80.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(Vector2(90.0, 50.0), 1.0, Vector2(-10.0, 0.0)))
 
         startUpdateLoop()
     }
@@ -77,21 +56,22 @@ class FhysicsCore {
     }
 
     fun update() {
-        val startTime: Long = System.nanoTime()
         val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
 
 //        spawnObject()
 
-        fhysicsObjects.forEach {
+        fhysicsObjects.parallelStream().forEach {
             it.updatePosition(updatesIntervalSeconds, gravity)
             checkBorderCollision(it)
         }
 
+        val startTime: Long = System.nanoTime()
         buildQuadTree()
+        addUpdateTime(System.nanoTime() - startTime)
+
         checkObjectCollisionQuadTree(quadTree)
 
         updateCount++
-        addUpdateTime(System.nanoTime() - startTime)
     }
 
     private fun buildQuadTree() {
@@ -100,16 +80,20 @@ class FhysicsCore {
     }
 
     private fun spawnObject() {
-        if (updateCount % 5 != 0) return
+        for(i in 1..5) {
+            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
+        }
 
-        val spawnRows = 2
-        val radius = 0.5
-        val pos = Vector2(2.0, BORDER.height - 2)
-        val yOffset = (objectCount % spawnRows) * 2 * radius
-        pos.y -= yOffset
-
-        val vel = Vector2(20.0, 0.0)
-        fhysicsObjects.add(FhysicsObjectFactory.customCircle(pos, radius, vel))
+//        if (updateCount % 5 != 0) return
+//
+//        val spawnRows = 2
+//        val radius = 0.5
+//        val pos = Vector2(2.0, BORDER.height - 2)
+//        val yOffset = (objectCount % spawnRows) * 2 * radius
+//        pos.y -= yOffset
+//
+//        val vel = Vector2(20.0, 0.0)
+//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(pos, radius, vel))
     }
 
     private fun checkObjectCollisionQuadTree(quadTree: QuadTree) {
