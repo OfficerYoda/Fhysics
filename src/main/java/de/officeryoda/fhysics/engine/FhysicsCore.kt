@@ -9,18 +9,23 @@ import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import java.awt.geom.Rectangle2D
 import java.util.*
 
-class FhysicsCore {
+object FhysicsCore {
 
-    private val quadTreeCapacity: Int = 4
-    var quadTree: QuadTree = QuadTree(BORDER, quadTreeCapacity)
+    // x and y must be 0.0
+    val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 100.0, 100.0)
+    private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
 
+    const val QUAD_TREE_CAPACITY: Int = 4
+    var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY)
+
+    private var objectCount: Int = 0
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
     private val borderBoxes: List<Box>
 
     private val gravity: Vector2 = Vector2(0.0, 0.0)
 //    private val gravity: Vector2 = Vector2(0.0, -9.81)
 
-    private val updatesPerSecond: Int = 200
+    private const val UPDATES_PER_SECOND: Int = 200
 
     private var updateCount = 0
     private val updateTimes = mutableListOf<Long>()
@@ -45,7 +50,7 @@ class FhysicsCore {
     }
 
     private fun startUpdateLoop() {
-        val updateIntervalMillis: Int = (1f / updatesPerSecond * 1000).toInt()
+        val updateIntervalMillis: Int = (1f / UPDATES_PER_SECOND * 1000).toInt()
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 if (isRunning) {
@@ -56,7 +61,7 @@ class FhysicsCore {
     }
 
     fun update() {
-        val updatesIntervalSeconds: Double = 1.0 / updatesPerSecond
+        val updatesIntervalSeconds: Double = 1.0 / UPDATES_PER_SECOND
 
 //        spawnObject()
 
@@ -75,12 +80,12 @@ class FhysicsCore {
     }
 
     private fun buildQuadTree() {
-        quadTree = QuadTree(BORDER, quadTreeCapacity)
+        quadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY)
         fhysicsObjects.forEach { quadTree.insert(it) }
     }
 
     private fun spawnObject() {
-        for(i in 1..5) {
+        for (i in 1..5) {
             fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
         }
 
@@ -158,15 +163,7 @@ class FhysicsCore {
             .average()
     }
 
-    companion object {
-        // x and y must be 0.0
-        val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 100.0, 100.0)
-
-        val COLLISION_SOLVER: CollisionSolver = ElasticCollision
-
-        private var objectCount: Int = 0
-        fun nextId(): Int {
-            return objectCount++
-        }
+    fun nextId(): Int {
+        return objectCount++
     }
 }
