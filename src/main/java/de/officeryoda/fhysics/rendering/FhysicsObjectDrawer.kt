@@ -11,6 +11,8 @@ import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.paint.Paint
 import javafx.scene.text.Font
 import javafx.stage.Stage
@@ -64,7 +66,7 @@ class FhysicsObjectDrawer : Application() {
 
         scene.setOnScroll { onMouseWheel(it.deltaY) }
         scene.setOnMousePressed { onMousePressed(Vector2(it.x, it.y)) }
-//        scene.setOnKeyPressed { keyPressed(it.text[0]) }
+        scene.setOnKeyPressed { keyPressed(it) }
 
         gc = canvas.graphicsContext2D
 
@@ -236,7 +238,7 @@ class FhysicsObjectDrawer : Application() {
 
         val fontSize: Double = (height / 30) // Adjust the divisor for the desired scaling
 
-        val font: Font = Font("Spline Sans", fontSize.toDouble())
+        val font = Font("Spline Sans", fontSize)
         gc.font = font
         setFillColor(Color.WHITE)
 
@@ -343,14 +345,14 @@ class FhysicsObjectDrawer : Application() {
         drawFrame()
     }
 
-    private fun keyPressed(pressedChar: Char) {
-        TODO("Add listener for key presses")
+    private fun keyPressed(event: KeyEvent) {
         // if pressed char is p toggle isRunning in FhysicsCore
         // if it is Enter or space call the update function
-        when (pressedChar) {
-            'p' -> fhysics.isRunning = !fhysics.isRunning
-            ' ' -> fhysics.update() // space
-            '\n' -> fhysics.update() // enter
+        when (event.code) {
+            KeyCode.P -> fhysics.isRunning = !fhysics.isRunning
+            KeyCode.SPACE -> fhysics.update()
+            KeyCode.ENTER -> fhysics.update()
+            else -> {}
         }
     }
 
