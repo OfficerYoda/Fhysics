@@ -261,6 +261,7 @@ class FhysicsObjectDrawer : Application() {
         val lineHeight: Double = font.size
         gc.fillText("MSPU: $mspuRounded", 5.0, lineHeight)
         gc.fillText("FPS: $fpsRounded", 5.0, 2 * lineHeight)
+        gc.fillText("Update: ${FhysicsCore.updateCount}", 5.0, 3 * lineHeight)
     }
 
     // =====debug functions=====

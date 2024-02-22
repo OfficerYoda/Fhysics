@@ -17,7 +17,7 @@ abstract class FhysicsObject protected constructor(
 
     open fun updatePosition(dt: Double, gravity: Vector2) {
         // static objects don't move
-        if(static) return
+        if (static) return
 
         val damping = 0.00
 
@@ -51,5 +51,20 @@ abstract class FhysicsObject protected constructor(
 
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"
+    }
+
+    // this method exist to make the list.contains() method faster
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FhysicsObject) return false
+
+        // id is unique
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
     }
 }
