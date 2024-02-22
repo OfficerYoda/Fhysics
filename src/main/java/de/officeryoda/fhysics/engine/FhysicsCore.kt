@@ -16,7 +16,7 @@ object FhysicsCore {
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
 
     const val QUAD_TREE_CAPACITY: Int = 4
-    var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY)
+    var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null, "root")
 
     private var objectCount: Int = 0
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
@@ -30,7 +30,7 @@ object FhysicsCore {
     private var updateCount = 0
     private val updateTimes = mutableListOf<Long>()
 
-    var isRunning: Boolean = true
+    var isRunning: Boolean = false
 
     init {
         borderBoxes = createBorderBoxes()
@@ -47,14 +47,14 @@ object FhysicsCore {
 //        }
 
         // create four spheres in the top left quadrant which move to the right
-        val pos = Vector2(2.0, BORDER.height - 20)
+        val pos = Vector2(2.0, BORDER.height - 18)
         val vel = Vector2(20.0, 0.0)
         val radius = 0.5
         for (i in 1..5) {
             val yOffset = (i - 1) * 10 * radius
             val xOffset = (i - 1) * 10 * radius
             val circle = FhysicsObjectFactory.customCircle(Vector2(pos.x + xOffset, pos.y - yOffset), radius, vel)
-            fhysicsObjects.add(circle)
+            spawn(circle)
         }
 
         startUpdateLoop()
@@ -91,13 +91,20 @@ object FhysicsCore {
     }
 
     private fun buildQuadTree() {
-        quadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY)
-        fhysicsObjects.forEach { quadTree.insert(it) }
+//        quadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY)
+//        fhysicsObjects.forEach { quadTree.insert(it) }
+        quadTree.rebuild()
+    }
+
+    // This method must be called when trying to spawn an object
+    private fun spawn(obj: FhysicsObject) {
+        fhysicsObjects.add(obj)
+        quadTree.insert(obj)
     }
 
     private fun spawnObject() {
         for (i in 1..5) {
-            fhysicsObjects.add(FhysicsObjectFactory.randomCircle())
+            spawn(FhysicsObjectFactory.randomCircle())
         }
 
 //        if (updateCount % 5 != 0) return
@@ -170,6 +177,7 @@ object FhysicsCore {
     fun getAverageUpdateTime(): Double {
         return updateTimes
             .toList()
+            .filterNotNull() // this is not redundant even if IntelliJ says so
             .map { it / 1E6 } // convert nano to milliseconds
             .average()
     }

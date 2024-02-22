@@ -35,7 +35,7 @@ class FhysicsObjectDrawer : Application() {
     // default properties
     private var zoom: Double = -1.0
     private var quadTreeHighlightSize: Double = 20.0
-    private val debugPoints: MutableList<Pair<Vector2, Color>> = ArrayList()
+    private val debugPoints: MutableList<Triple<Vector2, Color, Int>> = ArrayList()
 
     /// window size properties
     private val width: Double get() = stage.scene.width
@@ -147,18 +147,26 @@ class FhysicsObjectDrawer : Application() {
     private fun drawDebugPoints() {
         val pointSize = 6.0
 
-        for (pair in debugPoints.toList()) {
-            val pos = transformPosition(pair.first)
-            setFillColor(pair.second)
+        val duration = 60 // The amount of Frames the point should be visible
+
+        for (triple in debugPoints.toList()) {
+            val pos = transformPosition(triple.first)
+            setFillColor(triple.second)
             gc.fillOval(
                 pos.x - pointSize / 2,
                 pos.y - pointSize / 2,
                 pointSize,
                 pointSize
             )
-        }
 
-        debugPoints.clear()
+            // update the duration of the point
+            // if the duration is reached remove the point
+            if (triple.third < duration) {
+                debugPoints[debugPoints.indexOf(triple)] = Triple(triple.first, triple.second, triple.third + 1)
+            } else {
+                debugPoints.remove(triple)
+            }
+        }
     }
 
     private fun drawHighlightQuadTree() {
@@ -232,8 +240,10 @@ class FhysicsObjectDrawer : Application() {
 
         // draw transparent fill
         val quadTreeCapacity = fhysics.QUAD_TREE_CAPACITY
-        setFillColor(Color(66, 164, 245, (contentCount.toDouble() / quadTreeCapacity * 128).toInt()))
+        setFillColor(Color(66, 164, 245, (contentCount.toDouble() / quadTreeCapacity * 192).toInt()))
         gc.fillRect(x, y, width, height)
+
+        gc.fillText(contentCount.toString(), x + width / 2, y + height / 2)
     }
 
     private fun drawStats() {
@@ -253,12 +263,14 @@ class FhysicsObjectDrawer : Application() {
         gc.fillText("FPS: $fpsRounded", 5.0, 2 * lineHeight)
     }
 
-    fun drawDebugPoint(point: Vector2, color: Color) {
-        debugPoints.add(Pair(point, color))
+    // =====debug functions=====
+
+    fun addDebugPoint(point: Vector2, color: Color) {
+        debugPoints.add(Triple(point.copy(), color, 0))
     }
 
-    fun drawDebugPoint(point: Vector2) {
-        drawDebugPoint(point, Color.RED)
+    fun addDebugPoint(point: Vector2) {
+        addDebugPoint(point, Color.RED)
     }
 
     /// =====transform functions=====

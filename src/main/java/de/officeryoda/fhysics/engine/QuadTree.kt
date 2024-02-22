@@ -1,13 +1,17 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import java.awt.geom.Rectangle2D
 import kotlin.reflect.KFunction2
 
 data class QuadTree(
     private val boundary: Rectangle2D,
-    private val capacity: Int
+    private val capacity: Int,
+    private val parent: QuadTree?,
+    private val pos: String,
 ) {
     val objects: MutableList<FhysicsObject> = ArrayList()
     lateinit var topLeft: QuadTree
@@ -18,6 +22,11 @@ data class QuadTree(
 
     fun insert(obj: FhysicsObject) {
         if (!boundary.intersects(obj)) return
+
+        if (objects.contains(obj)) {
+//            println("Object ${obj.id} already in $this")
+            return
+        }
 
         if (objects.size < capacity && !divided) {
             objects.add(obj)
@@ -48,21 +57,69 @@ data class QuadTree(
 
         // top left
         val tl = Rectangle2D.Double(x, y + hh, hw, hh)
-        topLeft = QuadTree(tl, capacity)
+        topLeft = QuadTree(tl, capacity, this, "$pos/tl")
         // top right
         val tr = Rectangle2D.Double(x + hw, y + hh, hw, hh)
-        topRight = QuadTree(tr, capacity)
+        topRight = QuadTree(tr, capacity, this, "$pos/tr")
         // bottom left
         val bl = Rectangle2D.Double(x, y, hw, hh)
-        botLeft = QuadTree(bl, capacity)
+        botLeft = QuadTree(bl, capacity, this, "$pos/bl")
         // bottom right
         val br = Rectangle2D.Double(x + hw, y, hw, hh)
-        botRight = QuadTree(br, capacity)
+        botRight = QuadTree(br, capacity, this, "$pos/br")
 
         objects.forEach { insertInChildren(it) }
         objects.clear()
 
         divided = true
+    }
+
+    fun rebuild() {
+        if (divided) {
+//            println("Rebuilding ${toString()}")
+            topLeft.rebuild()
+            topRight.rebuild()
+            botLeft.rebuild()
+            botRight.rebuild()
+            insertRebuildObjects()
+        } else {
+            // check if the objects are still in the boundary
+            val toRemove = ArrayList<FhysicsObject>()
+            for (obj in objects) {
+                // only keep if fully contained in the boundary
+                if (!boundary.contains(obj)) {
+                    // if parent is null, the quadTree is the root,
+                    // and it should not be removed to not remove it from the whole tree
+                    if (parent != null) {
+                        parent.addRebuildObject(obj)
+                        toRemove.add(obj)
+                    }
+                    FhysicsObjectDrawer.INSTANCE.addDebugPoint(obj.position)
+                }
+            }
+
+            // remove what's to remove
+            objects.removeAll(toRemove)
+        }
+    }
+
+    private val rebuildObjects: MutableList<FhysicsObject> = ArrayList()
+    private fun addRebuildObject(obj: FhysicsObject) {
+        // if the object is still fully in the boundary, or it is the root, add it to the rebuild list
+        if (boundary.contains(obj) || parent == null) {
+            rebuildObjects.add(obj)
+        } else {
+            parent.addRebuildObject(obj)
+        }
+    }
+
+    private fun insertRebuildObjects() {
+//        println(rebuildObjects.size)
+        // print the size of rebuildObjects if not empty
+        for (obj in rebuildObjects) {
+            insert(obj)
+        }
+        rebuildObjects.clear()
     }
 
     fun query(range: Rectangle2D): MutableList<FhysicsObject> {
@@ -105,11 +162,12 @@ data class QuadTree(
     }
 
     override fun toString(): String {
-        return if (divided) {
-            "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, " +
-                    "divided=true, \n\ttopLeft=$topLeft, \n\ttopRight=$topRight, \n\tbotLeft=$botLeft, \n\tbotRight=$botRight)"
-        } else {
-            "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false)"
-        }
+//        return if (divided) {
+//            "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, " +
+//                    "divided=true, \n\ttopLeft=$topLeft, \n\ttopRight=$topRight, \n\tbotLeft=$botLeft, \n\tbotRight=$botRight)"
+//        } else {
+//            "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false)"
+//        }
+        return "QuadTre(divided=$divided, pos=$pos)"
     }
 }
