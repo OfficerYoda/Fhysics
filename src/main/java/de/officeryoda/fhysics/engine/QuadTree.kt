@@ -22,11 +22,7 @@ data class QuadTree(
 
     fun insert(obj: FhysicsObject) {
         if (!boundary.intersects(obj)) return
-
-        if (objects.contains(obj)) {
-//            println("Object ${obj.id} already in $this")
-            return
-        }
+        if (objects.contains(obj)) return
 
         if (objects.size < capacity && !divided) {
             objects.add(obj)
@@ -81,7 +77,9 @@ data class QuadTree(
             topRight.rebuild()
             botLeft.rebuild()
             botRight.rebuild()
+
             insertRebuildObjects()
+            tryCollapse()
         } else {
             // check if the objects are still in the boundary
             val toRemove = ArrayList<FhysicsObject>()
@@ -100,6 +98,18 @@ data class QuadTree(
 
             // remove what's to remove
             objects.removeAll(toRemove)
+        }
+    }
+
+    private fun tryCollapse() {
+        val objectsInChildren = topLeft.count() + topRight.count() + botLeft.count() + botRight.count()
+        if (objectsInChildren < capacity && parent != null) {
+            divided = false
+            // add every child object to the parent
+            objects.addAll(topLeft.objects)
+            objects.addAll(topRight.objects)
+            objects.addAll(botLeft.objects)
+            objects.addAll(botRight.objects)
         }
     }
 
@@ -158,6 +168,14 @@ data class QuadTree(
             topRight.draw(drawRect)
             botLeft.draw(drawRect)
             botRight.draw(drawRect)
+        }
+    }
+
+    fun count(): Int {
+        return if (divided) {
+            topLeft.count() + topRight.count() + botLeft.count() + botRight.count()
+        } else {
+            objects.size
         }
     }
 
