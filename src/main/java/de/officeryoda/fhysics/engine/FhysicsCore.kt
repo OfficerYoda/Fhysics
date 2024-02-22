@@ -12,13 +12,13 @@ import java.util.*
 object FhysicsCore {
 
     // x and y must be 0.0
-    val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 100.0, 100.0)
+    val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 250.0, 250.0)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
 
-    const val QUAD_TREE_CAPACITY: Int = 4
-    var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null, "root")
+    const val QUAD_TREE_CAPACITY: Int = 20
+    var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null)
 
-    private var objectCount: Int = 0
+    var objectCount: Int = 0
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
     private val borderBoxes: List<Box>
 
@@ -27,19 +27,19 @@ object FhysicsCore {
 
     private const val UPDATES_PER_SECOND: Int = 200
 
-    var updateCount = 0
-    private val updateTimes = mutableListOf<Long>()
+    private var updateCount = 0
+    private val updateDurations = mutableListOf<Long>()
 
-    var isRunning: Boolean = false
+    var isRunning: Boolean = true
 
     init {
         borderBoxes = createBorderBoxes()
 
-//        for (i in 1..30) {
-//            val circle = FhysicsObjectFactory.randomCircle()
-////            circle.radius *= 2
-//            spawn(circle)
-//        }
+        for (i in 1..3000) {
+            val circle = FhysicsObjectFactory.randomCircle()
+//            circle.radius *= 2
+            spawn(circle)
+        }
 
 //        for (i in 1..14) {
 //            val box = FhysicsObjectFactory.randomBox()
@@ -47,15 +47,15 @@ object FhysicsCore {
 //        }
 
         // create four spheres in the top left quadrant which move to the right
-        val pos = Vector2(2.0, BORDER.height - 18)
-        val vel = Vector2(20.0, 0.0)
-        val radius = 0.5
-        for (i in 1..10) {
-            val yOffset = (i - 1) * 10 * radius
-            val xOffset = (i - 1) * 10 * radius
-            val circle = FhysicsObjectFactory.customCircle(Vector2(pos.x + xOffset, pos.y - yOffset), radius, vel)
-            spawn(circle)
-        }
+//        val pos = Vector2(2.0, BORDER.height - 18)
+//        val vel = Vector2(20.0, 0.0)
+//        val radius = 0.5
+//        for (i in 1..10) {
+//            val yOffset = (i - 1) * 10 * radius
+//            val xOffset = (i - 1) * 10 * radius
+//            val circle = FhysicsObjectFactory.customCircle(Vector2(pos.x + xOffset, pos.y - yOffset), radius, vel)
+//            spawn(circle)
+//        }
 
         startUpdateLoop()
     }
@@ -74,7 +74,7 @@ object FhysicsCore {
     fun update() {
         val updatesIntervalSeconds: Double = 1.0 / UPDATES_PER_SECOND
 
-//        spawnObject()
+        spawnObject()
 
         fhysicsObjects.parallelStream().forEach {
             it.updatePosition(updatesIntervalSeconds, gravity)
@@ -83,7 +83,7 @@ object FhysicsCore {
 
         val startTime: Long = System.nanoTime()
         buildQuadTree()
-        addUpdateTime(System.nanoTime() - startTime)
+        addUpdateDuration(System.nanoTime() - startTime)
 
         checkObjectCollisionQuadTree(quadTree)
 
@@ -91,20 +91,22 @@ object FhysicsCore {
     }
 
     private fun buildQuadTree() {
-//        quadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY)
+//        quadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null)
 //        fhysicsObjects.forEach { quadTree.insert(it) }
         quadTree.rebuild()
     }
 
     // This method must be called when trying to spawn an object
-    private fun spawn(obj: FhysicsObject) {
+    fun spawn(obj: FhysicsObject) {
         fhysicsObjects.add(obj)
         quadTree.insert(obj)
     }
 
     private fun spawnObject() {
-        for (i in 1..5) {
-            spawn(FhysicsObjectFactory.randomCircle())
+        for (i in 1..100) {
+            if (objectCount < 60000) {
+                spawn(FhysicsObjectFactory.randomCircle())
+            }
         }
 
 //        if (updateCount % 5 != 0) return
@@ -133,10 +135,10 @@ object FhysicsCore {
                 }
             }
         } else {
-            checkObjectCollisionQuadTree(quadTree.topLeft)
-            checkObjectCollisionQuadTree(quadTree.topRight)
-            checkObjectCollisionQuadTree(quadTree.botLeft)
-            checkObjectCollisionQuadTree(quadTree.botRight)
+            checkObjectCollisionQuadTree(quadTree.topLeft!!)
+            checkObjectCollisionQuadTree(quadTree.topRight!!)
+            checkObjectCollisionQuadTree(quadTree.botLeft!!)
+            checkObjectCollisionQuadTree(quadTree.botRight!!)
         }
     }
 
@@ -164,18 +166,18 @@ object FhysicsCore {
         return listOf(left, right, top, bottom)
     }
 
-    private fun addUpdateTime(updateTime: Long) {
-        val updatesToAverage = 50
+    private fun addUpdateDuration(updateTime: Long) {
+        val updatesToAverage = 500
 
-        updateTimes.add(updateTime)
+        updateDurations.add(updateTime)
 
-        if (updateTimes.size > updatesToAverage) {
-            updateTimes.removeAt(0) // Remove the oldest time if more than specified updates have been recorded
+        if (updateDurations.size > updatesToAverage) {
+            updateDurations.removeAt(0) // Remove the oldest time if more than specified updates have been recorded
         }
     }
 
-    fun getAverageUpdateTime(): Double {
-        return updateTimes
+    fun getAverageUpdateDuration(): Double {
+        return updateDurations
             .toList()
             .filterNotNull() // this is not redundant even if IntelliJ says so
             .map { it / 1E6 } // convert nano to milliseconds

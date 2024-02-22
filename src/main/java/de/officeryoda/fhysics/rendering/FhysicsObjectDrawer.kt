@@ -103,7 +103,7 @@ class FhysicsObjectDrawer : Application() {
 
         drawDebugPoints()
 //        drawHighlightQuadTree()
-        drawQuadTree()
+//        drawQuadTree()
 //        drawBorder()
 
         drawStats()
@@ -242,12 +242,12 @@ class FhysicsObjectDrawer : Application() {
         val quadTreeCapacity = fhysics.QUAD_TREE_CAPACITY
         setFillColor(Color(66, 164, 245, (contentCount.toDouble() / quadTreeCapacity * 192).toInt()))
         gc.fillRect(x, y, width, height)
-
+        // write the amount of objects in the cell
         gc.fillText(contentCount.toString(), x + width / 2, y + height / 2)
     }
 
     private fun drawStats() {
-        val mspu: Double = fhysics.getAverageUpdateTime() // Milliseconds per Update
+        val mspu: Double = fhysics.getAverageUpdateDuration() // Milliseconds per Update
         val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
         val fps: Double = 1000.0 / mspu
         val fpsRounded: String = String.format(Locale.US, "%.2f", fps)
@@ -261,7 +261,7 @@ class FhysicsObjectDrawer : Application() {
         val lineHeight: Double = font.size
         gc.fillText("MSPU: $mspuRounded", 5.0, lineHeight)
         gc.fillText("FPS: $fpsRounded", 5.0, 2 * lineHeight)
-        gc.fillText("Update: ${FhysicsCore.updateCount}", 5.0, 3 * lineHeight)
+        gc.fillText("Objects: ${FhysicsCore.objectCount}", 5.0, 3 * lineHeight)
     }
 
     // =====debug functions=====
@@ -363,7 +363,7 @@ class FhysicsObjectDrawer : Application() {
     private fun onMousePressed(mousePos: Vector2) {
         val transformedMousePos: Vector2 = mousePos
         transformedMousePos.y = height - transformedMousePos.y
-        fhysics.fhysicsObjects.add(Circle(transformedMousePos / zoom, 1.0))
+        fhysics.spawn(Circle(transformedMousePos / zoom, 1.0))
         drawFrame()
     }
 
