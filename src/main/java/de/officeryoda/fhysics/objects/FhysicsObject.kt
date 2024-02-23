@@ -15,13 +15,13 @@ abstract class FhysicsObject protected constructor(
     var color: Color = colorFromIndex()
     var static: Boolean = false
 
-    open fun updatePosition(dt: Double, gravity: Vector2) {
+    open fun updatePosition(dt: Double) {
         // static objects don't move
         if (static) return
 
         val damping = 0.00
 
-        acceleration += gravity
+        acceleration += FhysicsCore.GRAVITY
         velocity += (acceleration - velocity * damping) * dt
         position += velocity * dt
 
