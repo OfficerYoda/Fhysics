@@ -16,11 +16,11 @@ object FhysicsCore {
     // x and y must be 0.0
     val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 250.0, 250.0)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
-    const val QUAD_TREE_CAPACITY: Int = 20
+    const val QUAD_TREE_CAPACITY: Int = 25
     private const val UPDATES_PER_SECOND: Int = 200
 
-    val GRAVITY: Vector2 = Vector2(0.0, 0.0)
-//    val GRAVITY: Vector2 = Vector2(0.0, -9.81)
+    //    val GRAVITY: Vector2 = Vector2(0.0, 0.0)
+    val GRAVITY: Vector2 = Vector2(0.0, -9.81)
 
     /// =====variables=====
     var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null)
@@ -29,7 +29,7 @@ object FhysicsCore {
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
     private val borderBoxes: List<Box>
 
-    private var updateCount = 0
+    var updateCount = 0
     private val updateDurations: MutableList<Long> = mutableListOf()
 
     var isRunning: Boolean = true
@@ -48,14 +48,11 @@ object FhysicsCore {
 //            fhysicsObjects.add(box)
 //        }
 
-        // create four spheres in the top left quadrant which move to the right
-//        val pos = Vector2(2.0, BORDER.height - 18)
-//        val vel = Vector2(20.0, 0.0)
-//        val radius = 0.5
-//        for (i in 1..10) {
-//            val yOffset = (i - 1) * 10 * radius
-//            val xOffset = (i - 1) * 10 * radius
-//            val circle = FhysicsObjectFactory.customCircle(Vector2(pos.x + xOffset, pos.y - yOffset), radius, vel)
+        // create 20 spheres in the middle of the width with different heights and no velocity
+//        for (i in 1 until 1000) {
+//            val pos = Vector2(i.toDouble() / 10, 90.0)
+//            val vel = Vector2(0.0, 0.0)
+//            val circle = FhysicsObjectFactory.customCircle(pos, 0.1, vel)
 //            spawn(circle)
 //        }
 
