@@ -90,7 +90,7 @@ data class QuadTree(
             insertRebuildObjects()
             tryCollapse()
         } else {
-            // check if the objects are still in the boundary
+            // check if the objects are still fully in the boundary
             val toRemove = ArrayList<FhysicsObject>()
             for (obj in objects) {
                 // only keep if fully contained in the boundary
@@ -124,7 +124,14 @@ data class QuadTree(
     private fun addRebuildObject(obj: FhysicsObject) {
         // if the object is still fully in the boundary, or it is the root, add it to the rebuild list
         if (boundary.contains(obj) || parent == null) {
-            rebuildObjects.add(obj)
+            // only need to execute it async if it is the root
+            if (parent == null) {
+                synchronized(rebuildObjects) {
+                    rebuildObjects.add(obj)
+                }
+            } else {
+                rebuildObjects.add(obj)
+            }
         } else {
             parent.addRebuildObject(obj)
         }
