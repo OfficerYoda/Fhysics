@@ -15,6 +15,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.paint.Paint
 import javafx.scene.text.Font
+import javafx.scene.text.Text
 import javafx.stage.Stage
 import java.awt.Color
 import java.awt.MouseInfo
@@ -99,12 +100,11 @@ class FhysicsObjectDrawer : Application() {
         // clear the stage
         gc.clearRect(0.0, 0.0, width, height)
 
-        drawAllObjects()
+//        drawAllObjects()
 
         drawDebugPoints()
 //        drawHighlightQuadTree()
-//        drawQuadTree()
-//        drawBorder()
+        drawQuadTree()
 
         drawStats()
     }
@@ -224,10 +224,6 @@ class FhysicsObjectDrawer : Application() {
         fhysics.quadTree.draw(::transformAndDrawRect)
     }
 
-    private fun drawBorder() {
-        transformAndDrawRect(FhysicsCore.BORDER, 0)
-    }
-
     private fun transformAndDrawRect(rect: Rectangle2D, contentCount: Int) {
         val x: Double = transformX(rect.x)
         val y: Double = transformY((rect.y + rect.height))
@@ -243,7 +239,26 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(Color(66, 164, 245, (contentCount.toDouble() / quadTreeCapacity * 192).toInt()))
         gc.fillRect(x, y, width, height)
         // write the amount of objects in the cell
-        gc.fillText(contentCount.toString(), x + width / 2, y + height / 2)
+        drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
+    }
+
+    private fun drawCenteredText(text: String, rect: Rectangle2D) {
+        val fontSize: Double = (rect.height / 2) // Adjust the divisor for the desired scaling
+        val font = Font("Spline Sans", fontSize)
+
+        gc.font = font
+        setFillColor(Color.WHITE)
+
+        val textNode = Text(text)
+        textNode.font = font
+
+        val textWidth: Double = textNode.layoutBounds.width
+        val textHeight: Double = textNode.layoutBounds.height
+
+        val centerX: Double = rect.x + (rect.width - textWidth) / 2
+        val centerY: Double = rect.y + (rect.height + textHeight / 2) / 2
+
+        gc.fillText(text, centerX, centerY)
     }
 
     private fun drawStats() {
