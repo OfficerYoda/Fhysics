@@ -15,9 +15,12 @@ abstract class FhysicsObject protected constructor(
     var color: Color = colorFromIndex()
     var static: Boolean = false
 
+    private var lastUpdate = -1
+
     open fun updatePosition(dt: Double) {
         // static objects don't move
         if (static) return
+        if(lastUpdate == FhysicsCore.updateCount) return
 
         val damping = 0.00
 
@@ -26,6 +29,8 @@ abstract class FhysicsObject protected constructor(
         position += velocity * dt
 
         acceleration.set(Vector2.ZERO)
+
+        lastUpdate = FhysicsCore.updateCount
     }
 
     private fun colorFromIndex(): Color {
