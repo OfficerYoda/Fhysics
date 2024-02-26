@@ -50,22 +50,22 @@ data class QuadTree(
     }
 
     private fun subdivide() {
-        val x: Double = boundary.x
-        val y: Double = boundary.y
-        val hw: Double = boundary.width / 2 // half width
-        val hh: Double = boundary.height / 2 // half height
+        val x: Float = boundary.x.toFloat()
+        val y: Float = boundary.y.toFloat()
+        val hw: Float = boundary.width.toFloat() / 2 // half width
+        val hh: Float = boundary.height.toFloat() / 2 // half height
 
         // top left
-        val tl = Rectangle2D.Double(x, y + hh, hw, hh)
+        val tl = Rectangle2D.Float(x, y + hh, hw, hh)
         topLeft = QuadTree(tl, capacity, this)
         // top right
-        val tr = Rectangle2D.Double(x + hw, y + hh, hw, hh)
+        val tr = Rectangle2D.Float(x + hw, y + hh, hw, hh)
         topRight = QuadTree(tr, capacity, this)
         // bottom left
-        val bl = Rectangle2D.Double(x, y, hw, hh)
+        val bl = Rectangle2D.Float(x, y, hw, hh)
         botLeft = QuadTree(bl, capacity, this)
         // bottom right
-        val br = Rectangle2D.Double(x + hw, y, hw, hh)
+        val br = Rectangle2D.Float(x + hw, y, hw, hh)
         botRight = QuadTree(br, capacity, this)
 
         objects.forEach { insertInChildren(it) }
@@ -147,7 +147,7 @@ data class QuadTree(
 
     /// =====update functions=====
 
-    fun updateObjects(updatesIntervalSeconds: Double) {
+    fun updateObjects(updatesIntervalSeconds: Float) {
         if (divided) {
             if (parent == null) {
                 updateObjectsAsync(updatesIntervalSeconds)
@@ -187,7 +187,7 @@ data class QuadTree(
         br.join()
     }
 
-    private fun updateObjectsAsync(updatesIntervalSeconds: Double) {
+    private fun updateObjectsAsync(updatesIntervalSeconds: Float) {
         val tl = Thread { topLeft!!.updateObjects(updatesIntervalSeconds) }
         val tr = Thread { topRight!!.updateObjects(updatesIntervalSeconds) }
         val bl = Thread { botLeft!!.updateObjects(updatesIntervalSeconds) }

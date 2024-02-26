@@ -7,7 +7,7 @@ import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
     val position: Vector2 = Vector2.ZERO,
-    val mass: Double = 1.0,
+    val mass: Float = 1.0F,
     val velocity: Vector2 = Vector2.ZERO,
     val acceleration: Vector2 = Vector2.ZERO,
 ) {
@@ -17,12 +17,12 @@ abstract class FhysicsObject protected constructor(
 
     private var lastUpdate = -1
 
-    open fun updatePosition(dt: Double) {
+    open fun updatePosition(dt: Float) {
         // static objects don't move
         if (static) return
         if(lastUpdate == FhysicsCore.updateCount) return
 
-        val damping = 0.00
+        val damping = 0.00F
 
         acceleration += FhysicsCore.GRAVITY
         velocity += (acceleration - velocity * damping) * dt

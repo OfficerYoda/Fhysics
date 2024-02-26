@@ -27,8 +27,8 @@ data class Vector2Int
      *
      * @return The magnitude of the Vector2Int.
      */
-    fun magnitude(): Double {
-        return sqrt(sqrMagnitude().toDouble())
+    fun magnitude(): Float {
+        return sqrt(sqrMagnitude().toFloat())
     }
 
     /**
@@ -46,8 +46,8 @@ data class Vector2Int
      * @param other The other Vector2Int.
      * @return The distance between the two Vector2Int instances.
      */
-    fun distance(other: Vector2Int): Double {
-        return sqrt(sqrDistance(other).toDouble())
+    fun distance(other: Vector2Int): Float {
+        return sqrt(sqrDistance(other).toFloat())
     }
 
     /**
@@ -98,7 +98,7 @@ data class Vector2Int
      * @param scalar The scalar value.
      * @return The result of the multiplication.
      */
-    operator fun times(scalar: Double): Vector2Int {
+    operator fun times(scalar: Float): Vector2Int {
         return Vector2Int((this.x * scalar).toInt(), (this.y * scalar).toInt())
     }
 
@@ -109,7 +109,7 @@ data class Vector2Int
      * @return The result of the division.
      * @throws IllegalArgumentException if division by zero is attempted.
      */
-    operator fun div(scalar: Double): Vector2Int {
+    operator fun div(scalar: Float): Vector2Int {
         return Vector2Int((this.x / scalar).toInt(), (this.y / scalar).toInt())
     }
 
@@ -138,7 +138,7 @@ data class Vector2Int
      *
      * @param scalar The scalar value.
      */
-    operator fun timesAssign(scalar: Double) {
+    operator fun timesAssign(scalar: Float) {
         this.x = this.x.times(scalar).toInt()
         this.y = this.y.times(scalar).toInt()
     }
@@ -149,7 +149,7 @@ data class Vector2Int
      * @param scalar The scalar value.
      * @throws IllegalArgumentException if division by zero is attempted.
      */
-    operator fun divAssign(scalar: Double) {
+    operator fun divAssign(scalar: Float) {
         this.x = this.x.div(scalar).toInt()
         this.y = this.y.div(scalar).toInt()
     }
@@ -164,12 +164,12 @@ data class Vector2Int
     }
 
     /**
-     * Converts this Vector2Int to a Vector2 by converting the x and y coordinates to double values.
+     * Converts this Vector2Int to a Vector2 by converting the x and y coordinates to Float values.
      *
      * @return The converted Vector2.
      */
-    fun toDoubleVector2(): Vector2 {
-        return Vector2(x.toDouble(), y.toDouble())
+    fun toFloatVector2(): Vector2 {
+        return Vector2(x.toFloat(), y.toFloat())
     }
 
     /**

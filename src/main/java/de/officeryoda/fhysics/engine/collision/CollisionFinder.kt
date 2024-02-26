@@ -17,9 +17,9 @@ object CollisionFinder {
      */
     fun testCollision(circleA: Circle, circleB: Circle): CollisionInfo {
         // Calculate squared distance between circle centers
-        val sqrDst: Double = circleA.position.sqrDistance(circleB.position)
+        val sqrDst: Float = circleA.position.sqrDistance(circleB.position)
 
-        val radii: Double = circleA.radius + circleB.radius
+        val radii: Float = circleA.radius + circleB.radius
 
         // Check if the circles don't overlap
         if (sqrDst >= radii * radii)
@@ -27,7 +27,7 @@ object CollisionFinder {
 
         // Calculate collision normal and overlap
         val collisionNormal: Vector2 = (circleB.position - circleA.position).normalized()
-        val overlap: Double = radii - sqrt(sqrDst)
+        val overlap: Float = radii - sqrt(sqrDst)
 
         return CollisionInfo(circleA, circleB, collisionNormal, overlap)
     }
@@ -58,7 +58,7 @@ object CollisionFinder {
 
         // Calculate collision normal and overlap
         val collisionNormal: Vector2 = (- circle.position + closestPointOnEdge).normalized()
-        val overlap: Double = -offset.magnitude() + circle.radius * edgePair.second
+        val overlap: Float = -offset.magnitude() + circle.radius * edgePair.second
 
         return CollisionInfo(circle, box, collisionNormal, overlap)
     }
@@ -98,8 +98,6 @@ object CollisionFinder {
      * @return A pair containing the closest point on the box's edge and an integer that represents if the external point is outside the box
      */
     private fun getClosestPointOnEdge(box: Box, closestPoint: Vector2): Pair<Vector2, Int> {
-        val pair: Pair<Vector2, Int>
-
         // Calculate the distance from the closest point to the box's edges
         val dx1 = closestPoint.x - box.minX
         val dx2 = closestPoint.x - box.maxX

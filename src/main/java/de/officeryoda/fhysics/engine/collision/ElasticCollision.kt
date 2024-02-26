@@ -18,19 +18,19 @@ object ElasticCollision : CollisionSolver() {
         val relativeVelocity: Vector2 = objB.velocity - objA.velocity
 
         // Calculate relative velocity along the normal direction
-        val relativeVelocityAlongNormal: Double = relativeVelocity.dot(info.normal)
+        val relativeVelocityAlongNormal: Float = relativeVelocity.dot(info.normal)
 
         // Calculate impulse (change in momentum)
-        val impulse: Double = (2.0*relativeVelocityAlongNormal) / (objA.mass + objB.mass)
+        val impulse: Float = (2.0F * relativeVelocityAlongNormal) / (objA.mass + objB.mass)
 
         // Apply impulse to update velocities
-        val restitution = 1.0
+        val restitution = 1.0F
         val impulseMultiplier = impulse * restitution * info.normal
 
         // Apply impulse to the objects
-        if(!objA.static)
+        if (!objA.static)
             objA.velocity += impulseMultiplier * objB.mass
-        if(!objB.static)
+        if (!objB.static)
             objB.velocity -= impulseMultiplier * objA.mass
     }
 }

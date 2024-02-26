@@ -14,13 +14,13 @@ object FhysicsCore {
 
     /// =====constants=====
     // x and y must be 0.0
-    val BORDER: Rectangle2D = Rectangle2D.Double(0.0, 0.0, 250.0, 250.0)
+    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
-    const val QUAD_TREE_CAPACITY: Int = 25
+    const val QUAD_TREE_CAPACITY: Int = 32
     private const val UPDATES_PER_SECOND: Int = 200
 
-    //    val GRAVITY: Vector2 = Vector2(0.0, 0.0)
-    val GRAVITY: Vector2 = Vector2(0.0, -9.81)
+        val GRAVITY: Vector2 = Vector2(0.0F, 0.0F)
+//    val GRAVITY: Vector2 = Vector2(0.0, -9.81)
 
     /// =====variables=====
     var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null)
@@ -37,7 +37,7 @@ object FhysicsCore {
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..3000) {
+        for (i in 1..3500) {
             val circle = FhysicsObjectFactory.randomCircle()
 //            circle.radius *= 2
             spawn(circle)
@@ -50,7 +50,7 @@ object FhysicsCore {
 
         // create 20 spheres in the middle of the width with different heights and no velocity
 //        for (i in 1 until 1000) {
-//            val pos = Vector2(i.toDouble() / 10, 90.0)
+//            val pos = Vector2(i.toFloat() / 10, 90.0)
 //            val vel = Vector2(0.0, 0.0)
 //            val circle = FhysicsObjectFactory.customCircle(pos, 0.1, vel)
 //            spawn(circle)
@@ -72,7 +72,7 @@ object FhysicsCore {
 
     fun update() {
         val startTime: Long = System.nanoTime()
-        val updateIntervalSeconds: Double = 1.0 / UPDATES_PER_SECOND
+        val updateIntervalSeconds: Float = 1.0F / UPDATES_PER_SECOND
 
         spawnObject()
 
@@ -100,7 +100,7 @@ object FhysicsCore {
 
     private fun spawnObject() {
         for (i in 1..100) {
-            if (objectCount < 60000) {
+            if (objectCount < 3000) {
                 spawn(FhysicsObjectFactory.randomCircle())
             }
         }
@@ -141,7 +141,7 @@ object FhysicsCore {
     private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
         val points: CollisionInfo = objA.testCollision(objB)
 
-        if (points.overlap == -1.0) return
+        if (points.overlap == -1.0F) return
 
         COLLISION_SOLVER.solveCollision(points)
     }
@@ -151,11 +151,11 @@ object FhysicsCore {
     }
 
     private fun createBorderBoxes(): List<Box> {
-        val width: Double = BORDER.width
-        val height: Double = BORDER.height
+        val width: Float = BORDER.width.toFloat()
+        val height: Float = BORDER.height.toFloat()
 
-        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0), width, height, Vector2.ZERO)
-        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0), width, height, Vector2.ZERO)
+        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0F), width, height, Vector2.ZERO)
+        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0F), width, height, Vector2.ZERO)
         val top: Box = FhysicsObjectFactory.customBox(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
         val bottom: Box = FhysicsObjectFactory.customBox(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
 
@@ -172,12 +172,12 @@ object FhysicsCore {
         }
     }
 
-    fun getAverageUpdateDuration(): Double {
+    fun getAverageUpdateDuration(): Float {
         return updateDurations
             .toList()
             .filterNotNull() // this is not redundant even if IntelliJ says so
             .map { it / 1E6 } // convert nano to milliseconds
-            .average()
+            .average().toFloat()
     }
 
     fun nextId(): Int {

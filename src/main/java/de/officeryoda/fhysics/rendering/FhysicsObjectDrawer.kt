@@ -67,8 +67,8 @@ class FhysicsObjectDrawer : Application() {
         // set the background color
         stage.scene.fill = colorToPaint(Color.decode("#010409"))
 
-        scene.setOnScroll { onMouseWheel(it.deltaY) }
-        scene.setOnMousePressed { onMousePressed(Vector2(it.x, it.y)) }
+        scene.setOnScroll { onMouseWheel(it.deltaY.toFloat()) }
+        scene.setOnMousePressed { onMousePressed(Vector2(it.x.toFloat(), it.y.toFloat())) }
         scene.setOnKeyPressed { keyPressed(it) }
 
         gc = canvas.graphicsContext2D
@@ -100,11 +100,11 @@ class FhysicsObjectDrawer : Application() {
         // clear the stage
         gc.clearRect(0.0, 0.0, width, height)
 
-//        drawAllObjects()
+        drawAllObjects()
 
         drawDebugPoints()
 //        drawHighlightQuadTree()
-        drawQuadTree()
+//        drawQuadTree()
 
         drawStats()
     }
@@ -127,17 +127,19 @@ class FhysicsObjectDrawer : Application() {
     private fun drawCircle(circle: Circle) {
         val pos: Vector2 = transformPosition(circle.position)
         val radius: Double = circle.radius * zoom
-        val diameter: Double = 2 * radius
+        val diameter: Double = 2.0 * radius
         gc.fillOval(
-            pos.x - radius, pos.y - radius,
-            diameter, diameter
+            pos.x - radius,
+            pos.y - radius,
+            diameter,
+            diameter
         )
     }
 
     private fun drawBox(box: Box) {
         val pos: Vector2 = transformPosition(box.position)
         gc.fillRect(
-            pos.x,
+            pos.x.toDouble(),
             pos.y - box.height * zoom,
             box.width * zoom,
             box.height * zoom
@@ -178,8 +180,8 @@ class FhysicsObjectDrawer : Application() {
 
         // convert mouse position to world space
         val mousePos = Vector2(
-            mousePoint.x.toDouble() - width / 2 - 52, // the 52 is a magic number to correct the position
-            height - mousePoint.y.toDouble() + titleBarHeight + 27 // the 27 is a magic number to correct the position
+            (mousePoint.x - width / 2 - 52).toFloat(), // the 52 is a magic number to correct the position
+            (height - mousePoint.y + titleBarHeight + 27).toFloat() // the 27 is a magic number to correct the position
         )
 
         // calculate the query rectangle's position
@@ -212,12 +214,17 @@ class FhysicsObjectDrawer : Application() {
         /// ==stuff in screen space==
 
         // calculate the position of the query rectangle
-        val screenRectX = (transformX(rectX) - quadTreeHighlightSize / 2)
-        val screenRectY = (transformY(rectY) - quadTreeHighlightSize / 2)
+        val screenRectX: Double = transformX(rectX) - quadTreeHighlightSize / 2
+        val screenRectY: Double = transformY(rectY) - quadTreeHighlightSize / 2
 
         // draw the query rectangle on screen
         setStrokeColor(Color.BLUE)
-        gc.strokeRect(screenRectX, screenRectY, quadTreeHighlightSize, quadTreeHighlightSize)
+        gc.strokeRect(
+            screenRectX,
+            screenRectY,
+            quadTreeHighlightSize,
+            quadTreeHighlightSize
+        )
     }
 
     private fun drawQuadTree() {
@@ -236,7 +243,7 @@ class FhysicsObjectDrawer : Application() {
 
         // draw transparent fill
         val quadTreeCapacity = fhysics.QUAD_TREE_CAPACITY
-        setFillColor(Color(66, 164, 245, (contentCount.toDouble() / quadTreeCapacity * 192).toInt()))
+        setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt()))
         gc.fillRect(x, y, width, height)
         // write the amount of objects in the cell
         drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
@@ -262,12 +269,12 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawStats() {
-        val mspu: Double = fhysics.getAverageUpdateDuration() // Milliseconds per Update
+        val mspu: Float = fhysics.getAverageUpdateDuration() // Milliseconds per Update
         val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
         val fps: Double = 1000.0 / mspu
         val fpsRounded: String = String.format(Locale.US, "%.2f", fps)
 
-        val fontSize: Double = (height / 30) // Adjust the divisor for the desired scaling
+        val fontSize: Double = height / 30.0 // Adjust the divisor for the desired scaling
 
         val font = Font("Spline Sans", fontSize)
         gc.font = font
@@ -300,8 +307,8 @@ class FhysicsObjectDrawer : Application() {
      * @return the transformed position
      */
     private fun transformPosition(pos: Vector2): Vector2 {
-        val newX: Double = transformX(pos.x)
-        val newY: Double = transformY(pos.y)
+        val newX: Float = transformX(pos.x).toFloat()
+        val newY: Float = transformY(pos.y).toFloat()
         return Vector2(newX, newY)
     }
 
@@ -309,8 +316,16 @@ class FhysicsObjectDrawer : Application() {
         return x * zoom
     }
 
+    private fun transformX(x: Float): Double {
+        return transformX(x.toDouble())
+    }
+
     private fun transformY(y: Double): Double {
         return height - (y * zoom)
+    }
+
+    private fun transformY(y: Float): Double {
+        return transformY(y.toDouble())
     }
 
     /// =====window functions=====
@@ -369,16 +384,16 @@ class FhysicsObjectDrawer : Application() {
 
     /// =====listener functions=====
 
-    private fun onMouseWheel(delta: Double) {
-        zoom += delta * 0.01
-        quadTreeHighlightSize += delta * 0.1
+    private fun onMouseWheel(delta: Float) {
+        zoom += delta * 0.01F
+        quadTreeHighlightSize += delta * 0.1F
 //        drawFrame()
     }
 
     private fun onMousePressed(mousePos: Vector2) {
         val transformedMousePos: Vector2 = mousePos
-        transformedMousePos.y = height - transformedMousePos.y
-        fhysics.spawn(Circle(transformedMousePos / zoom, 1.0))
+        transformedMousePos.y = (height - transformedMousePos.y).toFloat()
+        fhysics.spawn(Circle(transformedMousePos / zoom.toFloat(), 1.0F))
         drawFrame()
     }
 

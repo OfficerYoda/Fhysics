@@ -14,7 +14,7 @@ import java.awt.geom.Rectangle2D
  * @return True if the Rectangle contains the Vector2, false otherwise.
  */
 fun Rectangle2D.contains(vector2: Vector2): Boolean {
-    return contains(vector2.x, vector2.y)
+    return contains(vector2.x.toDouble(), vector2.y.toDouble())
 }
 
 /**
@@ -93,15 +93,15 @@ fun Rectangle2D.intersects(obj: FhysicsObject): Boolean {
 fun Rectangle2D.intersects(circle: Circle): Boolean {
 // Check if the rectangle intersects with the circle
     if (this.intersects(
-            circle.position.x - circle.radius,
-            circle.position.y - circle.radius,
-            2 * circle.radius,
-            2 * circle.radius
+            circle.position.x.toDouble() - circle.radius.toDouble(),
+            circle.position.y.toDouble() - circle.radius.toDouble(),
+            2 * circle.radius.toDouble(),
+            2 * circle.radius.toDouble()
         )
     ) {
         // Bound the closest X/Y-coordinate within the horizontal/vertical range of the rectangle.
-        val closestX = circle.position.x.coerceIn(this.minX, this.maxX)
-        val closestY = circle.position.y.coerceIn(this.minY, this.maxY)
+        val closestX = circle.position.x.coerceIn(this.minX.toFloat(), this.maxX.toFloat())
+        val closestY = circle.position.y.coerceIn(this.minY.toFloat(), this.maxY.toFloat())
         val closestPos = Vector2(closestX, closestY)
 
         // Check if the distance is less than or equal to the radius of the circle
@@ -120,9 +120,9 @@ fun Rectangle2D.intersects(circle: Circle): Boolean {
  */
 fun Rectangle2D.intersects(box: Box): Boolean {
     return this.intersects(
-        box.position.x,
-        box.position.y,
-        box.width,
-        box.height)
+        box.position.x.toDouble(),
+        box.position.y.toDouble(),
+        box.width.toDouble(),
+        box.height.toDouble())
 }
 
