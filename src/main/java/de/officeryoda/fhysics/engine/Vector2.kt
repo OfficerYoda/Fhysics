@@ -179,15 +179,6 @@ data class Vector2
     }
 
     /**
-     * Converts this Vector2 to a Vector2Int by rounding the x and y coordinates to the nearest integer values.
-     *
-     * @return The converted Vector2Int.
-     */
-    fun toVector2Int(): Vector2Int {
-        return Vector2Int(x.toInt(), y.toInt())
-    }
-
-    /**
      * Returns a string representation of the Vector2.
      *
      * @return A string containing the values of the x and y components.

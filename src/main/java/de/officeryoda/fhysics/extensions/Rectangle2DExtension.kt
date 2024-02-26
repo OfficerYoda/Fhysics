@@ -1,7 +1,6 @@
 package de.officeryoda.fhysics.extensions
 
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.Vector2Int
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
@@ -15,16 +14,6 @@ import java.awt.geom.Rectangle2D
  */
 fun Rectangle2D.contains(vector2: Vector2): Boolean {
     return contains(vector2.x.toDouble(), vector2.y.toDouble())
-}
-
-/**
- * Checks if the Rectangle contains the specified Vector2Int.
- *
- * @param vector2Int The Vector2Int to check for containment.
- * @return True if the Rectangle contains the Vector2Int, false otherwise.
- */
-fun Rectangle2D.contains(vector2Int: Vector2Int): Boolean {
-    return contains(vector2Int.x.toDouble(), vector2Int.y.toDouble())
 }
 
 /**
