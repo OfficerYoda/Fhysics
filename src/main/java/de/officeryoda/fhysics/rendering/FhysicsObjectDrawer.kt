@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
@@ -13,6 +14,7 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.scene.input.ScrollEvent
 import javafx.scene.paint.Paint
 import javafx.scene.text.Font
 import javafx.scene.text.Text
@@ -33,8 +35,11 @@ class FhysicsObjectDrawer : Application() {
     private lateinit var stage: Stage
     private lateinit var gc: GraphicsContext
 
-    // default properties
+    // zoom properties
     private var zoom: Double = -1.0
+    private var zoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+
+    // quad tree properties
     private var quadTreeHighlightSize: Double = 20.0
     private val debugPoints: MutableList<Triple<Vector2, Color, Int>> = ArrayList()
 
@@ -44,10 +49,6 @@ class FhysicsObjectDrawer : Application() {
     private val titleBarHeight: Double = 39.0 // that's the default height of the window's title bar (in windows)
 
     /// =====start functions=====
-
-    init {
-        INSTANCE = this
-    }
 
     override fun start(stage: Stage) {
         this.stage = stage
@@ -67,7 +68,7 @@ class FhysicsObjectDrawer : Application() {
         // set the background color
         stage.scene.fill = colorToPaint(Color.decode("#010409"))
 
-        scene.setOnScroll { onMouseWheel(it.deltaY.toFloat()) }
+        scene.setOnScroll { onMouseWheel(it) }
         scene.setOnMousePressed { onMousePressed(Vector2(it.x.toFloat(), it.y.toFloat())) }
         scene.setOnKeyPressed { keyPressed(it) }
 
@@ -286,6 +287,8 @@ class FhysicsObjectDrawer : Application() {
         gc.fillText("Objects: ${FhysicsCore.objectCount}", 5.0, 3 * lineHeight)
     }
 
+    // =====ui functions=====
+
     // =====debug functions=====
 
     fun addDebugPoint(point: Vector2, color: Color) {
@@ -313,7 +316,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun transformX(x: Double): Double {
-        return x * zoom
+        return x * zoom - zoomCenter.x * zoom + width / 2
     }
 
     private fun transformX(x: Float): Double {
@@ -321,7 +324,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun transformY(y: Double): Double {
-        return height - (y * zoom)
+        return height - (y * zoom - zoomCenter.y * zoom + height / 2)
     }
 
     private fun transformY(y: Float): Double {
@@ -332,7 +335,7 @@ class FhysicsObjectDrawer : Application() {
 
     private fun setWindowSize() {
         // calculate the window size
-        val border: Rectangle2D = FhysicsCore.BORDER
+        val border: Rectangle2D = BORDER
         val borderWidth: Double = border.width
         val borderHeight: Double = border.height
 
@@ -357,7 +360,7 @@ class FhysicsObjectDrawer : Application() {
 
     private fun calculateZoom(): Double {
         // normal zoom amount
-        val borderHeight: Double = FhysicsCore.BORDER.height
+        val borderHeight: Double = BORDER.height
         val windowHeight: Double = stage.height - titleBarHeight
 
         return windowHeight / borderHeight
@@ -384,17 +387,27 @@ class FhysicsObjectDrawer : Application() {
 
     /// =====listener functions=====
 
-    private fun onMouseWheel(delta: Float) {
-        zoom += delta * 0.01F
-        quadTreeHighlightSize += delta * 0.1F
-//        drawFrame()
+    private fun onMouseWheel(e: ScrollEvent) {
+//        zoom += e.deltaY * 0.01F
+//        quadTreeHighlightSize += e.deltaY * 0.1F
+//
+//        val pos = Vector2(e.x.toFloat(), 0F)
+////        pos.x = (pos.x + width / 2).toFloat()
+////        pos.y = (height - (pos.y + height / 2)).toFloat()
+//        zoomOffset -= pos / zoom.toFloat()
+//
+//        val transformedMousePos: Vector2 = Vector2(e.x.toFloat(), e.y.toFloat())
+//        transformedMousePos.y = (height - transformedMousePos.y).toFloat()
+//        zoomCenter = transformedMousePos / zoom.toFloat()
     }
 
     private fun onMousePressed(mousePos: Vector2) {
         val transformedMousePos: Vector2 = mousePos
         transformedMousePos.y = (height - transformedMousePos.y).toFloat()
-        fhysics.spawn(Circle(transformedMousePos / zoom.toFloat(), 1.0F))
-        drawFrame()
+//        fhysics.spawn(Circle(transformedMousePos / zoom.toFloat(), 1.0F))
+
+        zoomCenter = transformedMousePos / zoom.toFloat()
+        println(zoomCenter)
     }
 
     private fun keyPressed(event: KeyEvent) {
@@ -407,9 +420,4 @@ class FhysicsObjectDrawer : Application() {
             else -> {}
         }
     }
-
-    companion object {
-        lateinit var INSTANCE: FhysicsObjectDrawer
-    }
 }
-

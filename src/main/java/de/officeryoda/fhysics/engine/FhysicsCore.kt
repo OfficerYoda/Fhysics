@@ -11,7 +11,6 @@ import java.util.*
 
 object FhysicsCore {
 
-
     /// =====constants=====
     // x and y must be 0.0
     val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F)
@@ -19,7 +18,7 @@ object FhysicsCore {
     const val QUAD_TREE_CAPACITY: Int = 32
     private const val UPDATES_PER_SECOND: Int = 200
 
-        val GRAVITY: Vector2 = Vector2(0.0F, 0.0F)
+    val GRAVITY: Vector2 = Vector2(0.0F, 0.0F)
 //    val GRAVITY: Vector2 = Vector2(0.0, -9.81)
 
     /// =====variables=====
@@ -104,17 +103,6 @@ object FhysicsCore {
                 spawn(FhysicsObjectFactory.randomCircle())
             }
         }
-
-//        if (updateCount % 5 != 0) return
-//
-//        val spawnRows = 2
-//        val radius = 0.5
-//        val pos = Vector2(2.0, BORDER.height - 2)
-//        val yOffset = (objectCount % spawnRows) * 2 * radius
-//        pos.y -= yOffset
-//
-//        val vel = Vector2(20.0, 0.0)
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(pos, radius, vel))
     }
 
     private fun checkObjectCollision(quadTree: QuadTree) {
