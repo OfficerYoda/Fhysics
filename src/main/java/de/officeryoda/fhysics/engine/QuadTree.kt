@@ -76,23 +76,31 @@ data class QuadTree(
 
     /// =====rebuild functions=====
 
-    fun rebuild() {
+    fun updateObjectsAndRebuild() {
         if (divided) {
             if (parent == null) {
-                rebuildChildrenAsync()
+                updateObjectsAndRebuildChildrenAsync()
             } else {
-                topLeft!!.rebuild()
-                topRight!!.rebuild()
-                botLeft!!.rebuild()
-                botRight!!.rebuild()
+                topLeft!!.updateObjectsAndRebuild()
+                topRight!!.updateObjectsAndRebuild()
+                botLeft!!.updateObjectsAndRebuild()
+                botRight!!.updateObjectsAndRebuild()
             }
 
             insertRebuildObjects()
             tryCollapse()
         } else {
+
+            // check if the node is on the border
+            val borderNode: Boolean =
+                boundary.x == 0.0 || boundary.y == 0.0 || boundary.x + boundary.width == FhysicsCore.BORDER.width || boundary.y + boundary.height == FhysicsCore.BORDER.height
+
             // check if the objects are still fully in the boundary
             val toRemove = ArrayList<FhysicsObject>()
             for (obj in objects) {
+                // do the physics update
+                updateObject(obj, borderNode)
+
                 // only keep if fully contained in the boundary
                 if (!boundary.contains(obj)) {
                     // if parent is null, the quadTree is the root,
@@ -147,51 +155,21 @@ data class QuadTree(
 
     /// =====update functions=====
 
-    fun updateObjects(updatesIntervalSeconds: Float) {
-        if (divided) {
-            if (parent == null) {
-                updateObjectsAsync(updatesIntervalSeconds)
-            } else {
-                topLeft!!.updateObjects(updatesIntervalSeconds)
-                topRight!!.updateObjects(updatesIntervalSeconds)
-                botLeft!!.updateObjects(updatesIntervalSeconds)
-                botRight!!.updateObjects(updatesIntervalSeconds)
-            }
-        } else {
-            objects.forEach {
-                it.updatePosition(updatesIntervalSeconds)
-                // check if node is on the edge of the screen
-                if (boundary.x == 0.0 || boundary.y == 0.0 || boundary.x + boundary.width == FhysicsCore.BORDER.width || boundary.y + boundary.height == FhysicsCore.BORDER.height) {
-                    FhysicsCore.checkBorderCollision(it)
-                }
-            }
+    private fun updateObject(it: FhysicsObject, checkBorder: Boolean) {
+        it.updatePosition()
+        // check if node is on the edge of the screen
+        if (checkBorder) {
+            FhysicsCore.checkBorderCollision(it)
         }
     }
 
     /// =====async functions=====
 
-    private fun rebuildChildrenAsync() {
-        val tl = Thread { topLeft!!.rebuild() }
-        val tr = Thread { topRight!!.rebuild() }
-        val bl = Thread { botLeft!!.rebuild() }
-        val br = Thread { botRight!!.rebuild() }
-
-        tl.start()
-        tr.start()
-        bl.start()
-        br.start()
-
-        tl.join()
-        tr.join()
-        bl.join()
-        br.join()
-    }
-
-    private fun updateObjectsAsync(updatesIntervalSeconds: Float) {
-        val tl = Thread { topLeft!!.updateObjects(updatesIntervalSeconds) }
-        val tr = Thread { topRight!!.updateObjects(updatesIntervalSeconds) }
-        val bl = Thread { botLeft!!.updateObjects(updatesIntervalSeconds) }
-        val br = Thread { botRight!!.updateObjects(updatesIntervalSeconds) }
+    private fun updateObjectsAndRebuildChildrenAsync() {
+        val tl = Thread { topLeft!!.updateObjectsAndRebuild() }
+        val tr = Thread { topRight!!.updateObjectsAndRebuild() }
+        val bl = Thread { botLeft!!.updateObjectsAndRebuild() }
+        val br = Thread { botRight!!.updateObjectsAndRebuild() }
 
         tl.start()
         tr.start()

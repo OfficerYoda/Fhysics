@@ -11,15 +11,15 @@ import java.util.*
 
 object FhysicsCore {
 
-
     /// =====constants=====
     // x and y must be 0.0
-    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F)
+    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 250.0F, 250.0F)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
     const val QUAD_TREE_CAPACITY: Int = 32
     private const val UPDATES_PER_SECOND: Int = 200
+    const val UPDATE_INTERVAL_SECONDS: Float = 1.0F / UPDATES_PER_SECOND
 
-        val GRAVITY: Vector2 = Vector2(0.0F, 0.0F)
+    val GRAVITY: Vector2 = Vector2(0.0F, 0.0F)
 //    val GRAVITY: Vector2 = Vector2(0.0, -9.81)
 
     /// =====variables=====
@@ -37,7 +37,7 @@ object FhysicsCore {
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..3500) {
+        for (i in 1..40) {
             val circle = FhysicsObjectFactory.randomCircle()
 //            circle.radius *= 2
             spawn(circle)
@@ -72,24 +72,15 @@ object FhysicsCore {
 
     fun update() {
         val startTime: Long = System.nanoTime()
-        val updateIntervalSeconds: Float = 1.0F / UPDATES_PER_SECOND
 
         spawnObject()
 
-        quadTree.updateObjects(updateIntervalSeconds)
-
-        buildQuadTree()
+        quadTree.updateObjectsAndRebuild()
 
         checkObjectCollision(quadTree)
 
         updateCount++
         addUpdateDuration(System.nanoTime() - startTime)
-    }
-
-    private fun buildQuadTree() {
-//        quadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null)
-//        fhysicsObjects.forEach { quadTree.insert(it) }
-        quadTree.rebuild()
     }
 
     // This method must be called when trying to spawn an object
@@ -100,21 +91,10 @@ object FhysicsCore {
 
     private fun spawnObject() {
         for (i in 1..100) {
-            if (objectCount < 3000) {
+            if (objectCount < 60000) {
                 spawn(FhysicsObjectFactory.randomCircle())
             }
         }
-
-//        if (updateCount % 5 != 0) return
-//
-//        val spawnRows = 2
-//        val radius = 0.5
-//        val pos = Vector2(2.0, BORDER.height - 2)
-//        val yOffset = (objectCount % spawnRows) * 2 * radius
-//        pos.y -= yOffset
-//
-//        val vel = Vector2(20.0, 0.0)
-//        fhysicsObjects.add(FhysicsObjectFactory.customCircle(pos, radius, vel))
     }
 
     private fun checkObjectCollision(quadTree: QuadTree) {
