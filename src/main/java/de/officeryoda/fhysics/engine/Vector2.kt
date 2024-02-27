@@ -10,7 +10,7 @@ import kotlin.math.sqrt
  */
 data class Vector2
 @JvmOverloads constructor(
-    var x: Double = 0.0, var y: Double = 0.0
+    var x: Float = 0.0F, var y: Float = 0.0F
 ) {
     /**
      * Returns a normalized version of the  Vector2.
@@ -18,11 +18,11 @@ data class Vector2
      * @return The normalized Vector2.
      */
     fun normalized(): Vector2 {
-        val magnitude: Double = magnitude()
-        return if (magnitude != 0.0) {
+        val magnitude: Float = magnitude()
+        return if (magnitude != 0.0F) {
             Vector2(this.x / magnitude, this.y / magnitude)
         } else {
-            Vector2(0.0, 0.0)  // Handle division by zero, return a default zero vector.
+            Vector2(0.0F, 0.0F)  // Handle division by zero, return a default zero vector.
         }
     }
 
@@ -33,7 +33,7 @@ data class Vector2
      * @param other The other Vector2.
      * @return The dot product of the two Vector2 instances.
      */
-    fun dot(other: Vector2): Double {
+    fun dot(other: Vector2): Float {
         return this.x * other.x + this.y * other.y
     }
 
@@ -42,7 +42,7 @@ data class Vector2
      *
      * @return The magnitude of the Vector2.
      */
-    fun magnitude(): Double {
+    fun magnitude(): Float {
         return sqrt(sqrMagnitude())
     }
 
@@ -51,7 +51,7 @@ data class Vector2
      *
      * @return The squared magnitude of the Vector2.
      */
-    fun sqrMagnitude(): Double {
+    fun sqrMagnitude(): Float {
         return x * x + y * y
     }
 
@@ -61,7 +61,7 @@ data class Vector2
      * @param other The other Vector2.
      * @return The distance between the two Vector2 instances.
      */
-    fun distance(other: Vector2): Double {
+    fun distance(other: Vector2): Float {
         return sqrt(sqrDistance(other))
     }
 
@@ -71,9 +71,9 @@ data class Vector2
      * @param other The other Vector2.
      * @return The squared distance between the two Vector2 instances.
      */
-    fun sqrDistance(other: Vector2): Double {
-        val dx: Double = this.x - other.x
-        val dy: Double = this.y - other.y
+    fun sqrDistance(other: Vector2): Float {
+        val dx: Float = this.x - other.x
+        val dy: Float = this.y - other.y
         return dx * dx + dy * dy
     }
 
@@ -113,7 +113,7 @@ data class Vector2
      * @param scalar The scalar value.
      * @return The result of the multiplication.
      */
-    operator fun times(scalar: Double): Vector2 {
+    operator fun times(scalar: Float): Vector2 {
         return Vector2(this.x * scalar, this.y * scalar)
     }
 
@@ -124,7 +124,7 @@ data class Vector2
      * @return The result of the division.
      * @throws IllegalArgumentException if division by zero is attempted.
      */
-    operator fun div(scalar: Double): Vector2 {
+    operator fun div(scalar: Float): Vector2 {
         return Vector2(this.x / scalar, this.y / scalar)
     }
 
@@ -153,7 +153,7 @@ data class Vector2
      *
      * @param scalar The scalar value.
      */
-    operator fun timesAssign(scalar: Double) {
+    operator fun timesAssign(scalar: Float) {
         this.x *= scalar
         this.y *= scalar
     }
@@ -164,7 +164,7 @@ data class Vector2
      * @param scalar The scalar value.
      * @throws IllegalArgumentException if division by zero is attempted.
      */
-    operator fun divAssign(scalar: Double) {
+    operator fun divAssign(scalar: Float) {
         this.x /= scalar
         this.y /= scalar
     }
@@ -176,15 +176,6 @@ data class Vector2
      */
     operator fun unaryMinus(): Vector2 {
         return Vector2(-this.x, -this.y)
-    }
-
-    /**
-     * Converts this Vector2 to a Vector2Int by rounding the x and y coordinates to the nearest integer values.
-     *
-     * @return The converted Vector2Int.
-     */
-    fun toVector2Int(): Vector2Int {
-        return Vector2Int(x.toInt(), y.toInt())
     }
 
     /**
@@ -207,6 +198,6 @@ data class Vector2
          */
         @JvmStatic
         val ZERO: Vector2
-            get() = Vector2(0.0, 0.0)
+            get() = Vector2(0.0F, 0.0F)
     }
 }

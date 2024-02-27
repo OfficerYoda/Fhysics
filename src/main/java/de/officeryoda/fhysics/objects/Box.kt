@@ -7,20 +7,20 @@ import java.awt.Color
 
 class Box(
     position: Vector2,
-    val width: Double,
-    val height: Double,
+    val width: Float,
+    val height: Float,
 ) : FhysicsObject(position, width * height) {
 
-    val minX: Double
+    val minX: Float
         get() = position.x
 
-    val minY: Double
+    val minY: Float
         get() = position.y
 
-    val maxX: Double
+    val maxX: Float
         get() = position.x + width
 
-    val maxY: Double
+    val maxY: Float
         get() = position.y + height
 
     init {

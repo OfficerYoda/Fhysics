@@ -7,7 +7,7 @@ import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
     val position: Vector2 = Vector2.ZERO,
-    val mass: Double = 1.0,
+    val mass: Float = 1.0F,
     val velocity: Vector2 = Vector2.ZERO,
     val acceleration: Vector2 = Vector2.ZERO,
 ) {
@@ -15,17 +15,22 @@ abstract class FhysicsObject protected constructor(
     var color: Color = colorFromIndex()
     var static: Boolean = false
 
-    open fun updatePosition(dt: Double, gravity: Vector2) {
+    private var lastUpdate = -1
+
+    open fun updatePosition(dt: Float) {
         // static objects don't move
-        if(static) return
+        if (static) return
+        if(lastUpdate == FhysicsCore.updateCount) return
 
-        val damping = 0.00
+        val damping = 0.00F
 
-        acceleration += gravity
+        acceleration += FhysicsCore.GRAVITY
         velocity += (acceleration - velocity * damping) * dt
         position += velocity * dt
 
         acceleration.set(Vector2.ZERO)
+
+        lastUpdate = FhysicsCore.updateCount
     }
 
     private fun colorFromIndex(): Color {
@@ -51,5 +56,20 @@ abstract class FhysicsObject protected constructor(
 
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"
+    }
+
+    // this method exist to make the list.contains() method faster
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FhysicsObject) return false
+
+        // id is unique
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
     }
 }

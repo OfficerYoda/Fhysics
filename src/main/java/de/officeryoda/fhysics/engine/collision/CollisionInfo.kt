@@ -17,7 +17,7 @@ data class CollisionInfo(
     val objA: FhysicsObject? = null,
     val objB: FhysicsObject? = null,
     val normal: Vector2 = ZERO,
-    val overlap: Double = -1.0,
+    val overlap: Float = -1.0F,
 ) {
     /**
      * Secondary constructor used to create a CollisionInfo instance when a collision occurs.
@@ -26,7 +26,7 @@ data class CollisionInfo(
      * @param normal The normal vector along the line of collision.
      * @param overlap The overlap distance between the objects.
      */
-    constructor(objA: FhysicsObject?, objB: FhysicsObject?, normal: Vector2, overlap: Double) : this(
+    constructor(objA: FhysicsObject?, objB: FhysicsObject?, normal: Vector2, overlap: Float) : this(
         true,
         objA,
         objB,

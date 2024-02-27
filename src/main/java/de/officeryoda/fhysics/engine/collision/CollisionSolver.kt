@@ -18,7 +18,7 @@ abstract class CollisionSolver {
             if (objA.static || objB.static)
                 info.overlap * info.normal
             else
-                0.5 * info.overlap * info.normal
+                0.5F * info.overlap * info.normal
 
         // Move circles apart along the collision normal
         moveIfNotStatic(objA, -moveAmount)

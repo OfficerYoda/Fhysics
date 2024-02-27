@@ -6,8 +6,8 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 
 class Circle(
     position: Vector2,
-    var radius: Double,
-) : FhysicsObject(position, Math.PI * radius * radius) {
+    var radius: Float,
+) : FhysicsObject(position, (Math.PI * radius * radius).toFloat()) {
 
     override fun testCollision(other: Circle): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
