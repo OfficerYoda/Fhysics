@@ -12,9 +12,7 @@ import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
-import javafx.scene.input.ScrollEvent
+import javafx.scene.input.*
 import javafx.scene.paint.Paint
 import javafx.scene.text.Font
 import javafx.scene.text.Text
@@ -44,6 +42,10 @@ class FhysicsObjectDrawer : Application() {
     // in world space
     private var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
     private var zoomCenter: Vector2 = targetZoomCenter
+
+    // mouse movement properties
+    private var rightPressed: Boolean = false
+    private var rightPressedPos: Vector2 = Vector2.ZERO
 
     // quad tree properties
     private var quadTreeHighlightSize: Double = 20.0
@@ -75,7 +77,9 @@ class FhysicsObjectDrawer : Application() {
         stage.scene.fill = colorToPaint(Color.decode("#010409"))
 
         scene.setOnScroll { onMouseWheel(it) }
-        scene.setOnMousePressed { onMousePressed(Vector2(it.x.toFloat(), it.y.toFloat())) }
+        scene.setOnMousePressed { onMousePressed(it) }
+        scene.setOnMouseReleased { onMouseReleased(it) }
+        scene.setOnMouseDragged { onMouseDragged(it) }
         scene.setOnKeyPressed { keyPressed(it) }
 
         gc = canvas.graphicsContext2D
@@ -305,8 +309,6 @@ class FhysicsObjectDrawer : Application() {
         gc.fillText("Objects: ${FhysicsCore.objectCount}", 5.0, 3 * lineHeight)
     }
 
-    // =====ui functions=====
-
     // =====debug functions=====
 
     fun addDebugPoint(point: Vector2, color: Color) {
@@ -444,17 +446,19 @@ class FhysicsObjectDrawer : Application() {
 
     /// =====listener functions=====
     private fun onMouseWheel(e: ScrollEvent) {
+        // don't zoom if moving with the mouse
+        if (rightPressed) return
+
         val zoomBefore: Double = zoom
+        val deltaZoom: Double = exp(targetZoom * 0.035)
 
-        val deltaZoom: Double = exp(zoom * 0.02)
-
-        // Record the mouse position  before zooming
+        // Record the mouse position before zooming
         var mousePosBeforeZoom = Vector2(e.x.toFloat(), e.y.toFloat())
         mousePosBeforeZoom = screenToWorld(mousePosBeforeZoom)
 
         // Adjust the zoom amount
         zoom += deltaZoom * e.deltaY.sign
-        zoom = zoom.coerceIn(0.5, 120.0)
+        zoom = zoom.coerceIn(2.0, 120.0)
 
         // Record the mouse position after zooming
         var mousePosAfterZoom = Vector2(e.x.toFloat(), e.y.toFloat())
@@ -471,9 +475,36 @@ class FhysicsObjectDrawer : Application() {
         zoom = zoomBefore
     }
 
-    private fun onMousePressed(mousePos: Vector2) {
-        val transformedMousePos: Vector2 = screenToWorld(mousePos)
-        fhysics.spawn(Circle(transformedMousePos, 1.0F))
+    private fun onMousePressed(e: MouseEvent) {
+        when (e.button) {
+            MouseButton.PRIMARY -> {
+                // spawn a circle at the mouse position
+                val transformedMousePos: Vector2 = screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
+                fhysics.spawn(Circle(transformedMousePos, 1.0F))
+            }
+
+            MouseButton.SECONDARY -> {
+                rightPressed = true
+                rightPressedPos = screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun onMouseReleased(e: MouseEvent) {
+        if (e.button == MouseButton.SECONDARY) {
+            rightPressed = false
+        }
+    }
+
+    private fun onMouseDragged(e: MouseEvent) {
+        if (rightPressed) {
+            val mousePos: Vector2 = screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
+            val deltaMousePos: Vector2 = rightPressedPos - mousePos
+            targetZoomCenter = targetZoomCenter + deltaMousePos
+            zoomCenter = targetZoomCenter
+        }
     }
 
     private fun keyPressed(event: KeyEvent) {
