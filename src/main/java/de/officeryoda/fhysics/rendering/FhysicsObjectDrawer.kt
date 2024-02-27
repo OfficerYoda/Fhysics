@@ -444,9 +444,6 @@ class FhysicsObjectDrawer : Application() {
     private fun onMousePressed(mousePos: Vector2) {
         val transformedMousePos: Vector2 = screenToWorld(mousePos)
         fhysics.spawn(Circle(transformedMousePos, 1.0F))
-
-        zoomCenter = transformedMousePos
-        println(zoomCenter)
     }
 
     private fun keyPressed(event: KeyEvent) {
