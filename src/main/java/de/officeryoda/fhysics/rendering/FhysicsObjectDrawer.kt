@@ -24,6 +24,8 @@ import java.awt.MouseInfo
 import java.awt.Point
 import java.awt.geom.Rectangle2D
 import java.util.*
+import kotlin.math.exp
+import kotlin.math.sign
 
 
 class FhysicsObjectDrawer : Application() {
@@ -105,9 +107,11 @@ class FhysicsObjectDrawer : Application() {
 
         drawAllObjects()
 
+        drawBorder()
+
         drawDebugPoints()
 //        drawHighlightQuadTree()
-        drawQuadTree()
+//        drawQuadTree()
 
         drawStats()
     }
@@ -174,6 +178,11 @@ class FhysicsObjectDrawer : Application() {
         }
     }
 
+    private fun drawBorder() {
+        setStrokeColor(Color.GRAY)
+        gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
+    }
+
     private fun drawHighlightQuadTree() {
         // get the mouse position
         val mousePoint: Point = MouseInfo.getPointerInfo().location
@@ -231,12 +240,12 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawQuadTree() {
-        fhysics.quadTree.draw(::transformAndDrawRect)
+        fhysics.quadTree.draw(::transformAndDrawQuadTreeCapacity)
     }
 
-    private fun transformAndDrawRect(rect: Rectangle2D, contentCount: Int) {
+    private fun transformAndDrawQuadTreeCapacity(rect: Rectangle2D, contentCount: Int) {
         val x: Double = worldToScreenX(rect.x)
-        val y: Double = worldToScreenY((rect.y + rect.height))
+        val y: Double = worldToScreenY(rect.y + rect.height)
         val width: Double = rect.width * zoom
         val height: Double = rect.height * zoom
 
@@ -411,16 +420,17 @@ class FhysicsObjectDrawer : Application() {
 
     /// =====listener functions=====
     private fun onMouseWheel(e: ScrollEvent) {
-        val deltaZoom: Double = e.deltaY * 0.01F
+        val deltaZoom: Double = exp(zoom * 0.02)
 
-        // Record the mouse position in world coordinates before zooming
+        // Record the mouse position  before zooming
         var mousePosBeforeZoom = Vector2(e.x.toFloat(), e.y.toFloat())
         mousePosBeforeZoom = screenToWorld(mousePosBeforeZoom)
 
         // Adjust the zoom amount
-        zoom += deltaZoom
+        zoom += deltaZoom * e.deltaY.sign
+        zoom = zoom.coerceIn(0.5, 120.0)
 
-        // Record the mouse position in world coordinates after zooming
+        // Record the mouse position after zooming
         var mousePosAfterZoom = Vector2(e.x.toFloat(), e.y.toFloat())
         mousePosAfterZoom = screenToWorld(mousePosAfterZoom)
 
@@ -446,7 +456,7 @@ class FhysicsObjectDrawer : Application() {
             KeyCode.P -> fhysics.isRunning = !fhysics.isRunning
             KeyCode.SPACE -> fhysics.update()
             KeyCode.ENTER -> fhysics.update()
-            KeyCode.R -> resetZoom()
+            KeyCode.Z -> resetZoom()
             else -> {}
         }
     }
