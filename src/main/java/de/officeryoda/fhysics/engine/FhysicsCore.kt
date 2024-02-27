@@ -36,7 +36,7 @@ object FhysicsCore {
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..3500) {
+        for (i in 1..40) {
             val circle = FhysicsObjectFactory.randomCircle()
 //            circle.radius *= 2
             spawn(circle)
@@ -73,7 +73,7 @@ object FhysicsCore {
         val startTime: Long = System.nanoTime()
         val updateIntervalSeconds: Float = 1.0F / UPDATES_PER_SECOND
 
-        spawnObject()
+//        spawnObject()
 
         quadTree.updateObjects(updateIntervalSeconds)
 
