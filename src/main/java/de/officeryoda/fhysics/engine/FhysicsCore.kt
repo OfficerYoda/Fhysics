@@ -73,7 +73,7 @@ object FhysicsCore {
     fun update() {
         val startTime: Long = System.nanoTime()
 
-//        spawnObject()
+        spawnObject()
 
         quadTree.updateObjectsAndRebuild()
 

@@ -38,6 +38,7 @@ class FhysicsObjectDrawer : Application() {
     private lateinit var gc: GraphicsContext
 
     // zoom properties
+    private var targetZoom: Double = -1.0
     private var zoom: Double = -1.0
 
     // in world space
@@ -78,7 +79,8 @@ class FhysicsObjectDrawer : Application() {
 
         gc = canvas.graphicsContext2D
 
-        zoom = calculateZoom()
+        targetZoom = calculateZoom()
+        zoom = targetZoom
 
         startAnimationTimer()
 
@@ -102,6 +104,9 @@ class FhysicsObjectDrawer : Application() {
     /// =====draw functions=====
 
     fun drawFrame() {
+        // lerp the zoom to the target zoom
+        zoom = lerp(zoom, targetZoom, 0.1)
+
         // clear the stage
         gc.clearRect(0.0, 0.0, width, height)
 
@@ -418,6 +423,16 @@ class FhysicsObjectDrawer : Application() {
         )
     }
 
+    private fun resetZoom() {
+        targetZoom = calculateZoom()
+        zoom = targetZoom
+        zoomCenter = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+    }
+
+    private fun lerp(a: Double, b: Double, t: Double): Double {
+        return a + (b - a) * t
+    }
+
     /// =====listener functions=====
     private fun onMouseWheel(e: ScrollEvent) {
         val deltaZoom: Double = exp(zoom * 0.02)
@@ -427,8 +442,8 @@ class FhysicsObjectDrawer : Application() {
         mousePosBeforeZoom = screenToWorld(mousePosBeforeZoom)
 
         // Adjust the zoom amount
-        zoom += deltaZoom * e.deltaY.sign
-        zoom = zoom.coerceIn(0.5, 120.0)
+        targetZoom += deltaZoom * e.deltaY.sign
+        targetZoom = targetZoom.coerceIn(0.5, 120.0)
 
         // Record the mouse position after zooming
         var mousePosAfterZoom = Vector2(e.x.toFloat(), e.y.toFloat())
@@ -456,10 +471,5 @@ class FhysicsObjectDrawer : Application() {
             KeyCode.Z -> resetZoom()
             else -> {}
         }
-    }
-
-    private fun resetZoom() {
-        zoom = calculateZoom()
-        zoomCenter = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
     }
 }
