@@ -39,10 +39,11 @@ class FhysicsObjectDrawer : Application() {
 
     // zoom properties
     private var targetZoom: Double = -1.0
-    private var zoom: Double = -1.0
+    private var zoom: Double = targetZoom
 
     // in world space
-    private var zoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+    private var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+    private var zoomCenter: Vector2 = targetZoomCenter
 
     // quad tree properties
     private var quadTreeHighlightSize: Double = 20.0
@@ -104,8 +105,9 @@ class FhysicsObjectDrawer : Application() {
     /// =====draw functions=====
 
     fun drawFrame() {
-        // lerp the zoom to the target zoom
-        zoom = lerp(zoom, targetZoom, 0.1)
+        // lerp the zoom and zoomCenter
+        zoom = lerp(zoom.toFloat(), targetZoom.toFloat(), 0.1F).toDouble()
+        zoomCenter = lerpV2(zoomCenter, targetZoomCenter, 0.1F)
 
         // clear the stage
         gc.clearRect(0.0, 0.0, width, height)
@@ -426,15 +428,24 @@ class FhysicsObjectDrawer : Application() {
     private fun resetZoom() {
         targetZoom = calculateZoom()
         zoom = targetZoom
-        zoomCenter = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+        targetZoomCenter = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+        zoomCenter = targetZoomCenter
     }
 
-    private fun lerp(a: Double, b: Double, t: Double): Double {
+    private fun lerp(a: Float, b: Float, t: Float): Float {
         return a + (b - a) * t
+    }
+
+    private fun lerpV2(a: Vector2, b: Vector2, t: Float): Vector2 {
+        val x: Float = lerp(a.x, b.x, t)
+        val y: Float = lerp(a.y, b.y, t)
+        return Vector2(x, y)
     }
 
     /// =====listener functions=====
     private fun onMouseWheel(e: ScrollEvent) {
+        val zoomBefore: Double = zoom
+
         val deltaZoom: Double = exp(zoom * 0.02)
 
         // Record the mouse position  before zooming
@@ -442,8 +453,8 @@ class FhysicsObjectDrawer : Application() {
         mousePosBeforeZoom = screenToWorld(mousePosBeforeZoom)
 
         // Adjust the zoom amount
-        targetZoom += deltaZoom * e.deltaY.sign
-        targetZoom = targetZoom.coerceIn(0.5, 120.0)
+        zoom += deltaZoom * e.deltaY.sign
+        zoom = zoom.coerceIn(0.5, 120.0)
 
         // Record the mouse position after zooming
         var mousePosAfterZoom = Vector2(e.x.toFloat(), e.y.toFloat())
@@ -453,7 +464,11 @@ class FhysicsObjectDrawer : Application() {
         val deltaMousePos = mousePosBeforeZoom - mousePosAfterZoom
 
         // Update the zoom center to keep the mouse at the same world position
-        zoomCenter = zoomCenter + deltaMousePos
+        targetZoomCenter = zoomCenter + deltaMousePos
+
+        // Update the target zoom
+        targetZoom = zoom
+        zoom = zoomBefore
     }
 
     private fun onMousePressed(mousePos: Vector2) {
