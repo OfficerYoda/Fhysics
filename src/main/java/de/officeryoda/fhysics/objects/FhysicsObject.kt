@@ -17,11 +17,12 @@ abstract class FhysicsObject protected constructor(
 
     private var lastUpdate = -1
 
-    open fun updatePosition(dt: Float) {
+    open fun updatePosition() {
         // static objects don't move
         if (static) return
         if(lastUpdate == FhysicsCore.updateCount) return
 
+        val dt = FhysicsCore.UPDATE_INTERVAL_SECONDS
         val damping = 0.00F
 
         acceleration += FhysicsCore.GRAVITY
