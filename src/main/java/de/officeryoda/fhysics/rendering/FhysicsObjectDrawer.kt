@@ -16,7 +16,9 @@ import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenX
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenY
 import javafx.animation.AnimationTimer
 import javafx.application.Application
+import javafx.fxml.FXMLLoader
 import javafx.scene.Group
+import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
@@ -78,6 +80,8 @@ class FhysicsObjectDrawer : Application() {
         val canvas = Canvas(width, height)
         root.children.add(canvas)
 
+        loadUI(root)
+
         // set the background color
         stage.scene.fill = colorToPaint(Color.decode("#010409"))
 
@@ -90,6 +94,15 @@ class FhysicsObjectDrawer : Application() {
         startAnimationTimer()
 
         stage.show()
+    }
+
+    private fun loadUI(root: Group) {
+        // Load FXML file
+        val fxmlLoader = FXMLLoader(javaClass.getResource("ui.fxml"))
+        val fxmlRoot: Parent = fxmlLoader.load<Any>() as Parent
+
+        // Add FXML content to the existing scene
+        root.children.add(fxmlRoot)
     }
 
     private fun addListeners(scene: Scene) {
@@ -127,6 +140,8 @@ class FhysicsObjectDrawer : Application() {
         drawDebugPoints()
 //        drawHighlightQuadTree()
 //        drawQuadTree()
+
+        drawUI()
 
         drawStats()
     }
@@ -255,6 +270,12 @@ class FhysicsObjectDrawer : Application() {
         gc.fillText("MSPU: $mspuRounded", 5.0, lineHeight)
         gc.fillText("FPS: $fpsRounded", 5.0, 2 * lineHeight)
         gc.fillText("Objects: ${FhysicsCore.objectCount}", 5.0, 3 * lineHeight)
+    }
+
+    // =====ui functions=====
+
+    fun drawUI() {
+
     }
 
     // =====debug functions=====
