@@ -6,59 +6,64 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
+import de.officeryoda.fhysics.rendering.RenderUtil.lerp
+import de.officeryoda.fhysics.rendering.RenderUtil.lerpV2
+import de.officeryoda.fhysics.rendering.RenderUtil.setFillColor
+import de.officeryoda.fhysics.rendering.RenderUtil.setStrokeColor
+import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreen
+import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenX
+import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenY
 import javafx.animation.AnimationTimer
 import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.input.*
-import javafx.scene.paint.Paint
 import javafx.scene.text.Font
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import java.awt.Color
-import java.awt.MouseInfo
-import java.awt.Point
 import java.awt.geom.Rectangle2D
 import java.util.*
-import kotlin.math.exp
-import kotlin.math.sign
 
-
+// can't be converted to object because it is a JavaFX Application
 class FhysicsObjectDrawer : Application() {
-
-    // fhysics properties
-    val fhysics: FhysicsCore = FhysicsCore
 
     // rendering properties
     private lateinit var stage: Stage
-    private lateinit var gc: GraphicsContext
+    lateinit var gc: GraphicsContext
 
     // zoom properties
-    private var targetZoom: Double = -1.0
-    private var zoom: Double = targetZoom
+    var targetZoom: Double = -1.0
+    var zoom: Double = targetZoom
 
     // in world space
-    private var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
-    private var zoomCenter: Vector2 = targetZoomCenter
+    var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+    var zoomCenter: Vector2 = targetZoomCenter
 
     // mouse movement properties
-    private var rightPressed: Boolean = false
-    private var rightPressedPos: Vector2 = Vector2.ZERO
+    var rightPressed: Boolean = false
+    var rightPressedPos: Vector2 = Vector2.ZERO
 
-    // quad tree properties
-    private var quadTreeHighlightSize: Double = 20.0
+    // debug properties
     private val debugPoints: MutableList<Triple<Vector2, Color, Int>> = ArrayList()
 
     /// window size properties
-    private val width: Double get() = stage.scene.width
-    private val height: Double get() = stage.scene.height // use scene height to prevent including the window's title bar
+    val width: Double get() = stage.scene.width
+    val height: Double get() = stage.scene.height // use scene height to prevent including the window's title bar
     private val titleBarHeight: Double = 39.0 // that's the default height of the window's title bar (in windows)
 
     /// =====start functions=====
 
+    fun launch() {
+        launch(FhysicsObjectDrawer::class.java)
+    }
+
     override fun start(stage: Stage) {
+        // set the drawer in the RenderUtil
+        RenderUtil.drawer = this
+
         this.stage = stage
 
         setWindowSize()
@@ -76,14 +81,9 @@ class FhysicsObjectDrawer : Application() {
         // set the background color
         stage.scene.fill = colorToPaint(Color.decode("#010409"))
 
-        scene.setOnScroll { onMouseWheel(it) }
-        scene.setOnMousePressed { onMousePressed(it) }
-        scene.setOnMouseReleased { onMouseReleased(it) }
-        scene.setOnMouseDragged { onMouseDragged(it) }
-        scene.setOnKeyPressed { keyPressed(it) }
+        addListeners(scene)
 
         gc = canvas.graphicsContext2D
-
         targetZoom = calculateZoom()
         zoom = targetZoom
 
@@ -92,8 +92,12 @@ class FhysicsObjectDrawer : Application() {
         stage.show()
     }
 
-    fun launch() {
-        launch(FhysicsObjectDrawer::class.java)
+    private fun addListeners(scene: Scene) {
+        scene.setOnScroll { SceneListener.onMouseWheel(it) }
+        scene.setOnMousePressed { SceneListener.onMousePressed(it) }
+        scene.setOnMouseReleased { SceneListener.onMouseReleased(it) }
+        scene.setOnMouseDragged { SceneListener.onMouseDragged(it) }
+        scene.setOnKeyPressed { SceneListener.onKeyPressed(it) }
     }
 
     private fun startAnimationTimer() {
@@ -128,7 +132,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawAllObjects() {
-        for (obj in fhysics.fhysicsObjects.toList()) {
+        for (obj: FhysicsObject in FhysicsCore.fhysicsObjects.toList()) {
             drawObject(obj)
         }
     }
@@ -194,64 +198,8 @@ class FhysicsObjectDrawer : Application() {
         gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
     }
 
-    private fun drawHighlightQuadTree() {
-        // get the mouse position
-        val mousePoint: Point = MouseInfo.getPointerInfo().location
-        stage.scene.root.screenToLocal(mousePoint.x.toDouble(), mousePoint.y.toDouble())
-
-        /// ==stuff in world space==
-
-        // convert mouse position to world space
-        val mousePos = Vector2(
-            (mousePoint.x - width / 2 - 52).toFloat(), // the 52 is a magic number to correct the position
-            (height - mousePoint.y + titleBarHeight + 27).toFloat() // the 27 is a magic number to correct the position
-        )
-
-        // calculate the query rectangle's position
-        val rectX: Double = mousePos.x / zoom
-        val rectY: Double = mousePos.y / zoom
-
-
-        // calculate the width and height of the query rectangle
-        val queryWidth: Double = quadTreeHighlightSize / zoom
-        val queryHeight: Double = quadTreeHighlightSize / zoom
-
-        // create the query rectangle
-        val queryRect =
-            Rectangle2D.Double(
-                rectX - queryWidth / 2,
-                rectY - queryHeight / 2,
-                queryWidth,
-                queryHeight
-            )
-
-        // query the quad tree for objects in query rectangle
-        val queriedObjects = fhysics.quadTree.query(queryRect).filterIsInstance<Circle>().toList()
-
-        // draw the queried objects
-        setFillColor(Color.BLUE)
-        queriedObjects.forEach {
-            drawCircle(it)
-        }
-
-        /// ==stuff in screen space==
-
-        // calculate the position of the query rectangle
-        val screenRectX: Double = worldToScreenX(rectX) - quadTreeHighlightSize / 2
-        val screenRectY: Double = worldToScreenY(rectY) - quadTreeHighlightSize / 2
-
-        // draw the query rectangle on screen
-        setStrokeColor(Color.BLUE)
-        gc.strokeRect(
-            screenRectX,
-            screenRectY,
-            quadTreeHighlightSize,
-            quadTreeHighlightSize
-        )
-    }
-
     private fun drawQuadTree() {
-        fhysics.quadTree.draw(::transformAndDrawQuadTreeCapacity)
+        FhysicsCore.quadTree.draw(::transformAndDrawQuadTreeCapacity)
     }
 
     private fun transformAndDrawQuadTreeCapacity(rect: Rectangle2D, contentCount: Int) {
@@ -265,7 +213,7 @@ class FhysicsObjectDrawer : Application() {
         gc.strokeRect(x, y, width, height)
 
         // draw transparent fill
-        val quadTreeCapacity = fhysics.QUAD_TREE_CAPACITY
+        val quadTreeCapacity: Int = FhysicsCore.QUAD_TREE_CAPACITY
         setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt()))
         gc.fillRect(x, y, width, height)
         // write the amount of objects in the cell
@@ -292,7 +240,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawStats() {
-        val mspu: Float = fhysics.getAverageUpdateDuration() // Milliseconds per Update
+        val mspu: Float = FhysicsCore.getAverageUpdateDuration() // Milliseconds per Update
         val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
         val fps: Double = 1000.0 / mspu
         val fpsRounded: String = String.format(Locale.US, "%.2f", fps)
@@ -319,61 +267,7 @@ class FhysicsObjectDrawer : Application() {
         addDebugPoint(point, Color.RED)
     }
 
-    /// =====transform functions=====
-
-    /**
-     * Transforms the position to make objects with y-pos 0
-     * appear at the bottom of the window instead of at the top.
-     * Takes into account the window's height, and zoom factor.
-     *
-     * @param pos the original position
-     * @return the transformed position
-     */
-    private fun worldToScreen(pos: Vector2): Vector2 {
-        val newX: Float = worldToScreenX(pos.x).toFloat()
-        val newY: Float = worldToScreenY(pos.y).toFloat()
-        return Vector2(newX, newY)
-    }
-
-    private fun worldToScreenX(x: Double): Double {
-        return x * zoom - zoomCenter.x * zoom + width / 2
-    }
-
-    private fun worldToScreenX(x: Float): Double {
-        return worldToScreenX(x.toDouble())
-    }
-
-    private fun worldToScreenY(y: Double): Double {
-        return height - (y * zoom - zoomCenter.y * zoom + height / 2)
-    }
-
-    private fun worldToScreenY(y: Float): Double {
-        return worldToScreenY(y.toDouble())
-    }
-
-    private fun screenToWorld(pos: Vector2): Vector2 {
-        val newX: Float = screenToWorldX(pos.x).toFloat()
-        val newY: Float = screenToWorldY(pos.y).toFloat()
-        return Vector2(newX, newY)
-    }
-
-    private fun screenToWorldX(x: Double): Double {
-        return (x - width / 2 + zoomCenter.x * zoom) / zoom
-    }
-
-    private fun screenToWorldX(x: Float): Double {
-        return screenToWorldX(x.toDouble())
-    }
-
-    private fun screenToWorldY(y: Double): Double {
-        return (height - y - height / 2 + zoomCenter.y * zoom) / zoom
-    }
-
-    private fun screenToWorldY(y: Float): Double {
-        return screenToWorldY(y.toDouble())
-    }
-
-    /// =====window functions=====
+    /// =====window size functions=====
 
     private fun setWindowSize() {
         // calculate the window size
@@ -410,112 +304,10 @@ class FhysicsObjectDrawer : Application() {
 
     /// =====utility functions=====
 
-    private fun setFillColor(color: Color) {
-        gc.fill = colorToPaint(color)
-    }
-
-    private fun setStrokeColor(color: Color) {
-        gc.stroke = colorToPaint(color)
-    }
-
-    private fun colorToPaint(javafxColor: Color): Paint {
-        return javafx.scene.paint.Color(
-            javafxColor.red / 255.0,
-            javafxColor.green / 255.0,
-            javafxColor.blue / 255.0,
-            javafxColor.alpha / 255.0
-        )
-    }
-
-    private fun resetZoom() {
+    fun resetZoom() {
         targetZoom = calculateZoom()
         zoom = targetZoom
         targetZoomCenter = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
         zoomCenter = targetZoomCenter
-    }
-
-    private fun lerp(a: Float, b: Float, t: Float): Float {
-        return a + (b - a) * t
-    }
-
-    private fun lerpV2(a: Vector2, b: Vector2, t: Float): Vector2 {
-        val x: Float = lerp(a.x, b.x, t)
-        val y: Float = lerp(a.y, b.y, t)
-        return Vector2(x, y)
-    }
-
-    /// =====listener functions=====
-    private fun onMouseWheel(e: ScrollEvent) {
-        // don't zoom if moving with the mouse
-        if (rightPressed) return
-
-        val zoomBefore: Double = zoom
-        val deltaZoom: Double = exp(targetZoom * 0.035)
-
-        // Record the mouse position before zooming
-        var mousePosBeforeZoom = Vector2(e.x.toFloat(), e.y.toFloat())
-        mousePosBeforeZoom = screenToWorld(mousePosBeforeZoom)
-
-        // Adjust the zoom amount
-        zoom += deltaZoom * e.deltaY.sign
-        zoom = zoom.coerceIn(2.0, 120.0)
-
-        // Record the mouse position after zooming
-        var mousePosAfterZoom = Vector2(e.x.toFloat(), e.y.toFloat())
-        mousePosAfterZoom = screenToWorld(mousePosAfterZoom)
-
-        // Calculate the difference in mouse position caused by zooming
-        val deltaMousePos = mousePosBeforeZoom - mousePosAfterZoom
-
-        // Update the zoom center to keep the mouse at the same world position
-        targetZoomCenter = zoomCenter + deltaMousePos
-
-        // Update the target zoom
-        targetZoom = zoom
-        zoom = zoomBefore
-    }
-
-    private fun onMousePressed(e: MouseEvent) {
-        when (e.button) {
-            MouseButton.PRIMARY -> {
-                // spawn a circle at the mouse position
-                val transformedMousePos: Vector2 = screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-                fhysics.spawn(Circle(transformedMousePos, 1.0F))
-            }
-
-            MouseButton.SECONDARY -> {
-                rightPressed = true
-                rightPressedPos = screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-            }
-
-            else -> {}
-        }
-    }
-
-    private fun onMouseReleased(e: MouseEvent) {
-        if (e.button == MouseButton.SECONDARY) {
-            rightPressed = false
-        }
-    }
-
-    private fun onMouseDragged(e: MouseEvent) {
-        if (rightPressed) {
-            val mousePos: Vector2 = screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-            val deltaMousePos: Vector2 = rightPressedPos - mousePos
-            targetZoomCenter = targetZoomCenter + deltaMousePos
-            zoomCenter = targetZoomCenter
-        }
-    }
-
-    private fun keyPressed(event: KeyEvent) {
-        // if pressed char is p toggle isRunning in FhysicsCore
-        // if it is Enter or space call the update function
-        when (event.code) {
-            KeyCode.P -> fhysics.isRunning = !fhysics.isRunning
-            KeyCode.SPACE -> fhysics.update()
-            KeyCode.ENTER -> fhysics.update()
-            KeyCode.Z -> resetZoom()
-            else -> {}
-        }
     }
 }
