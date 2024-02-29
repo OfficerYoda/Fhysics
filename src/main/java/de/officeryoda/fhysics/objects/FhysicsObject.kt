@@ -11,7 +11,7 @@ abstract class FhysicsObject protected constructor(
     val velocity: Vector2 = Vector2.ZERO,
     val acceleration: Vector2 = Vector2.ZERO,
 ) {
-    val id = FhysicsCore.nextId()
+    val id: Int = FhysicsCore.nextId()
     var color: Color = colorFromIndex()
     var static: Boolean = false
 

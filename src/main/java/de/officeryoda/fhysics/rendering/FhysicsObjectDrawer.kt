@@ -18,10 +18,10 @@ import javafx.animation.AnimationTimer
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Group
-import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
+import javafx.scene.control.Accordion
 import javafx.scene.text.Font
 import javafx.scene.text.Text
 import javafx.stage.Stage
@@ -78,9 +78,11 @@ class FhysicsObjectDrawer : Application() {
         stage.scene.root.clip = null // to draw things which are partially outside the window
 
         val canvas = Canvas(width, height)
+        val uiRoot = Accordion()
         root.children.add(canvas)
+        root.children.add(uiRoot)
 
-        loadUI(root)
+        loadUI(uiRoot)
 
         // set the background color
         stage.scene.fill = colorToPaint(Color.decode("#010409"))
@@ -96,14 +98,15 @@ class FhysicsObjectDrawer : Application() {
         stage.show()
     }
 
-    private fun loadUI(root: Group) {
+    private fun loadUI(uiRoot: Accordion) {
         // Load FXML file
-        val fxmlLoader = FXMLLoader(javaClass.getResource("ui.fxml"))
-        val fxmlRoot: Parent = fxmlLoader.load<Any>() as Parent
+        val loader = FXMLLoader(javaClass.getResource("ui.fxml"))
+        loader.setRoot(uiRoot) // Set the root explicitly
 
-        // Add FXML content to the existing scene
-        root.children.add(fxmlRoot)
+        // Load FXML content and add it to the provided uiRoot
+        loader.load<Any>()
     }
+
 
     private fun addListeners(scene: Scene) {
         scene.setOnScroll { SceneListener.onMouseWheel(it) }

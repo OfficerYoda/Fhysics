@@ -13,7 +13,7 @@ object FhysicsCore {
 
     /// =====constants=====
     // x and y must be 0.0
-    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 250.0F, 250.0F)
+    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
     const val QUAD_TREE_CAPACITY: Int = 32
     private const val UPDATES_PER_SECOND: Int = 200
@@ -37,7 +37,7 @@ object FhysicsCore {
     init {
         borderBoxes = createBorderBoxes()
 
-        for (i in 1..40) {
+        for (i in 1..3000) {
             val circle = FhysicsObjectFactory.randomCircle()
 //            circle.radius *= 2
             spawn(circle)
@@ -73,7 +73,7 @@ object FhysicsCore {
     fun update() {
         val startTime: Long = System.nanoTime()
 
-        spawnObject()
+//        spawnObject()
 
         quadTree.updateObjectsAndRebuild()
 
