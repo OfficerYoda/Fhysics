@@ -25,9 +25,18 @@
                      <children>
                               <ToggleButtonGroup selectionType="SINGLE">
                                   <toggles>
-                                      <ToggleButton onAction="#onSelectSphere" selected="true" text="Sphere" textAlignment="CENTER" />
-                                      <ToggleButton onAction="#onSelectBox" text="Box" textAlignment="CENTER" />
-                                      <ToggleButton onAction="#onSelectTriangle" text="Triangle" textAlignment="CENTER" />
+                                      <ToggleButton onAction="#onSelectSphere" selected="true" text="Sphere" textAlignment="CENTER">
+                                 <tooltip>
+                                    <Tooltip text="Select to spawn a sphere" />
+                                 </tooltip></ToggleButton>
+                                      <ToggleButton onAction="#onSelectBox" text="Box" textAlignment="CENTER">
+                                 <tooltip>
+                                    <Tooltip text="Select to spawn a box" />
+                                 </tooltip></ToggleButton>
+                                      <ToggleButton onAction="#onSelectTriangle" text="Triangle" textAlignment="CENTER">
+                                 <tooltip>
+                                    <Tooltip text="Select to spawn a sphere" />
+                                 </tooltip></ToggleButton>
                                   </toggles>
                                   <opaqueInsets>
                                       <Insets />
@@ -43,7 +52,11 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField prefHeight="26.0" prefWidth="247.0" promptText="radius" />
+                              <TextField prefHeight="26.0" prefWidth="247.0" promptText="radius">
+                                 <tooltip>
+                                    <Tooltip text="The radius of the spawned sphere" />
+                                 </tooltip>
+                              </TextField>
                            </children>
                         </HBox>
                      </children>
@@ -60,8 +73,16 @@
                      <children>
                         <ToggleButtonGroup selectionType="SINGLE">
                            <toggles>
-                              <ToggleButton onAction="#onSelectSphere" selected="true" text="Direction" textAlignment="CENTER" />
-                              <ToggleButton onAction="#onSelectBox" text="Point" textAlignment="CENTER" />
+                              <ToggleButton onAction="#onSelectSphere" selected="true" text="Direction" textAlignment="CENTER">
+                                 <tooltip>
+                                    <Tooltip text="Toggle between a directional gravity or gravity towards a point" />
+                                 </tooltip>
+                              </ToggleButton>
+                              <ToggleButton onAction="#onSelectBox" text="Point" textAlignment="CENTER">
+                                 <tooltip>
+                                    <Tooltip text="Toggle between a directional gravity or gravity towards a certain point" />
+                                 </tooltip>
+                              </ToggleButton>
                            </toggles>
                            <opaqueInsets>
                               <Insets />
@@ -77,8 +98,16 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField promptText="x" />
-                              <TextField layoutX="77.0" layoutY="10.0" promptText="y" />
+                              <TextField promptText="x">
+                                 <tooltip>
+                                    <Tooltip text="The x-coordinate" />
+                                 </tooltip>
+                              </TextField>
+                              <TextField promptText="y">
+                                 <tooltip>
+                                    <Tooltip text="The y-coordinate" />
+                                 </tooltip>
+                              </TextField>
                            </children>
                         </HBox>
                         <HBox alignment="BASELINE_LEFT">
@@ -91,8 +120,16 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField promptText="x" />
-                              <TextField layoutX="77.0" layoutY="10.0" promptText="y" />
+                              <TextField promptText="x">
+                                 <tooltip>
+                                    <Tooltip text="The x-coordinate" />
+                                 </tooltip>
+                              </TextField>
+                              <TextField layoutX="77.0" layoutY="10.0" promptText="y">
+                                 <tooltip>
+                                    <Tooltip text="The y-coordinate" />
+                                 </tooltip>
+                              </TextField>
                            </children>
                         </HBox>
                         <HBox alignment="BASELINE_LEFT">
@@ -105,7 +142,11 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField prefHeight="26.0" prefWidth="167.0" promptText="strength" />
+                              <TextField prefHeight="26.0" prefWidth="167.0" promptText="strength">
+                                 <tooltip>
+                                    <Tooltip text="The gravitational strength of the gravity point" />
+                                 </tooltip>
+                              </TextField>
                            </children>
                         </HBox>
                      </children>
@@ -121,8 +162,16 @@
                      <children>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <ToggleButton mnemonicParsing="false" onAction="#onBtnPause" text="Pause" />
-                              <Button mnemonicParsing="false" onAction="#onStep" text="Step" />
+                              <ToggleButton mnemonicParsing="false" onAction="#onBtnPause" text="Pause">
+                                 <tooltip>
+                                    <Tooltip text="Pausees the Simulation" />
+                                 </tooltip>
+                              </ToggleButton>
+                              <Button mnemonicParsing="false" onAction="#onStep" text="Step">
+                                 <tooltip>
+                                    <Tooltip text="Does one step in the simulation" />
+                                 </tooltip>
+                              </Button>
                            </children>
                         </HBox>
                         <HBox alignment="BASELINE_LEFT">
@@ -135,7 +184,11 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField prefHeight="26.0" prefWidth="167.0" promptText="speed" text="1.0" />
+                              <TextField prefHeight="26.0" prefWidth="167.0" promptText="speed" text="1.0">
+                                 <tooltip>
+                                    <Tooltip text="Increases the simulation speed by scaling the timestep" />
+                                 </tooltip>
+                              </TextField>
                            </children>
                         </HBox>
                      </children>
@@ -161,6 +214,9 @@
                            <tooltip>
                               <Tooltip text="Show the QuadTree subdivisions" />
                            </tooltip>
+                           <padding>
+                              <Insets top="5.0" />
+                           </padding>
                         </CheckBox>
                         <CheckBox layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
                            <tooltip>
