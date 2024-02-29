@@ -48,7 +48,7 @@ object FhysicsCore {
 //            fhysicsObjects.add(box)
 //        }
 
-        // create 20 spheres in the middle of the width with different heights and no velocity
+        // create 20 circles in the middle of the width with different heights and no velocity
 //        for (i in 1 until 1000) {
 //            val pos = Vector2(i.toFloat() / 10, 90.0)
 //            val vel = Vector2(0.0, 0.0)

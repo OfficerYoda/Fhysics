@@ -144,8 +144,6 @@ class FhysicsObjectDrawer : Application() {
 //        drawHighlightQuadTree()
 //        drawQuadTree()
 
-        drawUI()
-
         drawStats()
     }
 
@@ -273,12 +271,6 @@ class FhysicsObjectDrawer : Application() {
         gc.fillText("MSPU: $mspuRounded", 5.0, lineHeight)
         gc.fillText("FPS: $fpsRounded", 5.0, 2 * lineHeight)
         gc.fillText("Objects: ${FhysicsCore.objectCount}", 5.0, 3 * lineHeight)
-    }
-
-    // =====ui functions=====
-
-    fun drawUI() {
-
     }
 
     // =====debug functions=====

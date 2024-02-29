@@ -1,49 +1,46 @@
-package de.officeryoda.fhysics.rendering
-
 /**
  * Sample Skeleton for 'ui.fxml' Controller Class
  */
 
-import javafx.event.ActionEvent
+package de.officeryoda.fhysics.rendering
+
 import javafx.fxml.FXML
-import java.net.URL
-import java.util.*
+import javafx.scene.control.TextField
+import javafx.scene.input.KeyEvent
 
 class UIController {
 
-    @FXML // ResourceBundle that was given to the FXMLLoader
-    private lateinit var resources: ResourceBundle
-
-    @FXML // URL location of the FXML file that was given to the FXMLLoader
-    private lateinit var location: URL
+    @FXML
+    private lateinit var txtSpawnRadius: TextField
 
     @FXML
-    fun onSelectBox(event: ActionEvent) {
-        println("Box")
-    }
-
-    @FXML
-    fun onSelectSphere(event: ActionEvent) {
-        println("Sphere")
-    }
-
-    @FXML
-    fun onSelectTriangle(event: ActionEvent) {
-        println("Triangle")
-    }
-
-    @FXML
-    fun onBtnPause(event: ActionEvent) {
-
-    }
-
-    @FXML
-    fun onStep(event: ActionEvent) {
-
+    fun onRadiusTyped(event: KeyEvent) {
+        spawnRadius = txtSpawnRadius.text.toFloat()
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
+        assert(txtSpawnRadius != null) { "fx:id=\"txtSpawnRadius\" was not injected: check your FXML file 'ui.fxml'." }
 
+        restrictToNumericInput(txtSpawnRadius)
     }
+
+    private fun restrictToNumericInput(textField: TextField) {
+        textField.textProperty().addListener { _, oldValue, newValue ->
+            if (!newValue.matches("\\d*\\.?\\d*".toRegex())) {
+                textField.text = oldValue
+            }
+        }
+    }
+
+    companion object {
+        var spawnRadius: Float = 1.0F
+            private set
+    }
+}
+
+enum class SpawnObjectType {
+    CIRCLE,
+    RECTANGLE,
+    TRIANGLE
 }

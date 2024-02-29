@@ -57,7 +57,7 @@ object SceneListener {
             MouseButton.PRIMARY -> {
                 // spawn a circle at the mouse position
                 val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-                FhysicsCore.spawn(Circle(transformedMousePos, 1.0F))
+                FhysicsCore.spawn(Circle(transformedMousePos, UIController.spawnRadius))
             }
 
             MouseButton.SECONDARY -> {

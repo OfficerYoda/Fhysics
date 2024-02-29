@@ -25,17 +25,17 @@
                      <children>
                               <ToggleButtonGroup selectionType="SINGLE">
                                   <toggles>
-                                      <ToggleButton onAction="#onSelectSphere" selected="true" text="Sphere" textAlignment="CENTER">
+                                      <ToggleButton selected="true" text="Circle" textAlignment="CENTER">
                                  <tooltip>
-                                    <Tooltip text="Select to spawn a sphere" />
+                                    <Tooltip text="Select to spawn a circle" />
                                  </tooltip></ToggleButton>
-                                      <ToggleButton onAction="#onSelectBox" text="Box" textAlignment="CENTER">
+                                      <ToggleButton text="Box" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to spawn a box" />
                                  </tooltip></ToggleButton>
-                                      <ToggleButton onAction="#onSelectTriangle" text="Triangle" textAlignment="CENTER">
+                                      <ToggleButton text="Triangle" textAlignment="CENTER">
                                  <tooltip>
-                                    <Tooltip text="Select to spawn a sphere" />
+                                    <Tooltip text="Select to spawn a Triangle" />
                                  </tooltip></ToggleButton>
                                   </toggles>
                                   <opaqueInsets>
@@ -44,7 +44,7 @@
                               </ToggleButtonGroup>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Radius" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Radius" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
@@ -52,9 +52,9 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField prefHeight="26.0" prefWidth="247.0" promptText="radius">
+                              <TextField fx:id="txtSpawnRadius" onKeyTyped="#onRadiusTyped" prefHeight="26.0" prefWidth="247.0" promptText="radius">
                                  <tooltip>
-                                    <Tooltip text="The radius of the spawned sphere" />
+                                    <Tooltip text="The radius of the spawned circle" />
                                  </tooltip>
                               </TextField>
                            </children>
@@ -73,12 +73,12 @@
                      <children>
                         <ToggleButtonGroup selectionType="SINGLE">
                            <toggles>
-                              <ToggleButton onAction="#onSelectSphere" selected="true" text="Direction" textAlignment="CENTER">
+                              <ToggleButton selected="true" text="Direction" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Toggle between a directional gravity or gravity towards a point" />
                                  </tooltip>
                               </ToggleButton>
-                              <ToggleButton onAction="#onSelectBox" text="Point" textAlignment="CENTER">
+                              <ToggleButton text="Point" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Toggle between a directional gravity or gravity towards a certain point" />
                                  </tooltip>
@@ -90,7 +90,7 @@
                         </ToggleButtonGroup>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Direction" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Direction" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
@@ -112,7 +112,7 @@
                         </HBox>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Point" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Point" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
@@ -134,7 +134,7 @@
                         </HBox>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Strength" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Strength" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
@@ -162,12 +162,12 @@
                      <children>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <ToggleButton mnemonicParsing="false" onAction="#onBtnPause" text="Pause">
+                              <ToggleButton mnemonicParsing="false" text="Pause">
                                  <tooltip>
                                     <Tooltip text="Pausees the Simulation" />
                                  </tooltip>
                               </ToggleButton>
-                              <Button mnemonicParsing="false" onAction="#onStep" text="Step">
+                              <Button mnemonicParsing="false" text="Step">
                                  <tooltip>
                                     <Tooltip text="Does one step in the simulation" />
                                  </tooltip>
@@ -176,7 +176,7 @@
                         </HBox>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Speed" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Speed" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
@@ -205,7 +205,7 @@
                <children>
                   <VBox prefHeight="499.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Toggle which to show" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Toggle which to show" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
                            <font>
                               <Font name="System Italic" size="12.0" />
                            </font>
