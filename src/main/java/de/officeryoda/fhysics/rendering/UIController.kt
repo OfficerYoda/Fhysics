@@ -32,6 +32,16 @@ class UIController {
         println("Triangle")
     }
 
+    @FXML
+    fun onBtnPause(event: ActionEvent) {
+
+    }
+
+    @FXML
+    fun onStep(event: ActionEvent) {
+
+    }
+
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
 
