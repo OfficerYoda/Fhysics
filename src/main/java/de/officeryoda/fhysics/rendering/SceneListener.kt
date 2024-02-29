@@ -55,9 +55,11 @@ object SceneListener {
     fun onMousePressed(e: MouseEvent) {
         when (e.button) {
             MouseButton.PRIMARY -> {
-                // spawn a circle at the mouse position
-                val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-                FhysicsCore.spawn(Circle(transformedMousePos, UIController.spawnRadius))
+                when (UIController.spawnObjectType) {
+                    SpawnObjectType.CIRCLE -> spawnCircle(e)
+                    SpawnObjectType.RECTANGLE -> spawnRectangle(e)
+                    SpawnObjectType.TRIANGLE -> spawnTriangle(e)
+                }
             }
 
             MouseButton.SECONDARY -> {
@@ -67,6 +69,37 @@ object SceneListener {
 
             else -> {}
         }
+    }
+
+    /**
+     * Spawns a circle at the mouse position
+     *
+     * @param e the mouse event
+     * @return the spawned circle
+     */
+    private fun spawnCircle(e: MouseEvent) {
+        val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
+        FhysicsCore.spawn(Circle(transformedMousePos, UIController.spawnRadius))
+    }
+
+    /**
+     * Spawns a rectangle using the mouse position
+     *
+     * @param e the mouse event
+     * @return the spawned rectangle
+     */
+    private fun spawnRectangle(e: MouseEvent) {
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * Spawns a triangle using the mouse position
+     *
+     * @param e the mouse event
+     * @return the spawned triangle
+     */
+    private fun spawnTriangle(e: MouseEvent) {
+        TODO("Not yet implemented")
     }
 
     /**

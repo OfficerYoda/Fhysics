@@ -7,6 +7,7 @@ package de.officeryoda.fhysics.rendering
 import javafx.fxml.FXML
 import javafx.scene.control.TextField
 import javafx.scene.input.KeyEvent
+import javafx.scene.input.MouseEvent
 
 class UIController {
 
@@ -18,11 +19,24 @@ class UIController {
         spawnRadius = txtSpawnRadius.text.toFloat()
     }
 
+    @FXML
+    fun onCircleClicked(event: MouseEvent?) {
+        spawnObjectType = SpawnObjectType.CIRCLE
+    }
+
+    fun onRectangleClicked(event: MouseEvent?) {
+        spawnObjectType = SpawnObjectType.RECTANGLE
+    }
+
+    fun onTriangleClicked(event: MouseEvent?) {
+        spawnObjectType = SpawnObjectType.TRIANGLE
+    }
+
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
-        assert(txtSpawnRadius != null) { "fx:id=\"txtSpawnRadius\" was not injected: check your FXML file 'ui.fxml'." }
-
         restrictToNumericInput(txtSpawnRadius)
+
+        txtSpawnRadius.text = spawnRadius.toString()
     }
 
     private fun restrictToNumericInput(textField: TextField) {
@@ -35,6 +49,9 @@ class UIController {
 
     companion object {
         var spawnRadius: Float = 1.0F
+            private set
+
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
             private set
     }
 }

@@ -25,15 +25,15 @@
                      <children>
                               <ToggleButtonGroup selectionType="SINGLE">
                                   <toggles>
-                                      <ToggleButton selected="true" text="Circle" textAlignment="CENTER">
+                                      <ToggleButton onMouseClicked="#onCircleClicked" selected="true" text="Circle" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to spawn a circle" />
                                  </tooltip></ToggleButton>
-                                      <ToggleButton text="Box" textAlignment="CENTER">
+                                      <ToggleButton onMouseClicked="#onRectangleClicked" text="Rectangle" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to spawn a box" />
                                  </tooltip></ToggleButton>
-                                      <ToggleButton text="Triangle" textAlignment="CENTER">
+                                      <ToggleButton onMouseClicked="#onTriangleClicked" text="Triangle" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to spawn a Triangle" />
                                  </tooltip></ToggleButton>
