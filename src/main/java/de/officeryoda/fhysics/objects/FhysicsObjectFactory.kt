@@ -24,21 +24,21 @@ object FhysicsObjectFactory {
         return circle
     }
 
-    fun randomBox(): Box {
+    fun randomRectangle(): Rectangle {
         val width: Float = RANDOM.nextFloat(1.0F, 20.0F)
         val height: Float = RANDOM.nextFloat(1.0F, 20.0F)
         val pos: Vector2 = randomPosInsideBounds(0.0F)
-        val box = Box(pos, width, height)
+        val rect = Rectangle(pos, width, height)
 
-//        box.velocity.set(randomVector2(-10.0, 10.0))
+//        rect.velocity.set(randomVector2(-10.0, 10.0))
 
-        return box
+        return rect
     }
 
-    fun customBox(pos: Vector2, width: Float, height: Float, vel: Vector2): Box {
-        val box = Box(pos, width, height)
-        box.velocity += vel
-        return box
+    fun customRectangle(pos: Vector2, width: Float, height: Float, vel: Vector2): Rectangle {
+        val rect = Rectangle(pos, width, height)
+        rect.velocity += vel
+        return rect
     }
 
     private fun randomPosInsideBounds(buffer: Float): Vector2 {

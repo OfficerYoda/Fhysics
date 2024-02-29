@@ -31,7 +31,7 @@
                                  </tooltip></ToggleButton>
                                       <ToggleButton onMouseClicked="#onRectangleClicked" text="Rectangle" textAlignment="CENTER">
                                  <tooltip>
-                                    <Tooltip text="Select to spawn a box" />
+                                    <Tooltip text="Select to spawn a rectangle" />
                                  </tooltip></ToggleButton>
                                       <ToggleButton onMouseClicked="#onTriangleClicked" text="Triangle" textAlignment="CENTER">
                                  <tooltip>

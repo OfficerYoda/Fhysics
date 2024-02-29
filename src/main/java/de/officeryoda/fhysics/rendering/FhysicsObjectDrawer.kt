@@ -3,7 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Box
+import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
@@ -157,7 +157,7 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(obj.color)
         if (obj is Circle) {
             drawCircle(obj)
-        } else if (obj is Box) {
+        } else if (obj is Rectangle) {
             drawBox(obj)
         }
     }
@@ -174,13 +174,13 @@ class FhysicsObjectDrawer : Application() {
         )
     }
 
-    private fun drawBox(box: Box) {
-        val pos: Vector2 = worldToScreen(box.position)
+    private fun drawBox(rect: Rectangle) {
+        val pos: Vector2 = worldToScreen(rect.position)
         gc.fillRect(
             pos.x.toDouble(),
-            pos.y - box.height * zoom,
-            box.width * zoom,
-            box.height * zoom
+            pos.y - rect.height * zoom,
+            rect.width * zoom,
+            rect.height * zoom
         )
     }
 

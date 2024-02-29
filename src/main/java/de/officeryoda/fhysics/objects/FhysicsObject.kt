@@ -46,14 +46,14 @@ abstract class FhysicsObject protected constructor(
     fun testCollision(other: FhysicsObject): CollisionInfo {
         return when (other) {
             is Circle -> testCollision(other)
-            is Box -> testCollision(other)
+            is Rectangle -> testCollision(other)
             else -> throw IllegalArgumentException("Unsupported object type for collision")
         }
     }
 
     abstract fun testCollision(other: Circle): CollisionInfo
 
-    abstract fun testCollision(other: Box): CollisionInfo
+    abstract fun testCollision(other: Rectangle): CollisionInfo
 
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"

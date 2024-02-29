@@ -3,9 +3,9 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
-import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
+import de.officeryoda.fhysics.objects.Rectangle
 import java.awt.geom.Rectangle2D
 import java.util.*
 
@@ -27,7 +27,7 @@ object FhysicsCore {
 
     var objectCount: Int = 0
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
-    private val borderBoxes: List<Box>
+    private val borderRects: List<Rectangle>
 
     var updateCount = 0
     private val updateDurations: MutableList<Long> = mutableListOf()
@@ -35,7 +35,7 @@ object FhysicsCore {
     var isRunning: Boolean = true
 
     init {
-        borderBoxes = createBorderBoxes()
+        borderRects = createBorderBoxes()
 
         for (i in 1..3000) {
             val circle = FhysicsObjectFactory.randomCircle()
@@ -44,8 +44,8 @@ object FhysicsCore {
         }
 
 //        for (i in 1..14) {
-//            val box = FhysicsObjectFactory.randomBox()
-//            fhysicsObjects.add(box)
+//            val rect = FhysicsObjectFactory.randomRectangle()
+//            spawn(rect)
 //        }
 
         // create 20 circles in the middle of the width with different heights and no velocity
@@ -127,17 +127,17 @@ object FhysicsCore {
     }
 
     fun checkBorderCollision(obj: FhysicsObject) {
-        borderBoxes.forEach { handleCollision(obj, it) }
+        borderRects.forEach { handleCollision(obj, it) }
     }
 
-    private fun createBorderBoxes(): List<Box> {
+    private fun createBorderBoxes(): List<Rectangle> {
         val width: Float = BORDER.width.toFloat()
         val height: Float = BORDER.height.toFloat()
 
-        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0F), width, height, Vector2.ZERO)
-        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0F), width, height, Vector2.ZERO)
-        val top: Box = FhysicsObjectFactory.customBox(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
-        val bottom: Box = FhysicsObjectFactory.customBox(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
+        val left: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, 0.0F), width, height, Vector2.ZERO)
+        val right: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(width, 0.0F), width, height, Vector2.ZERO)
+        val top: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
+        val bottom: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
 
         return listOf(left, right, top, bottom)
     }

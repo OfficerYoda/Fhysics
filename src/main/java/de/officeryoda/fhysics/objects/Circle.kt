@@ -13,7 +13,7 @@ class Circle(
         return CollisionFinder.testCollision(this, other)
     }
 
-    override fun testCollision(other: Box): CollisionInfo {
+    override fun testCollision(other: Rectangle): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
     }
 

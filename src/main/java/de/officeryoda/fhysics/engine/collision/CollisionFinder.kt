@@ -1,8 +1,8 @@
 package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.objects.Rectangle
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -33,25 +33,25 @@ object CollisionFinder {
     }
 
     /**
-     * Tests for collision between a circle and a box
+     * Tests for collision between a circle and a rectangle
      *
      * @param circle The circle
-     * @param box The box
+     * @param rect The rectangle
      * @return A CollisionInfo object containing information about the collision
      */
-    fun testCollision(circle: Circle, box: Box): CollisionInfo {
-        // Get the closest point on the box to the circle's center
-        val closestPoint: Vector2 = getClosestPoint(box, circle.position)
+    fun testCollision(circle: Circle, rect: Rectangle): CollisionInfo {
+        // Get the closest point on the rect to the circle's center
+        val closestPoint: Vector2 = getClosestPoint(rect, circle.position)
 
         // Calculate the vector offset from the circles center to the closest point
         var offset: Vector2 = closestPoint - circle.position
 
-        // Check if circle doesn't overlap with the box
+        // Check if circle doesn't overlap with the rect
         if (offset.sqrMagnitude() >= circle.radius * circle.radius)
             return CollisionInfo()
 
-        // Get the closest point on the box's edge to the circle's center
-        val edgePair: Pair<Vector2, Int> = getClosestPointOnEdge(box, closestPoint)
+        // Get the closest point on the rect's edge to the circle's center
+        val edgePair: Pair<Vector2, Int> = getClosestPointOnEdge(rect, closestPoint)
         val closestPointOnEdge: Vector2 = edgePair.first
 
         offset = closestPointOnEdge - circle.position
@@ -60,58 +60,58 @@ object CollisionFinder {
         val collisionNormal: Vector2 = (- circle.position + closestPointOnEdge).normalized()
         val overlap: Float = -offset.magnitude() + circle.radius * edgePair.second
 
-        return CollisionInfo(circle, box, collisionNormal, overlap)
+        return CollisionInfo(circle, rect, collisionNormal, overlap)
     }
 
     /**
-     * Tests for collision between two boxes
+     * Tests for collision between two rectangles
      *
-     * @param box1 The first box
-     * @param box2 The second box
+     * @param rect1 The first rectangle
+     * @param rect2 The second rectangle
      * @return A CollisionInfo object containing information about the collision
      */
-    fun testCollision(box1: Box, box2: Box): CollisionInfo {
+    fun testCollision(rect1: Rectangle, rect2: Rectangle): CollisionInfo {
 //        TODO("Not yet implemented")
         return CollisionInfo()
     }
 
     /**
-     * Gets the closest point on the box to the external point
+     * Gets the closest point on the rect to the external point
      *
-     * @param box The box
+     * @param rect The rectangle
      * @param externalPoint The external point
      */
-    private fun getClosestPoint(box: Box, externalPoint: Vector2): Vector2 {
-        // Coerce external point coordinates to be within box boundaries
-        val closestX = externalPoint.x.coerceIn(box.minX, box.maxX)
-        val closestY = externalPoint.y.coerceIn(box.minY, box.maxY)
+    private fun getClosestPoint(rect: Rectangle, externalPoint: Vector2): Vector2 {
+        // Coerce external point coordinates to be within rect boundaries
+        val closestX = externalPoint.x.coerceIn(rect.minX, rect.maxX)
+        val closestY = externalPoint.y.coerceIn(rect.minY, rect.maxY)
 
         return Vector2(closestX, closestY)
     }
 
     /**
-     * Gets the closest point on the box's edge to the external point
-     * and an integer that represents if the external point is outside the box
+     * Gets the closest point on the rectangle's edge to the external point
+     * and an integer that represents if the external point is outside the rectangle
      *
-     * @param box The box
-     * @param closestPoint The closest point on the box to the external point
-     * @return A pair containing the closest point on the box's edge and an integer that represents if the external point is outside the box
+     * @param rect The rectangle
+     * @param closestPoint The closest point on the rectangle to the external point
+     * @return A pair containing the closest point on the rectangle's edge and an integer that represents if the external point is outside the rectangle
      */
-    private fun getClosestPointOnEdge(box: Box, closestPoint: Vector2): Pair<Vector2, Int> {
-        // Calculate the distance from the closest point to the box's edges
-        val dx1 = closestPoint.x - box.minX
-        val dx2 = closestPoint.x - box.maxX
-        val dy1 = closestPoint.y - box.minY
-        val dy2 = closestPoint.y - box.maxY
+    private fun getClosestPointOnEdge(rect: Rectangle, closestPoint: Vector2): Pair<Vector2, Int> {
+        // Calculate the distance from the closest point to the rect's edges
+        val dx1 = closestPoint.x - rect.minX
+        val dx2 = closestPoint.x - rect.maxX
+        val dy1 = closestPoint.y - rect.minY
+        val dy2 = closestPoint.y - rect.maxY
 
         val dx = if (abs(dx1) < abs(dx2)) dx1 else dx2
         val dy = if (abs(dy1) < abs(dy2)) dy1 else dy2
 
-        // check if the external point is inside the box
+        // check if the external point is inside the rect
         val insideBox = dx1 > 0 && dx2 < 0 && dy1 > 0 && dy2 < 0
         val radiusSign = if (insideBox) -1 else 1 // the sign used for the radius further down in the calculation
 
-        // return the closest point on the box's edge
+        // return the closest point on the rect's edge
         return if (abs(dx) < abs(dy)) {
             Pair(Vector2(closestPoint.x - dx, closestPoint.y), radiusSign)
         } else {
