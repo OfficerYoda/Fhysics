@@ -32,7 +32,7 @@
                               </ToggleButtonGroup>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Radius: " textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Radius" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
@@ -40,7 +40,7 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField promptText="radius" />
+                              <TextField prefHeight="26.0" prefWidth="247.0" promptText="radius" />
                            </children>
                         </HBox>
                      </children>
@@ -51,7 +51,63 @@
         </TitledPane>
         <TitledPane focusTraversable="false" text="Gravity">
             <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <VBox prefHeight="495.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <ToggleButtonGroup selectionType="SINGLE">
+                           <toggles>
+                              <ToggleButton onAction="#onSelectSphere" selected="true" text="Direction" textAlignment="CENTER" />
+                              <ToggleButton onAction="#onSelectBox" text="Point" textAlignment="CENTER" />
+                           </toggles>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                        </ToggleButtonGroup>
+                        <HBox alignment="BASELINE_LEFT">
+                           <children>
+                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Direction" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <TextField promptText="x" />
+                              <TextField layoutX="77.0" layoutY="10.0" promptText="y" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="BASELINE_LEFT">
+                           <children>
+                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Point" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <TextField promptText="x" />
+                              <TextField layoutX="77.0" layoutY="10.0" promptText="y" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="BASELINE_LEFT">
+                           <children>
+                              <Text accessibleText="The Radius of the spawned sphere" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Strength" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <TextField prefHeight="26.0" prefWidth="167.0" promptText="strength" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children></AnchorPane>
             </content>
         </TitledPane>
         <TitledPane focusTraversable="false" text="Time control">
