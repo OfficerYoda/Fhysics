@@ -8,16 +8,18 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import javafx.fxml.FXML
 import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
 import javafx.scene.control.TextField
 import javafx.scene.control.ToggleButton
+import javafx.scene.input.MouseEvent
 
 class UIController {
 
-    /// =====Spawn Object fields=====
+    /// =====Spawn Object=====
     @FXML
     private lateinit var txtSpawnRadius: TextField
 
-    /// =====Gravity fields=====
+    /// =====Gravity=====
     @FXML
     private lateinit var txtGravityDirectionX: TextField
 
@@ -33,15 +35,21 @@ class UIController {
     @FXML
     private lateinit var txtGravityPointStrength: TextField
 
-    /// =====Time fields=====
+    /// =====Time=====
     @FXML
     private lateinit var btnPause: ToggleButton
+
     @FXML
     private lateinit var btnStep: Button
+
     @FXML
     private lateinit var txtTimeSpeed: TextField
 
-    /// =====Spawn Object functions=====
+    /// =====Debug=====
+    @FXML
+    private lateinit var cbQTNodeUtilization: CheckBox
+
+    /// =====Spawn Object=====
     @FXML
     fun onCircleClicked() {
         spawnObjectType = SpawnObjectType.CIRCLE
@@ -69,7 +77,7 @@ class UIController {
         spawnRadius = parseTextField(txtSpawnRadius)
     }
 
-    /// =====Gravity functions=====
+    /// =====Gravity=====
     @FXML
     fun onDirectionClicked() {
         gravityType = GravityType.DIRECTIONAL
@@ -123,7 +131,7 @@ class UIController {
         gravityPointStrength = parseTextField(txtGravityPointStrength)
     }
 
-    /// =====Time functions=====
+    /// =====Time=====
     @FXML
     fun onPauseClicked() {
         FhysicsCore.running = !btnPause.isSelected
@@ -141,8 +149,34 @@ class UIController {
         FhysicsCore.dt = 1.0F / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
     }
 
-    /// =====Initialization and helper functions=====
+    /// =====Debug=====
+    @FXML
+    fun onQuadTreeClicked(event: MouseEvent) {
+        drawQuadTree = getCheckBoxSelection(event)
+        cbQTNodeUtilization.isDisable = !drawQuadTree
+    }
 
+    @FXML
+    fun onQTNodeUtilizationClicked(event: MouseEvent) {
+        drawQTNodeUtilization = getCheckBoxSelection(event)
+    }
+
+    @FXML
+    fun onMSPUClicked(event: MouseEvent) {
+        drawMSPU = getCheckBoxSelection(event)
+    }
+
+    @FXML
+    fun onUPSClicked(event: MouseEvent) {
+        drawUPS = getCheckBoxSelection(event)
+    }
+
+    @FXML
+    fun onObjectCountClicked(event: MouseEvent) {
+        drawObjectCount = getCheckBoxSelection(event)
+    }
+
+    /// =====Initialization and helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
         restrictToNumericInput(txtSpawnRadius, false)
@@ -180,14 +214,18 @@ class UIController {
         return textField.text.toFloatOrNull() ?: 0.0F
     }
 
+    private fun getCheckBoxSelection(event: MouseEvent): Boolean {
+        return (event.source as? CheckBox)?.isSelected ?: false
+    }
+
     companion object {
-        /// =====Spawn Object fields=====
+        /// =====Spawn Object=====
         var spawnRadius: Float = 1.0F
             private set
         var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
             private set
 
-        /// =====Gravity fields=====
+        /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
         val gravityDirection: Vector2 = Vector2(0.0F, 0.0F)
@@ -198,8 +236,20 @@ class UIController {
         var gravityPointStrength: Float = 1.0F
             private set
 
-        /// =====Time fields=====
+        /// =====Time=====
         var timeSpeed: Float = 1.0F
+            private set
+
+        /// =====Debug=====
+        var drawQuadTree: Boolean = false
+            private set
+        var drawQTNodeUtilization: Boolean = false
+            private set
+        var drawMSPU: Boolean = false
+            private set
+        var drawUPS: Boolean = false
+            private set
+        var drawObjectCount: Boolean = false
             private set
     }
 }

@@ -164,12 +164,12 @@
                            <children>
                               <ToggleButton fx:id="btnPause" mnemonicParsing="false" onMouseClicked="#onPauseClicked" text="Pause">
                                  <tooltip>
-                                    <Tooltip text="Pausees the Simulation" />
+                                    <Tooltip text="Pausees the Simulation (Schortcut: P)" />
                                  </tooltip>
                               </ToggleButton>
                               <Button fx:id="btnStep" mnemonicParsing="false" onMouseClicked="#onStepClicked" text="Step">
                                  <tooltip>
-                                    <Tooltip text="Does one step in the simulation" />
+                                    <Tooltip text="Does one step in the simulation (Schortcut: ENTER/SPACE)" />
                                  </tooltip>
                               </Button>
                            </children>
@@ -210,7 +210,7 @@
                               <Font name="System Italic" size="12.0" />
                            </font>
                         </Text>
-                        <CheckBox mnemonicParsing="false" prefHeight="17.0" prefWidth="253.0" text="QuadTree">
+                        <CheckBox mnemonicParsing="false" onMouseClicked="#onQuadTreeClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree">
                            <tooltip>
                               <Tooltip text="Show the QuadTree subdivisions" />
                            </tooltip>
@@ -218,22 +218,22 @@
                               <Insets top="5.0" />
                            </padding>
                         </CheckBox>
-                        <CheckBox layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
+                        <CheckBox fx:id="cbQTNodeUtilization" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onQTNodeUtilizationClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
                            <tooltip>
                               <Tooltip text="The amount of objects that are in a QT-node" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox layoutX="10.0" layoutY="27.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="253.0" text="MSPU">
+                        <CheckBox layoutX="10.0" layoutY="27.0" mnemonicParsing="false" onMouseClicked="#onMSPUClicked" prefHeight="17.0" prefWidth="253.0" text="MSPU">
                            <tooltip>
                               <Tooltip text="Milliseconds per update" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox layoutX="10.0" layoutY="44.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="253.0" text="UPS">
+                        <CheckBox layoutX="10.0" layoutY="44.0" mnemonicParsing="false" onMouseClicked="#onUPSClicked" prefHeight="17.0" prefWidth="253.0" text="UPS">
                            <tooltip>
                               <Tooltip text="Updates per second" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox layoutX="10.0" layoutY="61.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="253.0" text="Object Count">
+                        <CheckBox layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object Count">
                            <tooltip>
                               <Tooltip text="The amount of objects in the scene" />
                            </tooltip>

@@ -28,6 +28,7 @@ import javafx.stage.Stage
 import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.util.*
+import kotlin.math.min
 
 // can't be converted to object because it is a JavaFX Application
 class FhysicsObjectDrawer : Application() {
@@ -140,8 +141,10 @@ class FhysicsObjectDrawer : Application() {
         drawBorder()
 
         drawDebugPoints()
-//        drawHighlightQuadTree()
-        drawQuadTree()
+
+        if (UIController.drawQuadTree) drawQuadTree()
+
+//        drawQuadTree()
 
         drawStats()
     }
@@ -243,6 +246,9 @@ class FhysicsObjectDrawer : Application() {
         setStrokeColor(Color.WHITE)
         gc.strokeRect(x, y, width, height)
 
+        // only draw the fill if the option is enabled
+        if (!UIController.drawQTNodeUtilization) return
+
         // draw transparent fill
         val quadTreeCapacity: Int = FhysicsCore.QUAD_TREE_CAPACITY
         setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt()))
@@ -271,22 +277,43 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawStats() {
-        val mspu: Float = FhysicsCore.getAverageUpdateDuration() // Milliseconds per Update
-        val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
-        val fps: Double = 1000.0 / mspu
-        val fpsRounded: String = String.format(Locale.US, "%.2f", fps)
+        val stats: ArrayList<String> = ArrayList()
 
+        if (UIController.drawMSPU || UIController.drawUPS) { // check both because UPS is calculated from MSPU
+            val mspu: Float = FhysicsCore.getAverageUpdateDuration() // Milliseconds per Update
+            val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
+
+            if (UIController.drawMSPU) {
+                stats.add("MSPU: $mspuRounded")
+            }
+
+            if (UIController.drawUPS) {
+                val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
+                val upsRounded: String = String.format(Locale.US, "%.2f", ups)
+                stats.add("FPS: $upsRounded")
+            }
+        }
+
+        if (UIController.drawObjectCount) {
+            stats.add("Objects: ${FhysicsCore.objectCount}")
+        }
+
+        drawStatsList(stats)
+    }
+
+    private fun drawStatsList(stats: ArrayList<String>) {
         val fontSize: Double = height / 30.0 // Adjust the divisor for the desired scaling
-
         val font = Font("Spline Sans", fontSize)
         gc.font = font
         setFillColor(Color.WHITE)
 
         val lineHeight: Double = font.size
-        val borderSpacing: Double = 5.0
-        gc.fillText("MSPU: $mspuRounded", borderSpacing, height - borderSpacing)
-        gc.fillText("FPS: $fpsRounded", borderSpacing, height - lineHeight - borderSpacing)
-        gc.fillText("Objects: ${FhysicsCore.objectCount}", borderSpacing, height - 2 * lineHeight - borderSpacing)
+        val borderSpacing = 5.0
+
+        for (i in 0 until stats.size) {
+            val text: String = stats[i]
+            gc.fillText(text, borderSpacing, height - i * lineHeight - borderSpacing)
+        }
     }
 
     // =====debug functions=====
