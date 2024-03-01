@@ -147,6 +147,7 @@ object SceneListener {
         // Update the target zoom
         targetZoom = RenderUtil.zoom
         RenderUtil.zoom = zoomBefore
+        drawer.lerpCounter = 0
     }
 
     /**

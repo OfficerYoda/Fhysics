@@ -28,6 +28,7 @@ import javafx.stage.Stage
 import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.util.*
+import kotlin.math.abs
 
 // can't be converted to object because it is a JavaFX Application
 class FhysicsObjectDrawer : Application() {
@@ -39,10 +40,11 @@ class FhysicsObjectDrawer : Application() {
     // zoom properties
     var targetZoom: Double = -1.0
     var zoom: Double = targetZoom
-
-    // in world space
     var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
     var zoomCenter: Vector2 = targetZoomCenter
+
+    private val lerpTime: Int = 45 // the amount of frames the lerp should take
+    var lerpCounter: Int = 0 // the current frame of the lerp
 
     // mouse movement properties
     var rightPressed: Boolean = false
@@ -129,9 +131,7 @@ class FhysicsObjectDrawer : Application() {
     /// =====draw functions=====
 
     fun drawFrame() {
-        // lerp the zoom and zoomCenter
-        zoom = lerp(zoom.toFloat(), targetZoom.toFloat(), 0.1F).toDouble()
-        zoomCenter = lerpV2(zoomCenter, targetZoomCenter, 0.1F)
+        lerpZoom()
 
         // clear the stage
         gc.clearRect(0.0, 0.0, width, height)
@@ -146,6 +146,31 @@ class FhysicsObjectDrawer : Application() {
 
         drawStats()
     }
+
+    private fun lerpZoom() {
+        // print lerp fields
+        if (lerpCounter < lerpTime) {
+            // calculate the interpolation factor
+            var interpolation: Float = lerpCounter.toFloat() / lerpTime
+            interpolation = 1 - (1 - interpolation) * (1 - interpolation) // ease in out
+
+            // lerp the zoom and zoomCenter
+            zoom = lerp(zoom.toFloat(), targetZoom.toFloat(), interpolation).toDouble()
+            zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
+
+            // increment the lerp counter
+            lerpCounter++
+        }
+    }
+
+    fun extrudeToOne(vector: Vector2): Vector2 {
+        return if (abs(vector.x) > abs(vector.y)) {
+            Vector2(1.0F, vector.y / vector.x)
+        } else {
+            Vector2(vector.x / vector.y, 1.0F)
+        }
+    }
+
 
     private fun drawAllObjects() {
         for (obj: FhysicsObject in FhysicsCore.fhysicsObjects.toList()) {
