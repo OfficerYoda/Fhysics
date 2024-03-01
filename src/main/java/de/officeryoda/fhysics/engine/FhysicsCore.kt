@@ -13,12 +13,10 @@ object FhysicsCore {
 
     /// =====constants=====
     // x and y must be 0.0
-    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F)
+    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 250.0F, 250.0F)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
     const val QUAD_TREE_CAPACITY: Int = 32
-    private const val UPDATES_PER_SECOND: Int = 200
-    const val UPDATE_INTERVAL_SECONDS: Float = 1.0F / UPDATES_PER_SECOND
-
+    const val UPDATES_PER_SECOND: Int = 200
     /// =====variables=====
     var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null)
 
@@ -29,7 +27,8 @@ object FhysicsCore {
     var updateCount = 0
     private val updateDurations: MutableList<Long> = mutableListOf()
 
-    var isRunning: Boolean = true
+    var dt: Float = 1.0F / UPDATES_PER_SECOND
+    var running: Boolean = true
 
     init {
         borderRects = createBorderBoxes()
@@ -60,7 +59,7 @@ object FhysicsCore {
         val updateIntervalMillis: Int = (1f / UPDATES_PER_SECOND * 1000).toInt()
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                if (isRunning) {
+                if (running) {
                     update()
                 }
             }
@@ -70,7 +69,7 @@ object FhysicsCore {
     fun update() {
         val startTime: Long = System.nanoTime()
 
-//        spawnObject()
+        spawnObject()
 
         quadTree.updateObjectsAndRebuild()
 

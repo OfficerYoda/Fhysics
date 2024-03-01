@@ -173,7 +173,7 @@ object SceneListener {
         // if pressed char is p toggle isRunning in FhysicsCore
         // if it is Enter or space call the update function
         when (event.code) {
-            KeyCode.P -> FhysicsCore.isRunning = !FhysicsCore.isRunning
+            KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
             KeyCode.SPACE -> FhysicsCore.update()
             KeyCode.ENTER -> FhysicsCore.update()
             KeyCode.Z -> drawer.resetZoom()

@@ -23,7 +23,7 @@ abstract class FhysicsObject protected constructor(
         if (static) return
         if(lastUpdate == FhysicsCore.updateCount) return
         
-        val dt: Float = FhysicsCore.UPDATE_INTERVAL_SECONDS
+        val dt: Float = FhysicsCore.dt
         val damping = 0.00F
 
         acceleration += UIController.gravityDirection

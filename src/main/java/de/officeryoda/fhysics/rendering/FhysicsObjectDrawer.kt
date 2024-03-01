@@ -28,7 +28,6 @@ import javafx.stage.Stage
 import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.util.*
-import kotlin.math.abs
 
 // can't be converted to object because it is a JavaFX Application
 class FhysicsObjectDrawer : Application() {
@@ -162,15 +161,6 @@ class FhysicsObjectDrawer : Application() {
             lerpCounter++
         }
     }
-
-    fun extrudeToOne(vector: Vector2): Vector2 {
-        return if (abs(vector.x) > abs(vector.y)) {
-            Vector2(1.0F, vector.y / vector.x)
-        } else {
-            Vector2(vector.x / vector.y, 1.0F)
-        }
-    }
-
 
     private fun drawAllObjects() {
         for (obj: FhysicsObject in FhysicsCore.fhysicsObjects.toList()) {

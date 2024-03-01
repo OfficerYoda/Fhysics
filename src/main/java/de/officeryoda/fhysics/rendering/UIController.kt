@@ -7,7 +7,9 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import javafx.fxml.FXML
+import javafx.scene.control.Button
 import javafx.scene.control.TextField
+import javafx.scene.control.ToggleButton
 
 class UIController {
 
@@ -30,6 +32,14 @@ class UIController {
 
     @FXML
     private lateinit var txtGravityPointStrength: TextField
+
+    /// =====Time fields=====
+    @FXML
+    private lateinit var btnPause: ToggleButton
+    @FXML
+    private lateinit var btnStep: Button
+    @FXML
+    private lateinit var txtTimeSpeed: TextField
 
     /// =====Spawn Object functions=====
     @FXML
@@ -60,7 +70,6 @@ class UIController {
     }
 
     /// =====Gravity functions=====
-
     @FXML
     fun onDirectionClicked() {
         gravityType = GravityType.DIRECTIONAL
@@ -114,6 +123,24 @@ class UIController {
         gravityPointStrength = parseTextField(txtGravityPointStrength)
     }
 
+    /// =====Time functions=====
+    @FXML
+    fun onPauseClicked() {
+        FhysicsCore.running = !btnPause.isSelected
+        btnStep.isDisable = FhysicsCore.running
+    }
+
+    @FXML
+    fun onStepClicked() {
+        FhysicsCore.update()
+    }
+
+    @FXML
+    fun onTimeSpeedTyped() {
+        timeSpeed = parseTextField(txtTimeSpeed)
+        FhysicsCore.dt = 1.0F / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
+    }
+
     /// =====Initialization and helper functions=====
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -126,6 +153,8 @@ class UIController {
         restrictToNumericInput(txtGravityPointY)
         restrictToNumericInput(txtGravityPointStrength)
 
+        restrictToNumericInput(txtTimeSpeed, false)
+
         txtSpawnRadius.text = spawnRadius.toString()
 
         txtGravityDirectionX.text = gravityDirection.x.toString()
@@ -133,6 +162,9 @@ class UIController {
         txtGravityPointX.text = gravityPoint.x.toString()
         txtGravityPointY.text = gravityPoint.y.toString()
         txtGravityPointStrength.text = gravityPointStrength.toString()
+
+        btnPause.isSelected = !FhysicsCore.running
+        txtTimeSpeed.text = timeSpeed.toString()
     }
 
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
@@ -164,6 +196,10 @@ class UIController {
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
         var gravityPointStrength: Float = 1.0F
+            private set
+
+        /// =====Time fields=====
+        var timeSpeed: Float = 1.0F
             private set
     }
 }

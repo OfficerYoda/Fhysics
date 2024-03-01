@@ -154,7 +154,7 @@
                </children></AnchorPane>
             </content>
         </TitledPane>
-        <TitledPane focusTraversable="false" text="Time control">
+        <TitledPane focusTraversable="false" text="Time Control">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -162,12 +162,12 @@
                      <children>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <ToggleButton mnemonicParsing="false" text="Pause">
+                              <ToggleButton fx:id="btnPause" mnemonicParsing="false" onMouseClicked="#onPauseClicked" text="Pause">
                                  <tooltip>
                                     <Tooltip text="Pausees the Simulation" />
                                  </tooltip>
                               </ToggleButton>
-                              <Button mnemonicParsing="false" text="Step">
+                              <Button fx:id="btnStep" mnemonicParsing="false" onMouseClicked="#onStepClicked" text="Step">
                                  <tooltip>
                                     <Tooltip text="Does one step in the simulation" />
                                  </tooltip>
@@ -184,9 +184,9 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField prefHeight="26.0" prefWidth="167.0" promptText="speed" text="1.0">
+                              <TextField fx:id="txtTimeSpeed" onKeyTyped="#onTimeSpeedTyped" prefHeight="26.0" prefWidth="167.0" promptText="speed">
                                  <tooltip>
-                                    <Tooltip text="Increases the simulation speed by scaling the timestep" />
+                                    <Tooltip text="Time step scaling factor" />
                                  </tooltip>
                               </TextField>
                            </children>
