@@ -141,7 +141,7 @@ class FhysicsObjectDrawer : Application() {
 
         drawDebugPoints()
 //        drawHighlightQuadTree()
-//        drawQuadTree()
+        drawQuadTree()
 
         drawStats()
     }

@@ -49,7 +49,7 @@ data class QuadTree(
         botRight!!.insert(obj)
     }
 
-    private fun subdivide() {
+    fun subdivide() {
         val x: Float = boundary.x.toFloat()
         val y: Float = boundary.y.toFloat()
         val hw: Float = boundary.width.toFloat() / 2 // half width
@@ -97,7 +97,7 @@ data class QuadTree(
 
             // check if the objects are still fully in the boundary
             val toRemove = ArrayList<FhysicsObject>()
-            for (obj in objects) {
+            for (obj: FhysicsObject in objects) {
                 // do the physics update
                 updateObject(obj, borderNode)
 
@@ -118,8 +118,10 @@ data class QuadTree(
     }
 
     private fun tryCollapse() {
-        val objectsInChildren = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
-        if (objectsInChildren < capacity && parent != null) {
+        if(!divided) return
+
+        val objectsInChildren: Int = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
+        if (objectsInChildren < capacity) {
             divided = false
             // add every child object to the parent
             objects.addAll(topLeft!!.objects)
@@ -147,7 +149,7 @@ data class QuadTree(
 
     private fun insertRebuildObjects() {
         // print the size of rebuildObjects if not empty
-        for (obj in rebuildObjects) {
+        for (obj: FhysicsObject in rebuildObjects) {
             insert(obj)
         }
         rebuildObjects.clear()
