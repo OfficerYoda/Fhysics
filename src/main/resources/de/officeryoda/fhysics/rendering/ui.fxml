@@ -73,12 +73,12 @@
                      <children>
                         <ToggleButtonGroup selectionType="SINGLE">
                            <toggles>
-                              <ToggleButton selected="true" text="Direction" textAlignment="CENTER">
+                              <ToggleButton onMouseClicked="#onDirectionClicked" selected="true" text="Direction" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Toggle between a directional gravity or gravity towards a point" />
                                  </tooltip>
                               </ToggleButton>
-                              <ToggleButton text="Point" textAlignment="CENTER">
+                              <ToggleButton onMouseClicked="#onPointClicked" text="Point" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Toggle between a directional gravity or gravity towards a certain point" />
                                  </tooltip>
@@ -98,14 +98,14 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField promptText="x">
+                              <TextField fx:id="txtGravityDirectionX" onKeyTyped="#onDirectionXTyped" promptText="x">
                                  <tooltip>
-                                    <Tooltip text="The x-coordinate" />
+                                    <Tooltip text="The strength in x-direction" />
                                  </tooltip>
                               </TextField>
-                              <TextField promptText="y">
+                              <TextField fx:id="txtGravityDirectionY" onKeyTyped="#onDirectionYTyped" promptText="y">
                                  <tooltip>
-                                    <Tooltip text="The y-coordinate" />
+                                    <Tooltip text="The strength in y-direction" />
                                  </tooltip>
                               </TextField>
                            </children>
@@ -120,12 +120,12 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField promptText="x">
+                              <TextField fx:id="txtGravityPointX" disable="true" onKeyTyped="#onPointXTyped" promptText="x">
                                  <tooltip>
                                     <Tooltip text="The x-coordinate" />
                                  </tooltip>
                               </TextField>
-                              <TextField layoutX="77.0" layoutY="10.0" promptText="y">
+                              <TextField fx:id="txtGravityPointY" disable="true" layoutX="77.0" layoutY="10.0" onKeyTyped="#onPointYTyped" promptText="y">
                                  <tooltip>
                                     <Tooltip text="The y-coordinate" />
                                  </tooltip>
@@ -142,9 +142,9 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField prefHeight="26.0" prefWidth="167.0" promptText="strength">
+                              <TextField fx:id="txtGravityPointStrength" disable="true" onKeyTyped="#onStrengthTyped" prefHeight="26.0" prefWidth="167.0" promptText="strength">
                                  <tooltip>
-                                    <Tooltip text="The gravitational strength of the gravity point" />
+                                    <Tooltip text="The strength towards the point" />
                                  </tooltip>
                               </TextField>
                            </children>

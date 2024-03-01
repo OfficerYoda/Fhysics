@@ -19,9 +19,6 @@ object FhysicsCore {
     private const val UPDATES_PER_SECOND: Int = 200
     const val UPDATE_INTERVAL_SECONDS: Float = 1.0F / UPDATES_PER_SECOND
 
-    val GRAVITY: Vector2 = Vector2(0.0F, 0.0F)
-//    val GRAVITY: Vector2 = Vector2(0.0, -9.81)
-
     /// =====variables=====
     var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null)
 

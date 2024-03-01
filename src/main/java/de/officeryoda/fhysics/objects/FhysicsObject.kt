@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.objects
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.rendering.UIController
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
@@ -21,11 +22,11 @@ abstract class FhysicsObject protected constructor(
         // static objects don't move
         if (static) return
         if(lastUpdate == FhysicsCore.updateCount) return
-
-        val dt = FhysicsCore.UPDATE_INTERVAL_SECONDS
+        
+        val dt: Float = FhysicsCore.UPDATE_INTERVAL_SECONDS
         val damping = 0.00F
 
-        acceleration += FhysicsCore.GRAVITY
+        acceleration += UIController.gravityDirection
         velocity += (acceleration - velocity * damping) * dt
         position += velocity * dt
 
