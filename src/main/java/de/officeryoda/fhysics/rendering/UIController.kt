@@ -16,7 +16,8 @@ class UIController {
 
     @FXML
     fun onRadiusTyped(event: KeyEvent) {
-        spawnRadius = txtSpawnRadius.text.toFloat()
+        spawnRadius = txtSpawnRadius.text.ifEmpty { "0" }.toFloat()
+        println(spawnRadius)
     }
 
     @FXML

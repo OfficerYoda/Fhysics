@@ -78,6 +78,7 @@ object SceneListener {
      * @return the spawned circle
      */
     private fun spawnCircle(e: MouseEvent) {
+        if(UIController.spawnRadius <= 0.0F) return
         val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
         FhysicsCore.spawn(Circle(transformedMousePos, UIController.spawnRadius))
     }

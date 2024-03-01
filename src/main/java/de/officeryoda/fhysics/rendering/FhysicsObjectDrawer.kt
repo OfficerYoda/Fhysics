@@ -3,9 +3,9 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.lerp
 import de.officeryoda.fhysics.rendering.RenderUtil.lerpV2
@@ -268,9 +268,10 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(Color.WHITE)
 
         val lineHeight: Double = font.size
-        gc.fillText("MSPU: $mspuRounded", 5.0, lineHeight)
-        gc.fillText("FPS: $fpsRounded", 5.0, 2 * lineHeight)
-        gc.fillText("Objects: ${FhysicsCore.objectCount}", 5.0, 3 * lineHeight)
+        val borderSpacing: Double = 5.0
+        gc.fillText("MSPU: $mspuRounded", borderSpacing, height - borderSpacing)
+        gc.fillText("FPS: $fpsRounded", borderSpacing, height - lineHeight - borderSpacing)
+        gc.fillText("Objects: ${FhysicsCore.objectCount}", borderSpacing, height - 2 * lineHeight - borderSpacing)
     }
 
     // =====debug functions=====
