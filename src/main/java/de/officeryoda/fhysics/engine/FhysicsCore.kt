@@ -25,10 +25,12 @@ object FhysicsCore {
     private val borderRects: List<Rectangle>
 
     var updateCount = 0
-    private val updateDurations: MutableList<Long> = mutableListOf()
 
     var dt: Float = 1.0F / UPDATES_PER_SECOND
     var running: Boolean = true
+
+    val updateTimer = Timer(50)
+    private val quadTreeTimer = Timer(50)
 
     init {
         borderRects = createBorderBoxes()
@@ -39,19 +41,6 @@ object FhysicsCore {
 //            circle.radius *= 2
             spawn(circle)
         }
-
-//        for (i in 1..14) {
-//            val rect = FhysicsObjectFactory.randomRectangle()
-//            spawn(rect)
-//        }
-
-        // create 20 circles in the middle of the width with different heights and no velocity
-//        for (i in 1 until 1000) {
-//            val pos = Vector2(i.toFloat() / 10, 90.0)
-//            val vel = Vector2(0.0, 0.0)
-//            val circle = FhysicsObjectFactory.customCircle(pos, 0.1, vel)
-//            spawn(circle)
-//        }
 
         startUpdateLoop()
     }
@@ -68,16 +57,18 @@ object FhysicsCore {
     }
 
     fun update() {
-        val startTime: Long = System.nanoTime()
+        updateTimer.start()
 
         spawnObject()
 
+        quadTreeTimer.start()
         quadTree.updateObjectsAndRebuild()
+        quadTreeTimer.stop()
 
         checkObjectCollision(quadTree)
 
         updateCount++
-        addUpdateDuration(System.nanoTime() - startTime)
+        updateTimer.stop()
     }
 
     // This method must be called when trying to spawn an object
@@ -137,24 +128,6 @@ object FhysicsCore {
         val bottom: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
 
         return listOf(left, right, top, bottom)
-    }
-
-    private fun addUpdateDuration(updateTime: Long) {
-        val updatesToAverage = 100
-
-        updateDurations.add(updateTime)
-
-        if (updateDurations.size > updatesToAverage) {
-            updateDurations.removeAt(0) // Remove the oldest time if more than specified updates have been recorded
-        }
-    }
-
-    fun getAverageUpdateDuration(): Float {
-        return updateDurations
-            .toList()
-            .filterNotNull() // this is not redundant even if IntelliJ says so
-            .map { it / 1E6 } // convert nano to milliseconds
-            .average().toFloat()
     }
 
     fun nextId(): Int {

@@ -269,7 +269,7 @@ class FhysicsObjectDrawer : Application() {
         val stats: ArrayList<String> = ArrayList()
 
         if (UIController.drawMSPU || UIController.drawUPS) { // check both because UPS is calculated from MSPU
-            val mspu: Float = FhysicsCore.getAverageUpdateDuration() // Milliseconds per Update
+            val mspu: Float = FhysicsCore.updateTimer.getAverageDuration() // Milliseconds per Update
             val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
 
             if (UIController.drawMSPU) {
