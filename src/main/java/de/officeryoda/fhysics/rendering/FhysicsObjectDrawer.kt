@@ -43,9 +43,6 @@ class FhysicsObjectDrawer : Application() {
     var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
     var zoomCenter: Vector2 = targetZoomCenter
 
-    private val lerpTime: Int = 45 // the amount of frames the lerp should take
-    var lerpCounter: Int = 0 // the current frame of the lerp
-
     // mouse movement properties
     var rightPressed: Boolean = false
     var rightPressedPos: Vector2 = Vector2.ZERO
@@ -150,19 +147,11 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun lerpZoom() {
-        // print lerp fields
-        if (lerpCounter < lerpTime) {
-            // calculate the interpolation factor
-            var interpolation: Float = lerpCounter.toFloat() / lerpTime
-            interpolation = 1 - (1 - interpolation) * (1 - interpolation) // ease in out
+        val interpolation = 0.12F
 
-            // lerp the zoom and zoomCenter
-            zoom = lerp(zoom.toFloat(), targetZoom.toFloat(), interpolation).toDouble()
-            zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
-
-            // increment the lerp counter
-            lerpCounter++
-        }
+        // lerp the zoom and zoomCenter
+        zoom = lerp(zoom.toFloat(), targetZoom.toFloat(), interpolation).toDouble()
+        zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
     }
 
     private fun drawAllObjects() {
