@@ -8,7 +8,6 @@ import kotlin.reflect.KFunction2
 
 data class QuadTree(
     private val boundary: Rectangle2D,
-    private val capacity: Int,
     private val parent: QuadTree?,
 ) {
     val objects: MutableList<FhysicsObject> = ArrayList()
@@ -28,7 +27,7 @@ data class QuadTree(
         if (!boundary.intersects(obj)) return
         if (objects.contains(obj)) return
 
-        if (objects.size < capacity && !divided) {
+        if (objects.size < Companion.capacity && !divided) {
             objects.add(obj)
             return
         }
@@ -57,16 +56,16 @@ data class QuadTree(
 
         // top left
         val tl = Rectangle2D.Float(x, y + hh, hw, hh)
-        topLeft = QuadTree(tl, capacity, this)
+        topLeft = QuadTree(tl, this)
         // top right
         val tr = Rectangle2D.Float(x + hw, y + hh, hw, hh)
-        topRight = QuadTree(tr, capacity, this)
+        topRight = QuadTree(tr, this)
         // bottom left
         val bl = Rectangle2D.Float(x, y, hw, hh)
-        botLeft = QuadTree(bl, capacity, this)
+        botLeft = QuadTree(bl, this)
         // bottom right
         val br = Rectangle2D.Float(x + hw, y, hw, hh)
-        botRight = QuadTree(br, capacity, this)
+        botRight = QuadTree(br, this)
 
         objects.forEach { insertInChildren(it) }
         objects.clear()
@@ -118,10 +117,10 @@ data class QuadTree(
     }
 
     private fun tryCollapse() {
-        if(!divided) return
+        if (!divided) return
 
         val objectsInChildren: Int = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
-        if (objectsInChildren < capacity) {
+        if (objectsInChildren < Companion.capacity) {
             divided = false
             // add every child object to the parent
             objects.addAll(topLeft!!.objects)
@@ -212,5 +211,9 @@ data class QuadTree(
         } else {
             "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false)"
         }
+    }
+
+    companion object {
+        var capacity: Int = 32
     }
 }

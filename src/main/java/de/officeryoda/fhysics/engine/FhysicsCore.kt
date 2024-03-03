@@ -8,6 +8,7 @@ import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.objects.Rectangle
 import java.awt.geom.Rectangle2D
 import java.util.*
+import java.util.Timer
 
 object FhysicsCore {
 
@@ -15,10 +16,10 @@ object FhysicsCore {
     // x and y must be 0.0
     val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 250.0F, 250.0F)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
-    const val QUAD_TREE_CAPACITY: Int = 32
     const val UPDATES_PER_SECOND: Int = 200
+
     /// =====variables=====
-    var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null)
+    var quadTree: QuadTree = QuadTree(BORDER, null)
 
     var objectCount: Int = 0
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
@@ -66,6 +67,11 @@ object FhysicsCore {
         quadTreeTimer.stop()
 
         checkObjectCollision(quadTree)
+
+        // change the quad tree capacity to a random value between 10 and 64
+        if (updateCount % 100 == 0) {
+            QuadTree.capacity = (10 + (Math.random() * 54)).toInt()
+        }
 
         updateCount++
         updateTimer.stop()
@@ -124,8 +130,10 @@ object FhysicsCore {
 
         val left: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, 0.0F), width, height, Vector2.ZERO)
         val right: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(width, 0.0F), width, height, Vector2.ZERO)
-        val top: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
-        val bottom: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
+        val top: Rectangle =
+            FhysicsObjectFactory.customRectangle(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
+        val bottom: Rectangle =
+            FhysicsObjectFactory.customRectangle(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
 
         return listOf(left, right, top, bottom)
     }

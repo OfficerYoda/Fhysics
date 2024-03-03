@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
+import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
@@ -239,7 +240,7 @@ class FhysicsObjectDrawer : Application() {
         if (!UIController.drawQTNodeUtilization) return
 
         // draw transparent fill
-        val quadTreeCapacity: Int = FhysicsCore.QUAD_TREE_CAPACITY
+        val quadTreeCapacity: Int = QuadTree.capacity
         setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt()))
         gc.fillRect(x, y, width, height)
         // write the amount of objects in the cell
@@ -283,9 +284,10 @@ class FhysicsObjectDrawer : Application() {
             }
         }
 
-        if (UIController.drawObjectCount) {
+        if (UIController.drawObjectCount)
             stats.add("Objects: ${FhysicsCore.objectCount}")
-        }
+        if (UIController.drawQTCapacity)
+            stats.add("QuadTree Capacity: ${QuadTree.capacity}")
 
         drawStatsList(stats)
     }
@@ -295,12 +297,19 @@ class FhysicsObjectDrawer : Application() {
         val font = Font("Spline Sans", fontSize)
         gc.font = font
         setFillColor(Color.WHITE)
+        setStrokeColor(Color.BLACK)
 
         val lineHeight: Double = font.size
         val borderSpacing = 5.0
 
         for (i in 0 until stats.size) {
             val text: String = stats[i]
+
+            if (UIController.drawQuadTree) {
+                // outline the text for better readability
+                gc.strokeText(text, borderSpacing, height - i * lineHeight - borderSpacing)
+            }
+
             gc.fillText(text, borderSpacing, height - i * lineHeight - borderSpacing)
         }
     }

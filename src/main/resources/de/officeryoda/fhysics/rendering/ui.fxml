@@ -222,6 +222,9 @@
                            <tooltip>
                               <Tooltip text="The amount of objects that are in a QT-node" />
                            </tooltip>
+                           <padding>
+                              <Insets bottom="5.0" />
+                           </padding>
                         </CheckBox>
                         <CheckBox fx:id="cbMSPU" layoutX="10.0" layoutY="27.0" mnemonicParsing="false" onMouseClicked="#onMSPUClicked" prefHeight="17.0" prefWidth="253.0" text="MSPU">
                            <tooltip>
@@ -236,6 +239,11 @@
                         <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object Count">
                            <tooltip>
                               <Tooltip text="The amount of objects in the scene" />
+                           </tooltip>
+                        </CheckBox>
+                        <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
+                           <tooltip>
+                              <Tooltip text="The amount of objects that one QT node can hold" />
                            </tooltip>
                         </CheckBox>
                      </children>

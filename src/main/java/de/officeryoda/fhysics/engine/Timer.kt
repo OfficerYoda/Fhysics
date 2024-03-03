@@ -23,6 +23,6 @@ class Timer(private val maxDurations: Int) {
 
     fun getAverageDuration(): Float {
         // Calculate the average duration based on the specified max durations
-        return (updateDurations.average() / 1E6).toFloat()
+        return (updateDurations.toList().average() / 1E6).toFloat()
     }
 }
