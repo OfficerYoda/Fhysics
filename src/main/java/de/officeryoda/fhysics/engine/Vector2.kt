@@ -188,6 +188,33 @@ data class Vector2
     }
 
     /**
+     * Compares this Vector2 to another object for equality.
+     *
+     * @param other The other object.
+     * @return `true` if the objects are equal, `false` otherwise.
+     */
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Vector2) return false
+
+        if (x != other.x) return false
+        if (y != other.y) return false
+
+        return true
+    }
+
+    /**
+     * Returns a hash code value for the Vector2.
+     *
+     * @return A hash code value.
+     */
+    override fun hashCode(): Int {
+        var result = x.hashCode()
+        result = 31 * result + y.hashCode()
+        return result
+    }
+
+    /**
      * Companion object providing utility functions for Vector2.
      */
     companion object {

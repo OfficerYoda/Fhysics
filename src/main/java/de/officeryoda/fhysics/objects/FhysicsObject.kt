@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.objects
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.rendering.UIController
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
@@ -11,7 +12,7 @@ abstract class FhysicsObject protected constructor(
     val velocity: Vector2 = Vector2.ZERO,
     val acceleration: Vector2 = Vector2.ZERO,
 ) {
-    val id = FhysicsCore.nextId()
+    val id: Int = FhysicsCore.nextId()
     var color: Color = colorFromIndex()
     var static: Boolean = false
 
@@ -21,11 +22,11 @@ abstract class FhysicsObject protected constructor(
         // static objects don't move
         if (static) return
         if(lastUpdate == FhysicsCore.updateCount) return
-
-        val dt = FhysicsCore.UPDATE_INTERVAL_SECONDS
+        
+        val dt: Float = FhysicsCore.dt
         val damping = 0.00F
 
-        acceleration += FhysicsCore.GRAVITY
+        acceleration += UIController.gravityDirection
         velocity += (acceleration - velocity * damping) * dt
         position += velocity * dt
 
@@ -46,14 +47,14 @@ abstract class FhysicsObject protected constructor(
     fun testCollision(other: FhysicsObject): CollisionInfo {
         return when (other) {
             is Circle -> testCollision(other)
-            is Box -> testCollision(other)
+            is Rectangle -> testCollision(other)
             else -> throw IllegalArgumentException("Unsupported object type for collision")
         }
     }
 
     abstract fun testCollision(other: Circle): CollisionInfo
 
-    abstract fun testCollision(other: Box): CollisionInfo
+    abstract fun testCollision(other: Rectangle): CollisionInfo
 
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"

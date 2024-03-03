@@ -3,9 +3,9 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
-import de.officeryoda.fhysics.objects.Box
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
+import de.officeryoda.fhysics.objects.Rectangle
 import java.awt.geom.Rectangle2D
 import java.util.*
 
@@ -16,39 +16,36 @@ object FhysicsCore {
     val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 250.0F, 250.0F)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
     const val QUAD_TREE_CAPACITY: Int = 32
-    private const val UPDATES_PER_SECOND: Int = 200
-    const val UPDATE_INTERVAL_SECONDS: Float = 1.0F / UPDATES_PER_SECOND
-
-    val GRAVITY: Vector2 = Vector2(0.0F, 0.0F)
-//    val GRAVITY: Vector2 = Vector2(0.0, -9.81)
-
+    const val UPDATES_PER_SECOND: Int = 200
     /// =====variables=====
     var quadTree: QuadTree = QuadTree(BORDER, QUAD_TREE_CAPACITY, null)
 
     var objectCount: Int = 0
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
-    private val borderBoxes: List<Box>
+    private val borderRects: List<Rectangle>
 
     var updateCount = 0
     private val updateDurations: MutableList<Long> = mutableListOf()
 
-    var isRunning: Boolean = true
+    var dt: Float = 1.0F / UPDATES_PER_SECOND
+    var running: Boolean = true
 
     init {
-        borderBoxes = createBorderBoxes()
+        borderRects = createBorderBoxes()
+        quadTree.subdivide()
 
-        for (i in 1..40) {
+        for (i in 1..3000) {
             val circle = FhysicsObjectFactory.randomCircle()
 //            circle.radius *= 2
             spawn(circle)
         }
 
 //        for (i in 1..14) {
-//            val box = FhysicsObjectFactory.randomBox()
-//            fhysicsObjects.add(box)
+//            val rect = FhysicsObjectFactory.randomRectangle()
+//            spawn(rect)
 //        }
 
-        // create 20 spheres in the middle of the width with different heights and no velocity
+        // create 20 circles in the middle of the width with different heights and no velocity
 //        for (i in 1 until 1000) {
 //            val pos = Vector2(i.toFloat() / 10, 90.0)
 //            val vel = Vector2(0.0, 0.0)
@@ -63,7 +60,7 @@ object FhysicsCore {
         val updateIntervalMillis: Int = (1f / UPDATES_PER_SECOND * 1000).toInt()
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                if (isRunning) {
+                if (running) {
                     update()
                 }
             }
@@ -127,17 +124,17 @@ object FhysicsCore {
     }
 
     fun checkBorderCollision(obj: FhysicsObject) {
-        borderBoxes.forEach { handleCollision(obj, it) }
+        borderRects.forEach { handleCollision(obj, it) }
     }
 
-    private fun createBorderBoxes(): List<Box> {
+    private fun createBorderBoxes(): List<Rectangle> {
         val width: Float = BORDER.width.toFloat()
         val height: Float = BORDER.height.toFloat()
 
-        val left: Box = FhysicsObjectFactory.customBox(Vector2(-width, 0.0F), width, height, Vector2.ZERO)
-        val right: Box = FhysicsObjectFactory.customBox(Vector2(width, 0.0F), width, height, Vector2.ZERO)
-        val top: Box = FhysicsObjectFactory.customBox(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
-        val bottom: Box = FhysicsObjectFactory.customBox(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
+        val left: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, 0.0F), width, height, Vector2.ZERO)
+        val right: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(width, 0.0F), width, height, Vector2.ZERO)
+        val top: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
+        val bottom: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
 
         return listOf(left, right, top, bottom)
     }

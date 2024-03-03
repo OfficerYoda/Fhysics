@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.extensions
 
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Box
+import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import java.awt.geom.Rectangle2D
@@ -25,7 +25,7 @@ fun Rectangle2D.contains(vector2: Vector2): Boolean {
 fun Rectangle2D.contains(obj: FhysicsObject): Boolean {
     if (obj is Circle) {
         return contains(obj)
-    } else if (obj is Box) {
+    } else if (obj is Rectangle) {
         return contains(obj)
     }
 
@@ -48,12 +48,12 @@ fun Rectangle2D.contains(circle: Circle): Boolean {
 /**
  * Checks if the Rectangle contains the specified Box.
  *
- * @param box The Box to check for containment.
+ * @param rect The Box to check for containment.
  * @return True if the Rectangle contains the Box, false otherwise.
  */
-fun Rectangle2D.contains(box: Box): Boolean {
+fun Rectangle2D.contains(rect: Rectangle): Boolean {
     // an AABB check
-    return contains(box.position) && contains(box.position + Vector2(box.width, box.height))
+    return contains(rect.position) && contains(rect.position + Vector2(rect.width, rect.height))
 }
 
 /**
@@ -65,7 +65,7 @@ fun Rectangle2D.contains(box: Box): Boolean {
 fun Rectangle2D.intersects(obj: FhysicsObject): Boolean {
     if (obj is Circle) {
         return intersects(obj)
-    } else if (obj is Box) {
+    } else if (obj is Rectangle) {
         return intersects(obj)
     }
 
@@ -104,14 +104,14 @@ fun Rectangle2D.intersects(circle: Circle): Boolean {
 /**
  * Checks if the Rectangle intersects with the specified Box.
  *
- * @param box The Box to check for intersection.
+ * @param rect The Box to check for intersection.
  * @return True if the Rectangle intersects with the Box, false otherwise.
  */
-fun Rectangle2D.intersects(box: Box): Boolean {
+fun Rectangle2D.intersects(rect: Rectangle): Boolean {
     return this.intersects(
-        box.position.x.toDouble(),
-        box.position.y.toDouble(),
-        box.width.toDouble(),
-        box.height.toDouble())
+        rect.position.x.toDouble(),
+        rect.position.y.toDouble(),
+        rect.width.toDouble(),
+        rect.height.toDouble())
 }
 

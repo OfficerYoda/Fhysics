@@ -5,7 +5,7 @@ import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import java.awt.Color
 
-class Box(
+class Rectangle(
     position: Vector2,
     val width: Float,
     val height: Float,
@@ -32,7 +32,7 @@ class Box(
         return CollisionFinder.testCollision(other, this)
     }
 
-    override fun testCollision(other: Box): CollisionInfo {
+    override fun testCollision(other: Rectangle): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
     }
 
