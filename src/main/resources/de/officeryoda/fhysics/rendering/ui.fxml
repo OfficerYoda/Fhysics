@@ -15,13 +15,13 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
+<fx:root type="Accordion" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
     <panes>
         <TitledPane focusTraversable="false" text="Spawn Object">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                     <children>
-                  <VBox prefHeight="495.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                               <ToggleButtonGroup selectionType="SINGLE">
                                   <toggles>
@@ -69,7 +69,7 @@
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <VBox prefHeight="495.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <ToggleButtonGroup selectionType="SINGLE">
                            <toggles>
@@ -158,7 +158,7 @@
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <VBox prefHeight="495.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
@@ -201,16 +201,16 @@
         </TitledPane>
         <TitledPane focusTraversable="false" text="Debug">
             <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
                <children>
-                  <VBox prefHeight="499.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox layoutX="20.0" prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Toggle which to show" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
                            <font>
                               <Font name="System Italic" size="12.0" />
                            </font>
                         </Text>
-                        <CheckBox mnemonicParsing="false" onMouseClicked="#onQuadTreeClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree">
+                        <CheckBox fx:id="cbQuadTree" mnemonicParsing="false" onMouseClicked="#onQuadTreeClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree">
                            <tooltip>
                               <Tooltip text="Show the QuadTree subdivisions" />
                            </tooltip>
@@ -223,17 +223,17 @@
                               <Tooltip text="The amount of objects that are in a QT-node" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox layoutX="10.0" layoutY="27.0" mnemonicParsing="false" onMouseClicked="#onMSPUClicked" prefHeight="17.0" prefWidth="253.0" text="MSPU">
+                        <CheckBox fx:id="cbMSPU" layoutX="10.0" layoutY="27.0" mnemonicParsing="false" onMouseClicked="#onMSPUClicked" prefHeight="17.0" prefWidth="253.0" text="MSPU">
                            <tooltip>
                               <Tooltip text="Milliseconds per update" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox layoutX="10.0" layoutY="44.0" mnemonicParsing="false" onMouseClicked="#onUPSClicked" prefHeight="17.0" prefWidth="253.0" text="UPS">
+                        <CheckBox fx:id="cbUPS" layoutX="10.0" layoutY="44.0" mnemonicParsing="false" onMouseClicked="#onUPSClicked" prefHeight="17.0" prefWidth="253.0" text="UPS">
                            <tooltip>
                               <Tooltip text="Updates per second" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object Count">
+                        <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object Count">
                            <tooltip>
                               <Tooltip text="The amount of objects in the scene" />
                            </tooltip>

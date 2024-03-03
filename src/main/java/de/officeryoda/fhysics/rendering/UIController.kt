@@ -11,7 +11,6 @@ import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.TextField
 import javafx.scene.control.ToggleButton
-import javafx.scene.input.MouseEvent
 
 class UIController {
 
@@ -47,7 +46,19 @@ class UIController {
 
     /// =====Debug=====
     @FXML
+    private lateinit var cbQuadTree: CheckBox
+
+    @FXML
     private lateinit var cbQTNodeUtilization: CheckBox
+
+    @FXML
+    private lateinit var cbMSPU: CheckBox
+
+    @FXML
+    private lateinit var cbUPS: CheckBox
+
+    @FXML
+    private lateinit var cbObjectCount: CheckBox
 
     /// =====Spawn Object=====
     @FXML
@@ -151,29 +162,31 @@ class UIController {
 
     /// =====Debug=====
     @FXML
-    fun onQuadTreeClicked(event: MouseEvent) {
-        drawQuadTree = getCheckBoxSelection(event)
+    fun onQuadTreeClicked() {
+        drawQuadTree = cbQuadTree.isSelected
+
+        // node utilization is only drawn if the quad tree is drawn
         cbQTNodeUtilization.isDisable = !drawQuadTree
     }
 
     @FXML
-    fun onQTNodeUtilizationClicked(event: MouseEvent) {
-        drawQTNodeUtilization = getCheckBoxSelection(event)
+    fun onQTNodeUtilizationClicked() {
+        drawQTNodeUtilization = cbQTNodeUtilization.isSelected
     }
 
     @FXML
-    fun onMSPUClicked(event: MouseEvent) {
-        drawMSPU = getCheckBoxSelection(event)
+    fun onMSPUClicked() {
+        drawMSPU = cbMSPU.isSelected
     }
 
     @FXML
-    fun onUPSClicked(event: MouseEvent) {
-        drawUPS = getCheckBoxSelection(event)
+    fun onUPSClicked() {
+        drawUPS = cbUPS.isSelected
     }
 
     @FXML
-    fun onObjectCountClicked(event: MouseEvent) {
-        drawObjectCount = getCheckBoxSelection(event)
+    fun onObjectCountClicked() {
+        drawObjectCount = cbObjectCount.isSelected
     }
 
     /// =====Initialization and helper=====
@@ -199,6 +212,12 @@ class UIController {
 
         btnPause.isSelected = !FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
+
+        cbQuadTree.isSelected = drawQuadTree
+        cbQTNodeUtilization.isSelected = drawQTNodeUtilization
+        cbMSPU.isSelected = drawMSPU
+        cbUPS.isSelected = drawUPS
+        cbObjectCount.isSelected = drawObjectCount
     }
 
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
@@ -212,10 +231,6 @@ class UIController {
 
     private fun parseTextField(textField: TextField): Float {
         return textField.text.toFloatOrNull() ?: 0.0F
-    }
-
-    private fun getCheckBoxSelection(event: MouseEvent): Boolean {
-        return (event.source as? CheckBox)?.isSelected ?: false
     }
 
     companion object {
@@ -245,9 +260,9 @@ class UIController {
             private set
         var drawQTNodeUtilization: Boolean = false
             private set
-        var drawMSPU: Boolean = false
+        var drawMSPU: Boolean = true
             private set
-        var drawUPS: Boolean = false
+        var drawUPS: Boolean = true
             private set
         var drawObjectCount: Boolean = false
             private set
