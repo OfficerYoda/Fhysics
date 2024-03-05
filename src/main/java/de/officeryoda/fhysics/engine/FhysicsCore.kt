@@ -33,7 +33,14 @@ object FhysicsCore {
     val updateTimer = Timer(50)
     private val quadTreeTimer = Timer(50)
 
+    val qtCapacity: MutableMap<Int, String> = mutableMapOf()
+
     init {
+        // fill the map with demo data
+        for (i in 0..10) {
+            qtCapacity[i] = "value$i"
+        }
+
         borderRects = createBorderBoxes()
         quadTree.subdivide()
 

@@ -145,6 +145,7 @@ class FhysicsObjectDrawer : Application() {
 //        drawQuadTree()
 
         drawStats()
+        drawQTCapacityMap()
     }
 
     private fun lerpZoom() {
@@ -313,6 +314,27 @@ class FhysicsObjectDrawer : Application() {
             gc.fillText(text, borderSpacing, height - i * lineHeight - borderSpacing)
         }
     }
+
+
+    private fun drawQTCapacityMap() {
+        val map: MutableMap<Int, String> = FhysicsCore.qtCapacity
+        val fontSize: Double = height / 60.0 // Adjust the divisor for the desired scaling
+        val font = Font("Spline Sans", fontSize)
+        gc.font = font
+        setFillColor(Color.WHITE)
+        setStrokeColor(Color.BLACK)
+
+        val lineHeight: Double = font.size
+        val borderSpacing = 5.0
+
+        for ((i: Int, key: Int) in map.keys.withIndex()) {
+            val value: String = map[key].toString()
+
+            gc.fillText(key.toString(), borderSpacing, height - i * lineHeight - borderSpacing - 32)
+            gc.fillText(value, borderSpacing + 40, height - i * lineHeight - borderSpacing - 32)
+        }
+    }
+
 
     // =====debug functions=====
 
