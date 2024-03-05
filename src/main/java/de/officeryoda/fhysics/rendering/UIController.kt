@@ -268,7 +268,7 @@ class UIController {
             private set
         var drawQTNodeUtilization: Boolean = false
             private set
-        var drawMSPU: Boolean = false
+        var drawMSPU: Boolean = true
             private set
         var drawUPS: Boolean = false
             private set

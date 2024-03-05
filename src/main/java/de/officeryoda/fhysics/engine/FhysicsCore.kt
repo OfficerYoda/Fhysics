@@ -9,6 +9,8 @@ import de.officeryoda.fhysics.objects.Rectangle
 import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.Timer
+import kotlin.math.max
+import kotlin.math.sign
 
 object FhysicsCore {
 
@@ -140,18 +142,44 @@ object FhysicsCore {
         return listOf(left, right, top, bottom)
     }
 
-    private fun optimizeQuadTreeCapacity() {
-        // change the quad tree capacity to a random value between 10 and 64
-        if (updateCount % 100 == 0) {
-            QuadTree.capacity = (10 + (Math.random() * 54)).toInt()
-        }
+    private var stepSize: Double = 10.0
+    private var lastSample: Double = 0.0
+    private var lastCapacity: Int = QuadTree.capacity
 
+    private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++
         if (framesAtCapacity > maxFramesAtCapacity) { // > and not >= to exclude the first frame which where the rebuild will take the longest
-            qtCapacity[QuadTree.capacity] = quadTreeTimer.average()
+            val average: Double = updateTimer.average()
             quadTreeTimer.reset()
+
+            qtCapacity[QuadTree.capacity] = average
+            val newCapacity: Int = calculateNextQTCapacity()
+
+            lastCapacity = QuadTree.capacity
+            QuadTree.capacity = newCapacity
+            lastSample = average
             framesAtCapacity = 0
         }
+    }
+
+    private fun calculateNextQTCapacity(): Int {
+        // two samples are needed to calculate the next capacity
+        if (qtCapacity.size < 2)
+            return QuadTree.capacity + 5
+
+        val crntSample: Double = qtCapacity[QuadTree.capacity]!!
+
+        val valueDir: Int = -(crntSample - lastSample).sign.toInt()
+        val capacityDir: Int = (QuadTree.capacity - lastCapacity).sign
+        val totalDir: Int = valueDir * capacityDir
+
+        val newCapacity: Int = QuadTree.capacity + stepSize.toInt() * totalDir
+
+        // print all the variables in one line
+        println("lastSample: $lastSample, crntSample: $crntSample, vd: $valueDir, cd: $capacityDir, tr: $totalDir, newCapacity: $newCapacity")
+        stepSize = max(1.0, stepSize - 0.5) // reduces stepSize by one every 2 updates because its rounded to an int
+
+        return newCapacity
     }
 
     fun nextId(): Int {
