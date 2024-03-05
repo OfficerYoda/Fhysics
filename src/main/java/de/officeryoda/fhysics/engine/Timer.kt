@@ -14,6 +14,7 @@ class Timer(private val maxDurations: Int) {
     fun stop() {
         val duration: Long = System.nanoTime() - startTime
         updateDurations.add(duration)
+        updateDurations.add(duration)
 
         // Remove the first duration if the list is exceeding the max durations
         if (updateDurations.size > maxDurations) {
@@ -22,8 +23,12 @@ class Timer(private val maxDurations: Int) {
     }
 
     fun average(): Double {
-        // Calculate the average duration based on the specified max durations
-        return (updateDurations.toList().average() / 1E6)
+        return try {
+            updateDurations.average() / 1E6
+        } catch (e: Exception) {
+            // just try again lol
+            average()
+        }
     }
 
     fun reset() {

@@ -27,7 +27,7 @@ data class QuadTree(
         if (!boundary.intersects(obj)) return
         if (objects.contains(obj)) return
 
-        if (objects.size < Companion.capacity && !divided) {
+        if (objects.size < capacity && !divided) {
             objects.add(obj)
             return
         }
@@ -120,7 +120,7 @@ data class QuadTree(
         if (!divided) return
 
         val objectsInChildren: Int = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
-        if (objectsInChildren < Companion.capacity) {
+        if (objectsInChildren < capacity) {
             divided = false
             // add every child object to the parent
             objects.addAll(topLeft!!.objects)
@@ -215,5 +215,9 @@ data class QuadTree(
 
     companion object {
         var capacity: Int = 32
+            set(value) {
+                // i experienced crashes with values below 3
+                field = value.coerceAtLeast(3)
+            }
     }
 }

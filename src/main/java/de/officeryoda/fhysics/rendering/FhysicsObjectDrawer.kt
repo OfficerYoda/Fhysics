@@ -330,7 +330,7 @@ class FhysicsObjectDrawer : Application() {
         val closestKeys: List<Int> =
             map.keys
                 .sortedBy { abs(it - QuadTree.capacity) }
-                .take(5)
+                .take(11)
                 .sorted() // sort the keys to draw them in the correct order
                 .reversed() // reverse the order to draw the highest values at the bottom
 

@@ -19,6 +19,7 @@ object FhysicsCore {
     val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 250.0F, 250.0F)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
     const val UPDATES_PER_SECOND: Int = 200
+    private const val MAX_FRAMES_AT_CAPACITY: Int = 100
 
     /// =====variables=====
     var quadTree: QuadTree = QuadTree(BORDER, null)
@@ -36,15 +37,13 @@ object FhysicsCore {
     // quad tree capacity optimization
     val qtCapacity: MutableMap<Int, Double> = mutableMapOf()
     private var framesAtCapacity: Int = 0
-    private val maxFramesAtCapacity: Int = 100
-    private val quadTreeTimer = Timer(maxFramesAtCapacity)
-
+    private val quadTreeTimer = Timer(MAX_FRAMES_AT_CAPACITY)
 
     init {
         borderRects = createBorderBoxes()
         quadTree.subdivide()
 
-        for (i in 1..3000) {
+        for (i in 1..60000) {
             val circle = FhysicsObjectFactory.randomCircle()
 //            circle.radius *= 2
             spawn(circle)
@@ -148,7 +147,7 @@ object FhysicsCore {
 
     private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++
-        if (framesAtCapacity > maxFramesAtCapacity) { // > and not >= to exclude the first frame which where the rebuild will take the longest
+        if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame which where the rebuild will take the longest
             val average: Double = updateTimer.average()
             quadTreeTimer.reset()
 
@@ -175,9 +174,7 @@ object FhysicsCore {
 
         val newCapacity: Int = QuadTree.capacity + stepSize.toInt() * totalDir
 
-        // print all the variables in one line
-        println("lastSample: $lastSample, crntSample: $crntSample, vd: $valueDir, cd: $capacityDir, tr: $totalDir, newCapacity: $newCapacity")
-        stepSize = max(1.0, stepSize - 0.5) // reduces stepSize by one every 2 updates because its rounded to an int
+        stepSize = max(1.0, stepSize - 0.5) // reduces stepSize by one every 2 updates because it's rounded to an int
 
         return newCapacity
     }
