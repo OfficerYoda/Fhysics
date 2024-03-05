@@ -29,18 +29,16 @@ object FhysicsCore {
 
     var dt: Float = 1.0F / UPDATES_PER_SECOND
     var running: Boolean = true
-
     val updateTimer = Timer(50)
-    private val quadTreeTimer = Timer(50)
 
-    val qtCapacity: MutableMap<Int, String> = mutableMapOf()
+    // quad tree capacity optimization
+    val qtCapacity: MutableMap<Int, Double> = mutableMapOf()
+    private var framesAtCapacity: Int = 0
+    private val maxFramesAtCapacity: Int = 100
+    private val quadTreeTimer = Timer(maxFramesAtCapacity)
+
 
     init {
-        // fill the map with demo data
-        for (i in 0..10) {
-            qtCapacity[i] = "value$i"
-        }
-
         borderRects = createBorderBoxes()
         quadTree.subdivide()
 
@@ -75,10 +73,7 @@ object FhysicsCore {
 
         checkObjectCollision(quadTree)
 
-        // change the quad tree capacity to a random value between 10 and 64
-        if (updateCount % 100 == 0) {
-            QuadTree.capacity = (10 + (Math.random() * 54)).toInt()
-        }
+        optimizeQuadTreeCapacity()
 
         updateCount++
         updateTimer.stop()
@@ -143,6 +138,20 @@ object FhysicsCore {
             FhysicsObjectFactory.customRectangle(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
 
         return listOf(left, right, top, bottom)
+    }
+
+    private fun optimizeQuadTreeCapacity() {
+        // change the quad tree capacity to a random value between 10 and 64
+        if (updateCount % 100 == 0) {
+            QuadTree.capacity = (10 + (Math.random() * 54)).toInt()
+        }
+
+        framesAtCapacity++
+        if (framesAtCapacity > maxFramesAtCapacity) { // > and not >= to exclude the first frame which where the rebuild will take the longest
+            qtCapacity[QuadTree.capacity] = quadTreeTimer.average()
+            quadTreeTimer.reset()
+            framesAtCapacity = 0
+        }
     }
 
     fun nextId(): Int {

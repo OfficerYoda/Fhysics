@@ -24,11 +24,13 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.control.Accordion
 import javafx.scene.text.Font
+import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.min
 
 // can't be converted to object because it is a JavaFX Application
@@ -57,7 +59,6 @@ class FhysicsObjectDrawer : Application() {
     private val titleBarHeight: Double = 39.0 // that's the default height of the window's title bar (in windows)
 
     /// =====start functions=====
-
     fun launch() {
         launch(FhysicsObjectDrawer::class.java)
     }
@@ -127,7 +128,6 @@ class FhysicsObjectDrawer : Application() {
     }
 
     /// =====draw functions=====
-
     fun drawFrame() {
         lerpZoom()
 
@@ -145,7 +145,6 @@ class FhysicsObjectDrawer : Application() {
 //        drawQuadTree()
 
         drawStats()
-        drawQTCapacityMap()
     }
 
     private fun lerpZoom() {
@@ -271,7 +270,7 @@ class FhysicsObjectDrawer : Application() {
         val stats: ArrayList<String> = ArrayList()
 
         if (UIController.drawMSPU || UIController.drawUPS) { // check both because UPS is calculated from MSPU
-            val mspu: Float = FhysicsCore.updateTimer.getAverageDuration() // Milliseconds per Update
+            val mspu: Double = FhysicsCore.updateTimer.average() // Milliseconds per Update
             val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
 
             if (UIController.drawMSPU) {
@@ -313,11 +312,11 @@ class FhysicsObjectDrawer : Application() {
 
             gc.fillText(text, borderSpacing, height - i * lineHeight - borderSpacing)
         }
+        drawQTCapacityMap(stats.size * lineHeight)
     }
 
-
-    private fun drawQTCapacityMap() {
-        val map: MutableMap<Int, String> = FhysicsCore.qtCapacity
+    private fun drawQTCapacityMap(statsHeight: Double) {
+        val map: MutableMap<Int, Double> = FhysicsCore.qtCapacity
         val fontSize: Double = height / 60.0 // Adjust the divisor for the desired scaling
         val font = Font("Spline Sans", fontSize)
         gc.font = font
@@ -327,17 +326,30 @@ class FhysicsObjectDrawer : Application() {
         val lineHeight: Double = font.size
         val borderSpacing = 5.0
 
-        for ((i: Int, key: Int) in map.keys.withIndex()) {
-            val value: String = map[key].toString()
+        // get the five closest values to the current capacity
+        val closestKeys: List<Int> =
+            map.keys
+                .sortedBy { abs(it - QuadTree.capacity) }
+                .take(5)
+                .sorted() // sort the keys to draw them in the correct order
+                .reversed() // reverse the order to draw the highest values at the bottom
 
-            gc.fillText(key.toString(), borderSpacing, height - i * lineHeight - borderSpacing - 32)
-            gc.fillText(value, borderSpacing + 40, height - i * lineHeight - borderSpacing - 32)
+        for (i: Int in closestKeys.indices) {
+            val key: Int = closestKeys[i]
+            val roundedValue: String = String.format(Locale.US, "%.2f", map[key])
+
+            // draw bold if the key is the current capacity
+            if (key == QuadTree.capacity) {
+                gc.font = Font.font(font.family,  FontWeight.BOLD, font.size)
+            } else {
+                gc.font = font
+            }
+            gc.fillText(key.toString(), borderSpacing, height - i * lineHeight - borderSpacing - statsHeight)
+            gc.fillText(roundedValue, borderSpacing + 40, height - i * lineHeight - borderSpacing - statsHeight)
         }
     }
 
-
     // =====debug functions=====
-
     fun addDebugPoint(point: Vector2, color: Color) {
         debugPoints.add(Triple(point.copy(), color, 0))
     }
@@ -347,7 +359,6 @@ class FhysicsObjectDrawer : Application() {
     }
 
     /// =====window size functions=====
-
     private fun setWindowSize() {
         // calculate the window size
         val border: Rectangle2D = BORDER
@@ -382,7 +393,6 @@ class FhysicsObjectDrawer : Application() {
     }
 
     /// =====utility functions=====
-
     fun resetZoom() {
         targetZoom = calculateZoom()
         zoom = targetZoom
