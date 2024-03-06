@@ -60,6 +60,9 @@ class UIController {
     @FXML
     private lateinit var cbObjectCount: CheckBox
 
+    @FXML
+    private lateinit var cbQTCapacity: CheckBox
+
     /// =====Spawn Object=====
     @FXML
     fun onCircleClicked() {
@@ -189,6 +192,11 @@ class UIController {
         drawObjectCount = cbObjectCount.isSelected
     }
 
+    @FXML
+    fun onQTCapacityClicked() {
+        drawQTCapacity = cbQTCapacity.isSelected
+    }
+
     /// =====Initialization and helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
@@ -262,9 +270,11 @@ class UIController {
             private set
         var drawMSPU: Boolean = true
             private set
-        var drawUPS: Boolean = true
+        var drawUPS: Boolean = false
             private set
         var drawObjectCount: Boolean = false
+            private set
+        var drawQTCapacity: Boolean = true
             private set
     }
 }

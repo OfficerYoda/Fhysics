@@ -1,6 +1,8 @@
 package de.officeryoda.fhysics.rendering
 
+import de.officeryoda.fhysics.MapVisualization
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
@@ -176,6 +178,9 @@ object SceneListener {
             KeyCode.SPACE -> FhysicsCore.update()
             KeyCode.ENTER -> FhysicsCore.update()
             KeyCode.Z -> drawer.resetZoom()
+            KeyCode.J -> QuadTree.capacity -= 5
+            KeyCode.K -> QuadTree.capacity += 5
+            KeyCode.G -> MapVisualization(FhysicsCore.qtCapacity)
             else -> {}
         }
     }
