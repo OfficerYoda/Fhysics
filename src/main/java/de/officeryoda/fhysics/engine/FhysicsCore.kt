@@ -41,7 +41,6 @@ object FhysicsCore {
     // quad tree capacity optimization
     val qtCapacity: MutableMap<Int, Double> = mutableMapOf()
     private var framesAtCapacity: Int = 0
-    private val quadTreeTimer = Timer(MAX_FRAMES_AT_CAPACITY)
 
     init {
         borderRects = createBorderBoxes()
@@ -53,6 +52,14 @@ object FhysicsCore {
             circle.radius *= 2
             spawn(circle)
         }
+
+        // spawn objects on the x-axis
+//        for (i in 1..30) {
+//            val circle: Circle = FhysicsObjectFactory.randomCircle()
+//            circle.velocity.set(Vector2(0.0F, 0.0F))
+//            circle.position.set(Vector2(i.toFloat(), 50.0F))
+//            spawn(circle)
+//        }
 
         startUpdateLoop()
     }
@@ -73,9 +80,7 @@ object FhysicsCore {
 
 //        spawnObject()
 
-        quadTreeTimer.start()
         quadTree.updateObjectsAndRebuild()
-        quadTreeTimer.stop()
 
         checkObjectCollision(quadTree)
 
@@ -154,7 +159,6 @@ object FhysicsCore {
         framesAtCapacity++
         if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame which where the rebuild will take the longest
             val average: Double = updateTimer.average()
-            quadTreeTimer.reset()
 
             qtCapacity[QuadTree.capacity] = average
             val newCapacity: Int = calculateNextQTCapacity()
