@@ -7,7 +7,6 @@ import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
-import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
@@ -44,7 +43,7 @@ object FhysicsCore {
     init {
         quadTree.subdivide()
 
-        for (i in 1..60) {
+        for (i in 1..200) {
             val circle: Circle = FhysicsObjectFactory.randomCircle()
             circle.velocity.set(Vector2.ZERO)
             circle.radius *= 2
@@ -191,8 +190,14 @@ object FhysicsCore {
         if (UIController.gravityType == GravityType.DIRECTIONAL) {
             return Vector2(0.0F, -9.81F)
         } else {
-            val minDst = 0.1F
-            val sqrDst: Float = max(minDst, UIController.gravityPoint.sqrDistance(pos))
+            val minDst = 0.05F
+            val sqrDst: Float = UIController.gravityPoint.sqrDistance(pos)
+            if(sqrDst < minDst) {
+                // to not fling objects away and to avoid objects getting stuck in the
+                // gravity point causing it to vibrate and hitting other objects away
+                return Vector2.ZERO
+            }
+
             val direction: Vector2 = UIController.gravityPoint - pos
             return UIController.gravityPointStrength/sqrDst * direction.normalized()
         }
