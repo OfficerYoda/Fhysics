@@ -30,7 +30,6 @@ object FhysicsCore {
 
     var objectCount: Int = 0
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
-    private val borderRects: List<Rectangle>
 
     var updateCount = 0
 
@@ -43,7 +42,6 @@ object FhysicsCore {
     private var framesAtCapacity: Int = 0
 
     init {
-        borderRects = createBorderBoxes()
         quadTree.subdivide()
 
         for (i in 1..60) {
@@ -134,21 +132,22 @@ object FhysicsCore {
     }
 
     fun checkBorderCollision(obj: FhysicsObject) {
-        borderRects.forEach { handleCollision(obj, it) }
-    }
+        if(obj !is Circle) return
+        if (obj.position.x - obj.radius < 0.0F) {
+            obj.velocity.x = -obj.velocity.x
+            obj.position.x = obj.radius
+        } else if (obj.position.x + obj.radius > BORDER.width) {
+            obj.velocity.x = -obj.velocity.x
+            obj.position.x = (BORDER.width - obj.radius).toFloat()
+        }
 
-    private fun createBorderBoxes(): List<Rectangle> {
-        val width: Float = BORDER.width.toFloat()
-        val height: Float = BORDER.height.toFloat()
-
-        val left: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, 0.0F), width, height, Vector2.ZERO)
-        val right: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(width, 0.0F), width, height, Vector2.ZERO)
-        val top: Rectangle =
-            FhysicsObjectFactory.customRectangle(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
-        val bottom: Rectangle =
-            FhysicsObjectFactory.customRectangle(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
-
-        return listOf(left, right, top, bottom)
+        if (obj.position.y - obj.radius < 0.0F) {
+            obj.velocity.y = -obj.velocity.y
+            obj.position.y = obj.radius
+        } else if (obj.position.y + obj.radius > BORDER.height) {
+            obj.velocity.y = -obj.velocity.y
+            obj.position.y = (BORDER.height - obj.radius).toFloat()
+        }
     }
 
     private var stepSize: Double = 10.0
