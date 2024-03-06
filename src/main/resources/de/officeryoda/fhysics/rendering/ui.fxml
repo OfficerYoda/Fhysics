@@ -218,7 +218,7 @@
                               <Insets top="5.0" />
                            </padding>
                         </CheckBox>
-                        <CheckBox fx:id="cbQTNodeUtilization" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onQTNodeUtilizationClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
+                        <CheckBox fx:id="cbQTNodeUtilization" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onQTNodeUtilizationClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
                            <tooltip>
                               <Tooltip text="The amount of objects that are in a QT-node" />
                            </tooltip>

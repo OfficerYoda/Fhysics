@@ -3,7 +3,6 @@ package de.officeryoda.fhysics.objects
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
-import de.officeryoda.fhysics.rendering.UIController
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
@@ -26,7 +25,7 @@ abstract class FhysicsObject protected constructor(
         val dt: Float = FhysicsCore.dt
         val damping = 0.00F
 
-        acceleration += UIController.gravityDirection
+        acceleration += FhysicsCore.gravityAt(position)
         velocity += (acceleration - velocity * damping) * dt
         position += velocity * dt
 

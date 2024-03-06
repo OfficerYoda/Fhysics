@@ -210,18 +210,29 @@ class UIController {
 
         restrictToNumericInput(txtTimeSpeed, false)
 
+        /// =====Spawn Object=====
         txtSpawnRadius.text = spawnRadius.toString()
 
+        /// =====Gravity=====
         txtGravityDirectionX.text = gravityDirection.x.toString()
         txtGravityDirectionY.text = gravityDirection.y.toString()
         txtGravityPointX.text = gravityPoint.x.toString()
         txtGravityPointY.text = gravityPoint.y.toString()
         txtGravityPointStrength.text = gravityPointStrength.toString()
+        txtGravityDirectionX.isDisable = gravityType != GravityType.DIRECTIONAL
+        txtGravityDirectionY.isDisable = gravityType != GravityType.DIRECTIONAL
+        txtGravityPointX.isDisable = gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
 
+        /// =====Time=====
         btnPause.isSelected = !FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
 
+        /// =====Debug=====
         cbQuadTree.isSelected = drawQuadTree
+        cbQTNodeUtilization.isSelected = drawQTNodeUtilization
+        cbQTNodeUtilization.isDisable = !drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
@@ -249,14 +260,14 @@ class UIController {
             private set
 
         /// =====Gravity=====
-        var gravityType: GravityType = GravityType.DIRECTIONAL
+        var gravityType: GravityType = GravityType.TOWARDS_POINT
             private set
         val gravityDirection: Vector2 = Vector2(0.0F, 0.0F)
         val gravityPoint: Vector2 = Vector2( // the center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
-        var gravityPointStrength: Float = 1.0F
+        var gravityPointStrength: Float = 100.0F
             private set
 
         /// =====Time=====
@@ -264,7 +275,7 @@ class UIController {
             private set
 
         /// =====Debug=====
-        var drawQuadTree: Boolean = false
+        var drawQuadTree: Boolean = true
             private set
         var drawQTNodeUtilization: Boolean = false
             private set

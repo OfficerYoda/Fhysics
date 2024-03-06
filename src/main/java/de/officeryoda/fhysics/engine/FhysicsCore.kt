@@ -3,9 +3,13 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
+import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.rendering.GravityType
+import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.Timer
@@ -16,7 +20,7 @@ object FhysicsCore {
 
     /// =====constants=====
     // x and y must be 0.0
-    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 250.0F, 250.0F)
+    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F)
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
     const val UPDATES_PER_SECOND: Int = 200
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
@@ -43,9 +47,10 @@ object FhysicsCore {
         borderRects = createBorderBoxes()
         quadTree.subdivide()
 
-        for (i in 1..60000) {
-            val circle = FhysicsObjectFactory.randomCircle()
-//            circle.radius *= 2
+        for (i in 1..60) {
+            val circle: Circle = FhysicsObjectFactory.randomCircle()
+            circle.velocity.set(Vector2.ZERO)
+            circle.radius *= 2
             spawn(circle)
         }
 
@@ -66,7 +71,7 @@ object FhysicsCore {
     fun update() {
         updateTimer.start()
 
-        spawnObject()
+//        spawnObject()
 
         quadTreeTimer.start()
         quadTree.updateObjectsAndRebuild()
@@ -177,6 +182,17 @@ object FhysicsCore {
         stepSize = max(1.0, stepSize - 0.5) // reduces stepSize by one every 2 updates because it's rounded to an int
 
         return newCapacity
+    }
+
+    fun gravityAt(pos: Vector2): Vector2 {
+        if (UIController.gravityType == GravityType.DIRECTIONAL) {
+            return Vector2(0.0F, -9.81F)
+        } else {
+            val minDst = 0.1F
+            val sqrDst: Float = max(minDst, UIController.gravityPoint.sqrDistance(pos))
+            val direction: Vector2 = UIController.gravityPoint - pos
+            return UIController.gravityPointStrength/sqrDst * direction.normalized()
+        }
     }
 
     fun nextId(): Int {
