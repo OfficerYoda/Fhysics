@@ -46,7 +46,6 @@ object FhysicsCore {
         for (i in 1..200) {
             val circle: Circle = FhysicsObjectFactory.randomCircle()
             circle.velocity.set(Vector2.ZERO)
-            circle.radius *= 2
             spawn(circle)
         }
 

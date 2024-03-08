@@ -39,16 +39,13 @@ class FhysicsObjectDrawer : Application() {
     // rendering properties
     private lateinit var stage: Stage
     lateinit var gc: GraphicsContext
+        private set
 
     // zoom properties
     var targetZoom: Double = -1.0
     var zoom: Double = targetZoom
     var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
     var zoomCenter: Vector2 = targetZoomCenter
-
-    // mouse movement properties
-    var rightPressed: Boolean = false
-    var rightPressedPos: Vector2 = Vector2.ZERO
 
     // debug properties
     private val debugPoints: MutableList<Triple<Vector2, Color, Int>> = ArrayList()

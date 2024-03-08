@@ -13,11 +13,16 @@ data class QuadTree(
     val objects: MutableList<FhysicsObject> = ArrayList()
 
     var divided: Boolean = false
+        private set
 
     var topLeft: QuadTree? = null
+        private set
     var topRight: QuadTree? = null
+        private set
     var botLeft: QuadTree? = null
+        private set
     var botRight: QuadTree? = null
+        private set
 
     private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
 
@@ -90,7 +95,8 @@ data class QuadTree(
             tryCollapse()
         } else {
             // Check if the node is on the border
-            val borderNode: Boolean = boundary.x == 0.0 || boundary.y == 0.0 || boundary.x + boundary.width == FhysicsCore.BORDER.width || boundary.y + boundary.height == FhysicsCore.BORDER.height
+            val borderNode: Boolean =
+                boundary.x == 0.0 || boundary.y == 0.0 || boundary.x + boundary.width == FhysicsCore.BORDER.width || boundary.y + boundary.height == FhysicsCore.BORDER.height
 
             // Check if the objects are still fully in the boundary
             val toRemove = ArrayList<FhysicsObject>()

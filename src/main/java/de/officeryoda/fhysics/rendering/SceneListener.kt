@@ -14,6 +14,16 @@ import kotlin.math.sign
 object SceneListener {
 
     /**
+     * The position of the mouse when the right mouse button was pressed
+     */
+    private var rightPressed: Boolean = false
+
+    /**
+     * The position of the mouse when the right mouse button was pressed
+     */
+    private var rightPressedPos: Vector2 = Vector2.ZERO
+
+    /**
      * The target zoom factor of the drawer (used for smooth zooming)
      */
     private var targetZoom: Double
@@ -29,24 +39,6 @@ object SceneListener {
         get() = drawer.targetZoomCenter
         set(value) {
             drawer.targetZoomCenter = value
-        }
-
-    /**
-     * The right mouse button pressed state
-     */
-    private var rightPressed: Boolean
-        get() = drawer.rightPressed
-        set(value) {
-            drawer.rightPressed = value
-        }
-
-    /**
-     * The position where the right mouse button was pressed
-     */
-    private var rightPressedPos: Vector2
-        get() = drawer.rightPressedPos
-        set(value) {
-            drawer.rightPressedPos = value
         }
 
     /**
