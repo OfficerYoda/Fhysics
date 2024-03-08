@@ -24,13 +24,11 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.control.Accordion
 import javafx.scene.text.Font
-import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.util.*
-import kotlin.math.abs
 import kotlin.math.min
 
 // can't be converted to object because it is a JavaFX Application
@@ -308,41 +306,6 @@ class FhysicsObjectDrawer : Application() {
             }
 
             gc.fillText(text, borderSpacing, height - i * lineHeight - borderSpacing)
-        }
-        drawQTCapacityMap(stats.size * lineHeight)
-    }
-
-    private fun drawQTCapacityMap(statsHeight: Double) {
-        val map: MutableMap<Int, Double> = FhysicsCore.qtCapacity
-        val fontSize: Double = height / 60.0 // Adjust the divisor for the desired scaling
-        val font = Font("Spline Sans", fontSize)
-        gc.font = font
-        setFillColor(Color.WHITE)
-        setStrokeColor(Color.BLACK)
-
-        val lineHeight: Double = font.size
-        val borderSpacing = 5.0
-
-        // get the five closest values to the current capacity
-        val closestKeys: List<Int> =
-            map.keys
-                .sortedBy { abs(it - QuadTree.capacity) }
-                .take(11)
-                .sorted() // sort the keys to draw them in the correct order
-                .reversed() // reverse the order to draw the highest values at the bottom
-
-        for (i: Int in closestKeys.indices) {
-            val key: Int = closestKeys[i]
-            val roundedValue: String = String.format(Locale.US, "%.2f", map[key])
-
-            // draw bold if the key is the current capacity
-            if (key == QuadTree.capacity) {
-                gc.font = Font.font(font.family,  FontWeight.BOLD, font.size)
-            } else {
-                gc.font = font
-            }
-            gc.fillText(key.toString(), borderSpacing, height - i * lineHeight - borderSpacing - statsHeight)
-            gc.fillText(roundedValue, borderSpacing + 40, height - i * lineHeight - borderSpacing - statsHeight)
         }
     }
 
