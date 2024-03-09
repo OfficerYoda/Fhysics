@@ -63,6 +63,10 @@ class UIController {
     @FXML
     private lateinit var cbQTCapacity: CheckBox
 
+    @FXML
+    private lateinit var cbBouncyWalls: CheckBox
+
+
     /// =====Spawn Object=====
     @FXML
     fun onCircleClicked() {
@@ -197,6 +201,11 @@ class UIController {
         drawQTCapacity = cbQTCapacity.isSelected
     }
 
+    @FXML
+    fun onBouncyWallsClicked() {
+        bouncyWalls = cbBouncyWalls.isSelected
+    }
+
     /// =====Initialization and helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
@@ -237,6 +246,7 @@ class UIController {
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
         cbObjectCount.isSelected = drawObjectCount
+        cbBouncyWalls.isSelected = bouncyWalls
     }
 
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
@@ -260,7 +270,7 @@ class UIController {
             private set
 
         /// =====Gravity=====
-        var gravityType: GravityType = GravityType.TOWARDS_POINT
+        var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
         val gravityDirection: Vector2 = Vector2(0.0F, 0.0F)
         val gravityPoint: Vector2 = Vector2( // the center of the world
@@ -285,7 +295,9 @@ class UIController {
             private set
         var drawObjectCount: Boolean = false
             private set
-        var drawQTCapacity: Boolean = true
+        var drawQTCapacity: Boolean = false
+            private set
+        var bouncyWalls: Boolean = true
             private set
     }
 }

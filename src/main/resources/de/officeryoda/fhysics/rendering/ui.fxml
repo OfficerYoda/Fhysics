@@ -186,7 +186,7 @@
                               </Text>
                               <TextField fx:id="txtTimeSpeed" onKeyTyped="#onTimeSpeedTyped" prefHeight="26.0" prefWidth="167.0" promptText="speed">
                                  <tooltip>
-                                    <Tooltip text="Time step scaling factor" />
+                                    <Tooltip text="Time step scaling factor (may influence accuracy)" />
                                  </tooltip>
                               </TextField>
                            </children>
@@ -236,7 +236,7 @@
                               <Tooltip text="Updates per second" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object Count">
+                        <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object count">
                            <tooltip>
                               <Tooltip text="The amount of objects in the scene" />
                            </tooltip>
@@ -244,6 +244,14 @@
                         <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
                            <tooltip>
                               <Tooltip text="The amount of objects that one QT node can hold" />
+                           </tooltip>
+                           <padding>
+                              <Insets bottom="5.0" />
+                           </padding>
+                        </CheckBox>
+                        <CheckBox fx:id="cbBouncyWalls" layoutX="10.0" layoutY="122.0" mnemonicParsing="false" onMouseClicked="#onBouncyWallsClicked" prefHeight="17.0" prefWidth="253.0" text="Bouncy walls">
+                           <tooltip>
+                              <Tooltip text="Walls have elastic collisions" />
                            </tooltip>
                         </CheckBox>
                      </children>

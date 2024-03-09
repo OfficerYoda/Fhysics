@@ -12,8 +12,10 @@ import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.Timer
+import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sign
+import kotlin.math.sin
 
 object FhysicsCore {
 
@@ -43,19 +45,38 @@ object FhysicsCore {
     init {
         quadTree.subdivide()
 
-        for (i in 1..200) {
-            val circle: Circle = FhysicsObjectFactory.randomCircle()
-            circle.velocity.set(Vector2.ZERO)
-            spawn(circle)
-        }
-
-        // spawn objects on the x-axis
-//        for (i in 1..30) {
+//        for (i in 1..200) {
 //            val circle: Circle = FhysicsObjectFactory.randomCircle()
-//            circle.velocity.set(Vector2(0.0F, 0.0F))
-//            circle.position.set(Vector2(i.toFloat(), 50.0F))
+//            circle.velocity.set(Vector2.ZERO)
 //            spawn(circle)
 //        }
+
+        // spawn objects in a circle around the center
+        val center = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+        val radius = 10.0f
+        val numObjects = 10
+        val speed = 2.0f // Desired speed for objects
+
+        for (l in 1..4) {
+            // Loop to spawn objects
+            for (i in 0 until numObjects * l) {
+                // Calculate angle and position
+                val angle: Double = 2.0 * Math.PI * (i.toFloat() / (numObjects * l))
+                val x: Double = center.x + radius * l * cos(angle)
+                val y: Double = center.y + radius * l * sin(angle)
+
+                // Calculate unit direction vector
+                val cosAngle: Float = cos(angle).toFloat()
+                val sinAngle: Float = sin(angle).toFloat()
+
+                // Rotate direction by 90 degrees for tangent
+                val velocity: Vector2 = Vector2(sinAngle, -cosAngle) * speed
+
+                val circle: Circle =
+                    FhysicsObjectFactory.customCircle(Vector2(x.toFloat(), y.toFloat()), 0.5f, velocity)
+                spawn(circle)
+            }
+        }
 
         startUpdateLoop()
     }
@@ -130,20 +151,20 @@ object FhysicsCore {
     }
 
     fun checkBorderCollision(obj: FhysicsObject) {
-        if(obj !is Circle) return
+        if (obj !is Circle) return
         if (obj.position.x - obj.radius < 0.0F) {
-            obj.velocity.x = -obj.velocity.x
+            obj.velocity.x = if (UIController.bouncyWalls) -obj.velocity.x else 0.0F
             obj.position.x = obj.radius
         } else if (obj.position.x + obj.radius > BORDER.width) {
-            obj.velocity.x = -obj.velocity.x
+            obj.velocity.x = if (UIController.bouncyWalls) -obj.velocity.x else 0.0F
             obj.position.x = (BORDER.width - obj.radius).toFloat()
         }
 
         if (obj.position.y - obj.radius < 0.0F) {
-            obj.velocity.y = -obj.velocity.y
+            obj.velocity.y = if (UIController.bouncyWalls) -obj.velocity.y else 0.0F
             obj.position.y = obj.radius
         } else if (obj.position.y + obj.radius > BORDER.height) {
-            obj.velocity.y = -obj.velocity.y
+            obj.velocity.y = if (UIController.bouncyWalls) -obj.velocity.y else 0.0F
             obj.position.y = (BORDER.height - obj.radius).toFloat()
         }
     }
@@ -191,14 +212,14 @@ object FhysicsCore {
         } else {
             val minDst = 0.05F
             val sqrDst: Float = UIController.gravityPoint.sqrDistance(pos)
-            if(sqrDst < minDst) {
+            if (sqrDst < minDst * minDst) {
                 // to not fling objects away and to avoid objects getting stuck in the
                 // gravity point causing it to vibrate and hitting other objects away
                 return Vector2.ZERO
             }
 
             val direction: Vector2 = UIController.gravityPoint - pos
-            return UIController.gravityPointStrength/sqrDst * direction.normalized()
+            return UIController.gravityPointStrength / sqrDst * direction.normalized()
         }
     }
 
