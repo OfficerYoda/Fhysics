@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics
+package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.QuadTree
 import javafx.animation.AnimationTimer
@@ -8,6 +8,7 @@ import org.jfree.chart.axis.NumberAxis
 import org.jfree.data.category.CategoryDataset
 import org.jfree.data.category.DefaultCategoryDataset
 import java.awt.Dimension
+import java.util.Locale
 import javax.swing.JFrame
 import javax.swing.WindowConstants
 
@@ -58,7 +59,7 @@ class MapVisualization(private val qtCapacity: MutableMap<Int, Double>) : JFrame
         val dataset = DefaultCategoryDataset()
 
         for ((key, value) in qtCapacity.entries.sortedBy { it.key }) {
-            dataset.addValue(value, "avg. MSPU", String.format("%02d", key))
+            dataset.addValue(value, "avg. MSPU", String.format(Locale.US, "%02d", key))
         }
 
         return dataset

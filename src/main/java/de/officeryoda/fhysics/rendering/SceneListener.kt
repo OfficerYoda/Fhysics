@@ -1,6 +1,5 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.MapVisualization
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2

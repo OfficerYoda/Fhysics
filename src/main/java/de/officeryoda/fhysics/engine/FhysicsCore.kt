@@ -20,11 +20,11 @@ import kotlin.math.sin
 object FhysicsCore {
 
     /// =====constants=====
-    // x and y must be 0.0
-    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F)
+    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F) // x and y must be 0.0
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
-    const val UPDATES_PER_SECOND: Int = 200
+    const val UPDATES_PER_SECOND: Int = 120
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
+    private const val QTC_START_STEP_SIZE = 10.0
 
     /// =====variables=====
     var quadTree: QuadTree = QuadTree(BORDER, null)
@@ -41,9 +41,10 @@ object FhysicsCore {
     // quad tree capacity optimization
     val qtCapacity: MutableMap<Int, Double> = mutableMapOf()
     private var framesAtCapacity: Int = 0
-    private var stepSize: Double = 10.0
+    private var stepSize: Double = QTC_START_STEP_SIZE
     private var lastSample: Double = 0.0
     private var lastCapacity: Int = QuadTree.capacity
+    private var objectsAtStepSizeIncrease: Int = 0
 
     init {
         quadTree.subdivide()
@@ -81,6 +82,7 @@ object FhysicsCore {
             }
         }
 
+        objectsAtStepSizeIncrease = objectCount
         startUpdateLoop()
     }
 
@@ -98,7 +100,7 @@ object FhysicsCore {
     fun update() {
         updateTimer.start()
 
-//        spawnObject()
+        spawnObject()
 
         quadTree.updateObjectsAndRebuild()
 
@@ -117,8 +119,9 @@ object FhysicsCore {
     }
 
     private fun spawnObject() {
-        for (i in 1..100) {
-            if (objectCount < 60000) {
+        if (updateCount % 10 != 0) return
+        for (i: Int in 1..50) {
+            if (objectCount < 20000) {
                 spawn(FhysicsObjectFactory.randomCircle())
             }
         }
@@ -193,14 +196,27 @@ object FhysicsCore {
             return QuadTree.capacity + 5
 
         val crntSample: Double = qtCapacity[QuadTree.capacity]!!
-
+        // if the capacity is increasing or decreasing
         val valueDir: Int = -(crntSample - lastSample).sign.toInt()
+        // if the mspu is increasing or decreasing
         val capacityDir: Int = (QuadTree.capacity - lastCapacity).sign
+        // the direction the capacity should change to get closer to the optimal capacity
         val totalDir: Int = valueDir * capacityDir
 
+        // calculate the new capacity
         val newCapacity: Int = QuadTree.capacity + stepSize.toInt() * totalDir
 
-        stepSize = max(1.0, stepSize - 0.5) // reduces stepSize by one every 2 updates because it's rounded to an int
+        // if a lot of objects got spawned since the last time the stepSize was increased then increase the stepSize again
+        if (objectCount - objectsAtStepSizeIncrease > 100) {
+            stepSize = max(
+                stepSize,
+                QTC_START_STEP_SIZE * 0.75
+            ) // increase stepSize to increase the speed of the capacity optimization (max to not decrease when it's higher at the start of the program)
+            objectsAtStepSizeIncrease = objectCount
+        } else {
+            stepSize =
+                max(1.0, stepSize - 0.5) // reduces stepSize by one every 2 updates
+        }
 
         return newCapacity
     }
