@@ -41,6 +41,9 @@ object FhysicsCore {
     // quad tree capacity optimization
     val qtCapacity: MutableMap<Int, Double> = mutableMapOf()
     private var framesAtCapacity: Int = 0
+    private var stepSize: Double = 10.0
+    private var lastSample: Double = 0.0
+    private var lastCapacity: Int = QuadTree.capacity
 
     init {
         quadTree.subdivide()
@@ -153,25 +156,21 @@ object FhysicsCore {
     fun checkBorderCollision(obj: FhysicsObject) {
         if (obj !is Circle) return
         if (obj.position.x - obj.radius < 0.0F) {
-            obj.velocity.x = if (UIController.bouncyWalls) -obj.velocity.x else 0.0F
+            obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
             obj.position.x = obj.radius
         } else if (obj.position.x + obj.radius > BORDER.width) {
-            obj.velocity.x = if (UIController.bouncyWalls) -obj.velocity.x else 0.0F
+            obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
             obj.position.x = (BORDER.width - obj.radius).toFloat()
         }
 
         if (obj.position.y - obj.radius < 0.0F) {
-            obj.velocity.y = if (UIController.bouncyWalls) -obj.velocity.y else 0.0F
+            obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
             obj.position.y = obj.radius
         } else if (obj.position.y + obj.radius > BORDER.height) {
-            obj.velocity.y = if (UIController.bouncyWalls) -obj.velocity.y else 0.0F
+            obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
             obj.position.y = (BORDER.height - obj.radius).toFloat()
         }
     }
-
-    private var stepSize: Double = 10.0
-    private var lastSample: Double = 0.0
-    private var lastCapacity: Int = QuadTree.capacity
 
     private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++

@@ -7,10 +7,8 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import javafx.fxml.FXML
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.TextField
-import javafx.scene.control.ToggleButton
+import javafx.scene.control.*
+import java.util.*
 
 class UIController {
 
@@ -64,8 +62,10 @@ class UIController {
     private lateinit var cbQTCapacity: CheckBox
 
     @FXML
-    private lateinit var cbBouncyWalls: CheckBox
+    private lateinit var lblWallElasticity: Label
 
+    @FXML
+    private lateinit var sldWallElasticity: Slider
 
     /// =====Spawn Object=====
     @FXML
@@ -202,8 +202,9 @@ class UIController {
     }
 
     @FXML
-    fun onBouncyWallsClicked() {
-        bouncyWalls = cbBouncyWalls.isSelected
+    fun onWallElasticityChanged() {
+        wallElasticity = sldWallElasticity.value.toFloat()
+        lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
     }
 
     /// =====Initialization and helper=====
@@ -246,7 +247,8 @@ class UIController {
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
         cbObjectCount.isSelected = drawObjectCount
-        cbBouncyWalls.isSelected = bouncyWalls
+        sldWallElasticity.value = wallElasticity.toDouble()
+        lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
     }
 
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
@@ -297,7 +299,7 @@ class UIController {
             private set
         var drawQTCapacity: Boolean = false
             private set
-        var bouncyWalls: Boolean = true
+        var wallElasticity: Float = 1.0F
             private set
     }
 }

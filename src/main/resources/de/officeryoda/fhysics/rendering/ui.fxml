@@ -5,6 +5,8 @@
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleButton?>
@@ -249,11 +251,28 @@
                               <Insets bottom="5.0" />
                            </padding>
                         </CheckBox>
-                        <CheckBox fx:id="cbBouncyWalls" layoutX="10.0" layoutY="122.0" mnemonicParsing="false" onMouseClicked="#onBouncyWallsClicked" prefHeight="17.0" prefWidth="253.0" text="Bouncy walls">
-                           <tooltip>
-                              <Tooltip text="Walls have elastic collisions" />
-                           </tooltip>
-                        </CheckBox>
+                        <HBox>
+                           <children>
+                              <Label text="Wall elasticity">
+                                 <tooltip>
+                                    <Tooltip text="0 = No bounce, 1 = Perfect bounce" />
+                                 </tooltip>
+                              </Label>
+                              <Slider fx:id="sldWallElasticity" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onWallElasticityChanged" prefHeight="17.0" prefWidth="129.0" value="1.0">
+                                 <tooltip>
+                                    <Tooltip text="0 = No bounce, 1 = Perfect bounce" />
+                                 </tooltip>
+                              </Slider>
+                              <Label fx:id="lblWallElasticity" prefWidth="25.0" text="1.00">
+                                 <padding>
+                                    <Insets left="2.0" />
+                                 </padding>
+                                 <tooltip>
+                                    <Tooltip text="0 = No bounce, 1 = Perfect bounce" />
+                                 </tooltip>
+                              </Label>
+                           </children>
+                        </HBox>
                      </children>
                      <opaqueInsets>
                         <Insets />
