@@ -7,10 +7,8 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import javafx.fxml.FXML
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.TextField
-import javafx.scene.control.ToggleButton
+import javafx.scene.control.*
+import java.util.*
 
 class UIController {
 
@@ -62,6 +60,12 @@ class UIController {
 
     @FXML
     private lateinit var cbQTCapacity: CheckBox
+
+    @FXML
+    private lateinit var lblWallElasticity: Label
+
+    @FXML
+    private lateinit var sldWallElasticity: Slider
 
     /// =====Spawn Object=====
     @FXML
@@ -197,6 +201,12 @@ class UIController {
         drawQTCapacity = cbQTCapacity.isSelected
     }
 
+    @FXML
+    fun onWallElasticityChanged() {
+        wallElasticity = sldWallElasticity.value.toFloat()
+        lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
+    }
+
     /// =====Initialization and helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
@@ -210,22 +220,35 @@ class UIController {
 
         restrictToNumericInput(txtTimeSpeed, false)
 
+        /// =====Spawn Object=====
         txtSpawnRadius.text = spawnRadius.toString()
 
+        /// =====Gravity=====
         txtGravityDirectionX.text = gravityDirection.x.toString()
         txtGravityDirectionY.text = gravityDirection.y.toString()
         txtGravityPointX.text = gravityPoint.x.toString()
         txtGravityPointY.text = gravityPoint.y.toString()
         txtGravityPointStrength.text = gravityPointStrength.toString()
+        txtGravityDirectionX.isDisable = gravityType != GravityType.DIRECTIONAL
+        txtGravityDirectionY.isDisable = gravityType != GravityType.DIRECTIONAL
+        txtGravityPointX.isDisable = gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
 
+        /// =====Time=====
         btnPause.isSelected = !FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
 
+        /// =====Debug=====
         cbQuadTree.isSelected = drawQuadTree
+        cbQTNodeUtilization.isSelected = drawQTNodeUtilization
+        cbQTNodeUtilization.isDisable = !drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
         cbObjectCount.isSelected = drawObjectCount
+        sldWallElasticity.value = wallElasticity.toDouble()
+        lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
     }
 
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
@@ -256,7 +279,7 @@ class UIController {
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
-        var gravityPointStrength: Float = 1.0F
+        var gravityPointStrength: Float = 100.0F
             private set
 
         /// =====Time=====
@@ -274,7 +297,9 @@ class UIController {
             private set
         var drawObjectCount: Boolean = false
             private set
-        var drawQTCapacity: Boolean = true
+        var drawQTCapacity: Boolean = false
+            private set
+        var wallElasticity: Float = 1.0F
             private set
     }
 }

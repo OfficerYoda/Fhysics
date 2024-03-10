@@ -1,6 +1,5 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.MapVisualization
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
@@ -12,6 +11,16 @@ import kotlin.math.exp
 import kotlin.math.sign
 
 object SceneListener {
+
+    /**
+     * The position of the mouse when the right mouse button was pressed
+     */
+    private var rightPressed: Boolean = false
+
+    /**
+     * The position of the mouse when the right mouse button was pressed
+     */
+    private var rightPressedPos: Vector2 = Vector2.ZERO
 
     /**
      * The target zoom factor of the drawer (used for smooth zooming)
@@ -29,24 +38,6 @@ object SceneListener {
         get() = drawer.targetZoomCenter
         set(value) {
             drawer.targetZoomCenter = value
-        }
-
-    /**
-     * The right mouse button pressed state
-     */
-    private var rightPressed: Boolean
-        get() = drawer.rightPressed
-        set(value) {
-            drawer.rightPressed = value
-        }
-
-    /**
-     * The position where the right mouse button was pressed
-     */
-    private var rightPressedPos: Vector2
-        get() = drawer.rightPressedPos
-        set(value) {
-            drawer.rightPressedPos = value
         }
 
     /**
@@ -181,6 +172,7 @@ object SceneListener {
             KeyCode.J -> QuadTree.capacity -= 5
             KeyCode.K -> QuadTree.capacity += 5
             KeyCode.G -> MapVisualization(FhysicsCore.qtCapacity)
+            KeyCode.Q -> println(FhysicsCore.quadTree)
             else -> {}
         }
     }

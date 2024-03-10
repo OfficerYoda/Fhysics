@@ -3,30 +3,34 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
+import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
-import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.rendering.GravityType
+import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.Timer
+import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sign
+import kotlin.math.sin
 
 object FhysicsCore {
 
     /// =====constants=====
-    // x and y must be 0.0
-    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 250.0F, 250.0F)
+    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F) // x and y must be 0.0
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
-    const val UPDATES_PER_SECOND: Int = 200
+    const val UPDATES_PER_SECOND: Int = 120
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
+    private const val QTC_START_STEP_SIZE = 10.0
 
     /// =====variables=====
     var quadTree: QuadTree = QuadTree(BORDER, null)
 
     var objectCount: Int = 0
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
-    private val borderRects: List<Rectangle>
 
     var updateCount = 0
 
@@ -37,18 +41,48 @@ object FhysicsCore {
     // quad tree capacity optimization
     val qtCapacity: MutableMap<Int, Double> = mutableMapOf()
     private var framesAtCapacity: Int = 0
-    private val quadTreeTimer = Timer(MAX_FRAMES_AT_CAPACITY)
+    private var stepSize: Double = QTC_START_STEP_SIZE
+    private var lastSample: Double = 0.0
+    private var lastCapacity: Int = QuadTree.capacity
+    private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        borderRects = createBorderBoxes()
         quadTree.subdivide()
 
-        for (i in 1..60000) {
-            val circle = FhysicsObjectFactory.randomCircle()
-//            circle.radius *= 2
-            spawn(circle)
+//        for (i in 1..200) {
+//            val circle: Circle = FhysicsObjectFactory.randomCircle()
+//            circle.velocity.set(Vector2.ZERO)
+//            spawn(circle)
+//        }
+
+        // spawn objects in a circle around the center
+        val center = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+        val radius = 10.0f
+        val numObjects = 10
+        val speed = 2.0f // Desired speed for objects
+
+        for (l in 1..4) {
+            // Loop to spawn objects
+            for (i in 0 until numObjects * l) {
+                // Calculate angle and position
+                val angle: Double = 2.0 * Math.PI * (i.toFloat() / (numObjects * l))
+                val x: Double = center.x + radius * l * cos(angle)
+                val y: Double = center.y + radius * l * sin(angle)
+
+                // Calculate unit direction vector
+                val cosAngle: Float = cos(angle).toFloat()
+                val sinAngle: Float = sin(angle).toFloat()
+
+                // Rotate direction by 90 degrees for tangent
+                val velocity: Vector2 = Vector2(sinAngle, -cosAngle) * speed
+
+                val circle: Circle =
+                    FhysicsObjectFactory.customCircle(Vector2(x.toFloat(), y.toFloat()), 0.5f, velocity)
+                spawn(circle)
+            }
         }
 
+        objectsAtStepSizeIncrease = objectCount
         startUpdateLoop()
     }
 
@@ -68,9 +102,7 @@ object FhysicsCore {
 
         spawnObject()
 
-        quadTreeTimer.start()
         quadTree.updateObjectsAndRebuild()
-        quadTreeTimer.stop()
 
         checkObjectCollision(quadTree)
 
@@ -87,8 +119,9 @@ object FhysicsCore {
     }
 
     private fun spawnObject() {
-        for (i in 1..100) {
-            if (objectCount < 60000) {
+        if (updateCount % 10 != 0) return
+        for (i: Int in 1..50) {
+            if (objectCount < 20000) {
                 spawn(FhysicsObjectFactory.randomCircle())
             }
         }
@@ -96,14 +129,14 @@ object FhysicsCore {
 
     private fun checkObjectCollision(quadTree: QuadTree) {
         if (!quadTree.divided) {
-            val objects = quadTree.objects
-            val numObjects = objects.size
+            val objects: MutableList<FhysicsObject> = quadTree.objects
+            val numObjects: Int = objects.size
 
-            for (i in 0 until numObjects - 1) {
-                val objA = objects[i]
+            for (i: Int in 0 until numObjects - 1) {
+                val objA: FhysicsObject = objects[i]
 
-                for (j in i + 1 until numObjects) {
-                    val objB = objects[j]
+                for (j: Int in i + 1 until numObjects) {
+                    val objB: FhysicsObject = objects[j]
                     handleCollision(objA, objB)
                 }
             }
@@ -124,32 +157,28 @@ object FhysicsCore {
     }
 
     fun checkBorderCollision(obj: FhysicsObject) {
-        borderRects.forEach { handleCollision(obj, it) }
+        if (obj !is Circle) return
+        if (obj.position.x - obj.radius < 0.0F) {
+            obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
+            obj.position.x = obj.radius
+        } else if (obj.position.x + obj.radius > BORDER.width) {
+            obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
+            obj.position.x = (BORDER.width - obj.radius).toFloat()
+        }
+
+        if (obj.position.y - obj.radius < 0.0F) {
+            obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
+            obj.position.y = obj.radius
+        } else if (obj.position.y + obj.radius > BORDER.height) {
+            obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
+            obj.position.y = (BORDER.height - obj.radius).toFloat()
+        }
     }
-
-    private fun createBorderBoxes(): List<Rectangle> {
-        val width: Float = BORDER.width.toFloat()
-        val height: Float = BORDER.height.toFloat()
-
-        val left: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(-width, 0.0F), width, height, Vector2.ZERO)
-        val right: Rectangle = FhysicsObjectFactory.customRectangle(Vector2(width, 0.0F), width, height, Vector2.ZERO)
-        val top: Rectangle =
-            FhysicsObjectFactory.customRectangle(Vector2(-width, height), 3 * width, height, Vector2.ZERO)
-        val bottom: Rectangle =
-            FhysicsObjectFactory.customRectangle(Vector2(-width, -height), 3 * width, height, Vector2.ZERO)
-
-        return listOf(left, right, top, bottom)
-    }
-
-    private var stepSize: Double = 10.0
-    private var lastSample: Double = 0.0
-    private var lastCapacity: Int = QuadTree.capacity
 
     private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++
         if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame which where the rebuild will take the longest
             val average: Double = updateTimer.average()
-            quadTreeTimer.reset()
 
             qtCapacity[QuadTree.capacity] = average
             val newCapacity: Int = calculateNextQTCapacity()
@@ -167,16 +196,47 @@ object FhysicsCore {
             return QuadTree.capacity + 5
 
         val crntSample: Double = qtCapacity[QuadTree.capacity]!!
-
+        // if the capacity is increasing or decreasing
         val valueDir: Int = -(crntSample - lastSample).sign.toInt()
+        // if the mspu is increasing or decreasing
         val capacityDir: Int = (QuadTree.capacity - lastCapacity).sign
+        // the direction the capacity should change to get closer to the optimal capacity
         val totalDir: Int = valueDir * capacityDir
 
+        // calculate the new capacity
         val newCapacity: Int = QuadTree.capacity + stepSize.toInt() * totalDir
 
-        stepSize = max(1.0, stepSize - 0.5) // reduces stepSize by one every 2 updates because it's rounded to an int
+        // if a lot of objects got spawned since the last time the stepSize was increased then increase the stepSize again
+        if (objectCount - objectsAtStepSizeIncrease > 100) {
+            stepSize = max(
+                stepSize,
+                QTC_START_STEP_SIZE * 0.75
+            ) // increase stepSize to increase the speed of the capacity optimization (max to not decrease when it's higher at the start of the program)
+            objectsAtStepSizeIncrease = objectCount
+            qtCapacity.clear()
+        } else {
+            stepSize =
+                max(1.0, stepSize - 0.5) // reduces stepSize by one every 2 updates
+        }
 
         return newCapacity
+    }
+
+    fun gravityAt(pos: Vector2): Vector2 {
+        if (UIController.gravityType == GravityType.DIRECTIONAL) {
+            return UIController.gravityDirection
+        } else {
+            val minDst = 0.05F
+            val sqrDst: Float = UIController.gravityPoint.sqrDistance(pos)
+            if (sqrDst < minDst * minDst) {
+                // to not fling objects away and to avoid objects getting stuck in the
+                // gravity point causing it to vibrate and hitting other objects away
+                return Vector2.ZERO
+            }
+
+            val direction: Vector2 = UIController.gravityPoint - pos
+            return UIController.gravityPointStrength / sqrDst * direction.normalized()
+        }
     }
 
     fun nextId(): Int {

@@ -5,6 +5,8 @@
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleButton?>
@@ -186,7 +188,7 @@
                               </Text>
                               <TextField fx:id="txtTimeSpeed" onKeyTyped="#onTimeSpeedTyped" prefHeight="26.0" prefWidth="167.0" promptText="speed">
                                  <tooltip>
-                                    <Tooltip text="Time step scaling factor" />
+                                    <Tooltip text="Time step scaling factor (may influence accuracy)" />
                                  </tooltip>
                               </TextField>
                            </children>
@@ -218,13 +220,18 @@
                               <Insets top="5.0" />
                            </padding>
                         </CheckBox>
-                        <CheckBox fx:id="cbQTNodeUtilization" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onQTNodeUtilizationClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
+                        <CheckBox fx:id="cbQTNodeUtilization" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onQTNodeUtilizationClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
                            <tooltip>
                               <Tooltip text="The amount of objects that are in a QT-node" />
                            </tooltip>
                            <padding>
                               <Insets bottom="5.0" />
                            </padding>
+                        </CheckBox>
+                        <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
+                           <tooltip>
+                              <Tooltip text="The amount of objects that one QT node can hold" />
+                           </tooltip>
                         </CheckBox>
                         <CheckBox fx:id="cbMSPU" layoutX="10.0" layoutY="27.0" mnemonicParsing="false" onMouseClicked="#onMSPUClicked" prefHeight="17.0" prefWidth="253.0" text="MSPU">
                            <tooltip>
@@ -236,16 +243,36 @@
                               <Tooltip text="Updates per second" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object Count">
+                        <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object count">
                            <tooltip>
                               <Tooltip text="The amount of objects in the scene" />
                            </tooltip>
+                           <padding>
+                              <Insets bottom="5.0" />
+                           </padding>
                         </CheckBox>
-                        <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
-                           <tooltip>
-                              <Tooltip text="The amount of objects that one QT node can hold" />
-                           </tooltip>
-                        </CheckBox>
+                        <HBox>
+                           <children>
+                              <Label prefWidth="85.0" text="Wall restitution ">
+                                 <tooltip>
+                                    <Tooltip text="0 = No bounce, 1 = Perfect bounce" />
+                                 </tooltip>
+                              </Label>
+                              <Slider fx:id="sldWallElasticity" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onWallElasticityChanged" prefHeight="17.0" prefWidth="120.0" value="1.0">
+                                 <tooltip>
+                                    <Tooltip text="0 = No bounce, 1 = Perfect bounce" />
+                                 </tooltip>
+                              </Slider>
+                              <Label fx:id="lblWallElasticity" prefWidth="25.0" text="1.00">
+                                 <padding>
+                                    <Insets left="2.0" />
+                                 </padding>
+                                 <tooltip>
+                                    <Tooltip text="0 = No bounce, 1 = Perfect bounce" />
+                                 </tooltip>
+                              </Label>
+                           </children>
+                        </HBox>
                      </children>
                      <opaqueInsets>
                         <Insets />
