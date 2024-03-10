@@ -129,14 +129,14 @@ object FhysicsCore {
 
     private fun checkObjectCollision(quadTree: QuadTree) {
         if (!quadTree.divided) {
-            val objects = quadTree.objects
-            val numObjects = objects.size
+            val objects: MutableList<FhysicsObject> = quadTree.objects
+            val numObjects: Int = objects.size
 
-            for (i in 0 until numObjects - 1) {
-                val objA = objects[i]
+            for (i: Int in 0 until numObjects - 1) {
+                val objA: FhysicsObject = objects[i]
 
-                for (j in i + 1 until numObjects) {
-                    val objB = objects[j]
+                for (j: Int in i + 1 until numObjects) {
+                    val objB: FhysicsObject = objects[j]
                     handleCollision(objA, objB)
                 }
             }
@@ -213,6 +213,7 @@ object FhysicsCore {
                 QTC_START_STEP_SIZE * 0.75
             ) // increase stepSize to increase the speed of the capacity optimization (max to not decrease when it's higher at the start of the program)
             objectsAtStepSizeIncrease = objectCount
+            qtCapacity.clear()
         } else {
             stepSize =
                 max(1.0, stepSize - 0.5) // reduces stepSize by one every 2 updates
@@ -223,7 +224,7 @@ object FhysicsCore {
 
     fun gravityAt(pos: Vector2): Vector2 {
         if (UIController.gravityType == GravityType.DIRECTIONAL) {
-            return Vector2(0.0F, -9.81F)
+            return UIController.gravityDirection
         } else {
             val minDst = 0.05F
             val sqrDst: Float = UIController.gravityPoint.sqrDistance(pos)

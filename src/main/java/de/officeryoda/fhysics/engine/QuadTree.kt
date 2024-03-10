@@ -11,6 +11,7 @@ data class QuadTree(
     private val parent: QuadTree?,
 ) {
     val objects: MutableList<FhysicsObject> = ArrayList()
+    private val canDivide: Boolean = boundary.width > 1 // minimum width of 1 to prevent infinite division
 
     var divided: Boolean = false
         private set
@@ -31,7 +32,7 @@ data class QuadTree(
         if (!boundary.intersects(obj)) return
         if (objects.contains(obj)) return
 
-        if (objects.size < capacity && !divided) {
+        if ((objects.size < capacity && !divided) || (!canDivide && !divided)) {
             objects.add(obj)
             return
         }
@@ -217,17 +218,16 @@ data class QuadTree(
     override fun toString(): String {
         return if (divided) {
             "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, " +
-                    "divided=true, \n\ttopLeft=$topLeft, \n\ttopRight=$topRight, \n\tbotLeft=$botLeft, \n\tbotRight=$botRight)"
+                    "divided=true, canDivide=$canDivide, \n\ttopLeft=$topLeft, \n\ttopRight=$topRight, \n\tbotLeft=$botLeft, \n\tbotRight=$botRight)"
         } else {
-            "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false)"
+            "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, canDivide=$canDivide)"
         }
     }
 
     companion object {
         var capacity: Int = 32
             set(value) {
-                // I experienced crashes with values below 3
-                field = value.coerceAtLeast(3)
+                field = value.coerceAtLeast(1)
             }
     }
 }

@@ -253,12 +253,12 @@
                         </CheckBox>
                         <HBox>
                            <children>
-                              <Label text="Wall elasticity">
+                              <Label prefHeight="17.0" prefWidth="85.0" text="Wall restitution ">
                                  <tooltip>
                                     <Tooltip text="0 = No bounce, 1 = Perfect bounce" />
                                  </tooltip>
                               </Label>
-                              <Slider fx:id="sldWallElasticity" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onWallElasticityChanged" prefHeight="17.0" prefWidth="129.0" value="1.0">
+                              <Slider fx:id="sldWallElasticity" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onWallElasticityChanged" prefHeight="17.0" prefWidth="120.0" value="1.0">
                                  <tooltip>
                                     <Tooltip text="0 = No bounce, 1 = Perfect bounce" />
                                  </tooltip>
