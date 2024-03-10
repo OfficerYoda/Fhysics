@@ -228,6 +228,11 @@
                               <Insets bottom="5.0" />
                            </padding>
                         </CheckBox>
+                        <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
+                           <tooltip>
+                              <Tooltip text="The amount of objects that one QT node can hold" />
+                           </tooltip>
+                        </CheckBox>
                         <CheckBox fx:id="cbMSPU" layoutX="10.0" layoutY="27.0" mnemonicParsing="false" onMouseClicked="#onMSPUClicked" prefHeight="17.0" prefWidth="253.0" text="MSPU">
                            <tooltip>
                               <Tooltip text="Milliseconds per update" />
@@ -242,18 +247,13 @@
                            <tooltip>
                               <Tooltip text="The amount of objects in the scene" />
                            </tooltip>
-                        </CheckBox>
-                        <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
-                           <tooltip>
-                              <Tooltip text="The amount of objects that one QT node can hold" />
-                           </tooltip>
                            <padding>
                               <Insets bottom="5.0" />
                            </padding>
                         </CheckBox>
                         <HBox>
                            <children>
-                              <Label prefHeight="17.0" prefWidth="85.0" text="Wall restitution ">
+                              <Label prefWidth="85.0" text="Wall restitution ">
                                  <tooltip>
                                     <Tooltip text="0 = No bounce, 1 = Perfect bounce" />
                                  </tooltip>
