@@ -237,6 +237,7 @@ class UIController {
 
         /// =====Time=====
         btnPause.isSelected = !FhysicsCore.running
+        btnStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
 
         /// =====Debug=====

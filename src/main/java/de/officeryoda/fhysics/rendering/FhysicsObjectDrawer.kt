@@ -143,6 +143,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun lerpZoom() {
+        // a value I think looks good
         val interpolation = 0.12F
 
         // lerp the zoom and zoomCenter
@@ -161,7 +162,7 @@ class FhysicsObjectDrawer : Application() {
         if (obj is Circle) {
             drawCircle(obj)
         } else if (obj is Rectangle) {
-            drawBox(obj)
+            drawRectangle(obj)
         }
     }
 
@@ -177,14 +178,28 @@ class FhysicsObjectDrawer : Application() {
         )
     }
 
-    private fun drawBox(rect: Rectangle) {
+    private fun drawRectangle(rect: Rectangle) {
         val pos: Vector2 = worldToScreen(rect.position)
+
+        // Save the current state of the graphics context
+        gc.save()
+
+        // Translate to the center of the rectangle
+        gc.translate(pos.x.toDouble(), pos.y.toDouble())
+
+        // Rotate around the center of the rectangle
+        gc.rotate(rect.rotation.toDouble())
+
+        // Draw the rectangle
         gc.fillRect(
-            pos.x.toDouble(),
-            pos.y - rect.height * zoom,
+            -rect.width * zoom / 2,  // Adjust for the center
+            -rect.height * zoom / 2, // Adjust for the center
             rect.width * zoom,
             rect.height * zoom
         )
+
+        // Restore the original state of the graphics context
+        gc.restore()
     }
 
     private fun drawDebugPoints() {
