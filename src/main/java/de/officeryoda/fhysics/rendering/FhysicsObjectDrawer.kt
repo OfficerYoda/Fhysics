@@ -251,7 +251,7 @@ class FhysicsObjectDrawer : Application() {
 
         // draw transparent fill
         val quadTreeCapacity: Int = QuadTree.capacity
-        setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt()))
+        setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)))
         gc.fillRect(x, y, width, height)
         // write the amount of objects in the cell
         drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
@@ -290,7 +290,7 @@ class FhysicsObjectDrawer : Application() {
             if (UIController.drawUPS) {
                 val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
                 val upsRounded: String = String.format(Locale.US, "%.2f", ups)
-                stats.add("FPS: $upsRounded")
+                stats.add("UPS: $upsRounded")
             }
         }
 

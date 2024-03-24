@@ -57,7 +57,7 @@ object CollisionFinder {
         offset = closestPointOnEdge - circle.position
 
         // Calculate collision normal and overlap
-        val collisionNormal: Vector2 = (- circle.position + closestPointOnEdge).normalized()
+        val collisionNormal: Vector2 = (-circle.position + closestPointOnEdge).normalized()
         val overlap: Float = -offset.magnitude() + circle.radius * edgePair.second
 
         return CollisionInfo(circle, rect, collisionNormal, overlap)
@@ -83,8 +83,8 @@ object CollisionFinder {
      */
     private fun getClosestPoint(rect: Rectangle, externalPoint: Vector2): Vector2 {
         // Coerce external point coordinates to be within rect boundaries
-        val closestX = externalPoint.x.coerceIn(rect.minX, rect.maxX)
-        val closestY = externalPoint.y.coerceIn(rect.minY, rect.maxY)
+        val closestX: Float = externalPoint.x.coerceIn(rect.minX, rect.maxX)
+        val closestY: Float = externalPoint.y.coerceIn(rect.minY, rect.maxY)
 
         return Vector2(closestX, closestY)
     }
@@ -99,17 +99,17 @@ object CollisionFinder {
      */
     private fun getClosestPointOnEdge(rect: Rectangle, closestPoint: Vector2): Pair<Vector2, Int> {
         // Calculate the distance from the closest point to the rect's edges
-        val dx1 = closestPoint.x - rect.minX
-        val dx2 = closestPoint.x - rect.maxX
-        val dy1 = closestPoint.y - rect.minY
-        val dy2 = closestPoint.y - rect.maxY
+        val dx1: Float = closestPoint.x - rect.minX
+        val dx2: Float = closestPoint.x - rect.maxX
+        val dy1: Float = closestPoint.y - rect.minY
+        val dy2: Float = closestPoint.y - rect.maxY
 
-        val dx = if (abs(dx1) < abs(dx2)) dx1 else dx2
-        val dy = if (abs(dy1) < abs(dy2)) dy1 else dy2
+        val dx: Float = if (abs(dx1) < abs(dx2)) dx1 else dx2
+        val dy: Float = if (abs(dy1) < abs(dy2)) dy1 else dy2
 
         // check if the external point is inside the rect
-        val insideBox = dx1 > 0 && dx2 < 0 && dy1 > 0 && dy2 < 0
-        val radiusSign = if (insideBox) -1 else 1 // the sign used for the radius further down in the calculation
+        val insideBox: Boolean = dx1 > 0 && dx2 < 0 && dy1 > 0 && dy2 < 0
+        val radiusSign: Int = if (insideBox) -1 else 1 // the sign used for the radius further down in the calculation
 
         // return the closest point on the rect's edge
         return if (abs(dx) < abs(dy)) {
