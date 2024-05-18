@@ -17,7 +17,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<fx:root type="Accordion" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
+<fx:root prefHeight="285.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
     <panes>
         <TitledPane focusTraversable="false" text="Spawn Object">
             <content>
@@ -246,6 +246,11 @@
                         <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object count">
                            <tooltip>
                               <Tooltip text="The amount of objects in the scene" />
+                           </tooltip>
+                        </CheckBox>
+                        <CheckBox fx:id="cbHitboxes" mnemonicParsing="false" onMouseClicked="#onHitboxesClicked" prefHeight="17.0" prefWidth="253.0" text="Hitboxes">
+                           <tooltip>
+                              <Tooltip text="Shows The hitboxes as an outline" />
                            </tooltip>
                            <padding>
                               <Insets bottom="5.0" />

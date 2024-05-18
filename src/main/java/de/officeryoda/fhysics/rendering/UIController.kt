@@ -49,6 +49,10 @@ class UIController {
     @FXML
     private lateinit var cbQTNodeUtilization: CheckBox
 
+
+    @FXML
+    private lateinit var cbQTCapacity: CheckBox
+
     @FXML
     private lateinit var cbMSPU: CheckBox
 
@@ -59,7 +63,7 @@ class UIController {
     private lateinit var cbObjectCount: CheckBox
 
     @FXML
-    private lateinit var cbQTCapacity: CheckBox
+    private lateinit var cbHitboxes: CheckBox
 
     @FXML
     private lateinit var lblWallElasticity: Label
@@ -182,6 +186,11 @@ class UIController {
     }
 
     @FXML
+    fun onQTCapacityClicked() {
+        drawQTCapacity = cbQTCapacity.isSelected
+    }
+
+    @FXML
     fun onMSPUClicked() {
         drawMSPU = cbMSPU.isSelected
     }
@@ -197,8 +206,8 @@ class UIController {
     }
 
     @FXML
-    fun onQTCapacityClicked() {
-        drawQTCapacity = cbQTCapacity.isSelected
+    fun onHitboxesClicked() {
+        drawHitboxes = !drawHitboxes
     }
 
     @FXML
@@ -245,9 +254,12 @@ class UIController {
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
         cbQTNodeUtilization.isDisable = !drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
+
+        cbObjectCount.isSelected = drawObjectCount
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
-        cbObjectCount.isSelected = drawObjectCount
+        cbHitboxes.isSelected = drawHitboxes
+
         sldWallElasticity.value = wallElasticity.toDouble()
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
     }
@@ -288,9 +300,12 @@ class UIController {
             private set
 
         /// =====Debug=====
-        var drawQuadTree: Boolean = true
+        var drawQuadTree: Boolean = false
             private set
         var drawQTNodeUtilization: Boolean = true
+            private set
+
+        var drawQTCapacity: Boolean = false
             private set
         var drawMSPU: Boolean = true
             private set
@@ -298,8 +313,9 @@ class UIController {
             private set
         var drawObjectCount: Boolean = false
             private set
-        var drawQTCapacity: Boolean = false
+        var drawHitboxes: Boolean = true
             private set
+
         var wallElasticity: Float = 1.0F
             private set
     }

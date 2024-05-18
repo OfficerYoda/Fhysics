@@ -103,7 +103,6 @@ class FhysicsObjectDrawer : Application() {
         loader.load<Any>()
     }
 
-
     private fun addListeners(scene: Scene) {
         scene.setOnScroll { SceneListener.onMouseWheel(it) }
         scene.setOnMousePressed { SceneListener.onMousePressed(it) }
@@ -130,14 +129,11 @@ class FhysicsObjectDrawer : Application() {
         gc.clearRect(0.0, 0.0, width, height)
 
         drawAllObjects()
-
         drawBorder()
-
         drawDebugPoints()
 
         if (UIController.drawQuadTree) drawQuadTree()
-
-//        drawQuadTree()
+        if (UIController.drawHitboxes) drawHitboxes()
 
         drawStats()
     }
@@ -234,6 +230,26 @@ class FhysicsObjectDrawer : Application() {
 
     private fun drawQuadTree() {
         FhysicsCore.quadTree.draw(::transformAndDrawQuadTreeCapacity)
+    }
+
+    private fun drawHitboxes() {
+        // this method will only draw the hitboxes of rectangles
+        // because the hitbox of a circle is the circle itself,
+        // and it was created to debug the hitbox of rectangles
+        for (obj: FhysicsObject in FhysicsCore.fhysicsObjects.toList()) {
+            if (obj !is Rectangle) continue
+
+            val pos = Vector2(obj.minX, obj.minY)
+            val size = Vector2(obj.maxX - obj.minX, obj.maxY - obj.minY)
+
+            setStrokeColor(Color.RED)
+            gc.strokeRect(
+                worldToScreenX(pos.x),
+                worldToScreenY(pos.y + size.y),
+                size.x * zoom,
+                size.y * zoom
+            )
+        }
     }
 
     private fun transformAndDrawQuadTreeCapacity(rect: Rectangle2D, contentCount: Int) {

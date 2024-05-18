@@ -4,29 +4,33 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import java.awt.Color
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sin
+import java.lang.Math.toRadians
+import kotlin.math.*
 
 class Rectangle(
     position: Vector2,
     val width: Float,
     val height: Float,
-    val rotation: Float = 0F,
+    val rotation: Float = 0F, // in Degrees
 ) : FhysicsObject(position, width * height) {
 
-    val minX: Float = min(position.x - rotatedOffsetX().toFloat(), position.x + rotatedOffsetX().toFloat())
+    val minX: Float
 
-    val maxX: Float = max(position.x - rotatedOffsetX().toFloat(), position.x + rotatedOffsetX().toFloat())
+    val maxX: Float
 
-    val minY: Float = min(position.y - rotatedOffsetY().toFloat(), position.y + rotatedOffsetY().toFloat())
+    val minY: Float
 
-    val maxY: Float = max(position.y - rotatedOffsetY().toFloat(), position.y + rotatedOffsetY().toFloat())
+    val maxY: Float
 
     init {
         color = Color.decode("#4287f5")
         static = true // rectangles must be static for min/max values to work
+
+        val offsets: Vector2 = calculateRotationOffsets()
+        minX = position.x - offsets.x
+        maxX = position.x + offsets.x
+        minY = position.y - offsets.y
+        maxY = position.y + offsets.y
     }
 
     override fun testCollision(other: Circle): CollisionInfo {
@@ -37,12 +41,18 @@ class Rectangle(
         return CollisionFinder.testCollision(this, other)
     }
 
-    private fun rotatedOffsetX(): Double {
-        return (width / 2) * cos(rotation.toDouble()) - (height / 2) * sin(rotation.toDouble())
-    }
+    private fun calculateRotationOffsets(): Vector2 {
+        val rot: Double = toRadians(rotation.toDouble())
+        val cosRot: Double = cos(rot)
+        val sinRot: Double = sin(rot)
+        val halfWidth: Double = width / 2.0
+        val halfHeight: Double = height / 2.0
 
-    private fun rotatedOffsetY(): Double {
-        return (height / 2) * sin(rotation.toDouble()) + (width / 2) * cos(rotation.toDouble())
+        // idk how this works, but it does
+        val offsetX: Double = abs(halfWidth * cosRot) + abs(halfHeight * sinRot)
+        val offsetY: Double = abs(halfWidth * sinRot) + abs(halfHeight * cosRot)
+
+        return Vector2(offsetX.toFloat(), offsetY.toFloat())
     }
 
     override fun toString(): String {
