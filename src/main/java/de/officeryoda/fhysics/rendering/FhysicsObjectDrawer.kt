@@ -28,6 +28,7 @@ import javafx.scene.text.Text
 import javafx.stage.Stage
 import java.awt.Color
 import java.awt.geom.Rectangle2D
+import java.lang.Math.toDegrees
 import java.util.*
 import kotlin.math.min
 
@@ -103,7 +104,6 @@ class FhysicsObjectDrawer : Application() {
         loader.load<Any>()
     }
 
-
     private fun addListeners(scene: Scene) {
         scene.setOnScroll { SceneListener.onMouseWheel(it) }
         scene.setOnMousePressed { SceneListener.onMousePressed(it) }
@@ -130,19 +130,17 @@ class FhysicsObjectDrawer : Application() {
         gc.clearRect(0.0, 0.0, width, height)
 
         drawAllObjects()
-
         drawBorder()
-
         drawDebugPoints()
 
         if (UIController.drawQuadTree) drawQuadTree()
-
-//        drawQuadTree()
+        if (UIController.drawBoundingBoxes) drawBoundingBoxes()
 
         drawStats()
     }
 
     private fun lerpZoom() {
+        // a value I think looks good
         val interpolation = 0.12F
 
         // lerp the zoom and zoomCenter
@@ -161,7 +159,7 @@ class FhysicsObjectDrawer : Application() {
         if (obj is Circle) {
             drawCircle(obj)
         } else if (obj is Rectangle) {
-            drawBox(obj)
+            drawRectangle(obj)
         }
     }
 
@@ -177,20 +175,34 @@ class FhysicsObjectDrawer : Application() {
         )
     }
 
-    private fun drawBox(rect: Rectangle) {
+    private fun drawRectangle(rect: Rectangle) {
         val pos: Vector2 = worldToScreen(rect.position)
+
+        // Save the current state of the graphics context
+        gc.save()
+
+        // Translate to the center of the rectangle
+        gc.translate(pos.x.toDouble(), pos.y.toDouble())
+
+        // Rotate around the center of the rectangle
+        gc.rotate(-toDegrees(rect.rotation.toDouble()))
+
+        // Draw the rectangle
         gc.fillRect(
-            pos.x.toDouble(),
-            pos.y - rect.height * zoom,
+            -rect.width * zoom / 2,  // Adjust for the center
+            -rect.height * zoom / 2, // Adjust for the center
             rect.width * zoom,
             rect.height * zoom
         )
+
+        // Restore the original state of the graphics context
+        gc.restore()
     }
 
     private fun drawDebugPoints() {
         val pointSize = 6.0
 
-        val duration = 60 // The amount of Frames the point should be visible
+        val duration = 200 // The amount of Frames the point should be visible
 
         for (triple in debugPoints.toList()) {
             val pos = worldToScreen(triple.first)
@@ -221,6 +233,28 @@ class FhysicsObjectDrawer : Application() {
         FhysicsCore.quadTree.draw(::transformAndDrawQuadTreeCapacity)
     }
 
+    private fun drawBoundingBoxes() {
+        FhysicsCore.fhysicsObjects.toList().forEach { obj ->
+            val (pos: Vector2, size) = when (obj) {
+                is Rectangle -> Vector2(obj.minX, obj.minY) to Vector2(obj.maxX - obj.minX, obj.maxY - obj.minY)
+                is Circle -> Vector2(
+                    obj.position.x - obj.radius,
+                    obj.position.y - obj.radius
+                ) to Vector2(obj.radius * 2, obj.radius * 2)
+
+                else -> return@forEach
+            }
+
+            setStrokeColor(Color.RED)
+            gc.strokeRect(
+                worldToScreenX(pos.x),
+                worldToScreenY(pos.y + size.y),
+                size.x * zoom,
+                size.y * zoom
+            )
+        }
+    }
+
     private fun transformAndDrawQuadTreeCapacity(rect: Rectangle2D, contentCount: Int) {
         val x: Double = worldToScreenX(rect.x)
         val y: Double = worldToScreenY(rect.y + rect.height)
@@ -236,7 +270,7 @@ class FhysicsObjectDrawer : Application() {
 
         // draw transparent fill
         val quadTreeCapacity: Int = QuadTree.capacity
-        setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt()))
+        setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)))
         gc.fillRect(x, y, width, height)
         // write the amount of objects in the cell
         drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
@@ -247,7 +281,7 @@ class FhysicsObjectDrawer : Application() {
         val font = Font("Spline Sans", fontSize)
 
         gc.font = font
-        setFillColor(Color.WHITE)
+        setFillColor(Color(255, 255, 255, 192))
 
         val textNode = Text(text)
         textNode.font = font
@@ -275,7 +309,7 @@ class FhysicsObjectDrawer : Application() {
             if (UIController.drawUPS) {
                 val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
                 val upsRounded: String = String.format(Locale.US, "%.2f", ups)
-                stats.add("FPS: $upsRounded")
+                stats.add("UPS: $upsRounded")
             }
         }
 

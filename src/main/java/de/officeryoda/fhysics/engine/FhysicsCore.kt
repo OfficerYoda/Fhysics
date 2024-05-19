@@ -7,15 +7,14 @@ import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
+import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.Timer
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sign
-import kotlin.math.sin
 
 object FhysicsCore {
 
@@ -47,40 +46,35 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        quadTree.subdivide()
-
 //        for (i in 1..200) {
 //            val circle: Circle = FhysicsObjectFactory.randomCircle()
-//            circle.velocity.set(Vector2.ZERO)
+////            circle.velocity.set(Vector2.ZERO)
 //            spawn(circle)
 //        }
 
-        // spawn objects in a circle around the center
-        val center = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
-        val radius = 10.0f
-        val numObjects = 10
-        val speed = 2.0f // Desired speed for objects
+        // spawn some rectangles
+//        for (i in 1..10) {
+//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
+//            rect.velocity.set(Vector2.ZERO)
+//            spawn(rect)
+//        }
 
-        for (l in 1..4) {
-            // Loop to spawn objects
-            for (i in 0 until numObjects * l) {
-                // Calculate angle and position
-                val angle: Double = 2.0 * Math.PI * (i.toFloat() / (numObjects * l))
-                val x: Double = center.x + radius * l * cos(angle)
-                val y: Double = center.y + radius * l * sin(angle)
+        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, 45f)
+        spawn(rect)
 
-                // Calculate unit direction vector
-                val cosAngle: Float = cos(angle).toFloat()
-                val sinAngle: Float = sin(angle).toFloat()
-
-                // Rotate direction by 90 degrees for tangent
-                val velocity: Vector2 = Vector2(sinAngle, -cosAngle) * speed
-
-                val circle: Circle =
-                    FhysicsObjectFactory.customCircle(Vector2(x.toFloat(), y.toFloat()), 0.5f, velocity)
-                spawn(circle)
-            }
-        }
+        // spawn nine rectangles with increasing rotation in a 3x3 grid
+//        for (i in 0..11) {
+//            val rect = Rectangle(
+//                Vector2(
+//                    (BORDER.width / 3 * (i % 3) + BORDER.width / 6).toFloat(),
+//                    BORDER.height.toFloat() - (BORDER.height / 3 * (i / 3) + BORDER.height / 6).toFloat()
+//                ),
+//                30.0F,
+//                10.0F,
+//                30f * i
+//            )
+//            spawn(rect)
+//        }
 
         objectsAtStepSizeIncrease = objectCount
         startUpdateLoop()
@@ -100,13 +94,13 @@ object FhysicsCore {
     fun update() {
         updateTimer.start()
 
-        spawnObject()
+//        spawnObject()
 
         quadTree.updateObjectsAndRebuild()
 
         checkObjectCollision(quadTree)
 
-        optimizeQuadTreeCapacity()
+//        optimizeQuadTreeCapacity()
 
         updateCount++
         updateTimer.stop()

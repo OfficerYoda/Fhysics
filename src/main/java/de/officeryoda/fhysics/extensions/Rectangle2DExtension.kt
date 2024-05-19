@@ -1,9 +1,9 @@
 package de.officeryoda.fhysics.extensions
 
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.objects.Rectangle
 import java.awt.geom.Rectangle2D
 
 /**
@@ -53,7 +53,7 @@ fun Rectangle2D.contains(circle: Circle): Boolean {
  */
 fun Rectangle2D.contains(rect: Rectangle): Boolean {
     // an AABB check
-    return contains(rect.position) && contains(rect.position + Vector2(rect.width, rect.height))
+    return contains(Vector2(rect.minX, rect.minY)) && contains(Vector2(rect.maxX, rect.maxY))
 }
 
 /**
@@ -80,7 +80,7 @@ fun Rectangle2D.intersects(obj: FhysicsObject): Boolean {
  * @return True if the Rectangle intersects with the Circle, false otherwise.
  */
 fun Rectangle2D.intersects(circle: Circle): Boolean {
-// Check if the rectangle intersects with the circle
+    // Check if the rectangle intersects with the circles bounding box
     if (this.intersects(
             circle.position.x.toDouble() - circle.radius.toDouble(),
             circle.position.y.toDouble() - circle.radius.toDouble(),
@@ -88,13 +88,13 @@ fun Rectangle2D.intersects(circle: Circle): Boolean {
             2 * circle.radius.toDouble()
         )
     ) {
-        // Bound the closest X/Y-coordinate within the horizontal/vertical range of the rectangle.
-        val closestX = circle.position.x.coerceIn(this.minX.toFloat(), this.maxX.toFloat())
-        val closestY = circle.position.y.coerceIn(this.minY.toFloat(), this.maxY.toFloat())
+        // Get the closest point on the rect to the circle's center
+        val closestX: Float = circle.position.x.coerceIn(this.minX.toFloat(), this.maxX.toFloat())
+        val closestY: Float = circle.position.y.coerceIn(this.minY.toFloat(), this.maxY.toFloat())
         val closestPos = Vector2(closestX, closestY)
 
         // Check if the distance is less than or equal to the radius of the circle
-        val distanceSquared = circle.position.sqrDistance(closestPos)
+        val distanceSquared: Float = circle.position.sqrDistance(closestPos)
         return distanceSquared <= circle.radius * circle.radius
     }
 
@@ -109,9 +109,10 @@ fun Rectangle2D.intersects(circle: Circle): Boolean {
  */
 fun Rectangle2D.intersects(rect: Rectangle): Boolean {
     return this.intersects(
-        rect.position.x.toDouble(),
-        rect.position.y.toDouble(),
-        rect.width.toDouble(),
-        rect.height.toDouble())
+        rect.minX.toDouble(),
+        rect.minY.toDouble(),
+        (rect.maxX - rect.minX).toDouble(),
+        (rect.maxY - rect.minY).toDouble()
+    )
 }
 

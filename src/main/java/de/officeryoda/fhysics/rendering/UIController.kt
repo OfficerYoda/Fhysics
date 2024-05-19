@@ -49,6 +49,10 @@ class UIController {
     @FXML
     private lateinit var cbQTNodeUtilization: CheckBox
 
+
+    @FXML
+    private lateinit var cbQTCapacity: CheckBox
+
     @FXML
     private lateinit var cbMSPU: CheckBox
 
@@ -59,7 +63,7 @@ class UIController {
     private lateinit var cbObjectCount: CheckBox
 
     @FXML
-    private lateinit var cbQTCapacity: CheckBox
+    private lateinit var cbBoundingBoxes: CheckBox
 
     @FXML
     private lateinit var lblWallElasticity: Label
@@ -182,6 +186,11 @@ class UIController {
     }
 
     @FXML
+    fun onQTCapacityClicked() {
+        drawQTCapacity = cbQTCapacity.isSelected
+    }
+
+    @FXML
     fun onMSPUClicked() {
         drawMSPU = cbMSPU.isSelected
     }
@@ -197,8 +206,8 @@ class UIController {
     }
 
     @FXML
-    fun onQTCapacityClicked() {
-        drawQTCapacity = cbQTCapacity.isSelected
+    fun onBoundingBoxesClicked() {
+        drawBoundingBoxes = !drawBoundingBoxes
     }
 
     @FXML
@@ -237,6 +246,7 @@ class UIController {
 
         /// =====Time=====
         btnPause.isSelected = !FhysicsCore.running
+        btnStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
 
         /// =====Debug=====
@@ -244,9 +254,12 @@ class UIController {
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
         cbQTNodeUtilization.isDisable = !drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
+
+        cbObjectCount.isSelected = drawObjectCount
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
-        cbObjectCount.isSelected = drawObjectCount
+        cbBoundingBoxes.isSelected = drawBoundingBoxes
+
         sldWallElasticity.value = wallElasticity.toDouble()
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
     }
@@ -274,7 +287,7 @@ class UIController {
         /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0F, 0.0F)
+        val gravityDirection: Vector2 = Vector2(0.0F, -9.81F)
         val gravityPoint: Vector2 = Vector2( // the center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
@@ -289,7 +302,10 @@ class UIController {
         /// =====Debug=====
         var drawQuadTree: Boolean = false
             private set
-        var drawQTNodeUtilization: Boolean = false
+        var drawQTNodeUtilization: Boolean = true
+            private set
+
+        var drawQTCapacity: Boolean = false
             private set
         var drawMSPU: Boolean = true
             private set
@@ -297,8 +313,9 @@ class UIController {
             private set
         var drawObjectCount: Boolean = false
             private set
-        var drawQTCapacity: Boolean = false
+        var drawBoundingBoxes: Boolean = false
             private set
+
         var wallElasticity: Float = 1.0F
             private set
     }
