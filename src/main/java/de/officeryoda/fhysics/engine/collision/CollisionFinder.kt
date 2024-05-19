@@ -1,8 +1,11 @@
 package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.rendering.RenderUtil
+import java.awt.geom.Rectangle2D
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -22,8 +25,7 @@ object CollisionFinder {
         val radii: Float = circleA.radius + circleB.radius
 
         // Check if the circles don't overlap
-        if (sqrDst >= radii * radii)
-            return CollisionInfo()
+        if (sqrDst >= radii * radii) return CollisionInfo()
 
         // Calculate collision normal and overlap
         val collisionNormal: Vector2 = (circleB.position - circleA.position).normalized()
@@ -40,25 +42,31 @@ object CollisionFinder {
      * @return A CollisionInfo object containing information about the collision
      */
     fun testCollision(circle: Circle, rect: Rectangle): CollisionInfo {
-        // Get the closest point on the rect to the circle's center
+        if (!Rectangle2D.Float(rect.minX, rect.minY, rect.maxX - rect.minX, rect.maxY - rect.minY).intersects(circle)) {
+            return CollisionInfo()
+        }
+
+        // Get the rectangle's axes (normals of its sides)
+        val axes: List<Vector2> = rect.getAxes()
+
+        // For each axis...
+        for (axis: Vector2 in axes) {
+            // Project the rectangle and the circle onto the axis
+            val projection1: Projection = rect.project(axis)
+            val projection2: Projection = circle.project(axis)
+
+            // If the projections do not overlap, then the rectangle and the circle do not collide
+            if (!projection1.overlaps(projection2)) {
+                return CollisionInfo()
+            }
+        }
+
+        // Get the closest point on the rectangle to the circle's center
         val closestPoint: Vector2 = getClosestPoint(rect, circle.position)
 
-        // Calculate the vector offset from the circles center to the closest point
-        var offset: Vector2 = closestPoint - circle.position
-
-        // Check if circle doesn't overlap with the rect
-        if (offset.sqrMagnitude() >= circle.radius * circle.radius)
-            return CollisionInfo()
-
-        // Get the closest point on the rect's edge to the circle's center
-        val edgePair: Pair<Vector2, Int> = getClosestPointOnEdge(rect, closestPoint)
-        val closestPointOnEdge: Vector2 = edgePair.first
-
-        offset = closestPointOnEdge - circle.position
-
-        // Calculate collision normal and overlap
-        val collisionNormal: Vector2 = (-circle.position + closestPointOnEdge).normalized()
-        val overlap: Float = -offset.magnitude() + circle.radius * edgePair.second
+        // Calculate the collision normal and overlap based on the closest point
+        val collisionNormal: Vector2 = (circle.position - closestPoint).normalized()
+        val overlap: Float = closestPoint.distance(circle.position) - circle.radius
 
         return CollisionInfo(circle, rect, collisionNormal, overlap)
     }
@@ -82,11 +90,20 @@ object CollisionFinder {
      * @param externalPoint The external point
      */
     private fun getClosestPoint(rect: Rectangle, externalPoint: Vector2): Vector2 {
-        // Coerce external point coordinates to be within rect boundaries
-        val closestX: Float = externalPoint.x.coerceIn(rect.minX, rect.maxX)
-        val closestY: Float = externalPoint.y.coerceIn(rect.minY, rect.maxY)
+        // Transform the external point to the rectangle's local coordinate system
+        val localPoint: Vector2 = externalPoint.rotateAround(rect.position, -rect.rotation)
 
-        return Vector2(closestX, closestY)
+        // Coerce local point coordinates to be within rect boundaries
+        val localClosestX: Float = localPoint.x.coerceIn(rect.position.x - rect.width / 2, rect.position.x + rect.width / 2)
+        val localClosestY: Float = localPoint.y.coerceIn(rect.position.y - rect.height / 2, rect.position.y + rect.height / 2)
+
+        // Transform the local closest point back to the global coordinate system
+        val globalClosestPoint: Vector2 =
+            Vector2(localClosestX, localClosestY).rotateAround(rect.position, rect.rotation)
+
+        RenderUtil.drawer.addDebugPoint(globalClosestPoint)
+
+        return globalClosestPoint
     }
 
     /**

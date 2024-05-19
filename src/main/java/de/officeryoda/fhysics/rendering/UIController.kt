@@ -287,7 +287,7 @@ class UIController {
         /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0F, 0.0F)
+        val gravityDirection: Vector2 = Vector2(0.0F, -9.81F)
         val gravityPoint: Vector2 = Vector2( // the center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
@@ -300,7 +300,7 @@ class UIController {
             private set
 
         /// =====Debug=====
-        var drawQuadTree: Boolean = true
+        var drawQuadTree: Boolean = false
             private set
         var drawQTNodeUtilization: Boolean = true
             private set

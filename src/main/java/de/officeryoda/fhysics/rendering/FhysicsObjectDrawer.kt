@@ -28,6 +28,7 @@ import javafx.scene.text.Text
 import javafx.stage.Stage
 import java.awt.Color
 import java.awt.geom.Rectangle2D
+import java.lang.Math.toDegrees
 import java.util.*
 import kotlin.math.min
 
@@ -184,7 +185,7 @@ class FhysicsObjectDrawer : Application() {
         gc.translate(pos.x.toDouble(), pos.y.toDouble())
 
         // Rotate around the center of the rectangle
-        gc.rotate(rect.rotation.toDouble())
+        gc.rotate(-toDegrees(rect.rotation.toDouble()))
 
         // Draw the rectangle
         gc.fillRect(
@@ -201,7 +202,7 @@ class FhysicsObjectDrawer : Application() {
     private fun drawDebugPoints() {
         val pointSize = 6.0
 
-        val duration = 60 // The amount of Frames the point should be visible
+        val duration = 200 // The amount of Frames the point should be visible
 
         for (triple in debugPoints.toList()) {
             val pos = worldToScreen(triple.first)

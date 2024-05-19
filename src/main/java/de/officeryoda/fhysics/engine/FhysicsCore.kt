@@ -59,7 +59,7 @@ object FhysicsCore {
 //            spawn(rect)
 //        }
 
-        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 10.0F, 30.0F, 45f)
+        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, 45f)
         spawn(rect)
 
         // spawn nine rectangles with increasing rotation in a 3x3 grid
