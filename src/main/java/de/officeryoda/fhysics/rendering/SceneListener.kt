@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
@@ -48,10 +49,14 @@ object SceneListener {
     fun onMousePressed(e: MouseEvent) {
         when (e.button) {
             MouseButton.PRIMARY -> {
+                // check if spawn pos is outside the border
+                val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
+                if(!FhysicsCore.BORDER.contains(transformedMousePos)) return
+
                 when (UIController.spawnObjectType) {
-                    SpawnObjectType.CIRCLE -> spawnCircle(e)
-                    SpawnObjectType.RECTANGLE -> spawnRectangle(e)
-                    SpawnObjectType.TRIANGLE -> spawnTriangle(e)
+                    SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
+                    SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
+                    SpawnObjectType.TRIANGLE -> spawnTriangle(transformedMousePos)
                 }
             }
 
@@ -67,32 +72,31 @@ object SceneListener {
     /**
      * Spawns a circle at the mouse position
      *
-     * @param e the mouse event
+     * @param position the world spawn position
      * @return the spawned circle
      */
-    private fun spawnCircle(e: MouseEvent) {
+    private fun spawnCircle(position: Vector2) {
         if (UIController.spawnRadius <= 0.0F) return
-        val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-        FhysicsCore.spawn(Circle(transformedMousePos, UIController.spawnRadius))
+        FhysicsCore.spawn(Circle(position, UIController.spawnRadius))
     }
 
     /**
      * Spawns a rectangle using the mouse position
      *
-     * @param e the mouse event
+     * @param position the world spawn position
      * @return the spawned rectangle
      */
-    private fun spawnRectangle(e: MouseEvent) {
+    private fun spawnRectangle(position: Vector2) {
         TODO("Not yet implemented")
     }
 
     /**
      * Spawns a triangle using the mouse position
      *
-     * @param e the mouse event
+     * @param position the world spawn position
      * @return the spawned triangle
      */
-    private fun spawnTriangle(e: MouseEvent) {
+    private fun spawnTriangle(position: Vector2) {
         TODO("Not yet implemented")
     }
 
