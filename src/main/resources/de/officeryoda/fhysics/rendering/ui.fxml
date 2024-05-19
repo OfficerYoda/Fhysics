@@ -248,9 +248,9 @@
                               <Tooltip text="The amount of objects in the scene" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox fx:id="cbHitboxes" mnemonicParsing="false" onMouseClicked="#onHitboxesClicked" prefHeight="17.0" prefWidth="253.0" text="Hitboxes">
+                        <CheckBox fx:id="cbBoundingBoxes" mnemonicParsing="false" onMouseClicked="#onBoundingBoxesClicked" prefHeight="17.0" prefWidth="253.0" text="Bounding Boxes">
                            <tooltip>
-                              <Tooltip text="Shows The hitboxes as an outline" />
+                              <Tooltip text="Shows the bounding boxes of objects" />
                            </tooltip>
                            <padding>
                               <Insets bottom="5.0" />

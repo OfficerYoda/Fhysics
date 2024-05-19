@@ -133,7 +133,7 @@ class FhysicsObjectDrawer : Application() {
         drawDebugPoints()
 
         if (UIController.drawQuadTree) drawQuadTree()
-        if (UIController.drawHitboxes) drawHitboxes()
+        if (UIController.drawBoundingBoxes) drawBoundingBoxes()
 
         drawStats()
     }
@@ -232,15 +232,17 @@ class FhysicsObjectDrawer : Application() {
         FhysicsCore.quadTree.draw(::transformAndDrawQuadTreeCapacity)
     }
 
-    private fun drawHitboxes() {
-        // this method will only draw the hitboxes of rectangles
-        // because the hitbox of a circle is the circle itself,
-        // and it was created to debug the hitbox of rectangles
-        for (obj: FhysicsObject in FhysicsCore.fhysicsObjects.toList()) {
-            if (obj !is Rectangle) continue
+    private fun drawBoundingBoxes() {
+        FhysicsCore.fhysicsObjects.toList().forEach { obj ->
+            val (pos: Vector2, size) = when (obj) {
+                is Rectangle -> Vector2(obj.minX, obj.minY) to Vector2(obj.maxX - obj.minX, obj.maxY - obj.minY)
+                is Circle -> Vector2(
+                    obj.position.x - obj.radius,
+                    obj.position.y - obj.radius
+                ) to Vector2(obj.radius * 2, obj.radius * 2)
 
-            val pos = Vector2(obj.minX, obj.minY)
-            val size = Vector2(obj.maxX - obj.minX, obj.maxY - obj.minY)
+                else -> return@forEach
+            }
 
             setStrokeColor(Color.RED)
             gc.strokeRect(

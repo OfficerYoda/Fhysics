@@ -63,7 +63,7 @@ class UIController {
     private lateinit var cbObjectCount: CheckBox
 
     @FXML
-    private lateinit var cbHitboxes: CheckBox
+    private lateinit var cbBoundingBoxes: CheckBox
 
     @FXML
     private lateinit var lblWallElasticity: Label
@@ -206,8 +206,8 @@ class UIController {
     }
 
     @FXML
-    fun onHitboxesClicked() {
-        drawHitboxes = !drawHitboxes
+    fun onBoundingBoxesClicked() {
+        drawBoundingBoxes = !drawBoundingBoxes
     }
 
     @FXML
@@ -258,7 +258,7 @@ class UIController {
         cbObjectCount.isSelected = drawObjectCount
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
-        cbHitboxes.isSelected = drawHitboxes
+        cbBoundingBoxes.isSelected = drawBoundingBoxes
 
         sldWallElasticity.value = wallElasticity.toDouble()
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
@@ -313,7 +313,7 @@ class UIController {
             private set
         var drawObjectCount: Boolean = false
             private set
-        var drawHitboxes: Boolean = true
+        var drawBoundingBoxes: Boolean = true
             private set
 
         var wallElasticity: Float = 1.0F
