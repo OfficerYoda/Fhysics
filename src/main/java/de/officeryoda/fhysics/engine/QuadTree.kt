@@ -53,7 +53,7 @@ data class QuadTree(
         botRight!!.insert(obj)
     }
 
-    fun subdivide() {
+    private fun subdivide() {
         val x: Float = boundary.x.toFloat()
         val y: Float = boundary.y.toFloat()
         val hw: Float = boundary.width.toFloat() / 2 // half width
@@ -81,66 +81,92 @@ data class QuadTree(
     /// =====rebuild functions=====
     fun updateObjectsAndRebuild() {
         if (divided) {
-            if (parent == null) {
-                // Root node
-                updateObjectsAndRebuildChildrenAsync()
-            } else {
-                // Subdivide and update children
-                topLeft!!.updateObjectsAndRebuild()
-                topRight!!.updateObjectsAndRebuild()
-                botLeft!!.updateObjectsAndRebuild()
-                botRight!!.updateObjectsAndRebuild()
-            }
-
+            // rebuild the children first
+            updateChildren()
+            // insert any objects that need to be rebuilt
             insertRebuildObjects()
+            // collapse the node if possible
             tryCollapse()
         } else {
-            // Check if the node is on the border
-            val borderNode: Boolean =
-                boundary.x == 0.0 || boundary.y == 0.0 || boundary.x + boundary.width == FhysicsCore.BORDER.width || boundary.y + boundary.height == FhysicsCore.BORDER.height
-
-            // Check if the objects are still fully in the boundary
+            // list of object to remove from this node
             val toRemove = ArrayList<FhysicsObject>()
 
-            if (parent == null && objects.size > capacity) {
-                // Root node handling, because there is no parent to add the rebuild objects to
-                rebuildObjects.addAll(objects)
-                toRemove.addAll(objects)
-                objects.forEach { updateObject(it, true) }
-                objects.clear()
-                subdivide()
-                insertRebuildObjects()
+            if (isRootAndOverCapacity()) {
+                handleRootNode(toRemove)
             } else {
-                // Non-root node handling
-                for (obj: FhysicsObject in objects) {
-                    // Physics update
-                    updateObject(obj, borderNode)
-
-                    // Keep only if fully contained in the boundary
-                    if (!boundary.contains(obj)) {
-                        // Add object to the rebuild list if not fully in the boundary
-                        parent?.addRebuildObject(obj)
-                        toRemove.add(obj)
-                    }
-                }
+                handleNonRootNode(toRemove)
             }
 
-            // Remove objects that need to be removed
             objects.removeAll(toRemove)
+        }
+    }
+
+    private fun updateChildren() {
+        if (parent == null) {
+            // update root children async
+            updateObjectsAndRebuildChildrenAsync()
+        } else {
+            topLeft!!.updateObjectsAndRebuild()
+            topRight!!.updateObjectsAndRebuild()
+            botLeft!!.updateObjectsAndRebuild()
+            botRight!!.updateObjectsAndRebuild()
+        }
+    }
+
+    private fun isNodeOnBorder(): Boolean {
+        return boundary.x == 0.0 || boundary.y == 0.0 || boundary.x + boundary.width == FhysicsCore.BORDER.width || boundary.y + boundary.height == FhysicsCore.BORDER.height
+    }
+
+    private fun isRootAndOverCapacity(): Boolean {
+        return parent == null && objects.size > capacity
+    }
+
+    private fun handleRootNode(toRemove: ArrayList<FhysicsObject>) {
+        // this case will probably never happen unless objects will be removed, but it is here just in case
+        // it can't happen because if the root was divided the sum of the objects in the children would be more then the node capacity
+        println("wow this should never happen (I think)")
+
+        // all objects will be removed and used to rebuild the tree
+        rebuildObjects.addAll(objects)
+        toRemove.addAll(objects)
+
+        // don't forget to update the objects
+        objects.forEach { updateObject(it, true) }
+        objects.clear()
+
+        // rebuild the tree
+        insertRebuildObjects()
+    }
+
+    private fun handleNonRootNode(toRemove: ArrayList<FhysicsObject>) {
+        val borderNode: Boolean = isNodeOnBorder()
+        for (obj: FhysicsObject in objects) {
+            // Update each object
+            updateObject(obj, borderNode)
+            // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
+            if (!boundary.contains(obj)) {
+                parent?.addRebuildObject(obj)
+                toRemove.add(obj)
+            }
         }
     }
 
     private fun tryCollapse() {
         if (!divided) return
 
+        // this doesn't take object on the edges into account, but it should be fine
         val objectsInChildren: Int = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
         if (objectsInChildren < capacity) {
             divided = false
             // add every child object to the parent
-            objects.addAll(topLeft!!.objects)
-            objects.addAll(topRight!!.objects)
-            objects.addAll(botLeft!!.objects)
-            objects.addAll(botRight!!.objects)
+            // set to prevent duplicates due to the edges
+            val objectsSet: HashSet<FhysicsObject> = HashSet()
+            objectsSet.addAll(topLeft!!.objects)
+            objectsSet.addAll(topRight!!.objects)
+            objectsSet.addAll(botLeft!!.objects)
+            objectsSet.addAll(botRight!!.objects)
+
+            objects.addAll(objectsSet)
         }
     }
 
@@ -156,12 +182,12 @@ data class QuadTree(
                 rebuildObjects.add(obj)
             }
         } else {
+            // if the object is not within the boundary, add the object to the parent's rebuild list
             parent.addRebuildObject(obj)
         }
     }
 
     private fun insertRebuildObjects() {
-        // print the size of rebuildObjects if not empty
         for (obj: FhysicsObject in rebuildObjects) {
             insert(obj)
         }

@@ -46,11 +46,9 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        quadTree.subdivide()
-
 //        for (i in 1..200) {
 //            val circle: Circle = FhysicsObjectFactory.randomCircle()
-//            circle.velocity.set(Vector2.ZERO)
+////            circle.velocity.set(Vector2.ZERO)
 //            spawn(circle)
 //        }
 
@@ -61,22 +59,22 @@ object FhysicsCore {
 //            spawn(rect)
 //        }
 
-//        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 10.0F, 30.0F, 45f)
-//        spawn(rect)
+        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 10.0F, 30.0F, 45f)
+        spawn(rect)
 
         // spawn nine rectangles with increasing rotation in a 3x3 grid
-        for (i in 0..11) {
-            val rect = Rectangle(
-                Vector2(
-                    (BORDER.width / 3 * (i % 3) + BORDER.width / 6).toFloat(),
-                    BORDER.height.toFloat() - (BORDER.height / 3 * (i / 3) + BORDER.height / 6).toFloat()
-                ),
-                30.0F,
-                10.0F,
-                30f * i
-            )
-            spawn(rect)
-        }
+//        for (i in 0..11) {
+//            val rect = Rectangle(
+//                Vector2(
+//                    (BORDER.width / 3 * (i % 3) + BORDER.width / 6).toFloat(),
+//                    BORDER.height.toFloat() - (BORDER.height / 3 * (i / 3) + BORDER.height / 6).toFloat()
+//                ),
+//                30.0F,
+//                10.0F,
+//                30f * i
+//            )
+//            spawn(rect)
+//        }
 
         objectsAtStepSizeIncrease = objectCount
         startUpdateLoop()
@@ -102,7 +100,7 @@ object FhysicsCore {
 
         checkObjectCollision(quadTree)
 
-        optimizeQuadTreeCapacity()
+//        optimizeQuadTreeCapacity()
 
         updateCount++
         updateTimer.stop()

@@ -278,7 +278,7 @@ class FhysicsObjectDrawer : Application() {
         val font = Font("Spline Sans", fontSize)
 
         gc.font = font
-        setFillColor(Color.WHITE)
+        setFillColor(Color(255, 255, 255, 192))
 
         val textNode = Text(text)
         textNode.font = font

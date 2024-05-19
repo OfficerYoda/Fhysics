@@ -300,7 +300,7 @@ class UIController {
             private set
 
         /// =====Debug=====
-        var drawQuadTree: Boolean = false
+        var drawQuadTree: Boolean = true
             private set
         var drawQTNodeUtilization: Boolean = true
             private set
