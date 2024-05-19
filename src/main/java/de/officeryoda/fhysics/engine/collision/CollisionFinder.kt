@@ -98,11 +98,15 @@ object CollisionFinder {
         // Transform the external point to the rectangle's local coordinate system
         val localPoint: Vector2 = externalPoint.rotateAround(rect.position, -rect.rotation)
 
+        val halfWidth: Float = rect.width / 2
+        val halfHeight: Float = rect.height / 2
+
         // Coerce local point coordinates to be within rect boundaries
         val localClosestX: Float =
-            localPoint.x.coerceIn(rect.position.x - rect.width / 2, rect.position.x + rect.width / 2)
+            localPoint.x.coerceIn(rect.position.x - halfWidth, rect.position.x + halfWidth)
         val localClosestY: Float =
-            localPoint.y.coerceIn(rect.position.y - rect.height / 2, rect.position.y + rect.height / 2)
+            localPoint.y.coerceIn(rect.position.y - halfHeight, rect.position.y + halfHeight)
+
 
         // Transform the local closest point back to the global coordinate system
         val globalClosestPoint: Vector2 =
@@ -122,11 +126,14 @@ object CollisionFinder {
     private fun getClosestPointOnEdge(rect: Rectangle, closestPoint: Vector2): Pair<Vector2, Int> {
         val closestRotatedPoint: Vector2 = closestPoint.rotateAround(rect.position, -rect.rotation)
 
+        val halfWidth: Float = rect.width / 2
+        val halfHeight: Float = rect.height / 2
+
         // Calculate the distance from the closest point to the rect's edges
-        val dx1: Float = closestRotatedPoint.x - (rect.position.x - rect.width / 2)
-        val dx2: Float = closestRotatedPoint.x - (rect.position.x + rect.width / 2)
-        val dy1: Float = closestRotatedPoint.y - (rect.position.y - rect.height / 2)
-        val dy2: Float = closestRotatedPoint.y - (rect.position.y + rect.height / 2)
+        val dx1: Float = closestRotatedPoint.x - (rect.position.x - halfWidth)
+        val dx2: Float = closestRotatedPoint.x - (rect.position.x + halfWidth)
+        val dy1: Float = closestRotatedPoint.y - (rect.position.y - halfHeight)
+        val dy2: Float = closestRotatedPoint.y - (rect.position.y + halfHeight)
 
         val dx: Float = if (abs(dx1) < abs(dx2)) dx1 else dx2
         val dy: Float = if (abs(dy1) < abs(dy2)) dy1 else dy2

@@ -20,18 +20,19 @@ abstract class FhysicsObject protected constructor(
     open fun updatePosition() {
         // static objects don't move
         if (static) return
+        // needed because multiple quadtree nodes can contain the same object
         if(lastUpdate == FhysicsCore.updateCount) return
-        
+        lastUpdate = FhysicsCore.updateCount
+
         val dt: Float = FhysicsCore.dt
         val damping = 0.00F
 
         acceleration += FhysicsCore.gravityAt(position)
-        velocity += (acceleration - velocity * damping) * dt
+        // Update velocity first (semi-implicit Euler)
+        velocity += acceleration * dt
+        velocity *= (1 - damping)
         position += velocity * dt
-
         acceleration.set(Vector2.ZERO)
-
-        lastUpdate = FhysicsCore.updateCount
     }
 
     private fun colorFromIndex(): Color {

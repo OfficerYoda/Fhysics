@@ -44,8 +44,8 @@ class Rectangle(
     private fun calculateRotationOffsets(): Vector2 {
         val cosRot: Float = cos(rotation)
         val sinRot: Float = sin(rotation)
-        val halfWidth: Float = width / 2.0f
-        val halfHeight: Float = height / 2.0f
+        val halfWidth: Float = width / 2
+        val halfHeight: Float = height / 2
 
         // idk how this works, but it does
         val offsetX: Float = abs(halfWidth * cosRot) + abs(halfHeight * sinRot)
@@ -70,8 +70,8 @@ class Rectangle(
     }
 
     private fun getVertices(): List<Vector2> {
-        val halfWidth = width / 2
-        val halfHeight = height / 2
+        val halfWidth: Float = width / 2
+        val halfHeight: Float = height / 2
 
         // Calculate the four corners of the rectangle before rotation
         val topLeft = Vector2(position.x - halfWidth, position.y - halfHeight)

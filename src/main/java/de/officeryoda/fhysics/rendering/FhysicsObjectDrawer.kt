@@ -204,8 +204,8 @@ class FhysicsObjectDrawer : Application() {
 
         val duration = 200 // The amount of Frames the point should be visible
 
-        for (triple in debugPoints.toList()) {
-            val pos = worldToScreen(triple.first)
+        for (triple: Triple<Vector2, Color, Int> in debugPoints.toList()) {
+            val pos: Vector2 = worldToScreen(triple.first)
             setFillColor(triple.second)
             gc.fillOval(
                 pos.x - pointSize / 2,
