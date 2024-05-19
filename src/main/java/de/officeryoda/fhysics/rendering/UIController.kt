@@ -313,7 +313,7 @@ class UIController {
             private set
         var drawObjectCount: Boolean = false
             private set
-        var drawBoundingBoxes: Boolean = true
+        var drawBoundingBoxes: Boolean = false
             private set
 
         var wallElasticity: Float = 1.0F

@@ -4,12 +4,13 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.Rectangle
-import de.officeryoda.fhysics.rendering.RenderUtil
 import java.awt.geom.Rectangle2D
 import kotlin.math.abs
 import kotlin.math.sqrt
 
 object CollisionFinder {
+
+    private const val EPSILON: Float = 0.0001F
 
     /**
      * Tests for collision between two circles
@@ -64,9 +65,13 @@ object CollisionFinder {
         // Get the closest point on the rectangle to the circle's center
         val closestPoint: Vector2 = getClosestPoint(rect, circle.position)
 
+        // Get the closest point on the rect's edge to the circle's center
+        val edgePair: Pair<Vector2, Int> = getClosestPointOnEdge(rect, closestPoint)
+        val offset: Vector2 = circle.position - edgePair.first
+
         // Calculate the collision normal and overlap based on the closest point
-        val collisionNormal: Vector2 = (circle.position - closestPoint).normalized()
-        val overlap: Float = closestPoint.distance(circle.position) - circle.radius
+        val collisionNormal: Vector2 = offset.normalized()
+        val overlap: Float = offset.magnitude() - circle.radius * edgePair.second
 
         return CollisionInfo(circle, rect, collisionNormal, overlap)
     }
@@ -94,45 +99,53 @@ object CollisionFinder {
         val localPoint: Vector2 = externalPoint.rotateAround(rect.position, -rect.rotation)
 
         // Coerce local point coordinates to be within rect boundaries
-        val localClosestX: Float = localPoint.x.coerceIn(rect.position.x - rect.width / 2, rect.position.x + rect.width / 2)
-        val localClosestY: Float = localPoint.y.coerceIn(rect.position.y - rect.height / 2, rect.position.y + rect.height / 2)
+        val localClosestX: Float =
+            localPoint.x.coerceIn(rect.position.x - rect.width / 2, rect.position.x + rect.width / 2)
+        val localClosestY: Float =
+            localPoint.y.coerceIn(rect.position.y - rect.height / 2, rect.position.y + rect.height / 2)
 
         // Transform the local closest point back to the global coordinate system
         val globalClosestPoint: Vector2 =
             Vector2(localClosestX, localClosestY).rotateAround(rect.position, rect.rotation)
-
-        RenderUtil.drawer.addDebugPoint(globalClosestPoint)
 
         return globalClosestPoint
     }
 
     /**
      * Gets the closest point on the rectangle's edge to the external point
-     * and an integer that represents if the external point is outside the rectangle
+     * and an integer that represents if the external point is inside (-1) or outside (1) the rectangle
      *
      * @param rect The rectangle
      * @param closestPoint The closest point on the rectangle to the external point
      * @return A pair containing the closest point on the rectangle's edge and an integer that represents if the external point is outside the rectangle
      */
     private fun getClosestPointOnEdge(rect: Rectangle, closestPoint: Vector2): Pair<Vector2, Int> {
+        val closestRotatedPoint: Vector2 = closestPoint.rotateAround(rect.position, -rect.rotation)
+
         // Calculate the distance from the closest point to the rect's edges
-        val dx1: Float = closestPoint.x - rect.minX
-        val dx2: Float = closestPoint.x - rect.maxX
-        val dy1: Float = closestPoint.y - rect.minY
-        val dy2: Float = closestPoint.y - rect.maxY
+        val dx1: Float = closestRotatedPoint.x - (rect.position.x - rect.width / 2)
+        val dx2: Float = closestRotatedPoint.x - (rect.position.x + rect.width / 2)
+        val dy1: Float = closestRotatedPoint.y - (rect.position.y - rect.height / 2)
+        val dy2: Float = closestRotatedPoint.y - (rect.position.y + rect.height / 2)
 
         val dx: Float = if (abs(dx1) < abs(dx2)) dx1 else dx2
         val dy: Float = if (abs(dy1) < abs(dy2)) dy1 else dy2
 
         // check if the external point is inside the rect
-        val insideBox: Boolean = dx1 > 0 && dx2 < 0 && dy1 > 0 && dy2 < 0
+        val insideBox: Boolean = dx1 > EPSILON && dx2 < -EPSILON && dy1 > EPSILON && dy2 < -EPSILON
         val radiusSign: Int = if (insideBox) -1 else 1 // the sign used for the radius further down in the calculation
 
         // return the closest point on the rect's edge
         return if (abs(dx) < abs(dy)) {
-            Pair(Vector2(closestPoint.x - dx, closestPoint.y), radiusSign)
+            Pair(
+                Vector2(closestRotatedPoint.x - dx, closestRotatedPoint.y).rotateAround(rect.position, rect.rotation),
+                radiusSign
+            )
         } else {
-            Pair(Vector2(closestPoint.x, closestPoint.y - dy), radiusSign)
+            Pair(
+                Vector2(closestRotatedPoint.x, closestRotatedPoint.y - dy).rotateAround(rect.position, rect.rotation),
+                radiusSign
+            )
         }
     }
 }
