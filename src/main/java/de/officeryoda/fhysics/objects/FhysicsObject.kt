@@ -7,7 +7,7 @@ import de.officeryoda.fhysics.engine.collision.Projection
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
-    val position: Vector2 = Vector2.ZERO,
+    val position: Vector2,
     val mass: Float = 1.0F,
     val velocity: Vector2 = Vector2.ZERO,
     val acceleration: Vector2 = Vector2.ZERO,
