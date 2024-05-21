@@ -44,6 +44,14 @@
                                       <Insets />
                                   </opaqueInsets>
                               </ToggleButtonGroup>
+                        <CheckBox fx:id="cbSpawnPreview" mnemonicParsing="false" onMouseClicked="#onSpawnPreviewClicked" prefHeight="17.0" prefWidth="253.0" text="Show Preview">
+                           <tooltip>
+                              <Tooltip text="Shows a preview of the object to be spawned" />
+                           </tooltip>
+                           <padding>
+                              <Insets top="5.0" />
+                           </padding>
+                        </CheckBox>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
                               <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Radius" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
@@ -56,7 +64,41 @@
                               </Text>
                               <TextField fx:id="txtSpawnRadius" onKeyTyped="#onRadiusTyped" prefHeight="26.0" prefWidth="247.0" promptText="radius">
                                  <tooltip>
-                                    <Tooltip text="The radius of the spawned circle" />
+                                    <Tooltip text="The radius of the circle" />
+                                 </tooltip>
+                              </TextField>
+                           </children>
+                        </HBox>
+                        <HBox alignment="BASELINE_LEFT">
+                           <children>
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Width" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <TextField fx:id="txtSpawnWidth" onKeyTyped="#onWidthTyped" prefHeight="26.0" prefWidth="247.0" promptText="width">
+                                 <tooltip>
+                                    <Tooltip text="The width of the spawned circle" />
+                                 </tooltip>
+                              </TextField>
+                           </children>
+                        </HBox>
+                        <HBox alignment="BASELINE_LEFT">
+                           <children>
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Height" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <TextField fx:id="txtSpawnHeight" onKeyTyped="#onHeightTyped" prefHeight="26.0" prefWidth="247.0" promptText="height">
+                                 <tooltip>
+                                    <Tooltip text="The height of the spawned circle" />
                                  </tooltip>
                               </TextField>
                            </children>
@@ -171,7 +213,7 @@
                               </ToggleButton>
                               <Button fx:id="btnStep" mnemonicParsing="false" onMouseClicked="#onStepClicked" text="Step">
                                  <tooltip>
-                                    <Tooltip text="Does one step in the simulation (Schortcut: ENTER/SPACE)" />
+                                    <Tooltip text="Do one simulation step (Schortcut: ENTER/SPACE)" />
                                  </tooltip>
                               </Button>
                            </children>

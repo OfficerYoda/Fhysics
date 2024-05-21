@@ -108,6 +108,7 @@ class FhysicsObjectDrawer : Application() {
         scene.setOnScroll { SceneListener.onMouseWheel(it) }
         scene.setOnMousePressed { SceneListener.onMousePressed(it) }
         scene.setOnMouseReleased { SceneListener.onMouseReleased(it) }
+        scene.setOnMouseMoved { SceneListener.onMouseMoved(it) }
         scene.setOnMouseDragged { SceneListener.onMouseDragged(it) }
         scene.setOnKeyPressed { SceneListener.onKeyPressed(it) }
     }
@@ -131,11 +132,13 @@ class FhysicsObjectDrawer : Application() {
 
         drawAllObjects()
         drawBorder()
-        drawDebugPoints()
 
+        if(UIController.drawSpawnPreview) drawSpawnPreview()
         if (UIController.drawQuadTree) drawQuadTree()
         if (UIController.drawBoundingBoxes) drawBoundingBoxes()
 
+
+        drawDebugPoints()
         drawStats()
     }
 
@@ -167,6 +170,7 @@ class FhysicsObjectDrawer : Application() {
         val pos: Vector2 = worldToScreen(circle.position)
         val radius: Double = circle.radius * zoom
         val diameter: Double = 2.0 * radius
+
         gc.fillOval(
             pos.x - radius,
             pos.y - radius,
@@ -197,6 +201,22 @@ class FhysicsObjectDrawer : Application() {
 
         // Restore the original state of the graphics context
         gc.restore()
+    }
+
+    private fun drawSpawnPreview() {
+        // triangle temp for nothing selected to spawn
+        if (UIController.spawnObjectType == SpawnObjectType.TRIANGLE) return
+
+        // instantiate a temporary object
+        val obj: FhysicsObject = if(UIController.spawnObjectType == SpawnObjectType.CIRCLE) {
+            Circle(SceneListener.mouseWorldPos, UIController.spawnRadius)
+        } else {
+            Rectangle(SceneListener.mouseWorldPos, UIController.spawnWidth, UIController.spawnHeight)
+        }
+        // set the alpha value to 50%
+        obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
+
+        drawObject(obj)
     }
 
     private fun drawDebugPoints() {
@@ -344,12 +364,8 @@ class FhysicsObjectDrawer : Application() {
     }
 
     // =====debug functions=====
-    fun addDebugPoint(point: Vector2, color: Color) {
+    fun addDebugPoint(point: Vector2, color: Color = Color.RED) {
         debugPoints.add(Triple(point.copy(), color, 0))
-    }
-
-    fun addDebugPoint(point: Vector2) {
-        addDebugPoint(point, Color.RED)
     }
 
     /// =====window size functions=====

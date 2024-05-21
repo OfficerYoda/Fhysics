@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
 import javafx.scene.input.*
@@ -12,6 +13,11 @@ import kotlin.math.exp
 import kotlin.math.sign
 
 object SceneListener {
+
+    /**
+     * The position of the mouse in world space
+     */
+    val mouseWorldPos: Vector2 = Vector2.ZERO
 
     /**
      * The position of the mouse when the right mouse button was pressed
@@ -87,7 +93,8 @@ object SceneListener {
      * @return the spawned rectangle
      */
     private fun spawnRectangle(position: Vector2) {
-        TODO("Not yet implemented")
+        if (UIController.spawnWidth <= 0.0F || UIController.spawnHeight <= 0.0F) return
+        FhysicsCore.spawn(Rectangle(position, UIController.spawnWidth, UIController.spawnHeight))
     }
 
     /**
@@ -147,11 +154,25 @@ object SceneListener {
     }
 
     /**
+     * Handles mouse moved events
+     *
+     * @param e the mouse event
+     */
+    fun onMouseMoved(e: MouseEvent) {
+        // update the mouse position
+        mouseWorldPos.x = RenderUtil.screenToWorldX(e.x.toFloat()).toFloat()
+        mouseWorldPos.y = RenderUtil.screenToWorldY(e.y.toFloat()).toFloat()
+    }
+
+    /**
      * Handles mouse dragged events
      *
      * @param e the mouse event
      */
     fun onMouseDragged(e: MouseEvent) {
+        // to update the mouse position
+        onMouseMoved(e)
+
         if (rightPressed) {
             val mousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
             val deltaMousePos: Vector2 = rightPressedPos - mousePos
