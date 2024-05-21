@@ -93,7 +93,7 @@ data class QuadTree(
         } else {
             if (isRoot) {
                 // just update the objects if it is the root
-                objects.forEach { updateObject(it, true) }
+                objects.forEach { updateObject(it) }
             } else {
                 handleNonRootNode()
             }
@@ -112,17 +112,12 @@ data class QuadTree(
         }
     }
 
-    private fun isNodeOnBorder(): Boolean {
-        return boundary.x == 0.0 || boundary.y == 0.0 || boundary.x + boundary.width == FhysicsCore.BORDER.width || boundary.y + boundary.height == FhysicsCore.BORDER.height
-    }
-
     private fun handleNonRootNode() {
         val toRemove = ArrayList<FhysicsObject>()
-        val borderNode: Boolean = isNodeOnBorder()
 
         for (obj: FhysicsObject in objects) {
             // Update each object
-            updateObject(obj, borderNode)
+            updateObject(obj)
             // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
             if (!boundary.contains(obj)) {
                 parent!!.addRebuildObject(obj)
@@ -177,12 +172,10 @@ data class QuadTree(
     }
 
     /// =====update functions=====
-    private fun updateObject(it: FhysicsObject, checkBorder: Boolean) {
+    private fun updateObject(it: FhysicsObject) {
         it.updatePosition()
-        // check if node is on the edge of the screen
-        if (checkBorder) {
-            FhysicsCore.checkBorderCollision(it)
-        }
+
+        FhysicsCore.checkBorderCollision(it)
     }
 
     /// =====async functions=====
