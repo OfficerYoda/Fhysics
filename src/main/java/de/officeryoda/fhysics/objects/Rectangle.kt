@@ -61,7 +61,7 @@ class Rectangle(
         return listOf(axis1, axis2)
     }
 
-    fun project(axis: Vector2): Projection {
+    override fun project(axis: Vector2): Projection {
 //         Project the rectangle's vertices onto the axis and return the range of scalar values
         val vertices: List<Vector2> = getVertices()
         val min: Float = vertices.minOf { it.dot(axis) }

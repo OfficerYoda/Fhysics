@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.engine.collision
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.Rectangle
 import java.awt.geom.Rectangle2D
 import kotlin.math.abs
@@ -10,7 +11,7 @@ import kotlin.math.sqrt
 
 object CollisionFinder {
 
-    private const val EPSILON: Float = 0.0001F
+    private const val EPSILON: Float = 1E-4F
 
     /**
      * Tests for collision between two circles
@@ -51,19 +52,16 @@ object CollisionFinder {
         val axes: List<Vector2> = rect.getAxes()
 
         // For each axis...
-        for (axis: Vector2 in axes) {
-            // Project the rectangle and the circle onto the axis
-            val projection1: Projection = rect.project(axis)
-            val projection2: Projection = circle.project(axis)
-
-            // If the projections do not overlap, then the rectangle and the circle do not collide
-            if (!projection1.overlaps(projection2)) {
-                return CollisionInfo()
-            }
+        axes.forEach { axis: Vector2 ->
+            if (!testProjectionOverlap(axis, rect, circle)) return CollisionInfo()
         }
 
         // Get the closest point on the rectangle to the circle's center
         val closestPoint: Vector2 = getClosestPoint(rect, circle.position)
+
+        // Do a final check onto the axis from the circle to the closest point
+        val finalAxis: Vector2 = closestPoint - circle.position
+        if (!testProjectionOverlap(finalAxis, rect, circle)) return CollisionInfo()
 
         // Get the closest point on the rect's edge to the circle's center
         val edgePair: Pair<Vector2, Int> = getClosestPointOnEdge(rect, closestPoint)
@@ -74,6 +72,23 @@ object CollisionFinder {
         val overlap: Float = offset.magnitude() - circle.radius * edgePair.second
 
         return CollisionInfo(circle, rect, collisionNormal, overlap)
+    }
+
+    /**
+     * Tests for overlap between the projections of two objects onto an axis
+     *
+     * @param axis The axis
+     * @param objA The first object
+     * @param objB The second object
+     * @return A boolean indicating if the projections overlap
+     */
+    private fun testProjectionOverlap(axis: Vector2, objA: FhysicsObject, objB: FhysicsObject): Boolean {
+        // Project the rectangle and the circle onto the axis
+        val projection1: Projection = objA.project(axis)
+        val projection2: Projection = objB.project(axis)
+
+        // If the projections do not overlap, then the rectangle and the circle do not collide
+        return projection1.overlaps(projection2)
     }
 
     /**

@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.objects
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.collision.Projection
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
@@ -25,18 +26,18 @@ abstract class FhysicsObject protected constructor(
         lastUpdate = FhysicsCore.updateCount
 
         val dt: Float = FhysicsCore.dt
-        val damping = 0.00F
+//        val damping = 0.00F
 
         acceleration += FhysicsCore.gravityAt(position)
-        // Update velocity first (semi-implicit Euler)
+        // Update velocity before position (semi-implicit Euler)
         velocity += acceleration * dt
-        velocity *= (1 - damping)
+//        velocity *= (1 - damping)
         position += velocity * dt
         acceleration.set(Vector2.ZERO)
     }
 
     private fun colorFromIndex(): Color {
-        val colors =
+        val colors: List<Color> =
             listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
         return colors[id % 1]
 //        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
@@ -55,6 +56,8 @@ abstract class FhysicsObject protected constructor(
     abstract fun testCollision(other: Circle): CollisionInfo
 
     abstract fun testCollision(other: Rectangle): CollisionInfo
+
+    abstract fun project(axis: Vector2): Projection
 
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"
