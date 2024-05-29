@@ -26,7 +26,7 @@ object FhysicsCore {
     private const val QTC_START_STEP_SIZE = 10.0
 
     /// =====variables=====
-    var quadTree: QuadTree = QuadTree(BORDER, null)
+    private var quadTree: QuadTree = QuadTree(BORDER, null)
 
     var objectCount: Int = 0
     val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
@@ -46,12 +46,12 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        for (i in 1..200) {
-            val circle: Circle = FhysicsObjectFactory.randomCircle()
-//            circle.velocity.set(Vector2.ZERO)
-            spawn(circle)
-        }
-
+//        for (i in 1..200) {
+//            val circle: Circle = FhysicsObjectFactory.randomCircle()
+////            circle.velocity.set(Vector2.ZERO)
+//            spawn(circle)
+//        }
+////
         for (i in 1..10) {
             val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
             spawn(rect)
@@ -83,6 +83,7 @@ object FhysicsCore {
 
         checkObjectCollision(quadTree)
 
+        quadTree.insertObjects()
         quadTree.updateObjectsAndRebuild()
 
 //        optimizeQuadTreeCapacity()
@@ -94,7 +95,7 @@ object FhysicsCore {
     // This method must be called when trying to spawn an object
     fun spawn(obj: FhysicsObject) {
         fhysicsObjects.add(obj)
-        quadTree.insert(obj)
+        QuadTree.addQueue.add(obj)
     }
 
     private fun spawnObject() {

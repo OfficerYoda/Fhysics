@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.FhysicsObject
 import java.awt.geom.Rectangle2D
+import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction2
 
 data class QuadTree(
@@ -30,8 +31,14 @@ data class QuadTree(
 
     private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
 
+    init {
+        if (isRoot) {
+            root = this
+        }
+    }
+
     /// =====basic functions=====
-    fun insert(obj: FhysicsObject) {
+    private fun insert(obj: FhysicsObject) {
         if (!boundary.intersects(obj)) return
         if (objects.contains(obj)) return
 
@@ -48,13 +55,10 @@ data class QuadTree(
     }
 
     fun query(pos: Vector2): FhysicsObject? {
-        if(!boundary.contains(pos)) return null
+        if (!boundary.contains(pos)) return null
 
         if (divided) {
-            return topLeft!!.query(pos) ?:
-                    topRight!!.query(pos) ?:
-                    botLeft!!.query(pos) ?:
-                    botRight!!.query(pos)
+            return topLeft!!.query(pos) ?: topRight!!.query(pos) ?: botLeft!!.query(pos) ?: botRight!!.query(pos)
         }
 
         // check if any object in the node contains the position
@@ -95,7 +99,12 @@ data class QuadTree(
         divided = true
     }
 
-    /// =====rebuild functions=====
+    fun insertObjects() {
+        addQueue.forEach { insert(it) }
+        addQueue.clear()
+    }
+
+    /// =====rebuild and update functions=====
     fun updateObjectsAndRebuild() {
         if (divided) {
             // rebuild the children first
@@ -106,12 +115,17 @@ data class QuadTree(
             tryCollapse()
         } else {
             if (isRoot) {
-                // just update the objects if it is the root
+                // remove objects that are queued for removal
+                objects.removeAll(removeQueue)
+                // update the remaining objects
                 objects.forEach { updateObject(it) }
             } else {
                 handleNonRootNode()
             }
         }
+
+        // all objects that are queued for removal are removed
+        removeQueue.clear()
     }
 
     private fun updateChildren() {
@@ -130,6 +144,10 @@ data class QuadTree(
         val toRemove = ArrayList<FhysicsObject>()
 
         for (obj: FhysicsObject in objects) {
+            if (removeQueue.contains(obj)) {
+                toRemove.add(obj)
+                continue
+            }
             // Update each object
             updateObject(obj)
             // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
@@ -185,14 +203,12 @@ data class QuadTree(
         rebuildObjects.clear()
     }
 
-    /// =====update functions=====
     private fun updateObject(it: FhysicsObject) {
         it.updatePosition()
 
         FhysicsCore.checkBorderCollision(it)
     }
 
-    /// =====async functions=====
     private fun updateObjectsAndRebuildChildrenAsync() {
         val tl = Thread { topLeft!!.updateObjectsAndRebuild() }
         val tr = Thread { topRight!!.updateObjectsAndRebuild() }
@@ -219,14 +235,14 @@ data class QuadTree(
         }
     }
 
-    fun draw(drawRect: KFunction2<Rectangle2D, Int, Unit>) {
+    fun drawNode(drawRect: KFunction2<Rectangle2D, Int, Unit>) {
         if (!divided) {
             drawRect(boundary, objects.size)
         } else {
-            topLeft!!.draw(drawRect)
-            topRight!!.draw(drawRect)
-            botLeft!!.draw(drawRect)
-            botRight!!.draw(drawRect)
+            topLeft!!.drawNode(drawRect)
+            topRight!!.drawNode(drawRect)
+            botLeft!!.drawNode(drawRect)
+            botRight!!.drawNode(drawRect)
         }
     }
 
@@ -240,9 +256,17 @@ data class QuadTree(
     }
 
     companion object {
-        var capacity: Int = 32
+        lateinit var root: QuadTree
+            private set
+
+        var capacity: Int = 5
             set(value) {
                 field = value.coerceAtLeast(1)
             }
+
+        // List of objects to add and remove
+        // This is used to prevent concurrent modification exceptions
+        val addQueue: MutableList<FhysicsObject> = ArrayList()
+        val removeQueue: MutableSet<FhysicsObject> = HashSet()
     }
 }

@@ -30,7 +30,9 @@ import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.lang.Math.toDegrees
 import java.util.*
+import kotlin.math.PI
 import kotlin.math.min
+import kotlin.math.sin
 
 // can't be converted to object because it is a JavaFX Application
 class FhysicsObjectDrawer : Application() {
@@ -53,6 +55,9 @@ class FhysicsObjectDrawer : Application() {
     val width: Double get() = stage.scene.width
     val height: Double get() = stage.scene.height // use scene height to prevent including the window's title bar
     private val titleBarHeight: Double = 39.0 // that's the default height of the window's title bar (in windows)
+
+    // spawning/removing properties
+    var hoveredObject: FhysicsObject? = null
 
     /// =====start functions=====
     fun launch() {
@@ -124,22 +129,19 @@ class FhysicsObjectDrawer : Application() {
     }
 
     /// =====draw functions=====
-
-    private var hoveredObject: FhysicsObject? = null
-
     fun drawFrame() {
         lerpZoom()
 
         // clear the stage
         gc.clearRect(0.0, 0.0, width, height)
 
-        // find the object under the mouse
-        hoveredObject = FhysicsCore.quadTree.query(SceneListener.mouseWorldPos)
+        // find the hovered object (if any)
+        hoveredObject = QuadTree.root.query(SceneListener.mouseWorldPos)
         drawAllObjects()
         drawBorder()
 
-        if (UIController.drawSpawnPreview) drawSpawnPreview()
-        if (UIController.drawQuadTree) drawQuadTree()
+        if (UIController.drawSpawnPreview && hoveredObject == null) drawSpawnPreview()
+        if (UIController.drawQuadTree) drawQuadTreeNodes()
         if (UIController.drawBoundingBoxes) drawBoundingBoxes()
 
         drawDebugPoints()
@@ -162,12 +164,16 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawObject(obj: FhysicsObject) {
+        // set the color
         if (obj === hoveredObject) {
-            // highlight the object
-            setFillColor(Color(255, 255, 255, 128))
+            // hovered object pulsing red
+            val red: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
+            setFillColor(Color(red, 0, 0, 192))
         } else {
             setFillColor(obj.color)
         }
+
+        // draw
         if (obj is Circle) {
             drawCircle(obj)
         } else if (obj is Rectangle) {
@@ -258,8 +264,8 @@ class FhysicsObjectDrawer : Application() {
         gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
     }
 
-    private fun drawQuadTree() {
-        FhysicsCore.quadTree.draw(::transformAndDrawQuadTreeCapacity)
+    private fun drawQuadTreeNodes() {
+        QuadTree.root.drawNode(::transformAndDrawQuadTreeCapacity)
     }
 
     private fun drawBoundingBoxes() {

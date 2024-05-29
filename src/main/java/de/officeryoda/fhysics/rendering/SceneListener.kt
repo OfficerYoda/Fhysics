@@ -55,14 +55,21 @@ object SceneListener {
     fun onMousePressed(e: MouseEvent) {
         when (e.button) {
             MouseButton.PRIMARY -> {
-                // check if spawn pos is outside the border
-                val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-                if(!FhysicsCore.BORDER.contains(transformedMousePos)) return
+                // If the mouse is not hovering over an object remove that object
+                if (drawer.hoveredObject != null) {
+                    QuadTree.removeQueue.add(drawer.hoveredObject!!)
+                    // TODO: Remove the following line
+                    FhysicsCore.fhysicsObjects.remove(drawer.hoveredObject!!)
+                } else { // Else spawn a new object
+                    // Check if spawn pos is outside the border
+                    val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
+                    if (!FhysicsCore.BORDER.contains(transformedMousePos)) return
 
-                when (UIController.spawnObjectType) {
-                    SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
-                    SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
-                    SpawnObjectType.TRIANGLE -> spawnTriangle(transformedMousePos)
+                    when (UIController.spawnObjectType) {
+                        SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
+                        SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
+                        SpawnObjectType.TRIANGLE -> spawnTriangle(transformedMousePos)
+                    }
                 }
             }
 
@@ -124,7 +131,7 @@ object SceneListener {
      * @param e the scroll event
      */
     fun onMouseWheel(e: ScrollEvent) {
-        // don't zoom if moving with the mouse
+        // Don't zoom if moving with the mouse
         if (rightPressed) return
 
         val zoomBefore: Double = RenderUtil.zoom
@@ -159,7 +166,7 @@ object SceneListener {
      * @param e the mouse event
      */
     fun onMouseMoved(e: MouseEvent) {
-        // update the mouse position
+        // Update the mouse position
         mouseWorldPos.x = RenderUtil.screenToWorldX(e.x.toFloat()).toFloat()
         mouseWorldPos.y = RenderUtil.screenToWorldY(e.y.toFloat()).toFloat()
     }
@@ -187,8 +194,6 @@ object SceneListener {
      * @param event the key event
      */
     fun onKeyPressed(event: KeyEvent) {
-        // if pressed char is p toggle isRunning in FhysicsCore
-        // if it is Enter or space call the update function
         when (event.code) {
             KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
             KeyCode.SPACE -> FhysicsCore.update()
@@ -197,7 +202,7 @@ object SceneListener {
             KeyCode.J -> QuadTree.capacity -= 5
             KeyCode.K -> QuadTree.capacity += 5
             KeyCode.G -> MapVisualization(FhysicsCore.qtCapacity)
-            KeyCode.Q -> println(FhysicsCore.quadTree)
+            KeyCode.Q -> println(QuadTree.root)
             else -> {}
         }
     }
