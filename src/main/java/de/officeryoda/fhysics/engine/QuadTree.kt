@@ -30,7 +30,7 @@ data class QuadTree(
 
     private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
 
-    /// =====insertion functions=====
+    /// =====basic functions=====
     fun insert(obj: FhysicsObject) {
         if (!boundary.intersects(obj)) return
         if (objects.contains(obj)) return
@@ -45,6 +45,20 @@ data class QuadTree(
         }
 
         insertInChildren(obj)
+    }
+
+    fun query(pos: Vector2): FhysicsObject? {
+        if(!boundary.contains(pos)) return null
+
+        if (divided) {
+            return topLeft!!.query(pos) ?:
+                    topRight!!.query(pos) ?:
+                    botLeft!!.query(pos) ?:
+                    botRight!!.query(pos)
+        }
+
+        // check if any object in the node contains the position
+        return objects.firstOrNull { it.contains(pos) }
     }
 
     // probably should have chosen another name

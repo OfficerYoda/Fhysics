@@ -330,12 +330,12 @@ class UIController {
         /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0F, -9.81F)
+        val gravityDirection: Vector2 = Vector2(0.0f, 0.0f)
         val gravityPoint: Vector2 = Vector2( // the center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
-        var gravityPointStrength: Float = 100.0F
+        var gravityPointStrength: Float = 100.0f
             private set
 
         /// =====Time=====

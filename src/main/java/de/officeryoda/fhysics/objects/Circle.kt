@@ -24,6 +24,10 @@ class Circle(
         return Projection(centerProjection - radius, centerProjection + radius)
     }
 
+    override fun contains(pos: Vector2): Boolean {
+        return pos.sqrDistance(position) <= radius * radius
+    }
+
     override fun toString(): String {
         return "Circle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, radius=$radius)"
     }

@@ -59,6 +59,8 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun project(axis: Vector2): Projection
 
+    abstract fun contains(pos: Vector2): Boolean
+
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"
     }

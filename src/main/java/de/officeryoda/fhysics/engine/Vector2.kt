@@ -28,6 +28,28 @@ data class Vector2
         }
     }
 
+
+    /**
+     * Returns a rotated version of the Vector2 around the given center point.
+     *
+     * @param center The center of rotation.
+     * @param angle The angle of rotation in radians.
+     *
+     * @return The rotated Vector2.
+     */
+    fun rotatedAround(center: Vector2, angle: Float): Vector2 {
+        val cosAngle: Float = cos(angle)
+        val sinAngle: Float = sin(angle)
+
+        val translatedX: Float = this.x - center.x
+        val translatedY: Float = this.y - center.y
+
+        val rotatedX: Float = translatedX * cosAngle - translatedY * sinAngle
+        val rotatedY: Float = translatedX * sinAngle + translatedY * cosAngle
+
+        return Vector2(rotatedX + center.x, rotatedY + center.y)
+    }
+
     /**
      * Calculates the dot product of this Vector2 with another Vector2.
      *
@@ -177,27 +199,6 @@ data class Vector2
      */
     operator fun unaryMinus(): Vector2 {
         return Vector2(-this.x, -this.y)
-    }
-
-    /**
-     * Rotates the Vector2 around the origin by a given angle.
-     *
-     * @param center The center of rotation.
-     * @param angle The angle of rotation in radians.
-     *
-     * @return The rotated Vector2.
-     */
-    fun rotateAround(center: Vector2, angle: Float): Vector2 {
-        val cosAngle: Float = cos(angle)
-        val sinAngle: Float = sin(angle)
-
-        val translatedX: Float = this.x - center.x
-        val translatedY: Float = this.y - center.y
-
-        val rotatedX: Float = translatedX * cosAngle - translatedY * sinAngle
-        val rotatedY: Float = translatedX * sinAngle + translatedY * cosAngle
-
-        return Vector2(rotatedX + center.x, rotatedY + center.y)
     }
 
     /**

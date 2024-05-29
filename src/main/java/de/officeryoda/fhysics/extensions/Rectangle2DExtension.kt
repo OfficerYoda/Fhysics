@@ -40,19 +40,22 @@ fun Rectangle2D.contains(obj: FhysicsObject): Boolean {
  * @return True if the Rectangle contains the Circle, false otherwise.
  */
 fun Rectangle2D.contains(circle: Circle): Boolean {
-    // basically an AABB check
+    // AABB check
     val radiusOffset = Vector2(circle.radius, circle.radius)
     return contains(circle.position - radiusOffset) && contains(circle.position + radiusOffset)
 }
 
 /**
- * Checks if the Rectangle contains the specified Box.
+ * Checks if the Rectangle contains the specified Rectangle
+.
  *
- * @param rect The Box to check for containment.
- * @return True if the Rectangle contains the Box, false otherwise.
+ * @param rect The Rectangle
+ to check for containment.
+ * @return True if the Rectangle contains the Rectangle
+, false otherwise.
  */
 fun Rectangle2D.contains(rect: Rectangle): Boolean {
-    // an AABB check
+    // AABB check
     return contains(Vector2(rect.minX, rect.minY)) && contains(Vector2(rect.maxX, rect.maxY))
 }
 
@@ -80,34 +83,23 @@ fun Rectangle2D.intersects(obj: FhysicsObject): Boolean {
  * @return True if the Rectangle intersects with the Circle, false otherwise.
  */
 fun Rectangle2D.intersects(circle: Circle): Boolean {
-    // Check if the rectangle intersects with the circles bounding box
-    if (this.intersects(
-            circle.position.x.toDouble() - circle.radius.toDouble(),
-            circle.position.y.toDouble() - circle.radius.toDouble(),
-            2 * circle.radius.toDouble(),
-            2 * circle.radius.toDouble()
-        )
-    ) {
-        // Get the closest point on the rect to the circle's center
-        val closestX: Float = circle.position.x.coerceIn(this.minX.toFloat(), this.maxX.toFloat())
-        val closestY: Float = circle.position.y.coerceIn(this.minY.toFloat(), this.maxY.toFloat())
-        val closestPos = Vector2(closestX, closestY)
-
-        // Check if the distance is less than or equal to the radius of the circle
-        val distanceSquared: Float = circle.position.sqrDistance(closestPos)
-        return distanceSquared <= circle.radius * circle.radius
-    }
-
-    return false
+    // AABB check
+    return this.intersects(
+        circle.position.x.toDouble() - circle.radius.toDouble(),
+        circle.position.y.toDouble() - circle.radius.toDouble(),
+        2 * circle.radius.toDouble(),
+        2 * circle.radius.toDouble()
+    )
 }
 
 /**
- * Checks if the Rectangle intersects with the specified Box.
+ * Checks if the Rectangle intersects with the specified Rectangle
  *
- * @param rect The Box to check for intersection.
- * @return True if the Rectangle intersects with the Box, false otherwise.
+ * @param rect The Rectangle to check for intersection.
+ * @return True if the Rectangle intersects with the Rectangle, false otherwise.
  */
 fun Rectangle2D.intersects(rect: Rectangle): Boolean {
+    // AABB check
     return this.intersects(
         rect.minX.toDouble(),
         rect.minY.toDouble(),

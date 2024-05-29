@@ -111,7 +111,7 @@ object CollisionFinder {
      */
     private fun getClosestPoint(rect: Rectangle, externalPoint: Vector2): Vector2 {
         // Transform the external point to the rectangle's local coordinate system
-        val localPoint: Vector2 = externalPoint.rotateAround(rect.position, -rect.rotation)
+        val localPoint: Vector2 = externalPoint.rotatedAround(rect.position, -rect.rotation)
 
         val halfWidth: Float = rect.width / 2
         val halfHeight: Float = rect.height / 2
@@ -125,7 +125,7 @@ object CollisionFinder {
 
         // Transform the local closest point back to the global coordinate system
         val globalClosestPoint: Vector2 =
-            Vector2(localClosestX, localClosestY).rotateAround(rect.position, rect.rotation)
+            Vector2(localClosestX, localClosestY).rotatedAround(rect.position, rect.rotation)
 
         return globalClosestPoint
     }
@@ -139,7 +139,7 @@ object CollisionFinder {
      * @return A pair containing the closest point on the rectangle's edge and an integer that represents if the external point is outside the rectangle
      */
     private fun getClosestPointOnEdge(rect: Rectangle, closestPoint: Vector2): Pair<Vector2, Int> {
-        val closestRotatedPoint: Vector2 = closestPoint.rotateAround(rect.position, -rect.rotation)
+        val closestRotatedPoint: Vector2 = closestPoint.rotatedAround(rect.position, -rect.rotation)
 
         val halfWidth: Float = rect.width / 2
         val halfHeight: Float = rect.height / 2
@@ -160,12 +160,12 @@ object CollisionFinder {
         // return the closest point on the rect's edge
         return if (abs(dx) < abs(dy)) {
             Pair(
-                Vector2(closestRotatedPoint.x - dx, closestRotatedPoint.y).rotateAround(rect.position, rect.rotation),
+                Vector2(closestRotatedPoint.x - dx, closestRotatedPoint.y).rotatedAround(rect.position, rect.rotation),
                 radiusSign
             )
         } else {
             Pair(
-                Vector2(closestRotatedPoint.x, closestRotatedPoint.y - dy).rotateAround(rect.position, rect.rotation),
+                Vector2(closestRotatedPoint.x, closestRotatedPoint.y - dy).rotatedAround(rect.position, rect.rotation),
                 radiusSign
             )
         }

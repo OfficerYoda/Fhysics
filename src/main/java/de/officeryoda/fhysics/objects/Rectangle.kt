@@ -5,17 +5,18 @@ import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.Projection
 import java.awt.Color
-import java.lang.Math.toRadians
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 class Rectangle(
     position: Vector2,
     val width: Float,
     val height: Float,
-    rotation: Float = 0f // in degrees
+    rotation: Float = 0f, // in degrees
 ) : FhysicsObject(position, width * height) {
 
-    val rotation: Float = toRadians(rotation.toDouble()).toFloat() // in radians
+    val rotation: Float = rotation * DEGREES_TO_RADIANS // in radians
 
     val minX: Float
     val maxX: Float
@@ -62,11 +63,23 @@ class Rectangle(
     }
 
     override fun project(axis: Vector2): Projection {
-//         Project the rectangle's vertices onto the axis and return the range of scalar values
+        // Project the rectangle's vertices onto the axis and return the range of scalar values
         val vertices: List<Vector2> = getVertices()
         val min: Float = vertices.minOf { it.dot(axis) }
         val max: Float = vertices.maxOf { it.dot(axis) }
         return Projection(min, max)
+    }
+
+    override fun contains(pos: Vector2): Boolean {
+        // Rotate the point to make the rectangle axis-aligned
+        val rotatedPos: Vector2 = pos.rotatedAround(position, -rotation)
+
+        val halfWidth: Float = width / 2f
+        val halfHeight: Float = height / 2f
+
+        // Check if the point is inside the axis-aligned rectangle
+        return rotatedPos.x in (position.x - halfWidth)..(position.x + halfWidth) &&
+                rotatedPos.y in (position.y - halfHeight)..(position.y + halfHeight)
     }
 
     private fun getVertices(): List<Vector2> {
@@ -80,15 +93,19 @@ class Rectangle(
         val bottomLeft = Vector2(position.x - halfWidth, position.y + halfHeight)
 
         // Rotate the corners around the rectangle's center
-        val rotatedTopLeft: Vector2 = topLeft.rotateAround(position, rotation)
-        val rotatedTopRight: Vector2 = topRight.rotateAround(position, rotation)
-        val rotatedBottomRight: Vector2 = bottomRight.rotateAround(position, rotation)
-        val rotatedBottomLeft: Vector2 = bottomLeft.rotateAround(position, rotation)
+        val rotatedTopLeft: Vector2 = topLeft.rotatedAround(position, rotation)
+        val rotatedTopRight: Vector2 = topRight.rotatedAround(position, rotation)
+        val rotatedBottomRight: Vector2 = bottomRight.rotatedAround(position, rotation)
+        val rotatedBottomLeft: Vector2 = bottomLeft.rotatedAround(position, rotation)
 
         return listOf(rotatedTopLeft, rotatedTopRight, rotatedBottomRight, rotatedBottomLeft)
     }
 
     override fun toString(): String {
-        return "Box(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height)"
+        return "Rectangle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height, rotation=$rotation)"
+    }
+
+    companion object {
+        const val DEGREES_TO_RADIANS: Float = 0.017453292f
     }
 }

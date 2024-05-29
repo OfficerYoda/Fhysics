@@ -124,19 +124,23 @@ class FhysicsObjectDrawer : Application() {
     }
 
     /// =====draw functions=====
+
+    private var hoveredObject: FhysicsObject? = null
+
     fun drawFrame() {
         lerpZoom()
 
         // clear the stage
         gc.clearRect(0.0, 0.0, width, height)
 
+        // find the object under the mouse
+        hoveredObject = FhysicsCore.quadTree.query(SceneListener.mouseWorldPos)
         drawAllObjects()
         drawBorder()
 
-        if(UIController.drawSpawnPreview) drawSpawnPreview()
+        if (UIController.drawSpawnPreview) drawSpawnPreview()
         if (UIController.drawQuadTree) drawQuadTree()
         if (UIController.drawBoundingBoxes) drawBoundingBoxes()
-
 
         drawDebugPoints()
         drawStats()
@@ -158,7 +162,12 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawObject(obj: FhysicsObject) {
-        setFillColor(obj.color)
+        if (obj === hoveredObject) {
+            // highlight the object
+            setFillColor(Color(255, 255, 255, 128))
+        } else {
+            setFillColor(obj.color)
+        }
         if (obj is Circle) {
             drawCircle(obj)
         } else if (obj is Rectangle) {
@@ -208,7 +217,7 @@ class FhysicsObjectDrawer : Application() {
         if (UIController.spawnObjectType == SpawnObjectType.TRIANGLE) return
 
         // instantiate a temporary object
-        val obj: FhysicsObject = if(UIController.spawnObjectType == SpawnObjectType.CIRCLE) {
+        val obj: FhysicsObject = if (UIController.spawnObjectType == SpawnObjectType.CIRCLE) {
             Circle(SceneListener.mouseWorldPos, UIController.spawnRadius)
         } else {
             Rectangle(SceneListener.mouseWorldPos, UIController.spawnWidth, UIController.spawnHeight)
