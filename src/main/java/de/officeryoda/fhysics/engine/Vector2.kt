@@ -28,7 +28,6 @@ data class Vector2
         }
     }
 
-
     /**
      * Returns a rotated version of the Vector2 around the given center point.
      *

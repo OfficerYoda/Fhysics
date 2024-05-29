@@ -13,6 +13,7 @@ import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.Timer
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.max
 import kotlin.math.sign
 
@@ -24,12 +25,12 @@ object FhysicsCore {
     const val UPDATES_PER_SECOND: Int = 120
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
     private const val QTC_START_STEP_SIZE = 10.0
+    val RENDER_LOCK = ReentrantLock()
 
     /// =====variables=====
     private var quadTree: QuadTree = QuadTree(BORDER, null)
 
     var objectCount: Int = 0
-    val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
 
     var updateCount = 0
 
@@ -46,12 +47,12 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        for (i in 1..200) {
-//            val circle: Circle = FhysicsObjectFactory.randomCircle()
-////            circle.velocity.set(Vector2.ZERO)
-//            spawn(circle)
-//        }
-////
+        for (i in 1..200) {
+            val circle: Circle = FhysicsObjectFactory.randomCircle()
+//            circle.velocity.set(Vector2.ZERO)
+            spawn(circle)
+        }
+
         for (i in 1..10) {
             val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
             spawn(rect)
@@ -70,7 +71,9 @@ object FhysicsCore {
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 if (running) {
+                    RENDER_LOCK.lock()
                     update()
+                    RENDER_LOCK.unlock()
                 }
             }
         }, 0, updateIntervalMillis.toLong())
@@ -94,8 +97,7 @@ object FhysicsCore {
 
     // This method must be called when trying to spawn an object
     fun spawn(obj: FhysicsObject) {
-        fhysicsObjects.add(obj)
-        QuadTree.addQueue.add(obj)
+        QuadTree.toAdd.add(obj)
     }
 
     private fun spawnObject() {

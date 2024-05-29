@@ -34,38 +34,38 @@ import kotlin.math.PI
 import kotlin.math.min
 import kotlin.math.sin
 
-// can't be converted to object because it is a JavaFX Application
+// Can't be converted to object because it is a JavaFX Application
 class FhysicsObjectDrawer : Application() {
 
-    // rendering properties
+    // Rendering properties
     private lateinit var stage: Stage
     lateinit var gc: GraphicsContext
         private set
 
-    // zoom properties
+    // Zoom properties
     var targetZoom: Double = -1.0
     var zoom: Double = targetZoom
     var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
     var zoomCenter: Vector2 = targetZoomCenter
 
-    // debug properties
+    // Debug properties
     private val debugPoints: MutableList<Triple<Vector2, Color, Int>> = ArrayList()
 
-    /// window size properties
+    // Window size properties
     val width: Double get() = stage.scene.width
-    val height: Double get() = stage.scene.height // use scene height to prevent including the window's title bar
-    private val titleBarHeight: Double = 39.0 // that's the default height of the window's title bar (in windows)
+    val height: Double get() = stage.scene.height // Use scene height to prevent including the window's title bar
+    private val titleBarHeight: Double = 39.0 // That's the default height of the window's title bar (in windows)
 
-    // spawning/removing properties
+    // Spawning/removing properties
     var hoveredObject: FhysicsObject? = null
 
-    /// =====start functions=====
+    /// =====Start functions=====
     fun launch() {
         launch(FhysicsObjectDrawer::class.java)
     }
 
     override fun start(stage: Stage) {
-        // set the drawer in the RenderUtil
+        // Set the drawer in the RenderUtil
         RenderUtil.drawer = this
 
         this.stage = stage
@@ -77,7 +77,7 @@ class FhysicsObjectDrawer : Application() {
         stage.title = "Fhysics"
         stage.scene = scene
         stage.isResizable = false
-        stage.scene.root.clip = null // to draw things which are partially outside the window
+        stage.scene.root.clip = null // To draw things which are partially outside the window
 
         val canvas = Canvas(width, height)
         val uiRoot = Accordion()
@@ -86,7 +86,7 @@ class FhysicsObjectDrawer : Application() {
 
         loadUI(uiRoot)
 
-        // set the background color
+        // Set the background color
         stage.scene.fill = colorToPaint(Color.decode("#010409"))
 
         addListeners(scene)
@@ -119,61 +119,69 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun startAnimationTimer() {
-        // draw functions need to be run on the JavaFX Application Thread
+        // Draw functions need to be run on the JavaFX Application Thread
         // to prevent exceptions (just stopping to update the visuals)
         object : AnimationTimer() {
             override fun handle(now: Long) {
+                FhysicsCore.RENDER_LOCK.lock()
                 drawFrame()
+                FhysicsCore.RENDER_LOCK.unlock()
             }
         }.start()
     }
 
-    /// =====draw functions=====
+    /// =====Draw functions=====
     fun drawFrame() {
         lerpZoom()
 
-        // clear the stage
+        // Clear the stage
         gc.clearRect(0.0, 0.0, width, height)
 
-        // find the hovered object (if any)
+        // Find the hovered object (if any)
         hoveredObject = QuadTree.root.query(SceneListener.mouseWorldPos)
-        drawAllObjects()
-        drawBorder()
 
+        // Draw the objects
+        QuadTree.root.drawObjects(::drawObject, ::drawBoundingBox)
+
+        if(hoveredObject != null) drawHoveredObject()
         if (UIController.drawSpawnPreview && hoveredObject == null) drawSpawnPreview()
         if (UIController.drawQuadTree) drawQuadTreeNodes()
-        if (UIController.drawBoundingBoxes) drawBoundingBoxes()
 
+        drawBorder()
         drawDebugPoints()
         drawStats()
     }
 
+    private fun drawHoveredObject() {
+        // Hovered object pulsing red
+        val red: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
+        setFillColor(Color(red, 0, 0, 192))
+
+        if (hoveredObject is Circle) {
+            drawCircle(hoveredObject as Circle)
+        } else if (hoveredObject is Rectangle) {
+            drawRectangle(hoveredObject as Rectangle)
+        }
+    }
+
     private fun lerpZoom() {
-        // a value I think looks good
+        // A value I think looks good
         val interpolation = 0.12F
 
-        // lerp the zoom and zoomCenter
+        // Lerp the zoom and zoomCenter
         zoom = lerp(zoom.toFloat(), targetZoom.toFloat(), interpolation).toDouble()
         zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
     }
 
-    private fun drawAllObjects() {
-        for (obj: FhysicsObject in FhysicsCore.fhysicsObjects.toList()) {
-            drawObject(obj)
-        }
-    }
-
     private fun drawObject(obj: FhysicsObject) {
-        // set the color
+        // Hovered object will be drawn last
         if (obj === hoveredObject) {
-            // hovered object pulsing red
-            val red: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
-            setFillColor(Color(red, 0, 0, 192))
-        } else {
-            setFillColor(obj.color)
+            return
         }
 
-        // draw
+        setFillColor(obj.color)
+
+        // Draw Object
         if (obj is Circle) {
             drawCircle(obj)
         } else if (obj is Rectangle) {
@@ -219,16 +227,16 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawSpawnPreview() {
-        // triangle temp for nothing selected to spawn
+        // Triangle temp for nothing selected to spawn
         if (UIController.spawnObjectType == SpawnObjectType.TRIANGLE) return
 
-        // instantiate a temporary object
+        // Instantiate a temporary object
         val obj: FhysicsObject = if (UIController.spawnObjectType == SpawnObjectType.CIRCLE) {
             Circle(SceneListener.mouseWorldPos, UIController.spawnRadius)
         } else {
             Rectangle(SceneListener.mouseWorldPos, UIController.spawnWidth, UIController.spawnHeight)
         }
-        // set the alpha value to 50%
+        // Set the alpha value to 50%
         obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
 
         drawObject(obj)
@@ -249,8 +257,8 @@ class FhysicsObjectDrawer : Application() {
                 pointSize
             )
 
-            // update the duration of the point
-            // if the duration is reached remove the point
+            // Update the duration of the point
+            // If the max duration is reached remove the point
             if (triple.third < duration) {
                 debugPoints[debugPoints.indexOf(triple)] = Triple(triple.first, triple.second, triple.third + 1)
             } else {
@@ -268,16 +276,15 @@ class FhysicsObjectDrawer : Application() {
         QuadTree.root.drawNode(::transformAndDrawQuadTreeCapacity)
     }
 
-    private fun drawBoundingBoxes() {
-        FhysicsCore.fhysicsObjects.toList().forEach { obj ->
-            val (pos: Vector2, size) = when (obj) {
+    private fun drawBoundingBox(obj: FhysicsObject) {
+            val (pos: Vector2, size: Vector2) = when (obj) {
                 is Rectangle -> Vector2(obj.minX, obj.minY) to Vector2(obj.maxX - obj.minX, obj.maxY - obj.minY)
                 is Circle -> Vector2(
                     obj.position.x - obj.radius,
                     obj.position.y - obj.radius
                 ) to Vector2(obj.radius * 2, obj.radius * 2)
 
-                else -> return@forEach
+                else -> return
             }
 
             setStrokeColor(Color.RED)
@@ -287,7 +294,6 @@ class FhysicsObjectDrawer : Application() {
                 size.x * zoom,
                 size.y * zoom
             )
-        }
     }
 
     private fun transformAndDrawQuadTreeCapacity(rect: Rectangle2D, contentCount: Int) {
@@ -296,18 +302,18 @@ class FhysicsObjectDrawer : Application() {
         val width: Double = rect.width * zoom
         val height: Double = rect.height * zoom
 
-        // draw Border
+        // Draw Border
         setStrokeColor(Color.WHITE)
         gc.strokeRect(x, y, width, height)
 
-        // only draw the fill if the option is enabled
+        // Only draw the fill if the option is enabled
         if (!UIController.drawQTNodeUtilization) return
 
-        // draw transparent fill
+        // Draw transparent fill
         val quadTreeCapacity: Int = QuadTree.capacity
         setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)))
         gc.fillRect(x, y, width, height)
-        // write the amount of objects in the cell
+        // Write the amount of objects in the cell
         drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
     }
 
@@ -333,7 +339,7 @@ class FhysicsObjectDrawer : Application() {
     private fun drawStats() {
         val stats: ArrayList<String> = ArrayList()
 
-        if (UIController.drawMSPU || UIController.drawUPS) { // check both because UPS is calculated from MSPU
+        if (UIController.drawMSPU || UIController.drawUPS) { // Check both because UPS is calculated from MSPU
             val mspu: Double = FhysicsCore.updateTimer.average() // Milliseconds per Update
             val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
 
@@ -370,7 +376,7 @@ class FhysicsObjectDrawer : Application() {
             val text: String = stats[i]
 
             if (UIController.drawQuadTree) {
-                // outline the text for better readability
+                // Outline the text for better readability
                 gc.strokeText(text, borderSpacing, height - i * lineHeight - borderSpacing)
             }
 
@@ -378,46 +384,46 @@ class FhysicsObjectDrawer : Application() {
         }
     }
 
-    // =====debug functions=====
+    // =====Debug functions=====
     fun addDebugPoint(point: Vector2, color: Color = Color.RED) {
         debugPoints.add(Triple(point.copy(), color, 0))
     }
 
-    /// =====window size functions=====
+    /// =====Window size functions=====
     private fun setWindowSize() {
-        // calculate the window size
+        // Calculate the window size
         val border: Rectangle2D = BORDER
         val borderWidth: Double = border.width
         val borderHeight: Double = border.height
 
-        // calculate the aspect ratio based on world space
+        // Calculate the aspect ratio based on world space
         val ratio: Double = borderHeight / borderWidth
         val maxWidth = 1440.0
         val maxHeight = 960.0
 
-        // calculate the window size
+        // Calculate the window size
         var windowWidth: Double = maxWidth
         var windowHeight: Double = windowWidth * ratio
 
-        // stretch the window horizontally if the window is too tall
+        // Stretch the window horizontally if the window is too tall
         if (windowHeight > maxHeight) {
             windowHeight = maxHeight
             windowWidth = windowHeight / ratio
         }
 
-        stage.width = windowWidth + 16 // the 16 is a magic number to correct the width
+        stage.width = windowWidth + 16 // The 16 is a magic number to correct the width
         stage.height = windowHeight + titleBarHeight
     }
 
     private fun calculateZoom(): Double {
-        // normal zoom amount
+        // Normal zoom amount
         val borderHeight: Double = BORDER.height
         val windowHeight: Double = stage.height - titleBarHeight
 
         return windowHeight / borderHeight
     }
 
-    /// =====utility functions=====
+    /// =====Utility functions=====
     fun resetZoom() {
         targetZoom = calculateZoom()
         zoom = targetZoom

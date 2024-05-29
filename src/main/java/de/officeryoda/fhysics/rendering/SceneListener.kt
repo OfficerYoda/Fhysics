@@ -58,8 +58,6 @@ object SceneListener {
                 // If the mouse is not hovering over an object remove that object
                 if (drawer.hoveredObject != null) {
                     QuadTree.removeQueue.add(drawer.hoveredObject!!)
-                    // TODO: Remove the following line
-                    FhysicsCore.fhysicsObjects.remove(drawer.hoveredObject!!)
                 } else { // Else spawn a new object
                     // Check if spawn pos is outside the border
                     val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
