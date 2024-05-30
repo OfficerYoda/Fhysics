@@ -62,7 +62,6 @@ class UIController {
     @FXML
     private lateinit var cbQTNodeUtilization: CheckBox
 
-
     @FXML
     private lateinit var cbQTCapacity: CheckBox
 
@@ -89,21 +88,21 @@ class UIController {
     fun onCircleClicked() {
         spawnObjectType = SpawnObjectType.CIRCLE
         updateSpawnPreview()
-        setFieldAvailability(radius = true, width = false, height = false)
+        setSpawnFieldAvailability(radius = true, width = false, height = false)
     }
 
     @FXML
     fun onRectangleClicked() {
         spawnObjectType = SpawnObjectType.RECTANGLE
         updateSpawnPreview()
-        setFieldAvailability(radius = false, width = true, height = true)
+        setSpawnFieldAvailability(radius = false, width = true, height = true)
     }
 
     @FXML
     fun onNothingClicked() {
         spawnObjectType = SpawnObjectType.NOTHING
         updateSpawnPreview()
-        setFieldAvailability(radius = false, width = false, height = false)
+        setSpawnFieldAvailability(radius = false, width = false, height = false)
     }
 
     private fun updateSpawnPreview() {
@@ -123,7 +122,7 @@ class UIController {
         RenderUtil.drawer.spawnPreview = obj
     }
 
-    private fun setFieldAvailability(radius: Boolean, width: Boolean, height: Boolean) {
+    private fun setSpawnFieldAvailability(radius: Boolean, width: Boolean, height: Boolean) {
         txtSpawnRadius.isDisable = !radius
         txtSpawnWidth.isDisable = !width
         txtSpawnHeight.isDisable = !height
@@ -156,29 +155,22 @@ class UIController {
     @FXML
     fun onDirectionClicked() {
         gravityType = GravityType.DIRECTIONAL
-
-        // enable direction fields
-        txtGravityDirectionX.isDisable = false
-        txtGravityDirectionY.isDisable = false
-
-        // disable point fields
-        txtGravityPointX.isDisable = true
-        txtGravityPointY.isDisable = true
-        txtGravityPointStrength.isDisable = true
+        setGravityFieldsAvailability(direction = true, point = false)
     }
 
     @FXML
     fun onPointClicked() {
         gravityType = GravityType.TOWARDS_POINT
+        setGravityFieldsAvailability(direction = false, point = true)
+    }
 
-        // disable direction fields
-        txtGravityDirectionX.isDisable = true
-        txtGravityDirectionY.isDisable = true
+    private fun setGravityFieldsAvailability(direction: Boolean, point: Boolean) {
+        txtGravityDirectionX.isDisable = !direction
+        txtGravityDirectionY.isDisable = !direction
 
-        // enable point fields
-        txtGravityPointX.isDisable = false
-        txtGravityPointY.isDisable = false
-        txtGravityPointStrength.isDisable = false
+        txtGravityPointX.isDisable = !point
+        txtGravityPointY.isDisable = !point
+        txtGravityPointStrength.isDisable = !point
     }
 
     @FXML
@@ -229,7 +221,7 @@ class UIController {
     fun onQuadTreeClicked() {
         drawQuadTree = cbQuadTree.isSelected
 
-        // node utilization is only drawn if the quad tree is drawn
+        // Node utilization is only drawn if the quad tree is drawn
         cbQTNodeUtilization.isDisable = !drawQuadTree
     }
 
@@ -360,7 +352,7 @@ class UIController {
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
         val gravityDirection: Vector2 = Vector2(0.0f, 0.0f)
-        val gravityPoint: Vector2 = Vector2( // the center of the world
+        val gravityPoint: Vector2 = Vector2( // The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )

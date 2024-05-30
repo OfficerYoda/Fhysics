@@ -262,12 +262,39 @@ data class QuadTree(
     }
 
     /// =====Utility functions=====
+    /**
+     * Counts the objects in the QuadTree
+     *
+     * This function will count the same object multiple times if it is in multiple nodes
+     * For counting unique objects, use [countUnique]
+     *
+     * @return The amount of objects in the QuadTree
+     */
     private fun count(): Int {
         return if (divided) {
             topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
         } else {
             objects.size
         }
+    }
+
+    /**
+     * Counts the unique objects in the QuadTree
+     *
+     * Unlike the [count] function, this function will not count the same object multiple times
+     *
+     * @param objectSet The set which is used for counting
+     * @return The amount of unique objects in the QuadTree
+     */
+    fun countUnique(objectSet: MutableSet<FhysicsObject> = HashSet()): Int {
+        this.count()
+        if (divided) {
+            topLeft!!.countUnique(objectSet) + topRight!!.countUnique(objectSet) + botLeft!!.countUnique(objectSet) + botRight!!.countUnique(objectSet)
+        } else {
+            objectSet.addAll(objects)
+        }
+
+        return objectSet.size
     }
 
     override fun toString(): String {
