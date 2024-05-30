@@ -86,7 +86,7 @@ object SceneListener {
         when (UIController.spawnObjectType) {
             SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
             SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
-            SpawnObjectType.TRIANGLE -> spawnTriangle(transformedMousePos)
+            SpawnObjectType.NOTHING -> spawnTriangle(transformedMousePos)
         }
     }
 

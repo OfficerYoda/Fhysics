@@ -6,8 +6,12 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.objects.Rectangle
 import javafx.fxml.FXML
 import javafx.scene.control.*
+import java.awt.Color
 import java.util.*
 
 class UIController {
@@ -84,29 +88,45 @@ class UIController {
     @FXML
     fun onCircleClicked() {
         spawnObjectType = SpawnObjectType.CIRCLE
-
-        // enable radius field
-        txtSpawnRadius.isDisable = false
-        txtSpawnWidth.isDisable = true
-        txtSpawnHeight.isDisable = true
+        updateSpawnPreview()
+        setFieldAvailability(radius = true, width = false, height = false)
     }
 
+    @FXML
     fun onRectangleClicked() {
         spawnObjectType = SpawnObjectType.RECTANGLE
-
-        // disable radius field
-        txtSpawnRadius.isDisable = true
-        txtSpawnWidth.isDisable = false
-        txtSpawnHeight.isDisable = false
+        updateSpawnPreview()
+        setFieldAvailability(radius = false, width = true, height = true)
     }
 
+    @FXML
     fun onTriangleClicked() {
-        spawnObjectType = SpawnObjectType.TRIANGLE
+        spawnObjectType = SpawnObjectType.NOTHING
+        updateSpawnPreview()
+        setFieldAvailability(radius = false, width = false, height = false)
+    }
 
-        // disable radius field
-        txtSpawnRadius.isDisable = true
-        txtSpawnWidth.isDisable = true
-        txtSpawnHeight.isDisable = true
+    private fun updateSpawnPreview() {
+        if(spawnObjectType == SpawnObjectType.NOTHING) {
+            RenderUtil.drawer.spawnPreview = null
+            return
+        }
+
+        Rectangle(SceneListener.mouseWorldPos, spawnWidth, spawnHeight)
+        val obj: FhysicsObject = when (spawnObjectType) {
+            SpawnObjectType.CIRCLE -> Circle(SceneListener.mouseWorldPos, spawnRadius)
+            SpawnObjectType.RECTANGLE -> Rectangle(SceneListener.mouseWorldPos, spawnWidth, spawnHeight)
+            else -> throw IllegalArgumentException("Invalid spawn object type")
+        }
+
+        obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
+        RenderUtil.drawer.spawnPreview = obj
+    }
+
+    private fun setFieldAvailability(radius: Boolean, width: Boolean, height: Boolean) {
+        txtSpawnRadius.isDisable = !radius
+        txtSpawnWidth.isDisable = !width
+        txtSpawnHeight.isDisable = !height
     }
 
     @FXML
@@ -117,16 +137,19 @@ class UIController {
     @FXML
     fun onRadiusTyped() {
         spawnRadius = parseTextField(txtSpawnRadius)
+        updateSpawnPreview()
     }
 
     @FXML
     fun onWidthTyped() {
         spawnWidth = parseTextField(txtSpawnWidth)
+        updateSpawnPreview()
     }
 
     @FXML
     fun onHeightTyped() {
         spawnHeight = parseTextField(txtSpawnHeight)
+        updateSpawnPreview()
     }
 
     /// =====Gravity=====
@@ -249,6 +272,12 @@ class UIController {
     /// =====Initialization and helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
+        when (spawnObjectType) {
+            SpawnObjectType.CIRCLE -> onCircleClicked()
+            SpawnObjectType.RECTANGLE -> onRectangleClicked()
+            SpawnObjectType.NOTHING -> onTriangleClicked()
+        }
+
         restrictToNumericInput(txtSpawnRadius, false)
         restrictToNumericInput(txtSpawnWidth, false)
         restrictToNumericInput(txtSpawnHeight, false)
@@ -367,7 +396,7 @@ class UIController {
 enum class SpawnObjectType {
     CIRCLE,
     RECTANGLE,
-    TRIANGLE
+    NOTHING
 }
 
 enum class GravityType {

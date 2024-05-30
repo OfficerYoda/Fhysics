@@ -57,6 +57,7 @@ class FhysicsObjectDrawer : Application() {
     private val titleBarHeight: Double = 39.0 // That's the default height of the window's title bar (in windows)
 
     // Spawning/removing properties
+    var spawnPreview: FhysicsObject? = null
     var hoveredObject: FhysicsObject? = null
 
     /// =====Start functions=====
@@ -238,18 +239,9 @@ class FhysicsObjectDrawer : Application() {
 
     private fun drawSpawnPreview() {
         // Triangle temp for nothing selected to spawn
-        if (UIController.spawnObjectType == SpawnObjectType.TRIANGLE) return
+        if (UIController.spawnObjectType == SpawnObjectType.NOTHING) return
 
-        // Instantiate a temporary object
-        val obj: FhysicsObject = if (UIController.spawnObjectType == SpawnObjectType.CIRCLE) {
-            Circle(SceneListener.mouseWorldPos, UIController.spawnRadius)
-        } else {
-            Rectangle(SceneListener.mouseWorldPos, UIController.spawnWidth, UIController.spawnHeight)
-        }
-        // Set the alpha value to 50%
-        obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
-
-        drawObject(obj)
+        drawObject(spawnPreview!!)
     }
 
     private fun drawDebugPoints() {
