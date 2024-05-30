@@ -5,6 +5,7 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
@@ -63,10 +64,10 @@ class UIController {
     private lateinit var cbQTNodeUtilization: CheckBox
 
     @FXML
-    private lateinit var cbOptimizeQuadTreeCapacity: CheckBox
+    private lateinit var cbOptimizeQTCapacity: CheckBox
 
-//    @FXML
-//    private lateinit var txtQuadTreeCapacity: TextField
+    @FXML
+    private lateinit var txtQuadTreeCapacity: TextField
 
     /// =====Debug=====
     @FXML
@@ -113,7 +114,7 @@ class UIController {
     }
 
     private fun updateSpawnPreview() {
-        if(spawnObjectType == SpawnObjectType.NOTHING) {
+        if (spawnObjectType == SpawnObjectType.NOTHING) {
             RenderUtil.drawer.spawnPreview = null
             return
         }
@@ -238,8 +239,20 @@ class UIController {
     }
 
     @FXML
-    fun onOptimizeQuadTreeCapacityClicked() {
-        optimizeQuadTreeCapacity = cbOptimizeQuadTreeCapacity.isSelected
+    fun onOptimizeQTCapacityClicked() {
+        optimizeQTCapacity = cbOptimizeQTCapacity.isSelected
+
+        // Disable manual capacity input if the capacity is being optimized
+        txtQuadTreeCapacity.isDisable = optimizeQTCapacity
+        txtQuadTreeCapacity.text = QuadTree.capacity.toString()
+    }
+
+    @FXML
+    fun onQuadTreeCapacityTyped() {
+        val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
+        if (capacity > 0) {
+            QuadTree.capacity = capacity
+        }
     }
 
     /// =====Debug=====
@@ -283,18 +296,6 @@ class UIController {
             SpawnObjectType.NOTHING -> onNothingClicked()
         }
 
-        restrictToNumericInput(txtSpawnRadius, false)
-        restrictToNumericInput(txtSpawnWidth, false)
-        restrictToNumericInput(txtSpawnHeight, false)
-
-        restrictToNumericInput(txtGravityDirectionX)
-        restrictToNumericInput(txtGravityDirectionY)
-        restrictToNumericInput(txtGravityPointX)
-        restrictToNumericInput(txtGravityPointY)
-        restrictToNumericInput(txtGravityPointStrength)
-
-        restrictToNumericInput(txtTimeSpeed, false)
-
         /// =====Spawn Object=====
         cbSpawnPreview.isSelected = drawSpawnPreview
         txtSpawnRadius.text = spawnRadius.toString()
@@ -302,6 +303,10 @@ class UIController {
         txtSpawnHeight.text = spawnHeight.toString()
         txtSpawnWidth.isDisable = true
         txtSpawnHeight.isDisable = true
+
+        restrictToNumericInput(txtSpawnRadius, false)
+        restrictToNumericInput(txtSpawnWidth, false)
+        restrictToNumericInput(txtSpawnHeight, false)
 
         /// =====Gravity=====
         txtGravityDirectionX.text = gravityDirection.x.toString()
@@ -315,15 +320,27 @@ class UIController {
         txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
         txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
 
+        restrictToNumericInput(txtGravityDirectionX)
+        restrictToNumericInput(txtGravityDirectionY)
+        restrictToNumericInput(txtGravityPointX)
+        restrictToNumericInput(txtGravityPointY)
+        restrictToNumericInput(txtGravityPointStrength)
+
         /// =====Time=====
         btnPause.isSelected = !FhysicsCore.running
         btnStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
 
+        restrictToNumericInput(txtTimeSpeed, false)
+
         /// =====QuadTree=====
         cbQuadTree.isSelected = drawQuadTree
-        cbQTNodeUtilization.isSelected = drawQTNodeUtilization
         cbQTNodeUtilization.isDisable = !drawQuadTree
+        cbQTNodeUtilization.isSelected = drawQTNodeUtilization
+        cbOptimizeQTCapacity.isSelected = optimizeQTCapacity
+        txtQuadTreeCapacity.text = QuadTree.capacity.toString()
+
+        restrictToNumericInput(txtQuadTreeCapacity, false)
 
         /// =====Debug=====
         cbBoundingBoxes.isSelected = drawBoundingBoxes
@@ -381,7 +398,7 @@ class UIController {
             private set
         var drawQTNodeUtilization: Boolean = true
             private set
-        var optimizeQuadTreeCapacity: Boolean = false
+        var optimizeQTCapacity: Boolean = false
             private set
 
         /// =====Debug=====

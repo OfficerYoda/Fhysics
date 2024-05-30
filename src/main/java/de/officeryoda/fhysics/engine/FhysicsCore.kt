@@ -30,7 +30,7 @@ object FhysicsCore {
     /// =====variables=====
     private var quadTree: QuadTree = QuadTree(BORDER, null)
 
-    var objectCount: Int = 0
+    private var objectCount: Int = 0
 
     var updateCount = 0
 
@@ -89,7 +89,7 @@ object FhysicsCore {
         quadTree.insertObjects()
         quadTree.updateObjectsAndRebuild()
 
-        if (UIController.optimizeQuadTreeCapacity) optimizeQuadTreeCapacity()
+        if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
         updateCount++
         updateTimer.stop()
@@ -159,7 +159,7 @@ object FhysicsCore {
 
     private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++
-        if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame which where the rebuild will take the longest
+        if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame where the rebuild takes place which takes longer
             val average: Double = updateTimer.average()
 
             qtCapacity[QuadTree.capacity] = average
