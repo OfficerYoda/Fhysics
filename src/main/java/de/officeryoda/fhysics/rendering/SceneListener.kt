@@ -58,16 +58,9 @@ object SceneListener {
                 // If the mouse is not hovering over an object remove that object
                 if (drawer.hoveredObject != null) {
                     QuadTree.removeQueue.add(drawer.hoveredObject!!)
+                    drawer.hoveredObject = null
                 } else { // Else spawn a new object
-                    // Check if spawn pos is outside the border
-                    val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-                    if (!FhysicsCore.BORDER.contains(transformedMousePos)) return
-
-                    when (UIController.spawnObjectType) {
-                        SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
-                        SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
-                        SpawnObjectType.TRIANGLE -> spawnTriangle(transformedMousePos)
-                    }
+                    spawnObject(e)
                 }
             }
 
@@ -77,6 +70,23 @@ object SceneListener {
             }
 
             else -> {}
+        }
+    }
+
+    /**
+     * Spawns an object at the mouse position
+     *
+     * @param e the mouse event
+     */
+    private fun spawnObject(e: MouseEvent) {
+        // Check if spawn pos is outside the border
+        val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
+        if (!FhysicsCore.BORDER.contains(transformedMousePos)) return
+
+        when (UIController.spawnObjectType) {
+            SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
+            SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
+            SpawnObjectType.TRIANGLE -> spawnTriangle(transformedMousePos)
         }
     }
 

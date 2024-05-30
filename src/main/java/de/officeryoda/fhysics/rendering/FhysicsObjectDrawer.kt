@@ -138,18 +138,28 @@ class FhysicsObjectDrawer : Application() {
         gc.clearRect(0.0, 0.0, width, height)
 
         // Find the hovered object (if any)
-        hoveredObject = QuadTree.root.query(SceneListener.mouseWorldPos)
+        hoveredObject = checkForHoveredObject()
 
         // Draw the objects
         QuadTree.root.drawObjects(::drawObject, ::drawBoundingBox)
 
-        if(hoveredObject != null) drawHoveredObject()
+        if (hoveredObject != null) drawHoveredObject()
         if (UIController.drawSpawnPreview && hoveredObject == null) drawSpawnPreview()
         if (UIController.drawQuadTree) drawQuadTreeNodes()
 
         drawBorder()
         drawDebugPoints()
         drawStats()
+    }
+
+    private fun checkForHoveredObject(): FhysicsObject? {
+        // Check if the mouse is still hovering over the object
+        val obj: FhysicsObject? =
+            hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
+                ?: QuadTree.root.query(SceneListener.mouseWorldPos)
+
+        // If the object is in the remove queue, don't return it
+        return obj.takeUnless { QuadTree.removeQueue.contains(it) }
     }
 
     private fun drawHoveredObject() {
@@ -277,23 +287,23 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawBoundingBox(obj: FhysicsObject) {
-            val (pos: Vector2, size: Vector2) = when (obj) {
-                is Rectangle -> Vector2(obj.minX, obj.minY) to Vector2(obj.maxX - obj.minX, obj.maxY - obj.minY)
-                is Circle -> Vector2(
-                    obj.position.x - obj.radius,
-                    obj.position.y - obj.radius
-                ) to Vector2(obj.radius * 2, obj.radius * 2)
+        val (pos: Vector2, size: Vector2) = when (obj) {
+            is Rectangle -> Vector2(obj.minX, obj.minY) to Vector2(obj.maxX - obj.minX, obj.maxY - obj.minY)
+            is Circle -> Vector2(
+                obj.position.x - obj.radius,
+                obj.position.y - obj.radius
+            ) to Vector2(obj.radius * 2, obj.radius * 2)
 
-                else -> return
-            }
+            else -> return
+        }
 
-            setStrokeColor(Color.RED)
-            gc.strokeRect(
-                worldToScreenX(pos.x),
-                worldToScreenY(pos.y + size.y),
-                size.x * zoom,
-                size.y * zoom
-            )
+        setStrokeColor(Color.RED)
+        gc.strokeRect(
+            worldToScreenX(pos.x),
+            worldToScreenY(pos.y + size.y),
+            size.x * zoom,
+            size.y * zoom
+        )
     }
 
     private fun transformAndDrawQuadTreeCapacity(rect: Rectangle2D, contentCount: Int) {
