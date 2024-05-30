@@ -17,7 +17,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<fx:root prefHeight="285.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
+<fx:root prefHeight="300.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
     <panes>
         <TitledPane focusTraversable="false" text="Spawn Object">
             <content>
@@ -243,13 +243,13 @@
                </children></AnchorPane>
             </content>
         </TitledPane>
-        <TitledPane focusTraversable="false" text="Debug">
-            <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
+      <TitledPane focusTraversable="false" text="QuadTree">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
                <children>
                   <VBox layoutX="20.0" prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Toggle which to show" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Visuals" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
                            <font>
                               <Font name="System Italic" size="12.0" />
                            </font>
@@ -258,9 +258,6 @@
                            <tooltip>
                               <Tooltip text="Show the QuadTree subdivisions" />
                            </tooltip>
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
                         </CheckBox>
                         <CheckBox fx:id="cbQTNodeUtilization" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onQTNodeUtilizationClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
                            <tooltip>
@@ -270,6 +267,46 @@
                               <Insets bottom="5.0" />
                            </padding>
                         </CheckBox>
+                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Capacity" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                           <font>
+                              <Font name="System Italic" size="12.0" />
+                           </font>
+                        </Text>
+                        <CheckBox fx:id="cbOptimizeQuadTreeCapacity" mnemonicParsing="false" onMouseClicked="#onOptimizeQuadTreeCapacityClicked" prefHeight="17.0" prefWidth="228.0" text="Optimize QuadTree capacity">
+                           <tooltip>
+                              <Tooltip text="Tries to find an optimal QuadTree capacity" />
+                           </tooltip>
+                        </CheckBox>
+                     </children>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </VBox>
+               </children>
+            </AnchorPane>
+         </content>
+      </TitledPane>
+        <TitledPane focusTraversable="false" text="Debug">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
+               <children>
+                  <VBox layoutX="20.0" prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Visuals" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                           <font>
+                              <Font name="System Italic" size="12.0" />
+                           </font>
+                        </Text>
+                        <CheckBox fx:id="cbBoundingBoxes" mnemonicParsing="false" onMouseClicked="#onBoundingBoxesClicked" prefHeight="17.0" prefWidth="253.0" text="Bounding Boxes">
+                           <tooltip>
+                              <Tooltip text="Shows the bounding boxes of objects" />
+                           </tooltip>
+                        </CheckBox>
+                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Stats" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                           <font>
+                              <Font name="System Italic" size="12.0" />
+                           </font>
+                        </Text>
                         <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
                            <tooltip>
                               <Tooltip text="The amount of objects that one QT node can hold" />
@@ -285,19 +322,19 @@
                               <Tooltip text="Updates per second" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="253.0" text="Object count">
+                        <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="228.0" text="Object count">
                            <tooltip>
                               <Tooltip text="The amount of objects in the scene" />
                            </tooltip>
                         </CheckBox>
-                        <CheckBox fx:id="cbBoundingBoxes" mnemonicParsing="false" onMouseClicked="#onBoundingBoxesClicked" prefHeight="17.0" prefWidth="253.0" text="Bounding Boxes">
-                           <tooltip>
-                              <Tooltip text="Shows the bounding boxes of objects" />
-                           </tooltip>
-                           <padding>
-                              <Insets bottom="5.0" />
-                           </padding>
-                        </CheckBox>
+                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Other" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                           <font>
+                              <Font name="System Italic" size="12.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </Text>
                         <HBox>
                            <children>
                               <Label prefWidth="85.0" text="Wall restitution ">

@@ -55,12 +55,22 @@ class UIController {
     @FXML
     private lateinit var txtTimeSpeed: TextField
 
-    /// =====Debug=====
+    /// =====QuadTree=====
     @FXML
     private lateinit var cbQuadTree: CheckBox
 
     @FXML
     private lateinit var cbQTNodeUtilization: CheckBox
+
+    @FXML
+    private lateinit var cbOptimizeQuadTreeCapacity: CheckBox
+
+//    @FXML
+//    private lateinit var txtQuadTreeCapacity: TextField
+
+    /// =====Debug=====
+    @FXML
+    private lateinit var cbBoundingBoxes: CheckBox
 
     @FXML
     private lateinit var cbQTCapacity: CheckBox
@@ -75,13 +85,10 @@ class UIController {
     private lateinit var cbObjectCount: CheckBox
 
     @FXML
-    private lateinit var cbBoundingBoxes: CheckBox
+    private lateinit var sldWallElasticity: Slider
 
     @FXML
     private lateinit var lblWallElasticity: Label
-
-    @FXML
-    private lateinit var sldWallElasticity: Slider
 
     /// =====Spawn Object=====
     @FXML
@@ -216,7 +223,7 @@ class UIController {
         FhysicsCore.dt = 1.0F / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
     }
 
-    /// =====Debug=====
+    /// =====QuadTree=====
     @FXML
     fun onQuadTreeClicked() {
         drawQuadTree = cbQuadTree.isSelected
@@ -228,6 +235,17 @@ class UIController {
     @FXML
     fun onQTNodeUtilizationClicked() {
         drawQTNodeUtilization = cbQTNodeUtilization.isSelected
+    }
+
+    @FXML
+    fun onOptimizeQuadTreeCapacityClicked() {
+        optimizeQuadTreeCapacity = cbOptimizeQuadTreeCapacity.isSelected
+    }
+
+    /// =====Debug=====
+    @FXML
+    fun onBoundingBoxesClicked() {
+        drawBoundingBoxes = !drawBoundingBoxes
     }
 
     @FXML
@@ -248,11 +266,6 @@ class UIController {
     @FXML
     fun onObjectCountClicked() {
         drawObjectCount = cbObjectCount.isSelected
-    }
-
-    @FXML
-    fun onBoundingBoxesClicked() {
-        drawBoundingBoxes = !drawBoundingBoxes
     }
 
     @FXML
@@ -307,16 +320,16 @@ class UIController {
         btnStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
 
-        /// =====Debug=====
+        /// =====QuadTree=====
         cbQuadTree.isSelected = drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
         cbQTNodeUtilization.isDisable = !drawQuadTree
-        cbQTNodeUtilization.isSelected = drawQTNodeUtilization
 
+        /// =====Debug=====
+        cbBoundingBoxes.isSelected = drawBoundingBoxes
         cbObjectCount.isSelected = drawObjectCount
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
-        cbBoundingBoxes.isSelected = drawBoundingBoxes
 
         sldWallElasticity.value = wallElasticity.toDouble()
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
@@ -363,21 +376,24 @@ class UIController {
         var timeSpeed: Float = 1.0F
             private set
 
-        /// =====Debug=====
+        /// =====QuadTree=====
         var drawQuadTree: Boolean = false
             private set
         var drawQTNodeUtilization: Boolean = true
             private set
+        var optimizeQuadTreeCapacity: Boolean = false
+            private set
 
-        var drawQTCapacity: Boolean = false
+        /// =====Debug=====
+        var drawBoundingBoxes: Boolean = false
+            private set
+        var drawQTCapacity: Boolean = true
             private set
         var drawMSPU: Boolean = true
             private set
         var drawUPS: Boolean = false
             private set
         var drawObjectCount: Boolean = false
-            private set
-        var drawBoundingBoxes: Boolean = false
             private set
 
         var wallElasticity: Float = 1.0F

@@ -89,7 +89,7 @@ object FhysicsCore {
         quadTree.insertObjects()
         quadTree.updateObjectsAndRebuild()
 
-//        optimizeQuadTreeCapacity()
+        if (UIController.optimizeQuadTreeCapacity) optimizeQuadTreeCapacity()
 
         updateCount++
         updateTimer.stop()
