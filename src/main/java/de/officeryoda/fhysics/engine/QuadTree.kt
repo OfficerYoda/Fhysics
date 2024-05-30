@@ -126,7 +126,9 @@ data class QuadTree(
         }
 
         // All objects that are queued for removal are removed
-        removeQueue.clear()
+        if (isRoot) {
+            removeQueue.clear()
+        }
     }
 
     private fun updateChildren() {
