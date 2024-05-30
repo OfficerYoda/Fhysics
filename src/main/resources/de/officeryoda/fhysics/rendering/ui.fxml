@@ -35,9 +35,9 @@
                                  <tooltip>
                                     <Tooltip text="Select to spawn a rectangle" />
                                  </tooltip></ToggleButton>
-                                      <ToggleButton onMouseClicked="#onTriangleClicked" text="Triangle" textAlignment="CENTER">
+                                      <ToggleButton onMouseClicked="#onNothingClicked" text="Nothing" textAlignment="CENTER">
                                  <tooltip>
-                                    <Tooltip text="Select to spawn a Triangle" />
+                                    <Tooltip text="Select to not spawn anything when clicking" />
                                  </tooltip></ToggleButton>
                                   </toggles>
                                   <opaqueInsets>

@@ -100,7 +100,7 @@ class UIController {
     }
 
     @FXML
-    fun onTriangleClicked() {
+    fun onNothingClicked() {
         spawnObjectType = SpawnObjectType.NOTHING
         updateSpawnPreview()
         setFieldAvailability(radius = false, width = false, height = false)
@@ -275,7 +275,7 @@ class UIController {
         when (spawnObjectType) {
             SpawnObjectType.CIRCLE -> onCircleClicked()
             SpawnObjectType.RECTANGLE -> onRectangleClicked()
-            SpawnObjectType.NOTHING -> onTriangleClicked()
+            SpawnObjectType.NOTHING -> onNothingClicked()
         }
 
         restrictToNumericInput(txtSpawnRadius, false)

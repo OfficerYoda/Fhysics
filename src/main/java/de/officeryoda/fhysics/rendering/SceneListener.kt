@@ -86,7 +86,7 @@ object SceneListener {
         when (UIController.spawnObjectType) {
             SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
             SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
-            SpawnObjectType.NOTHING -> spawnTriangle(transformedMousePos)
+            else -> {}
         }
     }
 
@@ -110,16 +110,6 @@ object SceneListener {
     private fun spawnRectangle(position: Vector2) {
         if (UIController.spawnWidth <= 0.0F || UIController.spawnHeight <= 0.0F) return
         FhysicsCore.spawn(Rectangle(position, UIController.spawnWidth, UIController.spawnHeight))
-    }
-
-    /**
-     * Spawns a triangle using the mouse position
-     *
-     * @param position the world spawn position
-     * @return the spawned triangle
-     */
-    private fun spawnTriangle(position: Vector2) {
-        TODO("Not yet implemented")
     }
 
     /**

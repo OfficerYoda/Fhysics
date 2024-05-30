@@ -358,6 +358,7 @@ class FhysicsObjectDrawer : Application() {
 
         if (UIController.drawObjectCount)
             stats.add("Objects: ${FhysicsCore.objectCount}")
+
         if (UIController.drawQTCapacity)
             stats.add("QuadTree Capacity: ${QuadTree.capacity}")
 
