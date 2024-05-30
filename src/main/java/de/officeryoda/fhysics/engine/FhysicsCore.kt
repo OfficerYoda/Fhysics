@@ -13,6 +13,7 @@ import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.Timer
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.max
 import kotlin.math.sign
 
@@ -24,12 +25,12 @@ object FhysicsCore {
     const val UPDATES_PER_SECOND: Int = 120
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
     private const val QTC_START_STEP_SIZE = 10.0
+    val RENDER_LOCK = ReentrantLock()
 
     /// =====variables=====
-    var quadTree: QuadTree = QuadTree(BORDER, null)
+    private var quadTree: QuadTree = QuadTree(BORDER, null)
 
     var objectCount: Int = 0
-    val fhysicsObjects: MutableList<FhysicsObject> = ArrayList()
 
     var updateCount = 0
 
@@ -46,35 +47,20 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        for (i in 1..200) {
-//            val circle: Circle = FhysicsObjectFactory.randomCircle()
-////            circle.velocity.set(Vector2.ZERO)
-//            spawn(circle)
-//        }
+        for (i in 1..200) {
+            val circle: Circle = FhysicsObjectFactory.randomCircle()
+//            circle.velocity.set(Vector2.ZERO)
+            spawn(circle)
+        }
 
-        // spawn some rectangles
-//        for (i in 1..10) {
-//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
-//            rect.velocity.set(Vector2.ZERO)
-//            spawn(rect)
-//        }
+        for (i in 1..10) {
+            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
+            spawn(rect)
+        }
 
-        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, 45f)
-        spawn(rect)
-
-        // spawn nine rectangles with increasing rotation in a 3x3 grid
-//        for (i in 0..11) {
-//            val rect = Rectangle(
-//                Vector2(
-//                    (BORDER.width / 3 * (i % 3) + BORDER.width / 6).toFloat(),
-//                    BORDER.height.toFloat() - (BORDER.height / 3 * (i / 3) + BORDER.height / 6).toFloat()
-//                ),
-//                30.0F,
-//                10.0F,
-//                30f * i
-//            )
-//            spawn(rect)
-//        }
+        // spawn a rotated rectangle in the center
+//        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, 45f)
+//        spawn(rect)
 
         objectsAtStepSizeIncrease = objectCount
         startUpdateLoop()
@@ -85,7 +71,9 @@ object FhysicsCore {
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 if (running) {
+                    RENDER_LOCK.lock()
                     update()
+                    RENDER_LOCK.unlock()
                 }
             }
         }, 0, updateIntervalMillis.toLong())
@@ -96,9 +84,10 @@ object FhysicsCore {
 
 //        spawnObject()
 
-        quadTree.updateObjectsAndRebuild()
-
         checkObjectCollision(quadTree)
+
+        quadTree.insertObjects()
+        quadTree.updateObjectsAndRebuild()
 
 //        optimizeQuadTreeCapacity()
 
@@ -108,8 +97,7 @@ object FhysicsCore {
 
     // This method must be called when trying to spawn an object
     fun spawn(obj: FhysicsObject) {
-        fhysicsObjects.add(obj)
-        quadTree.insert(obj)
+        QuadTree.toAdd.add(obj)
     }
 
     private fun spawnObject() {

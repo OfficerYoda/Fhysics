@@ -14,7 +14,16 @@ class UIController {
 
     /// =====Spawn Object=====
     @FXML
+    private lateinit var cbSpawnPreview: CheckBox
+
+    @FXML
     private lateinit var txtSpawnRadius: TextField
+
+    @FXML
+    private lateinit var txtSpawnWidth: TextField
+
+    @FXML
+    private lateinit var txtSpawnHeight: TextField
 
     /// =====Gravity=====
     @FXML
@@ -78,6 +87,8 @@ class UIController {
 
         // enable radius field
         txtSpawnRadius.isDisable = false
+        txtSpawnWidth.isDisable = true
+        txtSpawnHeight.isDisable = true
     }
 
     fun onRectangleClicked() {
@@ -85,6 +96,8 @@ class UIController {
 
         // disable radius field
         txtSpawnRadius.isDisable = true
+        txtSpawnWidth.isDisable = false
+        txtSpawnHeight.isDisable = false
     }
 
     fun onTriangleClicked() {
@@ -92,11 +105,28 @@ class UIController {
 
         // disable radius field
         txtSpawnRadius.isDisable = true
+        txtSpawnWidth.isDisable = true
+        txtSpawnHeight.isDisable = true
+    }
+
+    @FXML
+    fun onSpawnPreviewClicked() {
+        drawSpawnPreview = cbSpawnPreview.isSelected
     }
 
     @FXML
     fun onRadiusTyped() {
         spawnRadius = parseTextField(txtSpawnRadius)
+    }
+
+    @FXML
+    fun onWidthTyped() {
+        spawnWidth = parseTextField(txtSpawnWidth)
+    }
+
+    @FXML
+    fun onHeightTyped() {
+        spawnHeight = parseTextField(txtSpawnHeight)
     }
 
     /// =====Gravity=====
@@ -220,6 +250,8 @@ class UIController {
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
         restrictToNumericInput(txtSpawnRadius, false)
+        restrictToNumericInput(txtSpawnWidth, false)
+        restrictToNumericInput(txtSpawnHeight, false)
 
         restrictToNumericInput(txtGravityDirectionX)
         restrictToNumericInput(txtGravityDirectionY)
@@ -230,7 +262,12 @@ class UIController {
         restrictToNumericInput(txtTimeSpeed, false)
 
         /// =====Spawn Object=====
+        cbSpawnPreview.isSelected = drawSpawnPreview
         txtSpawnRadius.text = spawnRadius.toString()
+        txtSpawnWidth.text = spawnWidth.toString()
+        txtSpawnHeight.text = spawnHeight.toString()
+        txtSpawnWidth.isDisable = true
+        txtSpawnHeight.isDisable = true
 
         /// =====Gravity=====
         txtGravityDirectionX.text = gravityDirection.x.toString()
@@ -279,20 +316,26 @@ class UIController {
 
     companion object {
         /// =====Spawn Object=====
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
+            private set
+        var drawSpawnPreview: Boolean = true
+            private set
         var spawnRadius: Float = 1.0F
             private set
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
+        var spawnWidth: Float = 1.0F
+            private set
+        var spawnHeight: Float = 1.0F
             private set
 
         /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0F, -9.81F)
+        val gravityDirection: Vector2 = Vector2(0.0f, 0.0f)
         val gravityPoint: Vector2 = Vector2( // the center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
-        var gravityPointStrength: Float = 100.0F
+        var gravityPointStrength: Float = 100.0f
             private set
 
         /// =====Time=====

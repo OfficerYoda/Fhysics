@@ -3,7 +3,9 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
+import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction2
 
 data class QuadTree(
@@ -12,13 +14,13 @@ data class QuadTree(
 ) {
 
     val objects: MutableList<FhysicsObject> = ArrayList()
-    private val isMinWidth: Boolean = boundary.width < 1 // minimum width of 1 to prevent infinite subdivision
+    private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite subdivision
     private val isRoot: Boolean = parent == null
 
     var divided: Boolean = false
         private set
 
-    // child nodes
+    // Child nodes
     var topLeft: QuadTree? = null
         private set
     var topRight: QuadTree? = null
@@ -30,12 +32,18 @@ data class QuadTree(
 
     private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
 
-    /// =====insertion functions=====
-    fun insert(obj: FhysicsObject) {
+    init {
+        if (isRoot) {
+            root = this
+        }
+    }
+
+    /// =====Basic functions=====
+    private fun insert(obj: FhysicsObject) {
         if (!boundary.intersects(obj)) return
         if (objects.contains(obj)) return
 
-        if ((objects.size < capacity && !divided) || (isMinWidth && !divided)) {
+        if (!divided && (objects.size < capacity || isMinWidth)) {
             objects.add(obj)
             return
         }
@@ -47,9 +55,20 @@ data class QuadTree(
         insertInChildren(obj)
     }
 
-    // probably should have chosen another name
+    fun query(pos: Vector2): FhysicsObject? {
+        if (!boundary.contains(pos)) return null
+
+        if (divided) {
+            return topLeft!!.query(pos) ?: topRight!!.query(pos) ?: botLeft!!.query(pos) ?: botRight!!.query(pos)
+        }
+
+        // Check if any object in the node contains the position
+        return objects.firstOrNull { it.contains(pos) }
+    }
+
+    // Probably should have chosen another name
     private fun insertInChildren(obj: FhysicsObject) {
-        // need to check every Child due to border Objects
+        // Need to check every Child due to border Objects
         topLeft!!.insert(obj)
         topRight!!.insert(obj)
         botLeft!!.insert(obj)
@@ -62,16 +81,16 @@ data class QuadTree(
         val hw: Float = boundary.width.toFloat() / 2 // half width
         val hh: Float = boundary.height.toFloat() / 2 // half height
 
-        // top left
+        // Top left
         val tl = Rectangle2D.Float(x, y + hh, hw, hh)
         topLeft = QuadTree(tl, this)
-        // top right
+        // Top right
         val tr = Rectangle2D.Float(x + hw, y + hh, hw, hh)
         topRight = QuadTree(tr, this)
-        // bottom left
+        // Bottom left
         val bl = Rectangle2D.Float(x, y, hw, hh)
         botLeft = QuadTree(bl, this)
-        // bottom right
+        // Bottom right
         val br = Rectangle2D.Float(x + hw, y, hw, hh)
         botRight = QuadTree(br, this)
 
@@ -81,29 +100,42 @@ data class QuadTree(
         divided = true
     }
 
-    /// =====rebuild functions=====
+    fun insertObjects() {
+        toAdd.forEach { insert(it) }
+        toAdd.clear()
+    }
+
+    /// =====Rebuild and update functions=====
     fun updateObjectsAndRebuild() {
         if (divided) {
-            // rebuild the children first
+            // Rebuild the children first
             updateChildren()
-            // insert any objects that need to be rebuilt
+            // Insert any objects that need to be rebuilt
             insertRebuildObjects()
-            // collapse the node if possible
+            // Collapse the node if possible
             tryCollapse()
         } else {
             if (isRoot) {
-                // just update the objects if it is the root
-                objects.forEach { updateObject(it, true) }
+                // Remove objects that are queued for removal
+                objects.removeAll(removeQueue)
+                // Update the remaining objects
+                objects.forEach { updateObject(it) }
             } else {
                 handleNonRootNode()
             }
+        }
+
+        // All objects that are queued for removal are removed
+        if (isRoot) {
+            removeQueue.clear()
         }
     }
 
     private fun updateChildren() {
         if (isRoot) {
-            // update root children async
+            // Update root children async
             updateObjectsAndRebuildChildrenAsync()
+            return
         } else {
             topLeft!!.updateObjectsAndRebuild()
             topRight!!.updateObjectsAndRebuild()
@@ -112,17 +144,16 @@ data class QuadTree(
         }
     }
 
-    private fun isNodeOnBorder(): Boolean {
-        return boundary.x == 0.0 || boundary.y == 0.0 || boundary.x + boundary.width == FhysicsCore.BORDER.width || boundary.y + boundary.height == FhysicsCore.BORDER.height
-    }
-
     private fun handleNonRootNode() {
         val toRemove = ArrayList<FhysicsObject>()
-        val borderNode: Boolean = isNodeOnBorder()
 
         for (obj: FhysicsObject in objects) {
+            if (removeQueue.contains(obj)) {
+                toRemove.add(obj)
+                continue
+            }
             // Update each object
-            updateObject(obj, borderNode)
+            updateObject(obj)
             // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
             if (!boundary.contains(obj)) {
                 parent!!.addRebuildObject(obj)
@@ -136,12 +167,12 @@ data class QuadTree(
     private fun tryCollapse() {
         if (!divided) return
 
-        // this doesn't take object on the edges into account, but it should be fine
+        // This doesn't take object on the edges into account, but it should be fine
         val objectsInChildren: Int = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
         if (objectsInChildren < capacity) {
             divided = false
-            // add every child object to the parent
-            // set to prevent duplicates due to the edges
+            // Add every child object to the parent
+            // Set to prevent duplicates due to the edges
             val objectsSet: HashSet<FhysicsObject> = HashSet()
             objectsSet.addAll(topLeft!!.objects)
             objectsSet.addAll(topRight!!.objects)
@@ -153,9 +184,9 @@ data class QuadTree(
     }
 
     private fun addRebuildObject(obj: FhysicsObject) {
-        // if the object is still fully in the boundary, or it is the root, add it to the rebuild list
+        // If the object is still fully in the boundary, or it is the root, add it to the rebuild list
         if (boundary.contains(obj) || isRoot) {
-            // only need to execute it async if it is the root
+            // Only need to execute it async if it is the root
             if (isRoot) {
                 synchronized(rebuildObjects) {
                     rebuildObjects.add(obj)
@@ -164,7 +195,7 @@ data class QuadTree(
                 rebuildObjects.add(obj)
             }
         } else {
-            // if the object is not within the boundary, add the object to the parent's rebuild list
+            // If the object is not within the boundary, add the object to the parent's rebuild list
             parent!!.addRebuildObject(obj)
         }
     }
@@ -176,16 +207,43 @@ data class QuadTree(
         rebuildObjects.clear()
     }
 
-    /// =====update functions=====
-    private fun updateObject(it: FhysicsObject, checkBorder: Boolean) {
+    private fun updateObject(it: FhysicsObject) {
         it.updatePosition()
-        // check if node is on the edge of the screen
-        if (checkBorder) {
-            FhysicsCore.checkBorderCollision(it)
+
+        FhysicsCore.checkBorderCollision(it)
+    }
+
+    /// =====Drawing functions=====
+    fun drawObjects(drawObject: KFunction1<FhysicsObject, Unit>, drawBoundingBox: (FhysicsObject) -> Unit) {
+        when {
+            divided -> {
+                topLeft?.drawObjects(drawObject, drawBoundingBox)
+                topRight?.drawObjects(drawObject, drawBoundingBox)
+                botLeft?.drawObjects(drawObject, drawBoundingBox)
+                botRight?.drawObjects(drawObject, drawBoundingBox)
+            }
+
+            UIController.drawBoundingBoxes -> objects.forEach {
+                drawObject(it)
+                drawBoundingBox(it)
+            }
+
+            else -> objects.forEach { drawObject(it) }
         }
     }
 
-    /// =====async functions=====
+    fun drawNode(drawRect: KFunction2<Rectangle2D, Int, Unit>) {
+        if (!divided) {
+            drawRect(boundary, objects.size)
+        } else {
+            topLeft!!.drawNode(drawRect)
+            topRight!!.drawNode(drawRect)
+            botLeft!!.drawNode(drawRect)
+            botRight!!.drawNode(drawRect)
+        }
+    }
+
+    /// =====Async functions=====
     private fun updateObjectsAndRebuildChildrenAsync() {
         val tl = Thread { topLeft!!.updateObjectsAndRebuild() }
         val tr = Thread { topRight!!.updateObjectsAndRebuild() }
@@ -203,7 +261,7 @@ data class QuadTree(
         br.join()
     }
 
-    /// =====utility functions=====
+    /// =====Utility functions=====
     private fun count(): Int {
         return if (divided) {
             topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
@@ -212,30 +270,27 @@ data class QuadTree(
         }
     }
 
-    fun draw(drawRect: KFunction2<Rectangle2D, Int, Unit>) {
-        if (!divided) {
-            drawRect(boundary, objects.size)
-        } else {
-            topLeft!!.draw(drawRect)
-            topRight!!.draw(drawRect)
-            botLeft!!.draw(drawRect)
-            botRight!!.draw(drawRect)
-        }
-    }
-
     override fun toString(): String {
         return if (divided) {
-            "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, " +
+            "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, " +
                     "divided=true, canDivide=$isMinWidth, \n\ttopLeft=$topLeft, \n\ttopRight=$topRight, \n\tbotLeft=$botLeft, \n\tbotRight=$botRight)"
         } else {
-            "de.officeryoda.fhysics.engine.QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, canDivide=$isMinWidth)"
+            "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, canDivide=$isMinWidth)"
         }
     }
 
     companion object {
+        lateinit var root: QuadTree
+            private set
+
         var capacity: Int = 32
             set(value) {
                 field = value.coerceAtLeast(1)
             }
+
+        // List of objects to add and remove
+        // This is used to prevent concurrent modification exceptions
+        val toAdd: MutableList<FhysicsObject> = ArrayList()
+        val removeQueue: MutableSet<FhysicsObject> = HashSet()
     }
 }

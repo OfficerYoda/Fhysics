@@ -12,22 +12,31 @@ abstract class CollisionSolver {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
-        // non-static object needs to move the full distance
-        // instead of both objects moving half the distance
-        val moveAmount: Vector2 =
-            if (objA.static || objB.static)
-                info.overlap * info.normal
-            else
-                0.5F * info.overlap * info.normal
+        // Early return if both objects are static
+        if (objA.static && objB.static) {
+            return
+        }
 
-        // Move circles apart along the collision normal
-        moveIfNotStatic(objA, -moveAmount)
-        moveIfNotStatic(objB, moveAmount)
-    }
+        // Calculate total mass if at least one object is not static
+        val totalMass: Float =
+            if (!objA.static && !objB.static) objA.mass + objB.mass
+            else if (objA.static) objB.mass else objA.mass
 
-    private fun moveIfNotStatic(obj: FhysicsObject, moveAmount: Vector2) {
-        if (!obj.static) {
-            obj.position += moveAmount
+        // Calculate the overlap
+        val overlap: Vector2 = info.overlap * info.normal
+
+        // Calculate and apply movement amounts based on mass ratio
+        if (!objA.static) {
+            val moveAmountA: Vector2 =
+                if (!objB.static) (objB.mass / totalMass) * overlap
+                else overlap
+            objA.position -= moveAmountA
+        }
+        if (!objB.static) {
+            val moveAmountB: Vector2 =
+                if (!objA.static) (objA.mass / totalMass) * overlap
+                else overlap
+            objB.position += moveAmountB
         }
     }
 }

@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
 import javafx.scene.input.*
@@ -12,6 +13,11 @@ import kotlin.math.exp
 import kotlin.math.sign
 
 object SceneListener {
+
+    /**
+     * The position of the mouse in world space
+     */
+    val mouseWorldPos: Vector2 = Vector2.ZERO
 
     /**
      * The position of the mouse when the right mouse button was pressed
@@ -49,14 +55,12 @@ object SceneListener {
     fun onMousePressed(e: MouseEvent) {
         when (e.button) {
             MouseButton.PRIMARY -> {
-                // check if spawn pos is outside the border
-                val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-                if(!FhysicsCore.BORDER.contains(transformedMousePos)) return
-
-                when (UIController.spawnObjectType) {
-                    SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
-                    SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
-                    SpawnObjectType.TRIANGLE -> spawnTriangle(transformedMousePos)
+                // If the mouse is not hovering over an object remove that object
+                if (drawer.hoveredObject != null) {
+                    QuadTree.removeQueue.add(drawer.hoveredObject!!)
+                    drawer.hoveredObject = null
+                } else { // Else spawn a new object
+                    spawnObject(e)
                 }
             }
 
@@ -66,6 +70,23 @@ object SceneListener {
             }
 
             else -> {}
+        }
+    }
+
+    /**
+     * Spawns an object at the mouse position
+     *
+     * @param e the mouse event
+     */
+    private fun spawnObject(e: MouseEvent) {
+        // Check if spawn pos is outside the border
+        val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
+        if (!FhysicsCore.BORDER.contains(transformedMousePos)) return
+
+        when (UIController.spawnObjectType) {
+            SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
+            SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
+            SpawnObjectType.TRIANGLE -> spawnTriangle(transformedMousePos)
         }
     }
 
@@ -87,7 +108,8 @@ object SceneListener {
      * @return the spawned rectangle
      */
     private fun spawnRectangle(position: Vector2) {
-        TODO("Not yet implemented")
+        if (UIController.spawnWidth <= 0.0F || UIController.spawnHeight <= 0.0F) return
+        FhysicsCore.spawn(Rectangle(position, UIController.spawnWidth, UIController.spawnHeight))
     }
 
     /**
@@ -117,7 +139,7 @@ object SceneListener {
      * @param e the scroll event
      */
     fun onMouseWheel(e: ScrollEvent) {
-        // don't zoom if moving with the mouse
+        // Don't zoom if moving with the mouse
         if (rightPressed) return
 
         val zoomBefore: Double = RenderUtil.zoom
@@ -147,11 +169,25 @@ object SceneListener {
     }
 
     /**
+     * Handles mouse moved events
+     *
+     * @param e the mouse event
+     */
+    fun onMouseMoved(e: MouseEvent) {
+        // Update the mouse position
+        mouseWorldPos.x = RenderUtil.screenToWorldX(e.x.toFloat()).toFloat()
+        mouseWorldPos.y = RenderUtil.screenToWorldY(e.y.toFloat()).toFloat()
+    }
+
+    /**
      * Handles mouse dragged events
      *
      * @param e the mouse event
      */
     fun onMouseDragged(e: MouseEvent) {
+        // to update the mouse position
+        onMouseMoved(e)
+
         if (rightPressed) {
             val mousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
             val deltaMousePos: Vector2 = rightPressedPos - mousePos
@@ -166,8 +202,6 @@ object SceneListener {
      * @param event the key event
      */
     fun onKeyPressed(event: KeyEvent) {
-        // if pressed char is p toggle isRunning in FhysicsCore
-        // if it is Enter or space call the update function
         when (event.code) {
             KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
             KeyCode.SPACE -> FhysicsCore.update()
@@ -176,7 +210,7 @@ object SceneListener {
             KeyCode.J -> QuadTree.capacity -= 5
             KeyCode.K -> QuadTree.capacity += 5
             KeyCode.G -> MapVisualization(FhysicsCore.qtCapacity)
-            KeyCode.Q -> println(FhysicsCore.quadTree)
+            KeyCode.Q -> println(QuadTree.root)
             else -> {}
         }
     }

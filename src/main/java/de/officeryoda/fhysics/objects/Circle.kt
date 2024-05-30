@@ -18,10 +18,14 @@ class Circle(
         return CollisionFinder.testCollision(this, other)
     }
 
-    fun project(axis: Vector2): Projection {
+    override fun project(axis: Vector2): Projection {
         // Project the circle's center onto the axis and return the range of scalar values
         val centerProjection: Float = position.dot(axis)
         return Projection(centerProjection - radius, centerProjection + radius)
+    }
+
+    override fun contains(pos: Vector2): Boolean {
+        return pos.sqrDistance(position) <= radius * radius
     }
 
     override fun toString(): String {
