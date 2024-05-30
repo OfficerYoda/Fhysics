@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.engine.collision.ElasticCollision
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
-import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
@@ -82,12 +81,10 @@ object FhysicsCore {
     fun update() {
         updateTimer.start()
 
-//        spawnObject()
-
-        checkObjectCollision(quadTree)
-
         quadTree.insertObjects()
         quadTree.updateObjectsAndRebuild()
+
+        checkObjectCollision(quadTree)
 
         if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
@@ -100,33 +97,21 @@ object FhysicsCore {
         QuadTree.toAdd.add(obj)
     }
 
-    private fun spawnObject() {
-        if (updateCount % 10 != 0) return
-        for (i: Int in 1..50) {
-            if (objectCount < 20000) {
-                spawn(FhysicsObjectFactory.randomCircle())
-            }
-        }
-    }
-
     private fun checkObjectCollision(quadTree: QuadTree) {
-        if (!quadTree.divided) {
-            val objects: MutableList<FhysicsObject> = quadTree.objects
-            val numObjects: Int = objects.size
-
-            for (i: Int in 0 until numObjects - 1) {
-                val objA: FhysicsObject = objects[i]
-
-                for (j: Int in i + 1 until numObjects) {
-                    val objB: FhysicsObject = objects[j]
-                    handleCollision(objA, objB)
-                }
-            }
-        } else {
+        if (quadTree.divided) {
             checkObjectCollision(quadTree.topLeft!!)
             checkObjectCollision(quadTree.topRight!!)
             checkObjectCollision(quadTree.botLeft!!)
             checkObjectCollision(quadTree.botRight!!)
+        } else {
+            val objects: MutableList<FhysicsObject> = quadTree.objects
+            val numObjects: Int = objects.size
+
+            for (i: Int in 0 until numObjects - 1) {
+                for (j: Int in i + 1 until numObjects) {
+                    handleCollision(objects[i], objects[j])
+                }
+            }
         }
     }
 

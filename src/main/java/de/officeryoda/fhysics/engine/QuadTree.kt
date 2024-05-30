@@ -14,7 +14,7 @@ data class QuadTree(
 ) {
 
     val objects: MutableList<FhysicsObject> = ArrayList()
-    private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite subdivision
+    private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite division
     private val isRoot: Boolean = parent == null
 
     var divided: Boolean = false
@@ -49,7 +49,7 @@ data class QuadTree(
         }
 
         if (!divided) {
-            subdivide()
+            divide()
         }
 
         insertInChildren(obj)
@@ -75,7 +75,7 @@ data class QuadTree(
         botRight!!.insert(obj)
     }
 
-    private fun subdivide() {
+    private fun divide() {
         val x: Float = boundary.x.toFloat()
         val y: Float = boundary.y.toFloat()
         val hw: Float = boundary.width.toFloat() / 2 // half width
@@ -180,6 +180,17 @@ data class QuadTree(
             objectsSet.addAll(botRight!!.objects)
 
             objects.addAll(objectsSet)
+        }
+    }
+
+    fun tryDivide() {
+        if (divided) {
+            topLeft!!.tryDivide()
+            topRight!!.tryDivide()
+            botLeft!!.tryDivide()
+            botRight!!.tryDivide()
+        } else if (objects.size > capacity) {
+            divide()
         }
     }
 

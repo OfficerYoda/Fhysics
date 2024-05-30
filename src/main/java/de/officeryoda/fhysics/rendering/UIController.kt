@@ -252,6 +252,7 @@ class UIController {
         val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
         if (capacity > 0) {
             QuadTree.capacity = capacity
+            QuadTree.root.tryDivide()
         }
     }
 
