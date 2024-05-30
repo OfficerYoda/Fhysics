@@ -285,7 +285,6 @@ class FhysicsObjectDrawer : Application() {
                 obj.position.x - obj.radius,
                 obj.position.y - obj.radius
             ) to Vector2(obj.radius * 2, obj.radius * 2)
-
             else -> return
         }
 

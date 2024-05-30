@@ -184,13 +184,17 @@ data class QuadTree(
     }
 
     fun tryDivide() {
-        if (divided) {
-            topLeft!!.tryDivide()
-            topRight!!.tryDivide()
-            botLeft!!.tryDivide()
-            botRight!!.tryDivide()
-        } else if (objects.size > capacity) {
-            divide()
+        when {
+            divided -> {
+                topLeft!!.tryDivide()
+                topRight!!.tryDivide()
+                botLeft!!.tryDivide()
+                botRight!!.tryDivide()
+            }
+
+            objects.size > capacity -> {
+                divide()
+            }
         }
     }
 
@@ -300,7 +304,9 @@ data class QuadTree(
     fun countUnique(objectSet: MutableSet<FhysicsObject> = HashSet()): Int {
         this.count()
         if (divided) {
-            topLeft!!.countUnique(objectSet) + topRight!!.countUnique(objectSet) + botLeft!!.countUnique(objectSet) + botRight!!.countUnique(objectSet)
+            topLeft!!.countUnique(objectSet) + topRight!!.countUnique(objectSet) + botLeft!!.countUnique(objectSet) + botRight!!.countUnique(
+                objectSet
+            )
         } else {
             objectSet.addAll(objects)
         }
@@ -311,9 +317,9 @@ data class QuadTree(
     override fun toString(): String {
         return if (divided) {
             "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, " +
-                    "divided=true, canDivide=$isMinWidth, \n\ttopLeft=$topLeft, \n\ttopRight=$topRight, \n\tbotLeft=$botLeft, \n\tbotRight=$botRight)"
+                    "divided=true, isMinWidth=$isMinWidth, \n\ttopLeft=$topLeft, \n\ttopRight=$topRight, \n\tbotLeft=$botLeft, \n\tbotRight=$botRight)"
         } else {
-            "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, canDivide=$isMinWidth)"
+            "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, isMinWidth=$isMinWidth)"
         }
     }
 
