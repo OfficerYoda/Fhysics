@@ -12,7 +12,7 @@ import java.util.Locale
 import javax.swing.JFrame
 import javax.swing.WindowConstants
 
-class MapVisualization(private val qtCapacity: MutableMap<Int, Double>) : JFrame("Map Visualization") {
+class CapacityDiagram(private val map: MutableMap<Int, Double>) : JFrame("Map Visualization") {
 
     init {
         initUI()
@@ -42,8 +42,8 @@ class MapVisualization(private val qtCapacity: MutableMap<Int, Double>) : JFrame
         )
 
         val yAxis = chart.categoryPlot.rangeAxis as NumberAxis
-        if (qtCapacity.size > 1) {
-            yAxis.setRange(qtCapacity.values.min(), qtCapacity.values.max())
+        if (map.size > 1) {
+            yAxis.setRange(map.values.min(), map.values.max())
         } else {
             yAxis.setRange(0.0, 10.0)
         }
@@ -58,7 +58,7 @@ class MapVisualization(private val qtCapacity: MutableMap<Int, Double>) : JFrame
     private fun createDataset(): CategoryDataset {
         val dataset = DefaultCategoryDataset()
 
-        for ((key, value) in qtCapacity.entries.sortedBy { it.key }) {
+        for ((key, value) in map.entries.sortedBy { it.key }) {
             dataset.addValue(value, "avg. MSPU", String.format(Locale.US, "%02d", key))
         }
 

@@ -187,7 +187,7 @@ class UIController {
 
     @FXML
     fun onPropertyMassTyped() {
-        drawer.selectedObject!!.mass = parseTextField(txtPropertyMass)
+        drawer.selectedObject!!.mass = parseTextField(txtPropertyMass, 1.0f)
     }
 
     @FXML
@@ -224,6 +224,12 @@ class UIController {
         clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
     }
 
+    /**
+     * Rounds a float value to two decimal places and converts it to a string.
+     *
+     * @param value The float value to convert.
+     * @return The string representation of the float value with two decimal places.
+     */
     private fun toStringWithTwoDecimalPlaces(value: Float): String {
         return ((value * 100).toInt() / 100.0f).toString()
     }
@@ -430,6 +436,12 @@ class UIController {
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
     }
 
+    /**
+     * Restricts the input of a text field to numeric values.
+     *
+     * @param textField The text field to restrict.
+     * @param allowNegatives Whether negative values are allowed.
+     */
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
         textField.textProperty().addListener { _, oldValue, newValue ->
             val regexPattern: String = if (allowNegatives) "-?\\d*\\.?\\d*" else "\\d*\\.?\\d*"
@@ -439,8 +451,16 @@ class UIController {
         }
     }
 
-    private fun parseTextField(textField: TextField): Float {
-        return textField.text.toFloatOrNull() ?: 0.0F
+    /**
+     * Parses the text of a text field to a float.
+     * If the text cannot be parsed, the default value is returned.
+     *
+     * @param textField The text field to parse.
+     * @param default The default value to return if the text cannot be parsed.
+     * @return The parsed float value or the default value if the text cannot be parsed.
+     */
+    private fun parseTextField(textField: TextField, default: Float = 0.0f): Float {
+        return textField.text.toFloatOrNull() ?: default
     }
 
     companion object {
@@ -488,7 +508,7 @@ class UIController {
             private set
 
         /// =====Debug=====
-        var drawBoundingBoxes: Boolean = false
+        var drawBoundingBoxes: Boolean = true
             private set
         var drawQTCapacity: Boolean = false
             private set

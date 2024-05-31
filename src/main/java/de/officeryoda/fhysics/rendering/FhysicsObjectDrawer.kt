@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
+import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.QuadTree
@@ -146,8 +147,8 @@ class FhysicsObjectDrawer : Application() {
         // Draw the objects
         QuadTree.root.drawObjects(this)
 
-        if (this.hoveredObject != null) drawObjectPulsing(hoveredObject!!)
-        if (this.selectedObject != null) drawObjectPulsing(selectedObject!!)
+        if (hoveredObject != null) drawObjectPulsing(hoveredObject!!)
+        if (selectedObject != null && selectedObject !== hoveredObject) drawObjectPulsing(selectedObject!!)
         if (UIController.drawSpawnPreview && this.hoveredObject == null) drawSpawnPreview()
         if (UIController.drawQuadTree) QuadTree.root.drawNode(this)
 
@@ -279,22 +280,14 @@ class FhysicsObjectDrawer : Application() {
     }
 
     fun drawBoundingBox(obj: FhysicsObject) {
-        val (pos: Vector2, size: Vector2) = when (obj) {
-            is Rectangle -> Vector2(obj.minX, obj.minY) to Vector2(obj.maxX - obj.minX, obj.maxY - obj.minY)
-            is Circle -> Vector2(
-                obj.position.x - obj.radius,
-                obj.position.y - obj.radius
-            ) to Vector2(obj.radius * 2, obj.radius * 2)
-
-            else -> return
-        }
+        val boundingBox: BoundingBox = obj.boundingBox
 
         setStrokeColor(Color.RED)
         gc.strokeRect(
-            worldToScreenX(pos.x),
-            worldToScreenY(pos.y + size.y),
-            size.x * zoom,
-            size.y * zoom
+            worldToScreenX(boundingBox.x),
+            worldToScreenY(boundingBox.y + boundingBox.height),
+            boundingBox.width * zoom,
+            boundingBox.height * zoom
         )
     }
 

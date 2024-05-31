@@ -162,7 +162,7 @@ object SceneListener {
             KeyCode.Z -> drawer.resetZoom()
             KeyCode.J -> QuadTree.capacity -= 5
             KeyCode.K -> QuadTree.capacity += 5
-            KeyCode.G -> MapVisualization(FhysicsCore.qtCapacity)
+            KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
             KeyCode.Q -> println(QuadTree.root)
             else -> {}
         }

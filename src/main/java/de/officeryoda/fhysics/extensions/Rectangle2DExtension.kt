@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.extensions
 
+import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
@@ -56,7 +57,9 @@ fun Rectangle2D.contains(circle: Circle): Boolean {
  */
 fun Rectangle2D.contains(rect: Rectangle): Boolean {
     // AABB check
-    return contains(Vector2(rect.minX, rect.minY)) && contains(Vector2(rect.maxX, rect.maxY))
+    val boundBox: BoundingBox = rect.boundingBox
+    return contains(Vector2(boundBox.x, boundBox.y))
+            && contains(Vector2(boundBox.x + boundBox.width, boundBox.y + boundBox.height))
 }
 
 /**
@@ -100,11 +103,11 @@ fun Rectangle2D.intersects(circle: Circle): Boolean {
  */
 fun Rectangle2D.intersects(rect: Rectangle): Boolean {
     // AABB check
+    val boundBox: BoundingBox = rect.boundingBox
     return this.intersects(
-        rect.minX.toDouble(),
-        rect.minY.toDouble(),
-        (rect.maxX - rect.minX).toDouble(),
-        (rect.maxY - rect.minY).toDouble()
+        boundBox.x.toDouble(),
+        boundBox.y.toDouble(),
+        boundBox.width.toDouble(),
+        boundBox.height.toDouble()
     )
 }
-
