@@ -181,6 +181,14 @@
                               </ColorPicker>
                            </children>
                         </HBox>
+                        <Button fx:id="btnPropertyRemove" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" onMouseClicked="#onPropertyRemoveClicked" text="REMOVE" textFill="#d92114">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Button>
                      </children>
                   </VBox>
                </children>

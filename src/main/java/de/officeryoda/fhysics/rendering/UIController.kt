@@ -200,6 +200,14 @@ class UIController {
         drawer.selectedObject!!.color = RenderUtil.paintToColor(clrPropertyColor.value)
     }
 
+    @FXML
+    fun onPropertyRemoveClicked() {
+        drawer.selectedObject?.let {
+            QuadTree.removeQueue.add(it)
+            drawer.selectedObject = null
+        }
+    }
+
     fun expandObjectPropertiesPane() {
         tpProperties.isExpanded = true
     }

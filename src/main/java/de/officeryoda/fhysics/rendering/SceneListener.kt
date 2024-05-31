@@ -56,9 +56,6 @@ object SceneListener {
         when (e.button) {
             MouseButton.PRIMARY -> {
                 if (drawer.hoveredObject != null) {
-//                    QuadTree.removeQueue.add(drawer.selectedObject!!)
-//                    drawer.selectedObject = null
-                    drawer.hoveredObject!!.color = drawer.generateRandomColor()
                     drawer.selectedObject = drawer.hoveredObject
                     UIController.instance.expandObjectPropertiesPane()
                 } else {
