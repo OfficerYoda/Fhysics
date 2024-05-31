@@ -3,10 +3,9 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.extensions.contains
 import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
-import kotlin.reflect.KFunction1
-import kotlin.reflect.KFunction2
 
 data class QuadTree(
     private val boundary: Rectangle2D,
@@ -229,32 +228,32 @@ data class QuadTree(
     }
 
     /// =====Drawing functions=====
-    fun drawObjects(drawObject: KFunction1<FhysicsObject, Unit>, drawBoundingBox: (FhysicsObject) -> Unit) {
+    fun drawObjects(drawer: FhysicsObjectDrawer) {
         when {
             divided -> {
-                topLeft?.drawObjects(drawObject, drawBoundingBox)
-                topRight?.drawObjects(drawObject, drawBoundingBox)
-                botLeft?.drawObjects(drawObject, drawBoundingBox)
-                botRight?.drawObjects(drawObject, drawBoundingBox)
+                topLeft?.drawObjects(drawer)
+                topRight?.drawObjects(drawer)
+                botLeft?.drawObjects(drawer)
+                botRight?.drawObjects(drawer)
             }
 
             UIController.drawBoundingBoxes -> objects.forEach {
-                drawObject(it)
-                drawBoundingBox(it)
+                drawer.drawObject(it)
+                drawer.drawBoundingBox(it)
             }
 
-            else -> objects.forEach { drawObject(it) }
+            else -> objects.forEach { drawer.drawObject(it) }
         }
     }
 
-    fun drawNode(drawRect: KFunction2<Rectangle2D, Int, Unit>) {
+    fun drawNode(drawer: FhysicsObjectDrawer) {
         if (!divided) {
-            drawRect(boundary, objects.size)
+            drawer.transformAndDrawQuadTreeNode(boundary, objects.size)
         } else {
-            topLeft!!.drawNode(drawRect)
-            topRight!!.drawNode(drawRect)
-            botLeft!!.drawNode(drawRect)
-            botRight!!.drawNode(drawRect)
+            topLeft!!.drawNode(drawer)
+            topRight!!.drawNode(drawer)
+            botLeft!!.drawNode(drawer)
+            botRight!!.drawNode(drawer)
         }
     }
 

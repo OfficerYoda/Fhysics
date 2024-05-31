@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics
 
+import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 
 // needs to be run with special VM options
@@ -7,5 +8,5 @@ import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 fun main() {
     println("FhysicsFX")
 
-    FhysicsObjectDrawer().launch()
+    FhysicsCore.startEverything()
 }

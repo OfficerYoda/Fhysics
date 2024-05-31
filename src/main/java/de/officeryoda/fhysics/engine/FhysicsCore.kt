@@ -8,6 +8,7 @@ import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
 import java.awt.geom.Rectangle2D
@@ -63,6 +64,11 @@ object FhysicsCore {
 //        spawn(rect)
 
         objectsAtStepSizeIncrease = objectCount
+    }
+
+
+    fun startEverything() {
+        Thread { FhysicsObjectDrawer().launch() }.start()
         startUpdateLoop()
     }
 

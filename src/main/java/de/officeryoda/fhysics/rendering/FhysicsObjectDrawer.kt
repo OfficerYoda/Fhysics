@@ -142,11 +142,11 @@ class FhysicsObjectDrawer : Application() {
         hoveredObject = checkForHoveredObject()
 
         // Draw the objects
-        QuadTree.root.drawObjects(::drawObject, ::drawBoundingBox)
+        QuadTree.root.drawObjects(this)
 
         if (hoveredObject != null) drawHoveredObject()
         if (UIController.drawSpawnPreview && hoveredObject == null) drawSpawnPreview()
-        if (UIController.drawQuadTree) drawQuadTreeNodes()
+        if (UIController.drawQuadTree) QuadTree.root.drawNode(this)
 
         drawBorder()
         drawDebugPoints()
@@ -184,7 +184,7 @@ class FhysicsObjectDrawer : Application() {
         zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
     }
 
-    private fun drawObject(obj: FhysicsObject) {
+    fun drawObject(obj: FhysicsObject) {
         // Hovered object will be drawn last
         if (obj === hoveredObject) {
             return
@@ -274,17 +274,14 @@ class FhysicsObjectDrawer : Application() {
         gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
     }
 
-    private fun drawQuadTreeNodes() {
-        QuadTree.root.drawNode(::transformAndDrawQuadTreeCapacity)
-    }
-
-    private fun drawBoundingBox(obj: FhysicsObject) {
+    fun drawBoundingBox(obj: FhysicsObject) {
         val (pos: Vector2, size: Vector2) = when (obj) {
             is Rectangle -> Vector2(obj.minX, obj.minY) to Vector2(obj.maxX - obj.minX, obj.maxY - obj.minY)
             is Circle -> Vector2(
                 obj.position.x - obj.radius,
                 obj.position.y - obj.radius
             ) to Vector2(obj.radius * 2, obj.radius * 2)
+
             else -> return
         }
 
@@ -297,7 +294,7 @@ class FhysicsObjectDrawer : Application() {
         )
     }
 
-    private fun transformAndDrawQuadTreeCapacity(rect: Rectangle2D, contentCount: Int) {
+    fun transformAndDrawQuadTreeNode(rect: Rectangle2D, contentCount: Int) {
         val x: Double = worldToScreenX(rect.x)
         val y: Double = worldToScreenY(rect.y + rect.height)
         val width: Double = rect.width * zoom
