@@ -33,7 +33,7 @@ class UIController {
 
     /// =====Object Properties=====
     @FXML
-    private lateinit var tpObjectProperties: TitledPane
+    private lateinit var tpProperties: TitledPane
 
     @FXML
     private lateinit var apProperties: AnchorPane
@@ -68,10 +68,10 @@ class UIController {
 
     /// =====Time=====
     @FXML
-    private lateinit var btnPause: ToggleButton
+    private lateinit var btnTimePause: ToggleButton
 
     @FXML
-    private lateinit var btnStep: Button
+    private lateinit var btnTimeStep: Button
 
     @FXML
     private lateinit var txtTimeSpeed: TextField
@@ -113,21 +113,21 @@ class UIController {
 
     /// =====Spawn Object=====
     @FXML
-    fun onCircleClicked() {
+    fun onSpawnCircleClicked() {
         spawnObjectType = SpawnObjectType.CIRCLE
         updateSpawnPreview()
         setSpawnFieldAvailability(radius = true, width = false, height = false)
     }
 
     @FXML
-    fun onRectangleClicked() {
+    fun onSpawnRectangleClicked() {
         spawnObjectType = SpawnObjectType.RECTANGLE
         updateSpawnPreview()
         setSpawnFieldAvailability(radius = false, width = true, height = true)
     }
 
     @FXML
-    fun onNothingClicked() {
+    fun onSpawnNothingClicked() {
         spawnObjectType = SpawnObjectType.NOTHING
         updateSpawnPreview()
         setSpawnFieldAvailability(radius = false, width = false, height = false)
@@ -162,19 +162,19 @@ class UIController {
     }
 
     @FXML
-    fun onRadiusTyped() {
+    fun onSpawnRadiusTyped() {
         spawnRadius = parseTextField(txtSpawnRadius)
         updateSpawnPreview()
     }
 
     @FXML
-    fun onWidthTyped() {
+    fun onSpawnWidthTyped() {
         spawnWidth = parseTextField(txtSpawnWidth)
         updateSpawnPreview()
     }
 
     @FXML
-    fun onHeightTyped() {
+    fun onSpawnHeightTyped() {
         spawnHeight = parseTextField(txtSpawnHeight)
         updateSpawnPreview()
     }
@@ -201,7 +201,7 @@ class UIController {
     }
 
     fun expandObjectPropertiesPane() {
-        tpObjectProperties.isExpanded = true
+        tpProperties.isExpanded = true
     }
 
     fun updateObjectPropertiesValues() {
@@ -222,15 +222,40 @@ class UIController {
 
     /// =====Gravity=====
     @FXML
-    fun onDirectionClicked() {
+    fun onGravityDirectionClicked() {
         gravityType = GravityType.DIRECTIONAL
         setGravityFieldsAvailability(direction = true, point = false)
     }
 
     @FXML
-    fun onPointClicked() {
+    fun onGravityPointClicked() {
         gravityType = GravityType.TOWARDS_POINT
         setGravityFieldsAvailability(direction = false, point = true)
+    }
+
+    @FXML
+    fun onGravityDirectionXTyped() {
+        gravityDirection.x = parseTextField(txtGravityDirectionX)
+    }
+
+    @FXML
+    fun onGravityDirectionYTyped() {
+        gravityDirection.y = parseTextField(txtGravityDirectionY)
+    }
+
+    @FXML
+    fun onGravityPointXTyped() {
+        gravityPoint.x = parseTextField(txtGravityPointX)
+    }
+
+    @FXML
+    fun onGravityPointYTyped() {
+        gravityPoint.y = parseTextField(txtGravityPointY)
+    }
+
+    @FXML
+    fun onGravityStrengthTyped() {
+        gravityPointStrength = parseTextField(txtGravityPointStrength)
     }
 
     private fun setGravityFieldsAvailability(direction: Boolean, point: Boolean) {
@@ -242,40 +267,15 @@ class UIController {
         txtGravityPointStrength.isDisable = !point
     }
 
-    @FXML
-    fun onDirectionXTyped() {
-        gravityDirection.x = parseTextField(txtGravityDirectionX)
-    }
-
-    @FXML
-    fun onDirectionYTyped() {
-        gravityDirection.y = parseTextField(txtGravityDirectionY)
-    }
-
-    @FXML
-    fun onPointXTyped() {
-        gravityPoint.x = parseTextField(txtGravityPointX)
-    }
-
-    @FXML
-    fun onPointYTyped() {
-        gravityPoint.y = parseTextField(txtGravityPointY)
-    }
-
-    @FXML
-    fun onStrengthTyped() {
-        gravityPointStrength = parseTextField(txtGravityPointStrength)
-    }
-
     /// =====Time=====
     @FXML
-    fun onPauseClicked() {
-        FhysicsCore.running = !btnPause.isSelected
-        btnStep.isDisable = FhysicsCore.running
+    fun onTimePauseClicked() {
+        FhysicsCore.running = !btnTimePause.isSelected
+        btnTimeStep.isDisable = FhysicsCore.running
     }
 
     @FXML
-    fun onStepClicked() {
+    fun onTimeStepClicked() {
         FhysicsCore.update()
     }
 
@@ -373,9 +373,9 @@ class UIController {
         restrictToNumericInput(txtSpawnHeight, false)
 
         when (spawnObjectType) {
-            SpawnObjectType.CIRCLE -> onCircleClicked()
-            SpawnObjectType.RECTANGLE -> onRectangleClicked()
-            SpawnObjectType.NOTHING -> onNothingClicked()
+            SpawnObjectType.CIRCLE -> onSpawnCircleClicked()
+            SpawnObjectType.RECTANGLE -> onSpawnRectangleClicked()
+            SpawnObjectType.NOTHING -> onSpawnNothingClicked()
         }
 
         /// =====Gravity=====
@@ -397,8 +397,8 @@ class UIController {
         restrictToNumericInput(txtGravityPointStrength)
 
         /// =====Time=====
-        btnPause.isSelected = !FhysicsCore.running
-        btnStep.isDisable = FhysicsCore.running
+        btnTimePause.isSelected = !FhysicsCore.running
+        btnTimeStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
 
         restrictToNumericInput(txtTimeSpeed, false)

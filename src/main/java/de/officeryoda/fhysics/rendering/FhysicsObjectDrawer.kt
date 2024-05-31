@@ -173,9 +173,9 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(color)
 
         if (obj is Circle) {
-            drawCircle(obj as Circle)
+            drawCircle(obj)
         } else if (obj is Rectangle) {
-            drawRectangle(obj as Rectangle)
+            drawRectangle(obj)
         }
     }
 

@@ -28,15 +28,15 @@
                      <children>
                               <ToggleButtonGroup selectionType="SINGLE">
                                   <toggles>
-                                      <ToggleButton onMouseClicked="#onCircleClicked" text="Circle" textAlignment="CENTER">
+                                      <ToggleButton onMouseClicked="#onSpawnCircleClicked" text="Circle" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to spawn a circle" />
                                  </tooltip></ToggleButton>
-                                      <ToggleButton onMouseClicked="#onRectangleClicked" text="Rectangle" textAlignment="CENTER">
+                                      <ToggleButton onMouseClicked="#onSpawnRectangleClicked" text="Rectangle" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to spawn a rectangle" />
                                  </tooltip></ToggleButton>
-                                      <ToggleButton onMouseClicked="#onNothingClicked" selected="true" text="Nothing" textAlignment="CENTER">
+                                      <ToggleButton onMouseClicked="#onSpawnNothingClicked" selected="true" text="Nothing" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to not spawn anything when clicking" />
                                  </tooltip></ToggleButton>
@@ -63,7 +63,7 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField fx:id="txtSpawnRadius" onKeyTyped="#onRadiusTyped" prefHeight="26.0" prefWidth="247.0" promptText="radius">
+                              <TextField fx:id="txtSpawnRadius" onKeyTyped="#onSpawnRadiusTyped" prefHeight="26.0" prefWidth="247.0" promptText="radius">
                                  <tooltip>
                                     <Tooltip text="The radius of the circle" />
                                  </tooltip>
@@ -80,7 +80,7 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField fx:id="txtSpawnWidth" onKeyTyped="#onWidthTyped" prefHeight="26.0" prefWidth="247.0" promptText="width">
+                              <TextField fx:id="txtSpawnWidth" onKeyTyped="#onSpawnWidthTyped" prefHeight="26.0" prefWidth="247.0" promptText="width">
                                  <tooltip>
                                     <Tooltip text="The width of the spawned circle" />
                                  </tooltip>
@@ -97,7 +97,7 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField fx:id="txtSpawnHeight" onKeyTyped="#onHeightTyped" prefHeight="26.0" prefWidth="247.0" promptText="height">
+                              <TextField fx:id="txtSpawnHeight" onKeyTyped="#onSpawnHeightTyped" prefHeight="26.0" prefWidth="247.0" promptText="height">
                                  <tooltip>
                                     <Tooltip text="The height of the spawned circle" />
                                  </tooltip>
@@ -110,7 +110,7 @@
                 </AnchorPane>
             </content>
         </TitledPane>
-      <TitledPane fx:id="tpObjectProperties" focusTraversable="false" text="Object Properties">
+      <TitledPane fx:id="tpProperties" focusTraversable="false" text="Object Properties">
          <content>
             <AnchorPane fx:id="apProperties" disable="true" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -195,12 +195,12 @@
                      <children>
                         <ToggleButtonGroup selectionType="SINGLE">
                            <toggles>
-                              <ToggleButton onMouseClicked="#onDirectionClicked" selected="true" text="Direction" textAlignment="CENTER">
+                              <ToggleButton onMouseClicked="#onGravityDirectionClicked" selected="true" text="Direction" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Toggle between a directional gravity or gravity towards a point" />
                                  </tooltip>
                               </ToggleButton>
-                              <ToggleButton onMouseClicked="#onPointClicked" text="Point" textAlignment="CENTER">
+                              <ToggleButton onMouseClicked="#onGravityPointClicked" text="Point" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Toggle between a directional gravity or gravity towards a certain point" />
                                  </tooltip>
@@ -220,12 +220,12 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField fx:id="txtGravityDirectionX" onKeyTyped="#onDirectionXTyped" promptText="x">
+                              <TextField fx:id="txtGravityDirectionX" onKeyTyped="#onGravityDirectionXTyped" promptText="x">
                                  <tooltip>
                                     <Tooltip text="The strength in x-direction" />
                                  </tooltip>
                               </TextField>
-                              <TextField fx:id="txtGravityDirectionY" onKeyTyped="#onDirectionYTyped" promptText="y">
+                              <TextField fx:id="txtGravityDirectionY" onKeyTyped="#onGravityDirectionYTyped" promptText="y">
                                  <tooltip>
                                     <Tooltip text="The strength in y-direction" />
                                  </tooltip>
@@ -242,12 +242,12 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField fx:id="txtGravityPointX" disable="true" onKeyTyped="#onPointXTyped" promptText="x">
+                              <TextField fx:id="txtGravityPointX" disable="true" onKeyTyped="#onGravityPointXTyped" promptText="x">
                                  <tooltip>
                                     <Tooltip text="The x-coordinate" />
                                  </tooltip>
                               </TextField>
-                              <TextField fx:id="txtGravityPointY" disable="true" layoutX="77.0" layoutY="10.0" onKeyTyped="#onPointYTyped" promptText="y">
+                              <TextField fx:id="txtGravityPointY" disable="true" layoutX="77.0" layoutY="10.0" onKeyTyped="#onGravityPointYTyped" promptText="y">
                                  <tooltip>
                                     <Tooltip text="The y-coordinate" />
                                  </tooltip>
@@ -264,7 +264,7 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Text>
-                              <TextField fx:id="txtGravityPointStrength" disable="true" onKeyTyped="#onStrengthTyped" prefHeight="26.0" prefWidth="167.0" promptText="strength">
+                              <TextField fx:id="txtGravityPointStrength" disable="true" onKeyTyped="#onGravityStrengthTyped" prefHeight="26.0" prefWidth="167.0" promptText="strength">
                                  <tooltip>
                                     <Tooltip text="The strength towards the point" />
                                  </tooltip>
@@ -284,12 +284,12 @@
                      <children>
                         <HBox alignment="BASELINE_LEFT">
                            <children>
-                              <ToggleButton fx:id="btnPause" mnemonicParsing="false" onMouseClicked="#onPauseClicked" text="Pause">
+                              <ToggleButton fx:id="btnTimePause" mnemonicParsing="false" onMouseClicked="#onTimePauseClicked" text="Pause">
                                  <tooltip>
                                     <Tooltip text="Pausees the Simulation (Schortcut: P)" />
                                  </tooltip>
                               </ToggleButton>
-                              <Button fx:id="btnStep" mnemonicParsing="false" onMouseClicked="#onStepClicked" text="Step">
+                              <Button fx:id="btnTimeStep" mnemonicParsing="false" onMouseClicked="#onTimeStepClicked" text="Step">
                                  <tooltip>
                                     <Tooltip text="Do one simulation step (Schortcut: ENTER/SPACE)" />
                                  </tooltip>
