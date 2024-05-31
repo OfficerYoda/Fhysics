@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
@@ -27,7 +28,7 @@
                      <children>
                               <ToggleButtonGroup selectionType="SINGLE">
                                   <toggles>
-                                      <ToggleButton onMouseClicked="#onCircleClicked" selected="true" text="Circle" textAlignment="CENTER">
+                                      <ToggleButton onMouseClicked="#onCircleClicked" text="Circle" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to spawn a circle" />
                                  </tooltip></ToggleButton>
@@ -35,7 +36,7 @@
                                  <tooltip>
                                     <Tooltip text="Select to spawn a rectangle" />
                                  </tooltip></ToggleButton>
-                                      <ToggleButton onMouseClicked="#onNothingClicked" text="Nothing" textAlignment="CENTER">
+                                      <ToggleButton onMouseClicked="#onNothingClicked" selected="true" text="Nothing" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to not spawn anything when clicking" />
                                  </tooltip></ToggleButton>
@@ -109,6 +110,83 @@
                 </AnchorPane>
             </content>
         </TitledPane>
+      <TitledPane fx:id="tpObjectProperties" focusTraversable="false" text="Object Properties">
+         <content>
+            <AnchorPane fx:id="apProperties" disable="true" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <CheckBox fx:id="cbPropertyStatic" mnemonicParsing="false" onMouseClicked="#onPropertyStaticClicked" prefHeight="17.0" prefWidth="253.0" text="Static">
+                           <tooltip>
+                              <Tooltip text="Whether the object can move or not" />
+                           </tooltip>
+                           <padding>
+                              <Insets bottom="5.0" />
+                           </padding>
+                        </CheckBox>
+                        <HBox alignment="BASELINE_LEFT">
+                           <children>
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Mass" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <TextField fx:id="txtPropertyMass" onKeyTyped="#onPropertyMassTyped" prefHeight="26.0" prefWidth="247.0" promptText="mass">
+                                 <tooltip>
+                                    <Tooltip text="The mass of the object" />
+                                 </tooltip>
+                              </TextField>
+                           </children>
+                        </HBox>
+                        <HBox alignment="BASELINE_LEFT">
+                           <children>
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Rotation" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <TextField fx:id="txtPropertyRotation" onKeyTyped="#onPropertyRotationTyped" prefHeight="26.0" prefWidth="247.0" promptText="rotation">
+                                 <tooltip>
+                                    <Tooltip text="The rotation of the object" />
+                                 </tooltip>
+                              </TextField>
+                           </children>
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                           <padding>
+                              <Insets bottom="5.0" />
+                           </padding>
+                        </HBox>
+                        <HBox alignment="BASELINE_LEFT">
+                           <children>
+                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Color" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Text>
+                              <ColorPicker fx:id="clrPropertyColor" onAction="#onPropertyColorAction" prefHeight="25.0" prefWidth="247.0">
+                                 <tooltip>
+                                    <Tooltip text="The color of the object" />
+                                 </tooltip>
+                              </ColorPicker>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+         </content>
+      </TitledPane>
         <TitledPane focusTraversable="false" text="Gravity">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

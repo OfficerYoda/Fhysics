@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
 import java.awt.geom.Rectangle2D
 import java.util.*
+import kotlin.math.PI
 
 object FhysicsObjectFactory {
     private val RANDOM: Random = Random()
@@ -28,10 +29,8 @@ object FhysicsObjectFactory {
         val width: Float = RANDOM.nextFloat(1.0F, 20.0F)
         val height: Float = RANDOM.nextFloat(1.0F, 20.0F)
         val pos: Vector2 = randomPosInsideBounds(0.0F)
-        val rot: Float = RANDOM.nextFloat(0.0F, 360.0F)
+        val rot: Float = RANDOM.nextFloat(0.0F, (2 * PI).toFloat())
         val rect = Rectangle(pos, width, height, rot)
-
-//        rect.velocity.set(randomVector2(-10.0, 10.0))
 
         return rect
     }

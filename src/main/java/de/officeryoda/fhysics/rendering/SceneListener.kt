@@ -55,11 +55,14 @@ object SceneListener {
     fun onMousePressed(e: MouseEvent) {
         when (e.button) {
             MouseButton.PRIMARY -> {
-                // If the mouse is not hovering over an object remove that object
                 if (drawer.hoveredObject != null) {
-                    QuadTree.removeQueue.add(drawer.hoveredObject!!)
-                    drawer.hoveredObject = null
-                } else { // Else spawn a new object
+//                    QuadTree.removeQueue.add(drawer.selectedObject!!)
+//                    drawer.selectedObject = null
+                    drawer.hoveredObject!!.color = drawer.generateRandomColor()
+                    drawer.selectedObject = drawer.hoveredObject
+                    UIController.instance.expandObjectPropertiesPane()
+                } else {
+                    drawer.selectedObject = null
                     spawnObject(e)
                 }
             }
@@ -71,45 +74,8 @@ object SceneListener {
 
             else -> {}
         }
-    }
 
-    /**
-     * Spawns an object at the mouse position
-     *
-     * @param e the mouse event
-     */
-    private fun spawnObject(e: MouseEvent) {
-        // Check if spawn pos is outside the border
-        val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-        if (!FhysicsCore.BORDER.contains(transformedMousePos)) return
-
-        when (UIController.spawnObjectType) {
-            SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
-            SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
-            else -> {}
-        }
-    }
-
-    /**
-     * Spawns a circle at the mouse position
-     *
-     * @param position the world spawn position
-     * @return the spawned circle
-     */
-    private fun spawnCircle(position: Vector2) {
-        if (UIController.spawnRadius <= 0.0F) return
-        FhysicsCore.spawn(Circle(position, UIController.spawnRadius))
-    }
-
-    /**
-     * Spawns a rectangle using the mouse position
-     *
-     * @param position the world spawn position
-     * @return the spawned rectangle
-     */
-    private fun spawnRectangle(position: Vector2) {
-        if (UIController.spawnWidth <= 0.0F || UIController.spawnHeight <= 0.0F) return
-        FhysicsCore.spawn(Rectangle(position, UIController.spawnWidth, UIController.spawnHeight))
+        UIController.instance.updateObjectPropertiesValues()
     }
 
     /**
@@ -204,4 +170,44 @@ object SceneListener {
             else -> {}
         }
     }
+
+    /**
+     * Spawns an object at the mouse position
+     *
+     * @param e the mouse event
+     */
+    private fun spawnObject(e: MouseEvent) {
+        // Check if spawn pos is outside the border
+        val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
+        if (!FhysicsCore.BORDER.contains(transformedMousePos)) return
+
+        when (UIController.spawnObjectType) {
+            SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
+            SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
+            else -> {}
+        }
+    }
+
+    /**
+     * Spawns a circle at the mouse position
+     *
+     * @param position the world spawn position
+     * @return the spawned circle
+     */
+    private fun spawnCircle(position: Vector2) {
+        if (UIController.spawnRadius <= 0.0F) return
+        FhysicsCore.spawn(Circle(position, UIController.spawnRadius))
+    }
+
+    /**
+     * Spawns a rectangle using the mouse position
+     *
+     * @param position the world spawn position
+     * @return the spawned rectangle
+     */
+    private fun spawnRectangle(position: Vector2) {
+        if (UIController.spawnWidth <= 0.0F || UIController.spawnHeight <= 0.0F) return
+        FhysicsCore.spawn(Rectangle(position, UIController.spawnWidth, UIController.spawnHeight))
+    }
+
 }

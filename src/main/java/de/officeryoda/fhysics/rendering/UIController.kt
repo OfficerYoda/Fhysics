@@ -12,6 +12,7 @@ import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.Rectangle
 import javafx.fxml.FXML
 import javafx.scene.control.*
+import javafx.scene.layout.AnchorPane
 import java.awt.Color
 import java.util.*
 
@@ -29,6 +30,25 @@ class UIController {
 
     @FXML
     private lateinit var txtSpawnHeight: TextField
+
+    /// =====Object Properties=====
+    @FXML
+    private lateinit var tpObjectProperties: TitledPane
+
+    @FXML
+    private lateinit var apProperties: AnchorPane
+
+    @FXML
+    private lateinit var cbPropertyStatic: CheckBox
+
+    @FXML
+    private lateinit var txtPropertyMass: TextField
+
+    @FXML
+    private lateinit var txtPropertyRotation: TextField
+
+    @FXML
+    private lateinit var clrPropertyColor: ColorPicker
 
     /// =====Gravity=====
     @FXML
@@ -115,7 +135,7 @@ class UIController {
 
     private fun updateSpawnPreview() {
         if (spawnObjectType == SpawnObjectType.NOTHING) {
-            RenderUtil.drawer.spawnPreview = null
+            drawer.spawnPreview = null
             return
         }
 
@@ -127,7 +147,7 @@ class UIController {
         }
 
         obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
-        RenderUtil.drawer.spawnPreview = obj
+        drawer.spawnPreview = obj
     }
 
     private fun setSpawnFieldAvailability(radius: Boolean, width: Boolean, height: Boolean) {
@@ -157,6 +177,47 @@ class UIController {
     fun onHeightTyped() {
         spawnHeight = parseTextField(txtSpawnHeight)
         updateSpawnPreview()
+    }
+
+    /// =====Object Properties=====
+    @FXML
+    fun onPropertyStaticClicked() {
+        drawer.selectedObject!!.static = cbPropertyStatic.isSelected
+    }
+
+    @FXML
+    fun onPropertyMassTyped() {
+        drawer.selectedObject!!.mass = parseTextField(txtPropertyMass)
+    }
+
+    @FXML
+    fun onPropertyRotationTyped() {
+        drawer.selectedObject!!.rotation = parseTextField(txtPropertyRotation) * DEGREES_TO_RADIANS
+    }
+
+    @FXML
+    fun onPropertyColorAction() {
+        drawer.selectedObject!!.color = RenderUtil.paintToColor(clrPropertyColor.value)
+    }
+
+    fun expandObjectPropertiesPane() {
+        tpObjectProperties.isExpanded = true
+    }
+
+    fun updateObjectPropertiesValues() {
+        apProperties.isDisable = drawer.selectedObject == null
+        if (drawer.selectedObject == null) return
+
+        val obj: FhysicsObject = drawer.selectedObject!!
+
+        cbPropertyStatic.isSelected = obj.static
+        txtPropertyMass.text = toStringWithTwoDecimalPlaces(obj.mass)
+        txtPropertyRotation.text = toStringWithTwoDecimalPlaces(obj.rotation * RADIANS_TO_DEGREES)
+        clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
+    }
+
+    private fun toStringWithTwoDecimalPlaces(value: Float): String {
+        return ((value * 100).toInt() / 100.0f).toString()
     }
 
     /// =====Gravity=====
@@ -291,11 +352,13 @@ class UIController {
     /// =====Initialization and helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
-        when (spawnObjectType) {
-            SpawnObjectType.CIRCLE -> onCircleClicked()
-            SpawnObjectType.RECTANGLE -> onRectangleClicked()
-            SpawnObjectType.NOTHING -> onNothingClicked()
-        }
+        /// =====Singleton=====
+        instance = this
+        drawer = RenderUtil.drawer
+
+        /// =====Object Properties=====
+        restrictToNumericInput(txtPropertyMass, false)
+        restrictToNumericInput(txtPropertyRotation)
 
         /// =====Spawn Object=====
         cbSpawnPreview.isSelected = drawSpawnPreview
@@ -308,6 +371,12 @@ class UIController {
         restrictToNumericInput(txtSpawnRadius, false)
         restrictToNumericInput(txtSpawnWidth, false)
         restrictToNumericInput(txtSpawnHeight, false)
+
+        when (spawnObjectType) {
+            SpawnObjectType.CIRCLE -> onCircleClicked()
+            SpawnObjectType.RECTANGLE -> onRectangleClicked()
+            SpawnObjectType.NOTHING -> onNothingClicked()
+        }
 
         /// =====Gravity=====
         txtGravityDirectionX.text = gravityDirection.x.toString()
@@ -367,8 +436,12 @@ class UIController {
     }
 
     companion object {
+        /// =====Singleton=====
+        lateinit var instance: UIController
+        lateinit var drawer: FhysicsObjectDrawer
+
         /// =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.NOTHING
             private set
         var drawSpawnPreview: Boolean = true
             private set
@@ -378,6 +451,10 @@ class UIController {
             private set
         var spawnHeight: Float = 1.0F
             private set
+
+        /// =====Object Properties=====
+        private const val DEGREES_TO_RADIANS: Float = 0.017453292f
+        private const val RADIANS_TO_DEGREES: Float = 57.29578f
 
         /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
@@ -405,7 +482,7 @@ class UIController {
         /// =====Debug=====
         var drawBoundingBoxes: Boolean = false
             private set
-        var drawQTCapacity: Boolean = true
+        var drawQTCapacity: Boolean = false
             private set
         var drawMSPU: Boolean = true
             private set

@@ -13,10 +13,8 @@ class Rectangle(
     position: Vector2,
     val width: Float,
     val height: Float,
-    rotation: Float = 0f, // in degrees
-) : FhysicsObject(position, width * height) {
-
-    val rotation: Float = rotation * DEGREES_TO_RADIANS // in radians
+    rotation: Float = 0f
+) : FhysicsObject(position, width * height, rotation) {
 
     val minX: Float
     val maxX: Float
@@ -103,9 +101,5 @@ class Rectangle(
 
     override fun toString(): String {
         return "Rectangle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height, rotation=$rotation)"
-    }
-
-    companion object {
-        const val DEGREES_TO_RADIANS: Float = 0.017453292f
     }
 }

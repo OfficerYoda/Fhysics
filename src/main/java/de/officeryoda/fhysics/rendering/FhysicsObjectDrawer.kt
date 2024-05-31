@@ -33,6 +33,7 @@ import java.util.*
 import kotlin.math.PI
 import kotlin.math.min
 import kotlin.math.sin
+import kotlin.random.Random
 
 // Can't be converted to object because it is a JavaFX Application
 class FhysicsObjectDrawer : Application() {
@@ -56,9 +57,10 @@ class FhysicsObjectDrawer : Application() {
     val height: Double get() = stage.scene.height // Use scene height to prevent including the window's title bar
     private val titleBarHeight: Double = 39.0 // That's the default height of the window's title bar (in windows)
 
-    // Spawning/removing properties
+    // Object modification properties
     var spawnPreview: FhysicsObject? = null
     var hoveredObject: FhysicsObject? = null
+    var selectedObject: FhysicsObject? = null
 
     /// =====Start functions=====
     fun launch() {
@@ -139,13 +141,14 @@ class FhysicsObjectDrawer : Application() {
         gc.clearRect(0.0, 0.0, width, height)
 
         // Find the hovered object (if any)
-        hoveredObject = checkForHoveredObject()
+        this.hoveredObject = checkForHoveredObject()
 
         // Draw the objects
         QuadTree.root.drawObjects(this)
 
-        if (hoveredObject != null) drawHoveredObject()
-        if (UIController.drawSpawnPreview && hoveredObject == null) drawSpawnPreview()
+        if (this.hoveredObject != null) drawObjectPulsing(hoveredObject!!)
+        if (this.selectedObject != null) drawObjectPulsing(selectedObject!!)
+        if (UIController.drawSpawnPreview && this.hoveredObject == null) drawSpawnPreview()
         if (UIController.drawQuadTree) QuadTree.root.drawNode(this)
 
         drawBorder()
@@ -156,22 +159,23 @@ class FhysicsObjectDrawer : Application() {
     private fun checkForHoveredObject(): FhysicsObject? {
         // Check if the mouse is still hovering over the object
         val obj: FhysicsObject? =
-            hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
+            this.hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
                 ?: QuadTree.root.query(SceneListener.mouseWorldPos)
 
         // If the object is in the remove queue, don't return it
         return obj.takeUnless { QuadTree.removeQueue.contains(it) }
     }
 
-    private fun drawHoveredObject() {
-        // Hovered object pulsing red
-        val red: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
-        setFillColor(Color(red, 0, 0, 192))
+    private fun drawObjectPulsing(obj: FhysicsObject) {
+        val alpha: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
+        val c: Color = obj.color
+        val color = Color(c.red, c.green, c.blue, alpha)
+        setFillColor(color)
 
-        if (hoveredObject is Circle) {
-            drawCircle(hoveredObject as Circle)
-        } else if (hoveredObject is Rectangle) {
-            drawRectangle(hoveredObject as Rectangle)
+        if (obj is Circle) {
+            drawCircle(obj as Circle)
+        } else if (obj is Rectangle) {
+            drawRectangle(obj as Rectangle)
         }
     }
 
@@ -185,8 +189,8 @@ class FhysicsObjectDrawer : Application() {
     }
 
     fun drawObject(obj: FhysicsObject) {
-        // Hovered object will be drawn last
-        if (obj === hoveredObject) {
+        // Hovered and selected object will be drawn pulsing
+        if (obj === this.hoveredObject || obj === this.selectedObject) {
             return
         }
 
@@ -233,7 +237,7 @@ class FhysicsObjectDrawer : Application() {
             rect.height * zoom
         )
 
-        // Restore the original state of the graphics context
+        // Restore the original state of the graphics context due to the translation and rotation
         gc.restore()
     }
 
@@ -428,5 +432,12 @@ class FhysicsObjectDrawer : Application() {
         zoom = targetZoom
         targetZoomCenter = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
         zoomCenter = targetZoomCenter
+    }
+
+    fun generateRandomColor(): Color {
+        val red = Random.nextInt(256)
+        val green = Random.nextInt(256)
+        val blue = Random.nextInt(256)
+        return Color(red, green, blue)
     }
 }

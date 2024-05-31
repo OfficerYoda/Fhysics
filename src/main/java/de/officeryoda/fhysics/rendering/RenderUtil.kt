@@ -195,6 +195,22 @@ object RenderUtil {
     }
 
     /**
+     * Converts a javafx.scene.paint.Color to a java.awt.Color
+     *
+     * @param value the original color
+     * @return the converted color
+     */
+    fun paintToColor(value: Paint): Color {
+        val color = value as javafx.scene.paint.Color
+        return Color(
+            (color.red * 255).toInt(),
+            (color.green * 255).toInt(),
+            (color.blue * 255).toInt(),
+            (color.opacity * 255).toInt()
+        )
+    }
+
+    /**
      * Sets the fill color of the graphics context
      *
      * @param color the new fill color

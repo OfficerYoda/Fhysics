@@ -48,7 +48,7 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        for (i in 1..200) {
+        for (i in 1..4000) {
             val circle: Circle = FhysicsObjectFactory.randomCircle()
 //            circle.velocity.set(Vector2.ZERO)
             spawn(circle)
@@ -60,7 +60,7 @@ object FhysicsCore {
         }
 
         // spawn a rotated rectangle in the center
-//        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, 45f)
+//        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
 //        spawn(rect)
 
         objectsAtStepSizeIncrease = objectCount
