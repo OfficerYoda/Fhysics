@@ -508,7 +508,7 @@ class UIController {
             private set
 
         /// =====Debug=====
-        var drawBoundingBoxes: Boolean = true
+        var drawBoundingBoxes: Boolean = false
             private set
         var drawQTCapacity: Boolean = false
             private set

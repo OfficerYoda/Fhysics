@@ -11,7 +11,6 @@ import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
-import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.Timer
 import java.util.concurrent.locks.ReentrantLock
@@ -21,7 +20,7 @@ import kotlin.math.sign
 object FhysicsCore {
 
     /// =====constants=====
-    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F) // x and y must be 0.0
+    val BORDER: BoundingBox = BoundingBox(0.0F, 0.0F, 100.0F, 100.0F) // x and y must be 0.0
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
     const val UPDATES_PER_SECOND: Int = 120
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
@@ -48,20 +47,20 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        for (i in 1..4000) {
-//            val circle: Circle = FhysicsObjectFactory.randomCircle()
-////            circle.velocity.set(Vector2.ZERO)
-//            spawn(circle)
-//        }
-//
-//        for (i in 1..10) {
-//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
-//            spawn(rect)
-//        }
+        for (i in 1..4000) {
+            val circle: Circle = FhysicsObjectFactory.randomCircle()
+//            circle.velocity.set(Vector2.ZERO)
+            spawn(circle)
+        }
+
+        for (i in 1..10) {
+            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
+            spawn(rect)
+        }
 
         // spawn a rotated rectangle in the center
-        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, Math.toRadians(.0).toFloat())
-        spawn(rect)
+//        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
+//        spawn(rect)
 
         objectsAtStepSizeIncrease = objectCount
     }

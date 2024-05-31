@@ -5,7 +5,6 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import java.awt.Color
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 

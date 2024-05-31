@@ -165,6 +165,10 @@ object RenderUtil {
         return a + (b - a) * t
     }
 
+    fun lerp(a: Double, b: Double, t: Double): Double {
+        return a + (b - a) * t
+    }
+
     /**
      * Linearly interpolates between two vectors
      *

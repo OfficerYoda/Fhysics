@@ -1,14 +1,11 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.extensions.contains
-import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
-import java.awt.geom.Rectangle2D
 
 data class QuadTree(
-    private val boundary: Rectangle2D,
+    private val boundary: BoundingBox,
     private val parent: QuadTree?,
 ) {
 
@@ -39,7 +36,7 @@ data class QuadTree(
 
     /// =====Basic functions=====
     private fun insert(obj: FhysicsObject) {
-        if (!boundary.intersects(obj)) return
+        if (!boundary.overlaps(obj.boundingBox)) return
         if (objects.contains(obj)) return
 
         if (!divided && (objects.size < capacity || isMinWidth)) {
@@ -75,22 +72,22 @@ data class QuadTree(
     }
 
     private fun divide() {
-        val x: Float = boundary.x.toFloat()
-        val y: Float = boundary.y.toFloat()
-        val hw: Float = boundary.width.toFloat() / 2 // half width
-        val hh: Float = boundary.height.toFloat() / 2 // half height
+        val x: Float = boundary.x
+        val y: Float = boundary.y
+        val hw: Float = boundary.width / 2 // half width
+        val hh: Float = boundary.height / 2 // half height
 
         // Top left
-        val tl = Rectangle2D.Float(x, y + hh, hw, hh)
+        val tl = BoundingBox(x, y + hh, hw, hh)
         topLeft = QuadTree(tl, this)
         // Top right
-        val tr = Rectangle2D.Float(x + hw, y + hh, hw, hh)
+        val tr = BoundingBox(x + hw, y + hh, hw, hh)
         topRight = QuadTree(tr, this)
         // Bottom left
-        val bl = Rectangle2D.Float(x, y, hw, hh)
+        val bl = BoundingBox(x, y, hw, hh)
         botLeft = QuadTree(bl, this)
         // Bottom right
-        val br = Rectangle2D.Float(x + hw, y, hw, hh)
+        val br = BoundingBox(x + hw, y, hw, hh)
         botRight = QuadTree(br, this)
 
         objects.forEach { insertInChildren(it) }
@@ -154,7 +151,7 @@ data class QuadTree(
             // Update each object
             updateObject(obj)
             // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
-            if (!boundary.contains(obj)) {
+            if (!boundary.contains(obj.boundingBox)) {
                 parent!!.addRebuildObject(obj)
                 toRemove.add(obj)
             }
@@ -199,7 +196,7 @@ data class QuadTree(
 
     private fun addRebuildObject(obj: FhysicsObject) {
         // If the object is still fully in the boundary, or it is the root, add it to the rebuild list
-        if (boundary.contains(obj) || isRoot) {
+        if (boundary.contains(obj.boundingBox) || isRoot) {
             // Only need to execute it async if it is the root
             if (isRoot) {
                 synchronized(rebuildObjects) {

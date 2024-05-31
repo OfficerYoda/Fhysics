@@ -88,4 +88,27 @@ data class BoundingBox(
             else -> throw IllegalArgumentException("Unsupported object type for bounding box")
         }
     }
+
+    /**
+     * Checks if the given position is contained within this bounding box.
+     *
+     * @param pos The position to check for containment.
+     * @return True if the position is contained within the bounding box, false otherwise.
+     */
+    fun contains(pos: Vector2): Boolean {
+        return x in pos.x..(pos.x + width) &&
+                y in pos.y..(pos.y + height)
+    }
+
+    /**
+     * Checks if this bounding box contains the given bounding box.
+     *
+     * @param other The other bounding box to check for containment.
+     * @return True if this bounding box contains the other bounding box, false otherwise.
+     */
+    fun contains(other: BoundingBox): Boolean {
+        return this.x <= other.x && this.y <= other.y &&
+                (this.x + this.width) >= (other.x + other.width) &&
+                (this.y + this.height) >= (other.y + other.height)
+    }
 }

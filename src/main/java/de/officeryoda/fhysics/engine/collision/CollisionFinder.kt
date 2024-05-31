@@ -2,11 +2,9 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.Rectangle
-import java.awt.geom.Rectangle2D
 import kotlin.math.abs
 import kotlin.math.sqrt
 

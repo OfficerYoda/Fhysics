@@ -34,7 +34,6 @@ import java.util.*
 import kotlin.math.PI
 import kotlin.math.min
 import kotlin.math.sin
-import kotlin.random.Random
 
 // Can't be converted to object because it is a JavaFX Application
 class FhysicsObjectDrawer : Application() {
@@ -47,7 +46,7 @@ class FhysicsObjectDrawer : Application() {
     // Zoom properties
     var targetZoom: Double = -1.0
     var zoom: Double = targetZoom
-    var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+    var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2), (BORDER.height / 2))
     var zoomCenter: Vector2 = targetZoomCenter
 
     // Debug properties
@@ -185,7 +184,7 @@ class FhysicsObjectDrawer : Application() {
         val interpolation = 0.12F
 
         // Lerp the zoom and zoomCenter
-        zoom = lerp(zoom.toFloat(), targetZoom.toFloat(), interpolation).toDouble()
+        zoom = lerp(zoom, targetZoom, interpolation.toDouble())
         zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
     }
 
@@ -208,7 +207,7 @@ class FhysicsObjectDrawer : Application() {
     private fun drawCircle(circle: Circle) {
         val pos: Vector2 = worldToScreen(circle.position)
         val radius: Double = circle.radius * zoom
-        val diameter: Double = 2.0 * radius
+        val diameter: Double = 2 * radius
 
         gc.fillOval(
             pos.x - radius,
@@ -291,7 +290,7 @@ class FhysicsObjectDrawer : Application() {
         )
     }
 
-    fun transformAndDrawQuadTreeNode(rect: Rectangle2D, contentCount: Int) {
+    fun transformAndDrawQuadTreeNode(rect: BoundingBox, contentCount: Int) {
         val x: Double = worldToScreenX(rect.x)
         val y: Double = worldToScreenY(rect.y + rect.height)
         val width: Double = rect.width * zoom
@@ -388,12 +387,12 @@ class FhysicsObjectDrawer : Application() {
     /// =====Window size functions=====
     private fun setWindowSize() {
         // Calculate the window size
-        val border: Rectangle2D = BORDER
-        val borderWidth: Double = border.width
-        val borderHeight: Double = border.height
+        val border: BoundingBox = BORDER
+        val borderWidth: Float = border.width
+        val borderHeight: Float = border.height
 
         // Calculate the aspect ratio based on world space
-        val ratio: Double = borderHeight / borderWidth
+        val ratio: Float = borderHeight / borderWidth
         val maxWidth = 1440.0
         val maxHeight = 960.0
 
@@ -413,7 +412,7 @@ class FhysicsObjectDrawer : Application() {
 
     private fun calculateZoom(): Double {
         // Normal zoom amount
-        val borderHeight: Double = BORDER.height
+        val borderHeight: Float = BORDER.height
         val windowHeight: Double = stage.height - titleBarHeight
 
         return windowHeight / borderHeight
@@ -423,7 +422,7 @@ class FhysicsObjectDrawer : Application() {
     fun resetZoom() {
         targetZoom = calculateZoom()
         zoom = targetZoom
-        targetZoomCenter = Vector2((BORDER.width / 2).toFloat(), (BORDER.height / 2).toFloat())
+        targetZoomCenter = Vector2((BORDER.width / 2), (BORDER.height / 2))
         zoomCenter = targetZoomCenter
     }
 }
