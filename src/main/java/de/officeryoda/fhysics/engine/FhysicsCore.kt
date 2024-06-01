@@ -97,7 +97,6 @@ object FhysicsCore {
         updateTimer.stop()
     }
 
-    // This method must be called when trying to spawn an object
     fun spawn(obj: FhysicsObject) {
         QuadTree.toAdd.add(obj)
     }
