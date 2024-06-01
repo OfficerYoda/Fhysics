@@ -74,6 +74,10 @@ class Rectangle(
         return listOf(rotatedTopLeft, rotatedTopRight, rotatedBottomRight, rotatedBottomLeft)
     }
 
+    override fun clone(): FhysicsObject {
+        return Rectangle(position.copy(), width, height, rotation)
+    }
+
     override fun toString(): String {
         return "Rectangle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height, rotation=$rotation)"
     }

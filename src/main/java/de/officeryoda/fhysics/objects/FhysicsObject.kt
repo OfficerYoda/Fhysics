@@ -82,6 +82,8 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun contains(pos: Vector2): Boolean
 
+    abstract fun clone(): FhysicsObject
+
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"
     }

@@ -3,8 +3,6 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Circle
-import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
 import javafx.scene.input.*
@@ -54,6 +52,7 @@ object SceneListener {
     fun onMousePressed(e: MouseEvent) {
         when (e.button) {
             MouseButton.PRIMARY -> {
+                // Select object if hovered, otherwise spawn object
                 if (drawer.hoveredObject != null) {
                     drawer.selectedObject = drawer.hoveredObject
                     UIController.instance.expandObjectPropertiesPane()
@@ -177,33 +176,14 @@ object SceneListener {
         val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
         if (!FhysicsCore.BORDER.contains(transformedMousePos)) return
 
-        when (UIController.spawnObjectType) {
-            SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
-            SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
-            else -> {}
+        val validParams: Boolean = when (UIController.spawnObjectType) {
+            SpawnObjectType.CIRCLE -> UIController.spawnRadius > 0.0F
+            SpawnObjectType.RECTANGLE -> UIController.spawnWidth > 0.0F && UIController.spawnHeight > 0.0F
+            else -> false
         }
-    }
 
-    /**
-     * Spawns a circle at the mouse position
-     *
-     * @param position the world spawn position
-     * @return the spawned circle
-     */
-    private fun spawnCircle(position: Vector2) {
-        if (UIController.spawnRadius <= 0.0F) return
-        FhysicsCore.spawn(Circle(position, UIController.spawnRadius))
-    }
+        if(!validParams) return
 
-    /**
-     * Spawns a rectangle using the mouse position
-     *
-     * @param position the world spawn position
-     * @return the spawned rectangle
-     */
-    private fun spawnRectangle(position: Vector2) {
-        if (UIController.spawnWidth <= 0.0F || UIController.spawnHeight <= 0.0F) return
-        FhysicsCore.spawn(Rectangle(position, UIController.spawnWidth, UIController.spawnHeight))
+        FhysicsCore.spawn(drawer.spawnPreview!!.clone())
     }
-
 }
