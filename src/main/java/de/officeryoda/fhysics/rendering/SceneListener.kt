@@ -3,10 +3,13 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
 import javafx.scene.input.*
 import kotlin.math.exp
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sign
 
 object SceneListener {
@@ -79,8 +82,17 @@ object SceneListener {
      * @param e the mouse event
      */
     fun onMouseReleased(e: MouseEvent) {
-        if (e.button == MouseButton.SECONDARY) {
-            rightPressed = false
+        when (e.button) {
+            MouseButton.PRIMARY -> {
+                if (dragStartWorldPos != null) {
+                    dragStartWorldPos = null
+                    FhysicsCore.spawn(drawer.spawnPreview!!.clone())
+                    UIController.instance.updateSpawnPreview()
+                }
+            }
+
+            MouseButton.SECONDARY -> rightPressed = false
+            else -> {}
         }
     }
 
@@ -139,6 +151,32 @@ object SceneListener {
         // to update the mouse position
         onMouseMoved(e)
 
+        when (e.button) {
+            MouseButton.PRIMARY -> dragSpawnPreview(e)
+            MouseButton.SECONDARY -> dragCamera(e)
+
+            else -> {}
+        }
+    }
+
+    private var dragStartWorldPos: Vector2? = null
+
+    private fun dragSpawnPreview(e: MouseEvent) {
+        if (dragStartWorldPos == null) {
+            dragStartWorldPos = mouseWorldPos.copy()
+        }
+
+        val minX: Float = min(dragStartWorldPos!!.x, mouseWorldPos.x)
+        val maxX: Float = max(dragStartWorldPos!!.x, mouseWorldPos.x)
+        val minY: Float = min(dragStartWorldPos!!.y, mouseWorldPos.y)
+        val maxY: Float = max(dragStartWorldPos!!.y, mouseWorldPos.y)
+
+        val size = Vector2(maxX - minX, maxY - minY)
+        val pos: Vector2 = Vector2(minX, minY) + size / 2f
+        drawer.spawnPreview = Rectangle(pos, size.x, size.y)
+    }
+
+    private fun dragCamera(e: MouseEvent) {
         if (rightPressed) {
             val mousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
             val deltaMousePos: Vector2 = rightPressedPos - mousePos
@@ -178,11 +216,11 @@ object SceneListener {
 
         val validParams: Boolean = when (UIController.spawnObjectType) {
             SpawnObjectType.CIRCLE -> UIController.spawnRadius > 0.0F
-            SpawnObjectType.RECTANGLE -> UIController.spawnWidth > 0.0F && UIController.spawnHeight > 0.0F
+//            SpawnObjectType.RECTANGLE -> UIController.spawnWidth > 0.0F && UIController.spawnHeight > 0.0F
             else -> false
         }
 
-        if(!validParams) return
+        if (!validParams) return
 
         FhysicsCore.spawn(drawer.spawnPreview!!.clone())
     }

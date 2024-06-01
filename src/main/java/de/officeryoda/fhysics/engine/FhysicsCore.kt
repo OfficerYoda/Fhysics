@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.engine.collision.ElasticCollision
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
-import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -47,20 +46,20 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        for (i in 1..4000) {
-            val circle: Circle = FhysicsObjectFactory.randomCircle()
-//            circle.velocity.set(Vector2.ZERO)
-            spawn(circle)
-        }
-
-        for (i in 1..10) {
-            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
-            spawn(rect)
-        }
+//        for (i in 1..4000) {
+//            val circle: Circle = FhysicsObjectFactory.randomCircle()
+////            circle.velocity.set(Vector2.ZERO)
+//            spawn(circle)
+//        }
+//
+//        for (i in 1..10) {
+//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
+//            spawn(rect)
+//        }
 
         // spawn a rotated rectangle in the center
-//        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
-//        spawn(rect)
+        val rect = Rectangle(Vector2((BORDER.width/ 2), (BORDER.height / 2)), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
+        spawn(rect)
 
         objectsAtStepSizeIncrease = objectCount
     }
@@ -140,7 +139,7 @@ object FhysicsCore {
 
             obj.position.x + obj.radius > BORDER.width -> {
                 obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
-                obj.position.x = (BORDER.width - obj.radius).toFloat()
+                obj.position.x = (BORDER.width - obj.radius)
             }
         }
 
@@ -152,7 +151,7 @@ object FhysicsCore {
 
             obj.position.y + obj.radius > BORDER.height -> {
                 obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
-                obj.position.y = (BORDER.height - obj.radius).toFloat()
+                obj.position.y = (BORDER.height - obj.radius)
             }
         }
     }
