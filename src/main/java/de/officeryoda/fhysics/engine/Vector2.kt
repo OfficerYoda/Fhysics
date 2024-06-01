@@ -128,6 +128,14 @@ data class Vector2
     }
 
     /**
+     * Negates the Vector2.
+     */
+    fun negate() {
+        this.x = -this.x
+        this.y = -this.y
+    }
+
+    /**
      * Adds another Vector2 to this Vector2.
      *
      * @param other The Vector2 to add.
