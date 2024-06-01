@@ -18,9 +18,11 @@ abstract class CollisionSolver {
         }
 
         // Calculate total mass if at least one object is not static
-        val totalMass: Float =
-            if (!objA.static && !objB.static) objA.mass + objB.mass
-            else if (objA.static) objB.mass else objA.mass
+        val totalMass: Float = when {
+            !objA.static && !objB.static -> objA.mass + objB.mass
+            objA.static -> objB.mass
+            else -> objA.mass
+        }
 
         // Calculate the overlap
         val overlap: Vector2 = info.overlap * info.normal

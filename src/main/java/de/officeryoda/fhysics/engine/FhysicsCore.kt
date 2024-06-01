@@ -8,9 +8,9 @@ import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
-import java.awt.geom.Rectangle2D
 import java.util.*
 import java.util.Timer
 import java.util.concurrent.locks.ReentrantLock
@@ -20,7 +20,7 @@ import kotlin.math.sign
 object FhysicsCore {
 
     /// =====constants=====
-    val BORDER: Rectangle2D = Rectangle2D.Float(0.0F, 0.0F, 100.0F, 100.0F) // x and y must be 0.0
+    val BORDER: BoundingBox = BoundingBox(0.0F, 0.0F, 100.0F, 100.0F) // x and y must be 0.0
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
     const val UPDATES_PER_SECOND: Int = 120
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
@@ -30,7 +30,7 @@ object FhysicsCore {
     /// =====variables=====
     private var quadTree: QuadTree = QuadTree(BORDER, null)
 
-    var objectCount: Int = 0
+    private var objectCount: Int = 0
 
     var updateCount = 0
 
@@ -47,7 +47,7 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        for (i in 1..200) {
+        for (i in 1..4000) {
             val circle: Circle = FhysicsObjectFactory.randomCircle()
 //            circle.velocity.set(Vector2.ZERO)
             spawn(circle)
@@ -59,10 +59,15 @@ object FhysicsCore {
         }
 
         // spawn a rotated rectangle in the center
-//        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, 45f)
+//        val rect = Rectangle(Vector2((BORDER.width/ 2).toFloat(), (BORDER.height / 2).toFloat()), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
 //        spawn(rect)
 
         objectsAtStepSizeIncrease = objectCount
+    }
+
+
+    fun startEverything() {
+        Thread { FhysicsObjectDrawer().launch() }.start()
         startUpdateLoop()
     }
 
@@ -82,14 +87,12 @@ object FhysicsCore {
     fun update() {
         updateTimer.start()
 
-//        spawnObject()
-
-        checkObjectCollision(quadTree)
-
         quadTree.insertObjects()
         quadTree.updateObjectsAndRebuild()
 
-//        optimizeQuadTreeCapacity()
+        checkObjectCollision(quadTree)
+
+        if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
         updateCount++
         updateTimer.stop()
@@ -100,33 +103,21 @@ object FhysicsCore {
         QuadTree.toAdd.add(obj)
     }
 
-    private fun spawnObject() {
-        if (updateCount % 10 != 0) return
-        for (i: Int in 1..50) {
-            if (objectCount < 20000) {
-                spawn(FhysicsObjectFactory.randomCircle())
-            }
-        }
-    }
-
     private fun checkObjectCollision(quadTree: QuadTree) {
-        if (!quadTree.divided) {
-            val objects: MutableList<FhysicsObject> = quadTree.objects
-            val numObjects: Int = objects.size
-
-            for (i: Int in 0 until numObjects - 1) {
-                val objA: FhysicsObject = objects[i]
-
-                for (j: Int in i + 1 until numObjects) {
-                    val objB: FhysicsObject = objects[j]
-                    handleCollision(objA, objB)
-                }
-            }
-        } else {
+        if (quadTree.divided) {
             checkObjectCollision(quadTree.topLeft!!)
             checkObjectCollision(quadTree.topRight!!)
             checkObjectCollision(quadTree.botLeft!!)
             checkObjectCollision(quadTree.botRight!!)
+        } else {
+            val objects: MutableList<FhysicsObject> = quadTree.objects
+            val numObjects: Int = objects.size
+
+            for (i: Int in 0 until numObjects - 1) {
+                for (j: Int in i + 1 until numObjects) {
+                    handleCollision(objects[i], objects[j])
+                }
+            }
         }
     }
 
@@ -140,26 +131,35 @@ object FhysicsCore {
 
     fun checkBorderCollision(obj: FhysicsObject) {
         if (obj !is Circle) return
-        if (obj.position.x - obj.radius < 0.0F) {
-            obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
-            obj.position.x = obj.radius
-        } else if (obj.position.x + obj.radius > BORDER.width) {
-            obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
-            obj.position.x = (BORDER.width - obj.radius).toFloat()
+
+        when {
+            obj.position.x - obj.radius < 0.0F -> {
+                obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
+                obj.position.x = obj.radius
+            }
+
+            obj.position.x + obj.radius > BORDER.width -> {
+                obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
+                obj.position.x = (BORDER.width - obj.radius).toFloat()
+            }
         }
 
-        if (obj.position.y - obj.radius < 0.0F) {
-            obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
-            obj.position.y = obj.radius
-        } else if (obj.position.y + obj.radius > BORDER.height) {
-            obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
-            obj.position.y = (BORDER.height - obj.radius).toFloat()
+        when {
+            obj.position.y - obj.radius < 0.0F -> {
+                obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
+                obj.position.y = obj.radius
+            }
+
+            obj.position.y + obj.radius > BORDER.height -> {
+                obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
+                obj.position.y = (BORDER.height - obj.radius).toFloat()
+            }
         }
     }
 
     private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++
-        if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame which where the rebuild will take the longest
+        if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame where the rebuild takes place which takes longer
             val average: Double = updateTimer.average()
 
             qtCapacity[QuadTree.capacity] = average

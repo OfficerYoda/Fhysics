@@ -1,20 +1,16 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.extensions.contains
-import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
-import java.awt.geom.Rectangle2D
-import kotlin.reflect.KFunction1
-import kotlin.reflect.KFunction2
 
 data class QuadTree(
-    private val boundary: Rectangle2D,
+    private val boundary: BoundingBox,
     private val parent: QuadTree?,
 ) {
 
     val objects: MutableList<FhysicsObject> = ArrayList()
-    private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite subdivision
+    private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite division
     private val isRoot: Boolean = parent == null
 
     var divided: Boolean = false
@@ -40,7 +36,7 @@ data class QuadTree(
 
     /// =====Basic functions=====
     private fun insert(obj: FhysicsObject) {
-        if (!boundary.intersects(obj)) return
+        if (!boundary.overlaps(obj.boundingBox)) return
         if (objects.contains(obj)) return
 
         if (!divided && (objects.size < capacity || isMinWidth)) {
@@ -49,7 +45,7 @@ data class QuadTree(
         }
 
         if (!divided) {
-            subdivide()
+            divide()
         }
 
         insertInChildren(obj)
@@ -75,23 +71,23 @@ data class QuadTree(
         botRight!!.insert(obj)
     }
 
-    private fun subdivide() {
-        val x: Float = boundary.x.toFloat()
-        val y: Float = boundary.y.toFloat()
-        val hw: Float = boundary.width.toFloat() / 2 // half width
-        val hh: Float = boundary.height.toFloat() / 2 // half height
+    private fun divide() {
+        val x: Float = boundary.x
+        val y: Float = boundary.y
+        val hw: Float = boundary.width / 2 // half width
+        val hh: Float = boundary.height / 2 // half height
 
         // Top left
-        val tl = Rectangle2D.Float(x, y + hh, hw, hh)
+        val tl = BoundingBox(x, y + hh, hw, hh)
         topLeft = QuadTree(tl, this)
         // Top right
-        val tr = Rectangle2D.Float(x + hw, y + hh, hw, hh)
+        val tr = BoundingBox(x + hw, y + hh, hw, hh)
         topRight = QuadTree(tr, this)
         // Bottom left
-        val bl = Rectangle2D.Float(x, y, hw, hh)
+        val bl = BoundingBox(x, y, hw, hh)
         botLeft = QuadTree(bl, this)
         // Bottom right
-        val br = Rectangle2D.Float(x + hw, y, hw, hh)
+        val br = BoundingBox(x + hw, y, hw, hh)
         botRight = QuadTree(br, this)
 
         objects.forEach { insertInChildren(it) }
@@ -155,7 +151,7 @@ data class QuadTree(
             // Update each object
             updateObject(obj)
             // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
-            if (!boundary.contains(obj)) {
+            if (!boundary.contains(obj.boundingBox)) {
                 parent!!.addRebuildObject(obj)
                 toRemove.add(obj)
             }
@@ -183,9 +179,24 @@ data class QuadTree(
         }
     }
 
+    fun tryDivide() {
+        when {
+            divided -> {
+                topLeft!!.tryDivide()
+                topRight!!.tryDivide()
+                botLeft!!.tryDivide()
+                botRight!!.tryDivide()
+            }
+
+            objects.size > capacity -> {
+                divide()
+            }
+        }
+    }
+
     private fun addRebuildObject(obj: FhysicsObject) {
         // If the object is still fully in the boundary, or it is the root, add it to the rebuild list
-        if (boundary.contains(obj) || isRoot) {
+        if (boundary.contains(obj.boundingBox) || isRoot) {
             // Only need to execute it async if it is the root
             if (isRoot) {
                 synchronized(rebuildObjects) {
@@ -214,32 +225,32 @@ data class QuadTree(
     }
 
     /// =====Drawing functions=====
-    fun drawObjects(drawObject: KFunction1<FhysicsObject, Unit>, drawBoundingBox: (FhysicsObject) -> Unit) {
+    fun drawObjects(drawer: FhysicsObjectDrawer) {
         when {
             divided -> {
-                topLeft?.drawObjects(drawObject, drawBoundingBox)
-                topRight?.drawObjects(drawObject, drawBoundingBox)
-                botLeft?.drawObjects(drawObject, drawBoundingBox)
-                botRight?.drawObjects(drawObject, drawBoundingBox)
+                topLeft?.drawObjects(drawer)
+                topRight?.drawObjects(drawer)
+                botLeft?.drawObjects(drawer)
+                botRight?.drawObjects(drawer)
             }
 
             UIController.drawBoundingBoxes -> objects.forEach {
-                drawObject(it)
-                drawBoundingBox(it)
+                drawer.drawObject(it)
+                drawer.drawBoundingBox(it)
             }
 
-            else -> objects.forEach { drawObject(it) }
+            else -> objects.forEach { drawer.drawObject(it) }
         }
     }
 
-    fun drawNode(drawRect: KFunction2<Rectangle2D, Int, Unit>) {
+    fun drawNode(drawer: FhysicsObjectDrawer) {
         if (!divided) {
-            drawRect(boundary, objects.size)
+            drawer.transformAndDrawQuadTreeNode(boundary, objects.size)
         } else {
-            topLeft!!.drawNode(drawRect)
-            topRight!!.drawNode(drawRect)
-            botLeft!!.drawNode(drawRect)
-            botRight!!.drawNode(drawRect)
+            topLeft!!.drawNode(drawer)
+            topRight!!.drawNode(drawer)
+            botLeft!!.drawNode(drawer)
+            botRight!!.drawNode(drawer)
         }
     }
 
@@ -262,6 +273,14 @@ data class QuadTree(
     }
 
     /// =====Utility functions=====
+    /**
+     * Counts the objects in the QuadTree
+     *
+     * This function will count the same object multiple times if it is in multiple nodes
+     * For counting unique objects, use [countUnique]
+     *
+     * @return The amount of objects in the QuadTree
+     */
     private fun count(): Int {
         return if (divided) {
             topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
@@ -270,12 +289,33 @@ data class QuadTree(
         }
     }
 
+    /**
+     * Counts the unique objects in the QuadTree
+     *
+     * Unlike the [count] function, this function will not count the same object multiple times
+     *
+     * @param objectSet The set which is used for counting
+     * @return The amount of unique objects in the QuadTree
+     */
+    fun countUnique(objectSet: MutableSet<FhysicsObject> = HashSet()): Int {
+        this.count()
+        if (divided) {
+            topLeft!!.countUnique(objectSet) + topRight!!.countUnique(objectSet) + botLeft!!.countUnique(objectSet) + botRight!!.countUnique(
+                objectSet
+            )
+        } else {
+            objectSet.addAll(objects)
+        }
+
+        return objectSet.size
+    }
+
     override fun toString(): String {
         return if (divided) {
             "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, " +
-                    "divided=true, canDivide=$isMinWidth, \n\ttopLeft=$topLeft, \n\ttopRight=$topRight, \n\tbotLeft=$botLeft, \n\tbotRight=$botRight)"
+                    "divided=true, isMinWidth=$isMinWidth, \n\ttopLeft=$topLeft, \n\ttopRight=$topRight, \n\tbotLeft=$botLeft, \n\tbotRight=$botRight)"
         } else {
-            "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, canDivide=$isMinWidth)"
+            "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, isMinWidth=$isMinWidth)"
         }
     }
 

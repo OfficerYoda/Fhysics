@@ -5,9 +5,15 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.objects.Circle
+import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.objects.Rectangle
 import javafx.fxml.FXML
 import javafx.scene.control.*
+import javafx.scene.layout.AnchorPane
+import java.awt.Color
 import java.util.*
 
 class UIController {
@@ -24,6 +30,25 @@ class UIController {
 
     @FXML
     private lateinit var txtSpawnHeight: TextField
+
+    /// =====Object Properties=====
+    @FXML
+    private lateinit var tpProperties: TitledPane
+
+    @FXML
+    private lateinit var apProperties: AnchorPane
+
+    @FXML
+    private lateinit var cbPropertyStatic: CheckBox
+
+    @FXML
+    private lateinit var txtPropertyMass: TextField
+
+    @FXML
+    private lateinit var txtPropertyRotation: TextField
+
+    @FXML
+    private lateinit var clrPropertyColor: ColorPicker
 
     /// =====Gravity=====
     @FXML
@@ -43,21 +68,30 @@ class UIController {
 
     /// =====Time=====
     @FXML
-    private lateinit var btnPause: ToggleButton
+    private lateinit var btnTimePause: ToggleButton
 
     @FXML
-    private lateinit var btnStep: Button
+    private lateinit var btnTimeStep: Button
 
     @FXML
     private lateinit var txtTimeSpeed: TextField
 
-    /// =====Debug=====
+    /// =====QuadTree=====
     @FXML
     private lateinit var cbQuadTree: CheckBox
 
     @FXML
     private lateinit var cbQTNodeUtilization: CheckBox
 
+    @FXML
+    private lateinit var cbOptimizeQTCapacity: CheckBox
+
+    @FXML
+    private lateinit var txtQuadTreeCapacity: TextField
+
+    /// =====Debug=====
+    @FXML
+    private lateinit var cbBoundingBoxes: CheckBox
 
     @FXML
     private lateinit var cbQTCapacity: CheckBox
@@ -72,41 +106,54 @@ class UIController {
     private lateinit var cbObjectCount: CheckBox
 
     @FXML
-    private lateinit var cbBoundingBoxes: CheckBox
+    private lateinit var sldWallElasticity: Slider
 
     @FXML
     private lateinit var lblWallElasticity: Label
 
-    @FXML
-    private lateinit var sldWallElasticity: Slider
-
     /// =====Spawn Object=====
     @FXML
-    fun onCircleClicked() {
+    fun onSpawnCircleClicked() {
         spawnObjectType = SpawnObjectType.CIRCLE
-
-        // enable radius field
-        txtSpawnRadius.isDisable = false
-        txtSpawnWidth.isDisable = true
-        txtSpawnHeight.isDisable = true
+        updateSpawnPreview()
+        setSpawnFieldAvailability(radius = true, width = false, height = false)
     }
 
-    fun onRectangleClicked() {
+    @FXML
+    fun onSpawnRectangleClicked() {
         spawnObjectType = SpawnObjectType.RECTANGLE
-
-        // disable radius field
-        txtSpawnRadius.isDisable = true
-        txtSpawnWidth.isDisable = false
-        txtSpawnHeight.isDisable = false
+        updateSpawnPreview()
+        setSpawnFieldAvailability(radius = false, width = true, height = true)
     }
 
-    fun onTriangleClicked() {
-        spawnObjectType = SpawnObjectType.TRIANGLE
+    @FXML
+    fun onSpawnNothingClicked() {
+        spawnObjectType = SpawnObjectType.NOTHING
+        updateSpawnPreview()
+        setSpawnFieldAvailability(radius = false, width = false, height = false)
+    }
 
-        // disable radius field
-        txtSpawnRadius.isDisable = true
-        txtSpawnWidth.isDisable = true
-        txtSpawnHeight.isDisable = true
+    private fun updateSpawnPreview() {
+        if (spawnObjectType == SpawnObjectType.NOTHING) {
+            drawer.spawnPreview = null
+            return
+        }
+
+        Rectangle(SceneListener.mouseWorldPos, spawnWidth, spawnHeight)
+        val obj: FhysicsObject = when (spawnObjectType) {
+            SpawnObjectType.CIRCLE -> Circle(SceneListener.mouseWorldPos, spawnRadius)
+            SpawnObjectType.RECTANGLE -> Rectangle(SceneListener.mouseWorldPos, spawnWidth, spawnHeight)
+            else -> throw IllegalArgumentException("Invalid spawn object type")
+        }
+
+        obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
+        drawer.spawnPreview = obj
+    }
+
+    private fun setSpawnFieldAvailability(radius: Boolean, width: Boolean, height: Boolean) {
+        txtSpawnRadius.isDisable = !radius
+        txtSpawnWidth.isDisable = !width
+        txtSpawnHeight.isDisable = !height
     }
 
     @FXML
@@ -115,83 +162,134 @@ class UIController {
     }
 
     @FXML
-    fun onRadiusTyped() {
+    fun onSpawnRadiusTyped() {
         spawnRadius = parseTextField(txtSpawnRadius)
+        updateSpawnPreview()
     }
 
     @FXML
-    fun onWidthTyped() {
+    fun onSpawnWidthTyped() {
         spawnWidth = parseTextField(txtSpawnWidth)
+        updateSpawnPreview()
     }
 
     @FXML
-    fun onHeightTyped() {
+    fun onSpawnHeightTyped() {
         spawnHeight = parseTextField(txtSpawnHeight)
+        updateSpawnPreview()
+    }
+
+    /// =====Object Properties=====
+    @FXML
+    fun onPropertyStaticClicked() {
+        drawer.selectedObject!!.static = cbPropertyStatic.isSelected
+    }
+
+    @FXML
+    fun onPropertyMassTyped() {
+        drawer.selectedObject!!.mass = parseTextField(txtPropertyMass, 1.0f)
+    }
+
+    @FXML
+    fun onPropertyRotationTyped() {
+        drawer.selectedObject!!.rotation = parseTextField(txtPropertyRotation) * DEGREES_TO_RADIANS
+    }
+
+    @FXML
+    fun onPropertyColorAction() {
+        drawer.selectedObject!!.color = RenderUtil.paintToColor(clrPropertyColor.value)
+    }
+
+    @FXML
+    fun onPropertyRemoveClicked() {
+        drawer.selectedObject?.let {
+            QuadTree.removeQueue.add(it)
+            drawer.selectedObject = null
+        }
+    }
+
+    fun expandObjectPropertiesPane() {
+        tpProperties.isExpanded = true
+    }
+
+    fun updateObjectPropertiesValues() {
+        apProperties.isDisable = drawer.selectedObject == null
+        if (drawer.selectedObject == null) return
+
+        val obj: FhysicsObject = drawer.selectedObject!!
+
+        cbPropertyStatic.isSelected = obj.static
+        txtPropertyMass.text = toStringWithTwoDecimalPlaces(obj.mass)
+        txtPropertyRotation.text = toStringWithTwoDecimalPlaces(obj.rotation * RADIANS_TO_DEGREES)
+        clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
+    }
+
+    /**
+     * Rounds a float value to two decimal places and converts it to a string.
+     *
+     * @param value The float value to convert.
+     * @return The string representation of the float value with two decimal places.
+     */
+    private fun toStringWithTwoDecimalPlaces(value: Float): String {
+        return ((value * 100).toInt() / 100.0f).toString()
     }
 
     /// =====Gravity=====
     @FXML
-    fun onDirectionClicked() {
+    fun onGravityDirectionClicked() {
         gravityType = GravityType.DIRECTIONAL
-
-        // enable direction fields
-        txtGravityDirectionX.isDisable = false
-        txtGravityDirectionY.isDisable = false
-
-        // disable point fields
-        txtGravityPointX.isDisable = true
-        txtGravityPointY.isDisable = true
-        txtGravityPointStrength.isDisable = true
+        setGravityFieldsAvailability(direction = true, point = false)
     }
 
     @FXML
-    fun onPointClicked() {
+    fun onGravityPointClicked() {
         gravityType = GravityType.TOWARDS_POINT
-
-        // disable direction fields
-        txtGravityDirectionX.isDisable = true
-        txtGravityDirectionY.isDisable = true
-
-        // enable point fields
-        txtGravityPointX.isDisable = false
-        txtGravityPointY.isDisable = false
-        txtGravityPointStrength.isDisable = false
+        setGravityFieldsAvailability(direction = false, point = true)
     }
 
     @FXML
-    fun onDirectionXTyped() {
+    fun onGravityDirectionXTyped() {
         gravityDirection.x = parseTextField(txtGravityDirectionX)
     }
 
     @FXML
-    fun onDirectionYTyped() {
+    fun onGravityDirectionYTyped() {
         gravityDirection.y = parseTextField(txtGravityDirectionY)
     }
 
     @FXML
-    fun onPointXTyped() {
+    fun onGravityPointXTyped() {
         gravityPoint.x = parseTextField(txtGravityPointX)
     }
 
     @FXML
-    fun onPointYTyped() {
+    fun onGravityPointYTyped() {
         gravityPoint.y = parseTextField(txtGravityPointY)
     }
 
     @FXML
-    fun onStrengthTyped() {
+    fun onGravityStrengthTyped() {
         gravityPointStrength = parseTextField(txtGravityPointStrength)
+    }
+
+    private fun setGravityFieldsAvailability(direction: Boolean, point: Boolean) {
+        txtGravityDirectionX.isDisable = !direction
+        txtGravityDirectionY.isDisable = !direction
+
+        txtGravityPointX.isDisable = !point
+        txtGravityPointY.isDisable = !point
+        txtGravityPointStrength.isDisable = !point
     }
 
     /// =====Time=====
     @FXML
-    fun onPauseClicked() {
-        FhysicsCore.running = !btnPause.isSelected
-        btnStep.isDisable = FhysicsCore.running
+    fun onTimePauseClicked() {
+        FhysicsCore.running = !btnTimePause.isSelected
+        btnTimeStep.isDisable = FhysicsCore.running
     }
 
     @FXML
-    fun onStepClicked() {
+    fun onTimeStepClicked() {
         FhysicsCore.update()
     }
 
@@ -201,18 +299,42 @@ class UIController {
         FhysicsCore.dt = 1.0F / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
     }
 
-    /// =====Debug=====
+    /// =====QuadTree=====
     @FXML
     fun onQuadTreeClicked() {
         drawQuadTree = cbQuadTree.isSelected
 
-        // node utilization is only drawn if the quad tree is drawn
+        // Node utilization is only drawn if the quad tree is drawn
         cbQTNodeUtilization.isDisable = !drawQuadTree
     }
 
     @FXML
     fun onQTNodeUtilizationClicked() {
         drawQTNodeUtilization = cbQTNodeUtilization.isSelected
+    }
+
+    @FXML
+    fun onOptimizeQTCapacityClicked() {
+        optimizeQTCapacity = cbOptimizeQTCapacity.isSelected
+
+        // Disable manual capacity input if the capacity is being optimized
+        txtQuadTreeCapacity.isDisable = optimizeQTCapacity
+        txtQuadTreeCapacity.text = QuadTree.capacity.toString()
+    }
+
+    @FXML
+    fun onQuadTreeCapacityTyped() {
+        val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
+        if (capacity > 0) {
+            QuadTree.capacity = capacity
+            QuadTree.root.tryDivide()
+        }
+    }
+
+    /// =====Debug=====
+    @FXML
+    fun onBoundingBoxesClicked() {
+        drawBoundingBoxes = !drawBoundingBoxes
     }
 
     @FXML
@@ -236,11 +358,6 @@ class UIController {
     }
 
     @FXML
-    fun onBoundingBoxesClicked() {
-        drawBoundingBoxes = !drawBoundingBoxes
-    }
-
-    @FXML
     fun onWallElasticityChanged() {
         wallElasticity = sldWallElasticity.value.toFloat()
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
@@ -249,17 +366,13 @@ class UIController {
     /// =====Initialization and helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
-        restrictToNumericInput(txtSpawnRadius, false)
-        restrictToNumericInput(txtSpawnWidth, false)
-        restrictToNumericInput(txtSpawnHeight, false)
+        /// =====Singleton=====
+        instance = this
+        drawer = RenderUtil.drawer
 
-        restrictToNumericInput(txtGravityDirectionX)
-        restrictToNumericInput(txtGravityDirectionY)
-        restrictToNumericInput(txtGravityPointX)
-        restrictToNumericInput(txtGravityPointY)
-        restrictToNumericInput(txtGravityPointStrength)
-
-        restrictToNumericInput(txtTimeSpeed, false)
+        /// =====Object Properties=====
+        restrictToNumericInput(txtPropertyMass, false)
+        restrictToNumericInput(txtPropertyRotation)
 
         /// =====Spawn Object=====
         cbSpawnPreview.isSelected = drawSpawnPreview
@@ -268,6 +381,16 @@ class UIController {
         txtSpawnHeight.text = spawnHeight.toString()
         txtSpawnWidth.isDisable = true
         txtSpawnHeight.isDisable = true
+
+        restrictToNumericInput(txtSpawnRadius, false)
+        restrictToNumericInput(txtSpawnWidth, false)
+        restrictToNumericInput(txtSpawnHeight, false)
+
+        when (spawnObjectType) {
+            SpawnObjectType.CIRCLE -> onSpawnCircleClicked()
+            SpawnObjectType.RECTANGLE -> onSpawnRectangleClicked()
+            SpawnObjectType.NOTHING -> onSpawnNothingClicked()
+        }
 
         /// =====Gravity=====
         txtGravityDirectionX.text = gravityDirection.x.toString()
@@ -281,26 +404,44 @@ class UIController {
         txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
         txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
 
+        restrictToNumericInput(txtGravityDirectionX)
+        restrictToNumericInput(txtGravityDirectionY)
+        restrictToNumericInput(txtGravityPointX)
+        restrictToNumericInput(txtGravityPointY)
+        restrictToNumericInput(txtGravityPointStrength)
+
         /// =====Time=====
-        btnPause.isSelected = !FhysicsCore.running
-        btnStep.isDisable = FhysicsCore.running
+        btnTimePause.isSelected = !FhysicsCore.running
+        btnTimeStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
 
-        /// =====Debug=====
+        restrictToNumericInput(txtTimeSpeed, false)
+
+        /// =====QuadTree=====
         cbQuadTree.isSelected = drawQuadTree
-        cbQTNodeUtilization.isSelected = drawQTNodeUtilization
         cbQTNodeUtilization.isDisable = !drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
+        cbOptimizeQTCapacity.isSelected = optimizeQTCapacity
+        txtQuadTreeCapacity.text = QuadTree.capacity.toString()
 
+        restrictToNumericInput(txtQuadTreeCapacity, false)
+
+        /// =====Debug=====
+        cbBoundingBoxes.isSelected = drawBoundingBoxes
         cbObjectCount.isSelected = drawObjectCount
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
-        cbBoundingBoxes.isSelected = drawBoundingBoxes
 
         sldWallElasticity.value = wallElasticity.toDouble()
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
     }
 
+    /**
+     * Restricts the input of a text field to numeric values.
+     *
+     * @param textField The text field to restrict.
+     * @param allowNegatives Whether negative values are allowed.
+     */
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
         textField.textProperty().addListener { _, oldValue, newValue ->
             val regexPattern: String = if (allowNegatives) "-?\\d*\\.?\\d*" else "\\d*\\.?\\d*"
@@ -310,13 +451,25 @@ class UIController {
         }
     }
 
-    private fun parseTextField(textField: TextField): Float {
-        return textField.text.toFloatOrNull() ?: 0.0F
+    /**
+     * Parses the text of a text field to a float.
+     * If the text cannot be parsed, the default value is returned.
+     *
+     * @param textField The text field to parse.
+     * @param default The default value to return if the text cannot be parsed.
+     * @return The parsed float value or the default value if the text cannot be parsed.
+     */
+    private fun parseTextField(textField: TextField, default: Float = 0.0f): Float {
+        return textField.text.toFloatOrNull() ?: default
     }
 
     companion object {
+        /// =====Singleton=====
+        lateinit var instance: UIController
+        lateinit var drawer: FhysicsObjectDrawer
+
         /// =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.NOTHING
             private set
         var drawSpawnPreview: Boolean = true
             private set
@@ -327,11 +480,15 @@ class UIController {
         var spawnHeight: Float = 1.0F
             private set
 
+        /// =====Object Properties=====
+        private const val DEGREES_TO_RADIANS: Float = 0.017453292f
+        private const val RADIANS_TO_DEGREES: Float = 57.29578f
+
         /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
         val gravityDirection: Vector2 = Vector2(0.0f, 0.0f)
-        val gravityPoint: Vector2 = Vector2( // the center of the world
+        val gravityPoint: Vector2 = Vector2( // The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
@@ -342,12 +499,17 @@ class UIController {
         var timeSpeed: Float = 1.0F
             private set
 
-        /// =====Debug=====
+        /// =====QuadTree=====
         var drawQuadTree: Boolean = false
             private set
         var drawQTNodeUtilization: Boolean = true
             private set
+        var optimizeQTCapacity: Boolean = false
+            private set
 
+        /// =====Debug=====
+        var drawBoundingBoxes: Boolean = false
+            private set
         var drawQTCapacity: Boolean = false
             private set
         var drawMSPU: Boolean = true
@@ -355,8 +517,6 @@ class UIController {
         var drawUPS: Boolean = false
             private set
         var drawObjectCount: Boolean = false
-            private set
-        var drawBoundingBoxes: Boolean = false
             private set
 
         var wallElasticity: Float = 1.0F
@@ -367,7 +527,7 @@ class UIController {
 enum class SpawnObjectType {
     CIRCLE,
     RECTANGLE,
-    TRIANGLE
+    NOTHING
 }
 
 enum class GravityType {

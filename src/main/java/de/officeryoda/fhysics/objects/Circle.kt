@@ -3,7 +3,7 @@ package de.officeryoda.fhysics.objects
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
-import de.officeryoda.fhysics.engine.collision.Projection
+import de.officeryoda.fhysics.engine.Projection
 
 class Circle(
     position: Vector2,

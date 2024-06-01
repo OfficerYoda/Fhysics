@@ -1,11 +1,10 @@
 package de.officeryoda.fhysics.objects
 
+import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
-import de.officeryoda.fhysics.engine.collision.Projection
 import java.awt.Color
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -13,25 +12,12 @@ class Rectangle(
     position: Vector2,
     val width: Float,
     val height: Float,
-    rotation: Float = 0f, // in degrees
-) : FhysicsObject(position, width * height) {
-
-    val rotation: Float = rotation * DEGREES_TO_RADIANS // in radians
-
-    val minX: Float
-    val maxX: Float
-    val minY: Float
-    val maxY: Float
+    rotation: Float = 0f,
+) : FhysicsObject(position, width * height, rotation) {
 
     init {
         color = Color.decode("#4287f5")
-        static = true // rectangles must be static for min/max values to work
-
-        val offsets: Vector2 = calculateRotationOffsets()
-        minX = position.x - offsets.x
-        maxX = position.x + offsets.x
-        minY = position.y - offsets.y
-        maxY = position.y + offsets.y
+        static = true
     }
 
     override fun testCollision(other: Circle): CollisionInfo {
@@ -40,19 +26,6 @@ class Rectangle(
 
     override fun testCollision(other: Rectangle): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
-    }
-
-    private fun calculateRotationOffsets(): Vector2 {
-        val cosRot: Float = cos(rotation)
-        val sinRot: Float = sin(rotation)
-        val halfWidth: Float = width / 2
-        val halfHeight: Float = height / 2
-
-        // idk how this works, but it does
-        val offsetX: Float = abs(halfWidth * cosRot) + abs(halfHeight * sinRot)
-        val offsetY: Float = abs(halfWidth * sinRot) + abs(halfHeight * cosRot)
-
-        return Vector2(offsetX, offsetY)
     }
 
     fun getAxes(): List<Vector2> {
@@ -103,9 +76,5 @@ class Rectangle(
 
     override fun toString(): String {
         return "Rectangle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height, rotation=$rotation)"
-    }
-
-    companion object {
-        const val DEGREES_TO_RADIANS: Float = 0.017453292f
     }
 }

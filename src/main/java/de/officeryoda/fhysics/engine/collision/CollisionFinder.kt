@@ -1,11 +1,10 @@
 package de.officeryoda.fhysics.engine.collision
 
+import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.extensions.intersects
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.Rectangle
-import java.awt.geom.Rectangle2D
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -44,7 +43,7 @@ object CollisionFinder {
      * @return A CollisionInfo object containing information about the collision
      */
     fun testCollision(circle: Circle, rect: Rectangle): CollisionInfo {
-        if (!Rectangle2D.Float(rect.minX, rect.minY, rect.maxX - rect.minX, rect.maxY - rect.minY).intersects(circle)) {
+        if (!rect.boundingBox.overlaps(circle.boundingBox)) {
             return CollisionInfo()
         }
 

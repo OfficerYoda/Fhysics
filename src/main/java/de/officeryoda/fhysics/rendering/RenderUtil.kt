@@ -165,6 +165,10 @@ object RenderUtil {
         return a + (b - a) * t
     }
 
+    fun lerp(a: Double, b: Double, t: Double): Double {
+        return a + (b - a) * t
+    }
+
     /**
      * Linearly interpolates between two vectors
      *
@@ -191,6 +195,22 @@ object RenderUtil {
             javafxColor.green / 255.0,
             javafxColor.blue / 255.0,
             javafxColor.alpha / 255.0
+        )
+    }
+
+    /**
+     * Converts a javafx.scene.paint.Color to a java.awt.Color
+     *
+     * @param value the original color
+     * @return the converted color
+     */
+    fun paintToColor(value: Paint): Color {
+        val color = value as javafx.scene.paint.Color
+        return Color(
+            (color.red * 255).toInt(),
+            (color.green * 255).toInt(),
+            (color.blue * 255).toInt(),
+            (color.opacity * 255).toInt()
         )
     }
 

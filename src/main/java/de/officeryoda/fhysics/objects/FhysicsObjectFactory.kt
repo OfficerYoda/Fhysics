@@ -1,9 +1,10 @@
 package de.officeryoda.fhysics.objects
 
+import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
-import java.awt.geom.Rectangle2D
 import java.util.*
+import kotlin.math.PI
 
 object FhysicsObjectFactory {
     private val RANDOM: Random = Random()
@@ -28,10 +29,8 @@ object FhysicsObjectFactory {
         val width: Float = RANDOM.nextFloat(1.0F, 20.0F)
         val height: Float = RANDOM.nextFloat(1.0F, 20.0F)
         val pos: Vector2 = randomPosInsideBounds(0.0F)
-        val rot: Float = RANDOM.nextFloat(0.0F, 360.0F)
+        val rot: Float = RANDOM.nextFloat(0.0F, (2 * PI).toFloat())
         val rect = Rectangle(pos, width, height, rot)
-
-//        rect.velocity.set(randomVector2(-10.0, 10.0))
 
         return rect
     }
@@ -43,13 +42,13 @@ object FhysicsObjectFactory {
     }
 
     private fun randomPosInsideBounds(buffer: Float): Vector2 {
-        val border: Rectangle2D = FhysicsCore.BORDER
+        val border: BoundingBox = FhysicsCore.BORDER
         val minX: Float = buffer
-        val maxX: Float = border.width.toFloat() - minX - buffer
+        val maxX: Float = border.width - minX - buffer
         val x: Float = RANDOM.nextFloat(minX, maxX)
 
         val minY: Float = buffer
-        val maxY: Float = border.height.toFloat() - minY - buffer
+        val maxY: Float = border.height - minY - buffer
         val y: Float = RANDOM.nextFloat(minY, maxY)
 
         return Vector2(x, y)
