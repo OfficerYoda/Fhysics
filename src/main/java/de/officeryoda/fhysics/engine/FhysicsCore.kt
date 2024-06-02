@@ -58,7 +58,7 @@ object FhysicsCore {
 //        }
 
         // spawn a rotated rectangle in the center
-        val rect = Rectangle(Vector2((BORDER.width/ 2), (BORDER.height / 2)), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
+        val rect = Rectangle(Vector2((BORDER.width/ 2), (BORDER.height / 2)), 30.0F, 10.0F, Math.toRadians(0.0).toFloat())
         spawn(rect)
 
         objectsAtStepSizeIncrease = objectCount

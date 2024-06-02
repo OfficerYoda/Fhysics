@@ -2,14 +2,14 @@ package de.officeryoda.fhysics.objects
 
 import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
-import de.officeryoda.fhysics.engine.Projection
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
     val position: Vector2,
-    var mass: Float,
+    mass: Float,
     var rotation: Float = 0f, // in radians
 ) {
     val id: Int = FhysicsCore.nextId()
@@ -34,7 +34,17 @@ abstract class FhysicsObject protected constructor(
                 acceleration.set(Vector2.ZERO)
                 velocity.set(Vector2.ZERO)
             }
+
+            invMass = if (value) 0f else 1f / mass
         }
+
+    var mass: Float = mass
+        set(value) {
+            field = value
+            invMass = if (static) 0f else 1f / value
+        }
+    var invMass: Float = 1f / mass
+        protected set
 
     private var lastUpdate = -1
     private var lastBBoxUpdate = -1

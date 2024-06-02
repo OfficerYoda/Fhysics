@@ -17,20 +17,13 @@ object ElasticCollision : CollisionSolver() {
         // Calculate relative velocity before collision; circleB doesn't move relatively speaking
         val relativeVelocity: Vector2 = objB.velocity - objA.velocity
 
-        // Calculate relative velocity along the collision normal direction
-        val relativeVelocityAlongNormal: Float = relativeVelocity.dot(info.normal)
+        // Return if the objects are already moving away from each other
+        if (relativeVelocity.dot(info.normal) >= 0) return
 
-        // Calculate impulse (change in momentum)
-        val impulse: Float = (2.0F * relativeVelocityAlongNormal) / (objA.mass + objB.mass)
+        val impulseMagnitude: Float = -2f * relativeVelocity.dot(info.normal) / (objA.invMass + objB.invMass)
+        val impulse: Vector2 = impulseMagnitude * info.normal
 
-        // Apply impulse to update velocities
-        val restitution = 1.0F
-        val impulseMultiplier: Vector2 = impulse * restitution * info.normal
-
-        // Apply impulse to the objects
-        if (!objA.static)
-            objA.velocity += impulseMultiplier * objB.mass
-        if (!objB.static)
-            objB.velocity -= impulseMultiplier * objA.mass
+        objA.velocity -= impulse * objA.invMass
+        objB.velocity += impulse * objB.invMass
     }
 }
