@@ -6,6 +6,7 @@ import de.officeryoda.fhysics.engine.collision.ElasticCollision
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -52,14 +53,22 @@ object FhysicsCore {
 //            spawn(circle)
 //        }
 //
-//        for (i in 1..10) {
-//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
-//            spawn(rect)
-//        }
+        for (i in 1..10) {
+            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
+            spawn(rect)
+        }
 
         // spawn a rotated rectangle in the center
-        val rect = Rectangle(Vector2((BORDER.width/ 2), (BORDER.height / 2)), 30.0F, 10.0F, Math.toRadians(0.0).toFloat())
-        spawn(rect)
+//        val rect = Rectangle(Vector2((BORDER.width/ 2), (BORDER.height / 2)), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
+//        spawn(rect)
+
+        // spawn a rectangle to the left and to the right
+//        val rect2 = Rectangle(Vector2(20.0F, 50.0F), 10.0F, 10.0F)
+//        rect2.velocity += Vector2(5f, 0f)
+//        spawn(rect2)
+//        val rect3 = Rectangle(Vector2(60.0F, 50.0F), 10.0F, 10.0F)
+//        spawn(rect3)
+
 
         objectsAtStepSizeIncrease = objectCount
     }

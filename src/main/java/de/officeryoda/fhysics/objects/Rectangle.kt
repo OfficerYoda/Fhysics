@@ -17,7 +17,7 @@ class Rectangle(
 
     init {
         color = Color.decode("#4287f5")
-        static = true
+//        static = true
     }
 
     override fun testCollision(other: Circle): CollisionInfo {
@@ -28,11 +28,11 @@ class Rectangle(
         return CollisionFinder.testCollision(this, other)
     }
 
-    fun getAxes(): List<Vector2> {
+    fun getAxes(): Set<Vector2> {
         // Calculate the normals of the rectangle's sides based on its rotation
         val axis1 = Vector2(cos(rotation), sin(rotation))
         val axis2 = Vector2(-sin(rotation), cos(rotation))
-        return listOf(axis1, axis2)
+        return setOf(axis1, axis2)
     }
 
     override fun project(axis: Vector2): Projection {

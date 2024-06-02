@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.FhysicsObject
 import de.officeryoda.fhysics.objects.Rectangle
-import kotlin.math.min
 import kotlin.math.sqrt
 
 object CollisionFinder {
@@ -42,14 +41,15 @@ object CollisionFinder {
      * @return A CollisionInfo object containing information about the collision
      */
     fun testCollision(circle: Circle, rect: Rectangle): CollisionInfo {
+        // Check if the bounding boxes overlap
         if (!rect.boundingBox.overlaps(circle.boundingBox)) {
             return CollisionInfo()
         }
 
         // Get the rectangle's axes (normals of its sides)
-        val axes: List<Vector2> = rect.getAxes()
+        val axes: Set<Vector2> = rect.getAxes()
 
-        // For each axis...
+        // Check for no overlap on each axis
         axes.forEach { axis: Vector2 ->
             if (!testProjectionOverlap(axis, rect, circle).hasOverlap) return CollisionInfo()
         }
@@ -63,14 +63,11 @@ object CollisionFinder {
         if (!projResult.hasOverlap) return CollisionInfo()
 
         // Calculate the collision normal and overlap with the final axis
-        if(finalAxis.dot(rect.position - circle.position) < 0) {
+        if (finalAxis.dot(rect.position - circle.position) < 0) {
             finalAxis.negate()
         }
 
-        val overlap: Float = min(
-            projResult.projectionA.max - projResult.projectionB.min,
-            projResult.projectionB.max - projResult.projectionA.min
-        )
+        val overlap: Float = projResult.getOverlap()
 
         return CollisionInfo(circle, rect, finalAxis, overlap)
     }
@@ -97,13 +94,44 @@ object CollisionFinder {
     /**
      * Tests for collision between two rectangles
      *
-     * @param rect1 The first rectangle
-     * @param rect2 The second rectangle
+     * @param rectA The first rectangle
+     * @param rectB The second rectangle
      * @return A CollisionInfo object containing information about the collision
      */
-    fun testCollision(rect1: Rectangle, rect2: Rectangle): CollisionInfo {
-//        TODO("Not yet implemented")
-        return CollisionInfo()
+    fun testCollision(rectA: Rectangle, rectB: Rectangle): CollisionInfo {
+        // Check if the bounding boxes overlap
+        if (!rectA.boundingBox.overlaps(rectB.boundingBox)) {
+            return CollisionInfo()
+        }
+
+        // Get the rectangles axes (normals of its sides)
+        val axes: Set<Vector2> = rectA.getAxes() + rectB.getAxes()
+
+
+        var normal: Vector2 = Vector2.ZERO
+        var depth: Float = Float.MAX_VALUE
+
+        axes.forEach { axis: Vector2 ->
+            // Project the rectangles onto the axis
+            val projResult: ProjectionResult = testProjectionOverlap(axis, rectA, rectB)
+
+            // Check for no overlap
+            if (!projResult.hasOverlap) return CollisionInfo()
+
+            val overlap: Float = projResult.getOverlap()
+
+            // Check if the overlap is the smallest so far
+            if (overlap < depth) {
+                depth = overlap
+                normal = axis
+            }
+        }
+
+        if(normal.dot(rectB.position - rectA.position) < 0) {
+            normal.negate()
+        }
+
+        return CollisionInfo(rectA, rectB, normal, depth)
     }
 
     /**
