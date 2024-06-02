@@ -53,13 +53,15 @@ object FhysicsCore {
 //            spawn(circle)
 //        }
 //
-        for (i in 1..10) {
+        for (i in 1..20) {
             val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
             spawn(rect)
         }
 
         // spawn a rotated rectangle in the center
-//        val rect = Rectangle(Vector2((BORDER.width/ 2), (BORDER.height / 2)), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
+//        val rect =
+//            Rectangle(Vector2((BORDER.width / 2), (BORDER.height / 2)), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
+//        rect.velocity += Vector2(10f, 12f) * 2f
 //        spawn(rect)
 
         // spawn a rectangle to the left and to the right
@@ -131,14 +133,19 @@ object FhysicsCore {
     private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
         val points: CollisionInfo = objA.testCollision(objB)
 
-        if (points.overlap == -1.0F) return
+        if (!points.hasCollision) return
 
         COLLISION_SOLVER.solveCollision(points)
     }
 
     fun checkBorderCollision(obj: FhysicsObject) {
-        if (obj !is Circle) return
+        when (obj) {
+            is Circle -> handleCircleBorderCollision(obj)
+            is Rectangle -> handleRectangleBorderCollision(obj)
+        }
+    }
 
+    private fun handleCircleBorderCollision(obj: Circle) {
         when {
             obj.position.x - obj.radius < 0.0F -> {
                 obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
@@ -160,6 +167,31 @@ object FhysicsCore {
             obj.position.y + obj.radius > BORDER.height -> {
                 obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
                 obj.position.y = (BORDER.height - obj.radius)
+            }
+        }
+    }
+
+
+    private fun handleRectangleBorderCollision(obj: Rectangle) {
+        val axesBorderProjection: List<Pair<Vector2, Projection>> = listOf(
+            Pair(Vector2(-1f, 0f), Projection(Float.MIN_VALUE, BORDER.x)),
+            Pair(Vector2(1f, 0f), Projection(BORDER.x + BORDER.width, Float.MAX_VALUE)),
+            Pair(Vector2(0f, -1f), Projection(Float.MIN_VALUE, BORDER.y)),
+            Pair(Vector2(0f, 1f), Projection(BORDER.y + BORDER.height, Float.MAX_VALUE))
+        )
+
+        axesBorderProjection.forEach { (axis: Vector2, borderProj: Projection) ->
+            val projection: Projection = obj.project(axis)
+            val projResult = ProjectionResult(projection, borderProj)
+
+            if (projResult.hasOverlap) {
+                val overlap: Float = projResult.getOverlap()
+
+                obj.position -= axis * overlap
+                when {
+                    axis.x != 0f -> obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
+                    axis.y != 0f -> obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
+                }
             }
         }
     }

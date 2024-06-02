@@ -85,10 +85,7 @@ object CollisionFinder {
         val projectionA: Projection = objA.project(axis)
         val projectionB: Projection = objB.project(axis)
 
-        // If the projections do not overlap, then the rectangle and the circle do not collide
-        val overlap: Boolean = projectionA.overlaps(projectionB)
-
-        return ProjectionResult(overlap, projectionA, projectionB)
+        return ProjectionResult(projectionA, projectionB)
     }
 
     /**
@@ -106,7 +103,6 @@ object CollisionFinder {
 
         // Get the rectangles axes (normals of its sides)
         val axes: Set<Vector2> = rectA.getAxes() + rectB.getAxes()
-
 
         var normal: Vector2 = Vector2.ZERO
         var depth: Float = Float.MAX_VALUE
@@ -127,7 +123,7 @@ object CollisionFinder {
             }
         }
 
-        if(normal.dot(rectB.position - rectA.position) < 0) {
+        if (normal.dot(rectB.position - rectA.position) < 0) {
             normal.negate()
         }
 

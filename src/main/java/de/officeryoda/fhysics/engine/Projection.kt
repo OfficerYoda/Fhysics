@@ -23,11 +23,16 @@ data class Projection(val min: Float, val max: Float) {
 /**
  * Represents the result of a projection test
  *
- * @param hasOverlap Whether the projections overlap
  * @param projectionA The first projection
  * @param projectionB The second projection
  */
-data class ProjectionResult(val hasOverlap: Boolean, val projectionA: Projection, val projectionB: Projection) {
+data class ProjectionResult(val projectionA: Projection, val projectionB: Projection) {
+
+    /**
+     * Whether the projections have an overlap
+     */
+    val hasOverlap: Boolean = projectionA.overlaps(projectionB)
+
     /**
      * Returns the overlap of the projections
      * Will be negative if the projections don't overlap

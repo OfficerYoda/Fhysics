@@ -21,7 +21,7 @@ abstract class CollisionSolver {
                 else -> objA.mass
             }
 
-        val overlap: Vector2 = info.overlap * info.normal
+        val overlap: Vector2 = info.depth * info.normal
 
         // if both objects are non-static, separate them by their mass ratio else move the non-static object by the overlap
         if (!objA.static) objA.position -= if (!objB.static) (objB.mass / totalMass) * overlap else overlap

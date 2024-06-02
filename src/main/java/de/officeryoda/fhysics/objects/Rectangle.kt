@@ -60,18 +60,18 @@ class Rectangle(
         val halfHeight: Float = height / 2
 
         // Calculate the four corners of the rectangle before rotation
-        val topLeft = Vector2(position.x - halfWidth, position.y - halfHeight)
-        val topRight = Vector2(position.x + halfWidth, position.y - halfHeight)
-        val bottomRight = Vector2(position.x + halfWidth, position.y + halfHeight)
-        val bottomLeft = Vector2(position.x - halfWidth, position.y + halfHeight)
+        val topLeft = Vector2(position.x - halfWidth, position.y + halfHeight)
+        val topRight = Vector2(position.x + halfWidth, position.y + halfHeight)
+        val bottomLeft = Vector2(position.x - halfWidth, position.y - halfHeight)
+        val bottomRight = Vector2(position.x + halfWidth, position.y - halfHeight)
 
         // Rotate the corners around the rectangle's center
         val rotatedTopLeft: Vector2 = topLeft.rotatedAround(position, rotation)
         val rotatedTopRight: Vector2 = topRight.rotatedAround(position, rotation)
-        val rotatedBottomRight: Vector2 = bottomRight.rotatedAround(position, rotation)
         val rotatedBottomLeft: Vector2 = bottomLeft.rotatedAround(position, rotation)
+        val rotatedBottomRight: Vector2 = bottomRight.rotatedAround(position, rotation)
 
-        return listOf(rotatedTopLeft, rotatedTopRight, rotatedBottomRight, rotatedBottomLeft)
+        return listOf(rotatedTopLeft, rotatedTopRight, rotatedBottomLeft, rotatedBottomRight)
     }
 
     override fun clone(): FhysicsObject {
