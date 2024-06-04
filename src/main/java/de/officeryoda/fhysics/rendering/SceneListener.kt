@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
@@ -64,31 +65,77 @@ object SceneListener {
     private var canceledDragSpawn: Boolean = false
 
     /**
+     * The radius around the first polygon vertex where the polygon closes when clicked inside
+     */
+    const val POLYGON_CLOSE_RADIUS = 1.0f
+
+    /**
+     * The vertices of the polygon being created
+     */
+    var polyVertices: MutableList<Vector2> = ArrayList()
+
+    /**
      * Handles mouse pressed events
      *
      * @param e the mouse event
      */
     fun onMousePressed(e: MouseEvent) {
         when (e.button) {
-            MouseButton.PRIMARY -> {
-                // Select object if hovered, otherwise spawn object
-                if (drawer.hoveredObject != null) {
-                    drawer.selectedObject = drawer.hoveredObject
-                    UIController.instance.expandObjectPropertiesPane()
-                } else {
-                    drawer.selectedObject = null
-                }
-            }
-
-            MouseButton.SECONDARY -> {
-                rightPressed = true
-                rightPressedPos = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-            }
-
+            MouseButton.PRIMARY -> handlePrimaryButtonPressed()
+            MouseButton.SECONDARY -> handleSecondaryButtonPressed()
             else -> {}
         }
 
         UIController.instance.updateObjectPropertiesValues()
+    }
+
+    /**
+     * Handles the press of the primary mouse button
+     */
+    private fun handlePrimaryButtonPressed() {
+        // Add a vertex to the polygon
+        if (UIController.spawnObjectType == SpawnObjectType.POLYGON) {
+            val pos: Vector2 = mouseWorldPos.copy()
+
+            // Create the polygon if the polygon is complete
+            if (polyVertices.size > 2) {
+                val startPos: Vector2 = polyVertices.first()
+                if (pos.sqrDistance(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
+                    // Calculate the center of the polygon
+                    val polyCenter: Vector2 =
+                        polyVertices.reduce { acc, vector2 -> acc + vector2 } / polyVertices.size.toFloat()
+                    // Map the vertices relative to the center
+                    val vertices: Array<Vector2> = polyVertices.map { it - polyCenter }.toTypedArray()
+                    // create the polygon
+                    val polygon = Polygon(polyCenter, vertices)
+
+                    FhysicsCore.spawn(polygon)
+
+                    polyVertices.clear()
+                    return
+                }
+            }
+
+            polyVertices.add(pos)
+
+            return
+        }
+
+        // Select object if hovered, otherwise spawn object
+        if (drawer.hoveredObject != null) {
+            drawer.selectedObject = drawer.hoveredObject
+            UIController.instance.expandObjectPropertiesPane()
+        } else {
+            drawer.selectedObject = null
+        }
+    }
+
+    /**
+     * Handles the press of the secondary mouse button
+     */
+    private fun handleSecondaryButtonPressed() {
+        rightPressed = true
+        rightPressedPos = mouseWorldPos.copy()
     }
 
     /**
@@ -98,18 +145,16 @@ object SceneListener {
      */
     fun onMouseReleased(e: MouseEvent) {
         when (e.button) {
-            MouseButton.PRIMARY -> handlePrimaryButtonRelease()
-            MouseButton.SECONDARY -> handleSecondaryButtonRelease()
+            MouseButton.PRIMARY -> handlePrimaryButtonReleased()
+            MouseButton.SECONDARY -> handleSecondaryButtonReleased()
             else -> {}
         }
     }
 
     /**
      * Handles the release of the primary mouse button
-     *
-     * @param e the mouse event
      */
-    private fun handlePrimaryButtonRelease() {
+    private fun handlePrimaryButtonReleased() {
         when {
             hasDraggedMinDistance() -> {
                 if (!canceledDragSpawn) {
@@ -117,34 +162,30 @@ object SceneListener {
                     UIController.instance.updateSpawnPreview()
                 }
             }
+
             drawer.hoveredObject == null && !canceledDragSpawn -> {
                 spawnObject()
             }
         }
 
-        resetDragState()
-    }
-
-    /**
-     * Resets the drag state
-     */
-    private fun resetDragState() {
+        // Reset the drag state
         canceledDragSpawn = false
         dragStartWorldPos = null
     }
 
     /**
      * Handles the release of the secondary mouse button
-     *
-     * @param e the mouse event
      */
-    private fun handleSecondaryButtonRelease() {
+    private fun handleSecondaryButtonReleased() {
         // Cancel drag spawning
         if (dragStartWorldPos != null) {
             canceledDragSpawn = true
             dragStartWorldPos = null
             UIController.instance.updateSpawnPreview()
         }
+
+        // Clear the polygon vertices for a new polygon
+        polyVertices.clear()
 
         rightPressed = false
     }
@@ -215,7 +256,6 @@ object SceneListener {
      * Creates a preview of a rectangle with the current mouse position
      * and the position where the dragging started
      *
-     * @param e the mouse event
      * @return the preview rectangle
      */
     private fun dragRectanglePreview() {
@@ -281,8 +321,6 @@ object SceneListener {
 
     /**
      * Spawns an object at the mouse position
-     *
-     * @param e the mouse event
      */
     private fun spawnObject() {
         // Check if spawn pos is outside the border

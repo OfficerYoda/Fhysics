@@ -28,6 +28,10 @@
                      <children>
                               <ToggleButtonGroup selectionType="SINGLE">
                                   <toggles>
+                                      <ToggleButton onMouseClicked="#onSpawnNothingClicked" selected="true" text="Nothing" textAlignment="CENTER">
+                                 <tooltip>
+                                    <Tooltip text="Select to not spawn anything when clicking" />
+                                 </tooltip></ToggleButton>
                                       <ToggleButton onMouseClicked="#onSpawnCircleClicked" text="Circle" textAlignment="CENTER">
                                  <tooltip>
                                     <Tooltip text="Select to spawn a circle" />
@@ -36,10 +40,11 @@
                                  <tooltip>
                                     <Tooltip text="Select to spawn a rectangle" />
                                  </tooltip></ToggleButton>
-                                      <ToggleButton onMouseClicked="#onSpawnNothingClicked" selected="true" text="Nothing" textAlignment="CENTER">
+                              <ToggleButton onMouseClicked="#onSpawnPolygonClicked" text="Polygon" textAlignment="CENTER">
                                  <tooltip>
-                                    <Tooltip text="Select to not spawn anything when clicking" />
-                                 </tooltip></ToggleButton>
+                                    <Tooltip text="Click on screen to create" />
+                                 </tooltip>
+                              </ToggleButton>
                                   </toggles>
                                   <opaqueInsets>
                                       <Insets />

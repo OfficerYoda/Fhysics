@@ -29,7 +29,7 @@ class Rectangle(
 
     override fun project(axis: Vector2): Projection {
         // Project the rectangle's vertices onto the axis and return the range of scalar values
-        val vertices: List<Vector2> = getVertices()
+        val vertices: List<Vector2> = getTranslatedVertices()
         val min: Float = vertices.minOf { it.dot(axis) }
         val max: Float = vertices.maxOf { it.dot(axis) }
         return Projection(min, max)
@@ -47,7 +47,7 @@ class Rectangle(
                 rotatedPos.y in (position.y - halfHeight)..(position.y + halfHeight)
     }
 
-    private fun getVertices(): List<Vector2> {
+    private fun getTranslatedVertices(): List<Vector2> {
         val halfWidth: Float = width / 2
         val halfHeight: Float = height / 2
 

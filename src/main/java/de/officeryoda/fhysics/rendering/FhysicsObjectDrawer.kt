@@ -7,6 +7,7 @@ import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.lerp
@@ -148,22 +149,12 @@ class FhysicsObjectDrawer : Application() {
 
         if (hoveredObject != null) drawObjectPulsing(hoveredObject!!)
         if (selectedObject != null && selectedObject !== hoveredObject) drawObjectPulsing(selectedObject!!)
-        if (UIController.drawSpawnPreview && this.hoveredObject == null) drawSpawnPreview()
+        if (UIController.drawSpawnPreview && hoveredObject == null) drawSpawnPreview()
         if (UIController.drawQuadTree) QuadTree.root.drawNode(this)
 
         drawBorder()
         drawDebugPoints()
         drawStats()
-    }
-
-    private fun checkForHoveredObject(): FhysicsObject? {
-        // Check if the mouse is still hovering over the object
-        val obj: FhysicsObject? =
-            this.hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
-                ?: QuadTree.root.query(SceneListener.mouseWorldPos)
-
-        // If the object is in the remove queue, don't return it
-        return obj.takeUnless { QuadTree.removeQueue.contains(it) }
     }
 
     private fun drawObjectPulsing(obj: FhysicsObject) {
@@ -172,20 +163,11 @@ class FhysicsObjectDrawer : Application() {
         val color = Color(c.red, c.green, c.blue, alpha)
         setFillColor(color)
 
-        if (obj is Circle) {
-            drawCircle(obj)
-        } else if (obj is Rectangle) {
-            drawRectangle(obj)
+        when (obj) {
+            is Circle -> drawCircle(obj)
+            is Rectangle -> drawRectangle(obj)
+            is Polygon -> drawPolygon(obj)
         }
-    }
-
-    private fun lerpZoom() {
-        // A value I think looks good
-        val interpolation = 0.12F
-
-        // Lerp the zoom and zoomCenter
-        zoom = lerp(zoom, targetZoom, interpolation.toDouble())
-        zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
     }
 
     fun drawObject(obj: FhysicsObject) {
@@ -197,23 +179,22 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(obj.color)
 
         // Draw Object
-        if (obj is Circle) {
-            drawCircle(obj)
-        } else if (obj is Rectangle) {
-            drawRectangle(obj)
+        when (obj) {
+            is Circle -> drawCircle(obj)
+            is Rectangle -> drawRectangle(obj)
+            is Polygon -> drawPolygon(obj)
         }
     }
 
     private fun drawCircle(circle: Circle) {
         val pos: Vector2 = worldToScreen(circle.position)
         val radius: Double = circle.radius * zoom
-        val diameter: Double = 2 * radius
 
         gc.fillOval(
             pos.x - radius,
             pos.y - radius,
-            diameter,
-            diameter
+            2 * radius,
+            2 * radius
         )
     }
 
@@ -241,11 +222,61 @@ class FhysicsObjectDrawer : Application() {
         gc.restore()
     }
 
+    private fun drawPolygon(poly: Polygon) {
+        val vertices: List<Vector2> = poly.getTranslatedVertices()
+
+        val center: Vector2 = poly.position
+        val xPoints = DoubleArray(vertices.size)
+        val yPoints = DoubleArray(vertices.size)
+
+        for (i: Int in vertices.indices) {
+            xPoints[i] = worldToScreenX(vertices[i].x + center.x)
+            yPoints[i] = worldToScreenY(vertices[i].y + center.y)
+        }
+
+        gc.fillPolygon(xPoints, yPoints, vertices.size)
+    }
+
     private fun drawSpawnPreview() {
         // Triangle temp for nothing selected to spawn
-        if (UIController.spawnObjectType == SpawnObjectType.NOTHING) return
+        when (UIController.spawnObjectType) {
+            SpawnObjectType.NOTHING -> return
+            SpawnObjectType.POLYGON -> drawPolygonPreview()
+            else -> drawObject(spawnPreview!!)
+        }
+    }
 
-        drawObject(spawnPreview!!)
+    private fun drawPolygonPreview() {
+        val vertices: List<Vector2> = SceneListener.polyVertices
+
+        if (vertices.isEmpty()) return
+
+        gc.beginPath()
+
+        for (i: Int in vertices.indices) {
+            val vertex: Vector2 = worldToScreen(vertices[i])
+            gc.lineTo(vertex.x.toDouble(), vertex.y.toDouble())
+        }
+
+        val c: Color = Color.WHITE
+        val transparentC = Color(c.red, c.green, c.blue, 128)
+
+        setStrokeColor(c)
+        setFillColor(transparentC)
+
+        gc.stroke()
+        gc.fill()
+
+        // Draw a circle at the first vertex for easier closing
+        setFillColor(Color(0, 255, 0, 128))
+        val firstVertex: Vector2 = worldToScreen(vertices.first())
+        val radius: Double = SceneListener.POLYGON_CLOSE_RADIUS.toDouble() * zoom
+        gc.fillOval(
+            firstVertex.x.toDouble() - radius,
+            firstVertex.y.toDouble() - radius,
+            2 * radius,
+            2 * radius
+        )
     }
 
     private fun drawDebugPoints() {
@@ -419,6 +450,26 @@ class FhysicsObjectDrawer : Application() {
     }
 
     /// =====Utility functions=====
+    private fun lerpZoom() {
+        // A value I think looks good
+        val interpolation = 0.12F
+
+        // Lerp the zoom and zoomCenter
+        zoom = lerp(zoom, targetZoom, interpolation.toDouble())
+        zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
+    }
+
+    private fun checkForHoveredObject(): FhysicsObject? {
+
+        // Check if the mouse is still hovering over the object
+        val obj: FhysicsObject? =
+            this.hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
+                ?: QuadTree.root.query(SceneListener.mouseWorldPos)
+
+        // If the object is in the remove queue, don't return it
+        return obj.takeUnless { QuadTree.removeQueue.contains(it) }
+    }
+
     fun resetZoom() {
         targetZoom = calculateZoom()
         zoom = targetZoom

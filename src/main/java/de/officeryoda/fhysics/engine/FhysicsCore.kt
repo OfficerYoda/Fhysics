@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.engine.collision.ElasticCollision
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -53,10 +52,10 @@ object FhysicsCore {
 //            spawn(circle)
 //        }
 //
-        for (i in 1..20) {
-            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
-            spawn(rect)
-        }
+//        for (i in 1..20) {
+//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
+//            spawn(rect)
+//        }
 
         // spawn a rotated rectangle in the center
 //        val rect =

@@ -18,12 +18,18 @@ class Polygon(
     }
 
     override fun contains(pos: Vector2): Boolean {
+        if(!boundingBox.contains(pos)) return false
+
         // TODO: This might be wrong
         // Rotate the point to make the polygon axis-aligned
         val rotatedPos: Vector2 = pos.rotatedAround(position, -rotation)
 
         // Check if the point is inside the axis-aligned polygon
         return vertices.all { it.dot(rotatedPos) >= 0 }
+    }
+
+    fun getTranslatedVertices(): List<Vector2> {
+        return vertices.map { it.rotatedAround(position, rotation) }
     }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {

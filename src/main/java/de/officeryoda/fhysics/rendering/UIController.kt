@@ -113,6 +113,13 @@ class UIController {
 
     /// =====Spawn Object=====
     @FXML
+    fun onSpawnNothingClicked() {
+        spawnObjectType = SpawnObjectType.NOTHING
+        updateSpawnPreview()
+        setSpawnFieldAvailability(radius = false, width = false, height = false)
+    }
+
+    @FXML
     fun onSpawnCircleClicked() {
         spawnObjectType = SpawnObjectType.CIRCLE
         updateSpawnPreview()
@@ -127,10 +134,12 @@ class UIController {
     }
 
     @FXML
-    fun onSpawnNothingClicked() {
-        spawnObjectType = SpawnObjectType.NOTHING
+    fun onSpawnPolygonClicked() {
+        spawnObjectType = SpawnObjectType.POLYGON
         updateSpawnPreview()
         setSpawnFieldAvailability(radius = false, width = false, height = false)
+        // Clear the polygon vertices list for a new polygon
+        SceneListener.polyVertices.clear()
     }
 
     fun updateSpawnPreview() {
@@ -143,6 +152,11 @@ class UIController {
         val obj: FhysicsObject = when (spawnObjectType) {
             SpawnObjectType.CIRCLE -> Circle(SceneListener.mouseWorldPos, spawnRadius)
             SpawnObjectType.RECTANGLE -> Rectangle(SceneListener.mouseWorldPos, spawnWidth, spawnHeight)
+            SpawnObjectType.POLYGON -> {
+                val circle = Circle(SceneListener.mouseWorldPos, spawnRadius)
+                circle.color = Color.RED
+                circle
+            }
             else -> throw IllegalArgumentException("Invalid spawn object type")
         }
 
@@ -387,9 +401,10 @@ class UIController {
         restrictToNumericInput(txtSpawnHeight, false)
 
         when (spawnObjectType) {
+            SpawnObjectType.NOTHING -> onSpawnNothingClicked()
             SpawnObjectType.CIRCLE -> onSpawnCircleClicked()
             SpawnObjectType.RECTANGLE -> onSpawnRectangleClicked()
-            SpawnObjectType.NOTHING -> onSpawnNothingClicked()
+            SpawnObjectType.POLYGON -> onSpawnPolygonClicked()
         }
 
         /// =====Gravity=====
@@ -469,7 +484,7 @@ class UIController {
         lateinit var drawer: FhysicsObjectDrawer
 
         /// =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.POLYGON
             private set
         var drawSpawnPreview: Boolean = true
             private set
@@ -487,7 +502,7 @@ class UIController {
         /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0f, 0.0f)
+        val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
         val gravityPoint: Vector2 = Vector2( // The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
@@ -525,9 +540,10 @@ class UIController {
 }
 
 enum class SpawnObjectType {
+    NOTHING,
     CIRCLE,
     RECTANGLE,
-    NOTHING
+    POLYGON
 }
 
 enum class GravityType {
