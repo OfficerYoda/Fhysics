@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
 
 /**
  * Data class representing collision information between two physics objects.

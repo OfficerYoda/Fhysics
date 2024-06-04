@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.objects
+package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
@@ -18,14 +18,6 @@ class Rectangle(
     init {
         color = Color.decode("#4287f5")
 //        static = true
-    }
-
-    override fun testCollision(other: Circle): CollisionInfo {
-        return CollisionFinder.testCollision(other, this)
-    }
-
-    override fun testCollision(other: Rectangle): CollisionInfo {
-        return CollisionFinder.testCollision(this, other)
     }
 
     fun getAxes(): Set<Vector2> {
@@ -72,6 +64,22 @@ class Rectangle(
         val rotatedBottomRight: Vector2 = bottomRight.rotatedAround(position, rotation)
 
         return listOf(rotatedTopLeft, rotatedTopRight, rotatedBottomLeft, rotatedBottomRight)
+    }
+
+    override fun testCollision(other: FhysicsObject): CollisionInfo {
+        return other.testCollision(this) // works because FhysicsObject is abstract (aka double dispatch)
+    }
+
+    override fun testCollision(other: Circle): CollisionInfo {
+        return CollisionFinder.testCollision(other, this)
+    }
+
+    override fun testCollision(other: Rectangle): CollisionInfo {
+        return CollisionFinder.testCollision(this, other)
+    }
+
+    override fun testCollision(other: Polygon): CollisionInfo {
+        return CollisionFinder.testCollision(other, this)
     }
 
     override fun clone(): FhysicsObject {

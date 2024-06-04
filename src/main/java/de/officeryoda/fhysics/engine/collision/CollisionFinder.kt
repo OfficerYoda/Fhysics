@@ -3,9 +3,10 @@ package de.officeryoda.fhysics.engine.collision
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.ProjectionResult
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Circle
-import de.officeryoda.fhysics.objects.FhysicsObject
-import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import kotlin.math.sqrt
 
 object CollisionFinder {
@@ -128,6 +129,18 @@ object CollisionFinder {
         }
 
         return CollisionInfo(rectA, rectB, normal, depth)
+    }
+
+    fun testCollision(poly: Polygon, circle: Circle): CollisionInfo {
+        return CollisionInfo()
+    }
+
+    fun testCollision(poly: Polygon, rect: Rectangle): CollisionInfo {
+        return CollisionInfo()
+    }
+
+    fun testCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
+        return CollisionInfo()
     }
 
     /**

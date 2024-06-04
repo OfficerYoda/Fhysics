@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.objects
+package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore

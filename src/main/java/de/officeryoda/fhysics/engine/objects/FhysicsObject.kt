@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.objects
+package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
@@ -67,6 +67,20 @@ abstract class FhysicsObject protected constructor(
         acceleration.set(Vector2.ZERO)
     }
 
+    abstract fun project(axis: Vector2): Projection
+
+    abstract fun contains(pos: Vector2): Boolean
+
+    abstract fun testCollision(other: FhysicsObject): CollisionInfo
+
+    abstract fun testCollision(other: Circle): CollisionInfo
+
+    abstract fun testCollision(other: Rectangle): CollisionInfo
+
+    abstract fun testCollision(other: Polygon): CollisionInfo
+
+    abstract fun clone(): FhysicsObject
+
     private fun colorFromIndex(): Color {
         val colors: List<Color> =
             listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
@@ -75,24 +89,6 @@ abstract class FhysicsObject protected constructor(
 //
 //        return color
     }
-
-    fun testCollision(other: FhysicsObject): CollisionInfo {
-        return when (other) {
-            is Circle -> testCollision(other)
-            is Rectangle -> testCollision(other)
-            else -> throw IllegalArgumentException("Unsupported object type for collision")
-        }
-    }
-
-    abstract fun testCollision(other: Circle): CollisionInfo
-
-    abstract fun testCollision(other: Rectangle): CollisionInfo
-
-    abstract fun project(axis: Vector2): Projection
-
-    abstract fun contains(pos: Vector2): Boolean
-
-    abstract fun clone(): FhysicsObject
 
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"

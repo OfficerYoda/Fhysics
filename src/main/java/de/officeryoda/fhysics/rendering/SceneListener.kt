@@ -3,7 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
 import javafx.scene.input.*
@@ -205,7 +205,7 @@ object SceneListener {
         onMouseMoved(e)
 
         when (e.button) {
-            MouseButton.PRIMARY -> dragRectanglePreview(e)
+            MouseButton.PRIMARY -> dragRectanglePreview()
             MouseButton.SECONDARY -> dragCamera(e)
             else -> {}
         }
@@ -218,7 +218,7 @@ object SceneListener {
      * @param e the mouse event
      * @return the preview rectangle
      */
-    private fun dragRectanglePreview(e: MouseEvent) {
+    private fun dragRectanglePreview() {
         // Don't create a drag preview if the spawn object type is not a rectangle
         if (UIController.spawnObjectType != SpawnObjectType.RECTANGLE) return
 

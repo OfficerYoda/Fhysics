@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
 
