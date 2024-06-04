@@ -15,6 +15,13 @@ data class Vector2
     var x: Float = 0.0F, var y: Float = 0.0F
 ) {
     /**
+     * Constructs a Vector2 with the same components as another Vector2.
+     *
+     * @param other The other Vector2.
+     */
+    constructor(other: Vector2) : this(other.x, other.y)
+
+    /**
      * Returns a normalized version of the  Vector2.
      *
      * @return The normalized Vector2.
@@ -100,6 +107,17 @@ data class Vector2
     }
 
     /**
+     * Sets the components of the Vector2.
+     *
+     * @param x The new x-coordinate.
+     * @param y The new y-coordinate.
+     */
+    fun set(x: Float, y: Float) {
+        this.x = x
+        this.y = y
+    }
+
+    /**
      * Sets the components of this Vector2 to be equal to another Vector2.
      *
      * @param other The Vector2 whose components will be copied.
@@ -107,6 +125,14 @@ data class Vector2
     fun set(other: Vector2) {
         this.x = other.x
         this.y = other.y
+    }
+
+    /**
+     * Negates the Vector2.
+     */
+    fun negate() {
+        this.x = -this.x
+        this.y = -this.y
     }
 
     /**

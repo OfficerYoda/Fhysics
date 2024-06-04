@@ -3,12 +3,14 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Circle
 import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
 import javafx.scene.input.*
+import java.awt.Color
 import kotlin.math.exp
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sign
 
 object SceneListener {
@@ -47,6 +49,21 @@ object SceneListener {
         }
 
     /**
+     * The minimum distance the mouse has to be dragged to spawn a rectangle
+     */
+    private const val MIN_DRAG_DISTANCE: Float = 2.0F
+
+    /**
+     * The position of the mouse when the dragging started
+     */
+    private var dragStartWorldPos: Vector2? = null
+
+    /**
+     * Whether the drag spawn was canceled by right-clicking
+     */
+    private var canceledDragSpawn: Boolean = false
+
+    /**
      * Handles mouse pressed events
      *
      * @param e the mouse event
@@ -54,12 +71,12 @@ object SceneListener {
     fun onMousePressed(e: MouseEvent) {
         when (e.button) {
             MouseButton.PRIMARY -> {
+                // Select object if hovered, otherwise spawn object
                 if (drawer.hoveredObject != null) {
                     drawer.selectedObject = drawer.hoveredObject
                     UIController.instance.expandObjectPropertiesPane()
                 } else {
                     drawer.selectedObject = null
-                    spawnObject(e)
                 }
             }
 
@@ -80,9 +97,56 @@ object SceneListener {
      * @param e the mouse event
      */
     fun onMouseReleased(e: MouseEvent) {
-        if (e.button == MouseButton.SECONDARY) {
-            rightPressed = false
+        when (e.button) {
+            MouseButton.PRIMARY -> handlePrimaryButtonRelease()
+            MouseButton.SECONDARY -> handleSecondaryButtonRelease()
+            else -> {}
         }
+    }
+
+    /**
+     * Handles the release of the primary mouse button
+     *
+     * @param e the mouse event
+     */
+    private fun handlePrimaryButtonRelease() {
+        when {
+            hasDraggedMinDistance() -> {
+                if (!canceledDragSpawn) {
+                    FhysicsCore.spawn(drawer.spawnPreview!!.clone())
+                    UIController.instance.updateSpawnPreview()
+                }
+            }
+            drawer.hoveredObject == null && !canceledDragSpawn -> {
+                spawnObject()
+            }
+        }
+
+        resetDragState()
+    }
+
+    /**
+     * Resets the drag state
+     */
+    private fun resetDragState() {
+        canceledDragSpawn = false
+        dragStartWorldPos = null
+    }
+
+    /**
+     * Handles the release of the secondary mouse button
+     *
+     * @param e the mouse event
+     */
+    private fun handleSecondaryButtonRelease() {
+        // Cancel drag spawning
+        if (dragStartWorldPos != null) {
+            canceledDragSpawn = true
+            dragStartWorldPos = null
+            UIController.instance.updateSpawnPreview()
+        }
+
+        rightPressed = false
     }
 
     /**
@@ -140,6 +204,54 @@ object SceneListener {
         // to update the mouse position
         onMouseMoved(e)
 
+        when (e.button) {
+            MouseButton.PRIMARY -> dragRectanglePreview(e)
+            MouseButton.SECONDARY -> dragCamera(e)
+            else -> {}
+        }
+    }
+
+    /**
+     * Creates a preview of a rectangle with the current mouse position
+     * and the position where the dragging started
+     *
+     * @param e the mouse event
+     * @return the preview rectangle
+     */
+    private fun dragRectanglePreview(e: MouseEvent) {
+        // Don't create a drag preview if the spawn object type is not a rectangle
+        if (UIController.spawnObjectType != SpawnObjectType.RECTANGLE) return
+
+        // Set the drag start position if it is not set yet
+        if (dragStartWorldPos == null) {
+            dragStartWorldPos = mouseWorldPos.copy()
+        }
+
+        // Don't create a drag preview if the drag distance is too small
+        if (!hasDraggedMinDistance()) return
+
+        // Calculate the corners of the rectangle
+        val minX: Float = min(dragStartWorldPos!!.x, mouseWorldPos.x)
+        val maxX: Float = max(dragStartWorldPos!!.x, mouseWorldPos.x)
+        val minY: Float = min(dragStartWorldPos!!.y, mouseWorldPos.y)
+        val maxY: Float = max(dragStartWorldPos!!.y, mouseWorldPos.y)
+
+        // Create the preview rectangle
+        val size = Vector2(maxX - minX, maxY - minY)
+        val pos: Vector2 = Vector2(minX, minY) + size / 2f
+
+        val rect = Rectangle(pos, size.x, size.y)
+        rect.color = Color(rect.color.red, rect.color.green, rect.color.blue, 128)
+
+        drawer.spawnPreview = rect
+    }
+
+    /**
+     * Drags the camera by moving the zoom center
+     *
+     * @param e the mouse event
+     */
+    private fun dragCamera(e: MouseEvent) {
         if (rightPressed) {
             val mousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
             val deltaMousePos: Vector2 = rightPressedPos - mousePos
@@ -172,38 +284,28 @@ object SceneListener {
      *
      * @param e the mouse event
      */
-    private fun spawnObject(e: MouseEvent) {
+    private fun spawnObject() {
         // Check if spawn pos is outside the border
-        val transformedMousePos: Vector2 = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-        if (!FhysicsCore.BORDER.contains(transformedMousePos)) return
+        if (!FhysicsCore.BORDER.contains(mouseWorldPos)) return
 
-        when (UIController.spawnObjectType) {
-            SpawnObjectType.CIRCLE -> spawnCircle(transformedMousePos)
-            SpawnObjectType.RECTANGLE -> spawnRectangle(transformedMousePos)
-            else -> {}
+        val validParams: Boolean = when (UIController.spawnObjectType) {
+            SpawnObjectType.CIRCLE -> UIController.spawnRadius > 0.0F
+            SpawnObjectType.RECTANGLE -> UIController.spawnWidth > 0.0F && UIController.spawnHeight > 0.0F && !hasDraggedMinDistance()
+            else -> false
         }
+
+        if (!validParams) return
+
+        FhysicsCore.spawn(drawer.spawnPreview!!.clone())
     }
 
     /**
-     * Spawns a circle at the mouse position
+     * Checks if the mouse has been dragged over or the minimum distance
      *
-     * @param position the world spawn position
-     * @return the spawned circle
+     * @return true if the mouse has been dragged over or the minimum distance
      */
-    private fun spawnCircle(position: Vector2) {
-        if (UIController.spawnRadius <= 0.0F) return
-        FhysicsCore.spawn(Circle(position, UIController.spawnRadius))
+    private fun hasDraggedMinDistance(): Boolean {
+        if (dragStartWorldPos == null) return false
+        return (mouseWorldPos - dragStartWorldPos!!).sqrMagnitude() >= MIN_DRAG_DISTANCE * MIN_DRAG_DISTANCE
     }
-
-    /**
-     * Spawns a rectangle using the mouse position
-     *
-     * @param position the world spawn position
-     * @return the spawned rectangle
-     */
-    private fun spawnRectangle(position: Vector2) {
-        if (UIController.spawnWidth <= 0.0F || UIController.spawnHeight <= 0.0F) return
-        FhysicsCore.spawn(Rectangle(position, UIController.spawnWidth, UIController.spawnHeight))
-    }
-
 }

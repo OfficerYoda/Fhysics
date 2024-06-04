@@ -30,7 +30,9 @@ object FhysicsObjectFactory {
         val height: Float = RANDOM.nextFloat(1.0F, 20.0F)
         val pos: Vector2 = randomPosInsideBounds(0.0F)
         val rot: Float = RANDOM.nextFloat(0.0F, (2 * PI).toFloat())
+
         val rect = Rectangle(pos, width, height, rot)
+        rect.velocity += (randomVector2(-10.0F, 10.0F))
 
         return rect
     }

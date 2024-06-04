@@ -12,33 +12,19 @@ abstract class CollisionSolver {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
-        // Early return if both objects are static
-        if (objA.static && objB.static) {
-            return
-        }
+        if (objA.static && objB.static) return
 
-        // Calculate total mass if at least one object is not static
-        val totalMass: Float = when {
-            !objA.static && !objB.static -> objA.mass + objB.mass
-            objA.static -> objB.mass
-            else -> objA.mass
-        }
+        val totalMass: Float =
+            when {
+                !objA.static && !objB.static -> objA.mass + objB.mass
+                objA.static -> objB.mass
+                else -> objA.mass
+            }
 
-        // Calculate the overlap
-        val overlap: Vector2 = info.overlap * info.normal
+        val overlap: Vector2 = info.depth * info.normal
 
-        // Calculate and apply movement amounts based on mass ratio
-        if (!objA.static) {
-            val moveAmountA: Vector2 =
-                if (!objB.static) (objB.mass / totalMass) * overlap
-                else overlap
-            objA.position -= moveAmountA
-        }
-        if (!objB.static) {
-            val moveAmountB: Vector2 =
-                if (!objA.static) (objA.mass / totalMass) * overlap
-                else overlap
-            objB.position += moveAmountB
-        }
+        // if both objects are non-static, separate them by their mass ratio else move the non-static object by the overlap
+        if (!objA.static) objA.position -= if (!objB.static) (objB.mass / totalMass) * overlap else overlap
+        if (!objB.static) objB.position += if (!objA.static) (objA.mass / totalMass) * overlap else overlap
     }
 }

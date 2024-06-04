@@ -133,7 +133,7 @@ class UIController {
         setSpawnFieldAvailability(radius = false, width = false, height = false)
     }
 
-    private fun updateSpawnPreview() {
+    fun updateSpawnPreview() {
         if (spawnObjectType == SpawnObjectType.NOTHING) {
             drawer.spawnPreview = null
             return
@@ -469,7 +469,7 @@ class UIController {
         lateinit var drawer: FhysicsObjectDrawer
 
         /// =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.NOTHING
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
             private set
         var drawSpawnPreview: Boolean = true
             private set

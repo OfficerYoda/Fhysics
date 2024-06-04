@@ -96,8 +96,8 @@ data class BoundingBox(
      * @return True if the position is contained within the bounding box, false otherwise.
      */
     fun contains(pos: Vector2): Boolean {
-        return x in pos.x..(pos.x + width) &&
-                y in pos.y..(pos.y + height)
+        return pos.x in x..(x + width) &&
+                pos.y in pos.y..(y + height)
     }
 
     /**

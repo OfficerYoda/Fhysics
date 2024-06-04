@@ -28,6 +28,10 @@ class Circle(
         return pos.sqrDistance(position) <= radius * radius
     }
 
+    override fun clone(): FhysicsObject {
+        return Circle(position.copy(), radius)
+    }
+
     override fun toString(): String {
         return "Circle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, radius=$radius)"
     }
