@@ -98,7 +98,7 @@ object SceneListener {
             val pos: Vector2 = mouseWorldPos.copy()
 
             // Create the polygon if the polygon is complete
-            if (polyVertices.size > 2) {
+            if (polyVertices.size > 2 && validPolygon) {
                 val startPos: Vector2 = polyVertices.first()
                 if (pos.sqrDistance(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                     // Calculate the center of the polygon
@@ -117,6 +117,7 @@ object SceneListener {
             }
 
             polyVertices.add(pos)
+            validPolygon = validatePolyVertices()
 
             return
         }
@@ -128,6 +129,55 @@ object SceneListener {
         } else {
             drawer.selectedObject = null
         }
+    }
+
+    var validPolygon = true
+
+    private fun validatePolyVertices(): Boolean {
+        val size = polyVertices.size
+        if (size < 3) return false
+
+        for (i: Int in 0 until size) {
+            for (j: Int in i + 1 until size) {
+                val line1: Pair<Vector2, Vector2> = Pair(polyVertices[i], polyVertices[(i + 1) % size])
+                val line2: Pair<Vector2, Vector2> = Pair(polyVertices[j], polyVertices[(j + 1) % size])
+                if (doLinesIntersect(line1, line2)) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    /**
+     * Checks if two lines intersect
+     *
+     * @param lineA the first line
+     * @param lineB the second line
+     */
+    private fun doLinesIntersect(lineA: Pair<Vector2, Vector2>, lineB: Pair<Vector2, Vector2>): Boolean {
+        val a: Vector2 = lineA.first
+        val b: Vector2 = lineA.second
+        val c: Vector2 = lineB.first
+        val d: Vector2 = lineB.second
+
+        val denominator: Float = ((b.x - a.x) * (d.y - c.y)) - ((b.y - a.y) * (d.x - c.x))
+
+        // If the denominator is zero, lines are parallel and do not intersect
+        if (denominator == 0.0f) {
+            return false
+        }
+
+        // Calculate the numerators of the line intersection formula
+        val numeratorA: Float = ((a.y - c.y) * (d.x - c.x)) - ((a.x - c.x) * (d.y - c.y))
+        val numeratorB: Float = ((a.y - c.y) * (b.x - a.x)) - ((a.x - c.x) * (b.y - a.y))
+
+        // Calculate r and s parameters
+        val r: Float = numeratorA / denominator
+        val s: Float = numeratorB / denominator
+
+        // If r and s are both between 0 and 1, lines intersect (excluding endpoints)
+        return (0f < r && r < 1f) && (0f < s && s < 1f)
     }
 
     /**

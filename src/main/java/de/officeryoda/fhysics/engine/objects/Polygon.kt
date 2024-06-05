@@ -4,12 +4,17 @@ import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import kotlin.math.abs
 
 class Polygon(
     position: Vector2,
     val vertices: Array<Vector2>,
     rotation: Float = 0f,
 ) : FhysicsObject(position, calculatePolygonArea(vertices), rotation) {
+
+    init {
+        ensureCCW(vertices)
+    }
 
     override fun project(axis: Vector2): Projection {
         val min: Float = vertices.minOf { it.dot(axis) }
@@ -18,7 +23,7 @@ class Polygon(
     }
 
     override fun contains(pos: Vector2): Boolean {
-        if(!boundingBox.contains(pos)) return false
+        if (!boundingBox.contains(pos)) return false
 
         // TODO: This might be wrong
         // Rotate the point to make the polygon axis-aligned
@@ -57,12 +62,42 @@ class Polygon(
     }
 }
 
+/**
+ * Calculates the area of a polygon
+ * The area will always be positive
+ *
+ * @param vertices the vertices of the polygon
+ */
 private fun calculatePolygonArea(vertices: Array<Vector2>): Float {
-    var area = 0f
+    var signedArea = 0f
     for (i: Int in vertices.indices) {
         val j: Int = (i + 1) % vertices.size
-        area += vertices[i].x * vertices[j].y
-        area -= vertices[j].x * vertices[i].y
+        signedArea += vertices[i].x * vertices[j].y
+        signedArea -= vertices[j].x * vertices[i].y
     }
-    return area / 2
+    signedArea /= 2
+
+    // Ensure that the area is positive
+    return abs(signedArea)
+}
+
+/**
+ * Ensures that the polygon vertices are in counter-clockwise order
+ * by reversing the vertices if the polygon is clockwise
+ *
+ * @param vertices the vertices of the polygon
+ */
+private fun ensureCCW(vertices: Array<Vector2>) {
+    // Calculate the signed area of the polygon
+    var signedArea = 0f
+    for (i: Int in vertices.indices) {
+        val j: Int = (i + 1) % vertices.size
+        signedArea += vertices[i].x * vertices[j].y - vertices[j].x * vertices[i].y
+    }
+    signedArea /= 2
+
+    // Reverse the vertices if the polygon is CW
+    if (signedArea < 0) {
+        vertices.reverse()
+    }
 }

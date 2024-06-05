@@ -265,6 +265,8 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(transparentC)
 
         gc.stroke()
+        if (!SceneListener.validPolygon)
+            setFillColor(Color(255, 0, 0, 128))
         gc.fill()
 
         // Draw a circle at the first vertex for easier closing
