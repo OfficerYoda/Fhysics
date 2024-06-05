@@ -4,7 +4,6 @@ import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
-import java.awt.Color
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -13,10 +12,10 @@ class Rectangle(
     val width: Float,
     val height: Float,
     rotation: Float = 0f,
-) : Polygon(position, createRectangleVertices(width, height), rotation) {
+) : Polygon(createRectangleVertices(width, height).map { it + position }.toTypedArray(), rotation) {
 
     init {
-        color = Color.decode("#4287f5")
+        color = colorFromIndex(1)
     }
 
     override fun getAxes(): Set<Vector2> {

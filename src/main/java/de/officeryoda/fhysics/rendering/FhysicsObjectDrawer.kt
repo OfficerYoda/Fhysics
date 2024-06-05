@@ -283,8 +283,6 @@ class FhysicsObjectDrawer : Application() {
     private fun drawDebugPoints() {
         val pointSize = 6.0
 
-        val duration = 200 // The amount of Frames the point should be visible
-
         for (triple: Triple<Vector2, Color, Int> in debugPoints.toList()) {
             val pos: Vector2 = worldToScreen(triple.first)
             setFillColor(triple.second)
@@ -297,8 +295,8 @@ class FhysicsObjectDrawer : Application() {
 
             // Update the duration of the point
             // If the max duration is reached remove the point
-            if (triple.third < duration) {
-                debugPoints[debugPoints.indexOf(triple)] = Triple(triple.first, triple.second, triple.third + 1)
+            if (triple.third > 0) {
+                debugPoints[debugPoints.indexOf(triple)] = Triple(triple.first, triple.second, triple.third - 1)
             } else {
                 debugPoints.remove(triple)
             }
@@ -410,8 +408,8 @@ class FhysicsObjectDrawer : Application() {
     }
 
     /// =====Debug functions=====
-    fun addDebugPoint(point: Vector2, color: Color = Color.RED) {
-        debugPoints.add(Triple(point.copy(), color, 0))
+    fun addDebugPoint(point: Vector2, color: Color = Color.RED, duration: Int = 200) {
+        debugPoints.add(Triple(point.copy(), color, duration))
     }
 
     /// =====Window size functions=====

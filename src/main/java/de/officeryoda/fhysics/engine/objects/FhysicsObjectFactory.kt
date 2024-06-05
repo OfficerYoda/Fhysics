@@ -13,7 +13,7 @@ object FhysicsObjectFactory {
     private val RANDOM: Random = Random()
 
     fun randomCircle(): Circle {
-        val radius: Float = RANDOM.nextFloat(0.2F, 0.3F)
+        val radius: Float = RANDOM.nextFloat(0.5F, 0.7F)
         val pos: Vector2 = randomPosInsideBounds(buffer = radius)
         val circle = Circle(pos, radius)
 
@@ -56,7 +56,8 @@ object FhysicsObjectFactory {
             val isValid: Boolean = SceneListener.validatePolyVertices(vertices)
         } while (!isValid) // Repeat until a valid polygon is generated
 
-        val poly = ConvexPolygon(randomPosInsideBounds(5f), vertices.toTypedArray())
+        val pos = randomPosInsideBounds(5F)
+        val poly = ConvexPolygon(vertices.map { pos + it }.toTypedArray())
         poly.velocity.set(randomVector2(-10.0F, 10.0F))
 
         return poly

@@ -3,10 +3,7 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
-import de.officeryoda.fhysics.engine.objects.Circle
-import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
-import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -47,16 +44,21 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        for (i in 1..4000) {
-//            val circle: Circle = FhysicsObjectFactory.randomCircle()
-////            circle.velocity.set(Vector2.ZERO)
-//            spawn(circle)
-//        }
-//
-//        for (i in 1..20) {
-//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
-//            spawn(rect)
-//        }
+
+
+        for (i in 1..20) {
+            val circle: Circle = FhysicsObjectFactory.randomCircle()
+//            circle.velocity.set(Vector2.ZERO)
+            spawn(circle)
+        }
+
+        for (i in 1..20) {
+            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
+            spawn(rect)
+        }
+
+        for (i in 1..10)
+            spawn(FhysicsObjectFactory.randomConvexPolygon())
 
         // spawn a rotated rectangle in the center
 //        val rect =
@@ -64,15 +66,17 @@ object FhysicsCore {
 //        rect.velocity += Vector2(10f, 12f) * 2f
 //        spawn(rect)
 
-        // spawn a rectangle to the left and to the right
-//        val rect2 = Rectangle(Vector2(20.0F, 50.0F), 10.0F, 10.0F)
-//        rect2.velocity += Vector2(5f, 0f)
-//        spawn(rect2)
-//        val rect3 = Rectangle(Vector2(60.0F, 50.0F), 10.0F, 10.0F)
-//        spawn(rect3)
-
-        for (i in 1..10)
-            spawn(FhysicsObjectFactory.randomConvexPolygon())
+        // a 5 sided polygon in the center
+//        val vertices = arrayOf(
+//            Vector2(-1.0F, -5.0F),
+//            Vector2(1.0F, -5.0F),
+//            Vector2(0.0F, 5.0F),
+////            Vector2(5.0F, 15.0F),
+////            Vector2(-5.0F, 10.0F)
+//        )
+//        val poly = ConvexPolygon(Vector2(50.0F, 50.0F), vertices)
+//        poly.static = true
+//        spawn(poly)
 
         objectsAtStepSizeIncrease = objectCount
     }

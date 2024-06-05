@@ -13,7 +13,7 @@ abstract class FhysicsObject protected constructor(
     var rotation: Float = 0f, // in radians
 ) {
     val id: Int = FhysicsCore.nextId()
-    var color: Color = colorFromIndex()
+    var color: Color = colorFromIndex(0)
     val boundingBox: BoundingBox = BoundingBox()
         get() {
             // only update the bounding box if it hasn't been updated this update cycle
@@ -81,10 +81,11 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun clone(): FhysicsObject
 
-    private fun colorFromIndex(): Color {
+    protected fun colorFromIndex(index: Int): Color {
         val colors: List<Color> =
             listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
-        return colors[id % 1]
+//        return colors[id % colors.size]
+        return colors[index % colors.size]
 //        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
 //
 //        return color

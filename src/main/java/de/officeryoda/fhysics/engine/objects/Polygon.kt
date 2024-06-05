@@ -7,15 +7,19 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import kotlin.math.abs
 
 abstract class Polygon(
-    position: Vector2,
-    val vertices: Array<Vector2>, // must be CCW
+    val vertices: Array<Vector2>, // must be CCW and in global space
     rotation: Float = 0f,
-) : FhysicsObject(position, calculatePolygonArea(vertices), rotation) {
+) : FhysicsObject(calculatePolygonCenter(vertices), calculatePolygonArea(vertices), rotation) {
+
+    init {
+        vertices.forEach { it -= position }
+        color = colorFromIndex(2)
+    }
 
     open fun getAxes(): Set<Vector2> {
         // Calculate the normals of the polygon's sides based on its rotation
         val axes: MutableSet<Vector2> = mutableSetOf()
-        val transformedVertices = getTransformedVertices()
+        val transformedVertices: List<Vector2> = getTransformedVertices()
 
         for (i: Int in transformedVertices.indices) {
             val j: Int = (i + 1) % transformedVertices.size
@@ -97,4 +101,13 @@ private fun calculatePolygonArea(vertices: Array<Vector2>): Float {
 
     // Ensure that the area is positive
     return abs(signedArea)
+}
+
+/**
+ * Calculates the center of a polygon
+ *
+ * @param vertices the vertices of the polygon
+ */
+fun calculatePolygonCenter(vertices: Array<Vector2>): Vector2 {
+    return vertices.reduce { acc, vector2 -> acc + vector2 } / vertices.size.toFloat()
 }

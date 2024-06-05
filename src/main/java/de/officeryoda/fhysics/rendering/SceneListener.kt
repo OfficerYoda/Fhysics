@@ -106,13 +106,10 @@ object SceneListener {
             if (polyVertices.size > 2 && validPolygon) {
                 val startPos: Vector2 = polyVertices.first()
                 if (pos.sqrDistance(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
-                    // Calculate the center of the polygon
-                    val polyCenter: Vector2 =
-                        polyVertices.reduce { acc, vector2 -> acc + vector2 } / polyVertices.size.toFloat()
                     // Map the vertices relative to the center
-                    val vertices: List<Vector2> = ensureCCW(polyVertices.map { it - polyCenter })
+                    val vertices: List<Vector2> = ensureCCW(polyVertices.map { it })
                     // create the polygon
-                    val polygon = ConvexPolygon(polyCenter, vertices.toTypedArray())
+                    val polygon = ConvexPolygon(vertices.toTypedArray())
 
                     FhysicsCore.spawn(polygon)
 
@@ -273,6 +270,7 @@ object SceneListener {
             KeyCode.K -> QuadTree.capacity += 5
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
             KeyCode.Q -> println(QuadTree.root)
+            KeyCode.S -> println(drawer.selectedObject)
             else -> {}
         }
     }

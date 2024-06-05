@@ -68,25 +68,7 @@ object CollisionFinder {
             finalAxis.negate()
         }
 
-        val overlap: Float = projResult.getOverlap()
-
-        return CollisionInfo(circle, rect, finalAxis, overlap)
-    }
-
-    /**
-     * Tests for overlap between the projections of two objects onto an axis
-     *
-     * @param axis The axis
-     * @param objA The first object
-     * @param objB The second object
-     * @return A boolean indicating if the projections overlap
-     */
-    private fun testProjectionOverlap(axis: Vector2, objA: FhysicsObject, objB: FhysicsObject): ProjectionResult {
-        // Project the rectangle and the circle onto the axis
-        val projectionA: Projection = objA.project(axis)
-        val projectionB: Projection = objB.project(axis)
-
-        return ProjectionResult(projectionA, projectionB)
+        return CollisionInfo(circle, rect, finalAxis, projResult.getOverlap())
     }
 
     /**
@@ -104,7 +86,6 @@ object CollisionFinder {
 
         // Get the rectangles axes (normals of its sides)
         val axes: Set<Vector2> = rectA.getAxes() + rectB.getAxes()
-
         var normal: Vector2 = Vector2.ZERO
         var depth: Float = Float.MAX_VALUE
 
@@ -124,6 +105,7 @@ object CollisionFinder {
             }
         }
 
+        // Make sure the normal points in the right direction
         if (normal.dot(rectB.position - rectA.position) < 0) {
             normal.negate()
         }
@@ -132,40 +114,115 @@ object CollisionFinder {
     }
 
     fun testCollision(poly: Polygon, circle: Circle): CollisionInfo {
-        return CollisionInfo()
+        if (!poly.boundingBox.overlaps(circle.boundingBox)) return CollisionInfo()
+
+        val axes: Set<Vector2> = poly.getAxes()
+
+        axes.forEach { axis: Vector2 ->
+            // Project the objects onto the axis
+            val projResult: ProjectionResult = testProjectionOverlap(axis, poly, circle)
+
+            // Check for no overlap
+            if (!projResult.hasOverlap) return CollisionInfo()
+        }
+
+        // Get the closest point on the rectangle to the circle's center
+        val closestPoint: Vector2 = getClosestPoint(poly, circle.position)
+
+        // Do a final check onto the axis from the circle to the closest point
+        val finalAxis: Vector2 = (closestPoint - circle.position).normalized()
+        val projResult: ProjectionResult = testProjectionOverlap(finalAxis, poly, circle)
+        if (!projResult.hasOverlap) return CollisionInfo()
+
+        // Calculate the collision normal and overlap with the final axis
+        if (finalAxis.dot(poly.position - circle.position) < 0) {
+            finalAxis.negate()
+        }
+
+        return CollisionInfo(circle, poly, finalAxis, projResult.getOverlap())
     }
 
     fun testCollision(poly: Polygon, rect: Rectangle): CollisionInfo {
-        return CollisionInfo()
+        return testCollision(rect, poly)
     }
 
     fun testCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
-        return CollisionInfo()
+        if (!polyA.boundingBox.overlaps(polyB.boundingBox)) return CollisionInfo()
+
+        val axes: Set<Vector2> = polyA.getAxes() + polyB.getAxes()
+        var normal: Vector2 = Vector2.ZERO
+        var depth: Float = Float.MAX_VALUE
+
+        axes.forEach { axis: Vector2 ->
+            // Project the objects onto the axis
+            val projResult: ProjectionResult = testProjectionOverlap(axis, polyA, polyB)
+
+            // Check for no overlap
+            if (!projResult.hasOverlap) return CollisionInfo()
+
+            val overlap: Float = projResult.getOverlap()
+
+            // Check if the overlap is the smallest so far
+            if (overlap < depth) {
+                depth = overlap
+                normal = axis
+            }
+        }
+
+        // Make sure the normal points in the right direction
+        if (normal.dot(polyB.position - polyA.position) < 0) {
+            normal.negate()
+        }
+
+        return CollisionInfo(polyA, polyB, normal, depth)
     }
 
     /**
-     * Gets the closest point on the rect to the external point
+     * Tests for overlap between the projections of two objects onto an axis
      *
-     * @param rect The rectangle
+     * @param axis The axis
+     * @param objA The first object
+     * @param objB The second object
+     * @return A boolean indicating if the projections overlap
+     */
+    private fun testProjectionOverlap(axis: Vector2, objA: FhysicsObject, objB: FhysicsObject): ProjectionResult {
+        // Project the rectangle and the circle onto the axis
+        val projectionA: Projection = objA.project(axis)
+        val projectionB: Projection = objB.project(axis)
+
+        return ProjectionResult(projectionA, projectionB)
+    }
+
+    /**
+     * Gets the closest point on the polygon to the external point
+     *
+     * @param poly The polygon
      * @param externalPoint The external point
      */
-    private fun getClosestPoint(rect: Rectangle, externalPoint: Vector2): Vector2 {
-        // Transform the external point to the rectangle's local coordinate system
-        val localPoint: Vector2 = externalPoint.rotatedAround(rect.position, -rect.rotation)
+    private fun getClosestPoint(poly: Polygon, externalPoint: Vector2): Vector2 {
+        var closestPoint: Vector2 = Vector2.ZERO
+        var minDistance: Float = Float.MAX_VALUE
 
-        val halfWidth: Float = rect.width / 2
-        val halfHeight: Float = rect.height / 2
+        val vertices: List<Vector2> = poly.getTransformedVertices()
 
-        // Coerce local point coordinates to be within rect boundaries
-        val localClosestX: Float =
-            localPoint.x.coerceIn(rect.position.x - halfWidth, rect.position.x + halfWidth)
-        val localClosestY: Float =
-            localPoint.y.coerceIn(rect.position.y - halfHeight, rect.position.y + halfHeight)
+        for (i: Int in vertices.indices) {
+            val start: Vector2 = vertices[i]
+            val end: Vector2 = vertices[(i + 1) % vertices.size] // Wrap around to the first vertex for the last edge
 
-        // Transform the local closest point back to the global coordinate system
-        val globalClosestPoint: Vector2 =
-            Vector2(localClosestX, localClosestY).rotatedAround(rect.position, rect.rotation)
+            // Calculate the closest point on the current edge to the external point
+            val edge: Vector2 = end - start
+            val t: Float = ((externalPoint - start).dot(edge)) / edge.sqrMagnitude()
 
-        return globalClosestPoint
+            // If the closest point on the line defined by the edge is not on the edge itself, ignore it
+            val closestPointOnEdge: Vector2 = if (t in 0.0..1.0) start + edge * t else continue
+
+            val distance: Float = closestPointOnEdge.sqrDistance(externalPoint)
+            if (distance < minDistance) {
+                minDistance = distance
+                closestPoint = closestPointOnEdge
+            }
+        }
+
+        return closestPoint
     }
 }

@@ -4,17 +4,16 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 
 class ConvexPolygon(
-    position: Vector2,
-    vertices: Array<Vector2>, // must be CCW
+    vertices: Array<Vector2>, // must be CCW and in global space
     rotation: Float = 0f,
-) : Polygon(position, vertices, rotation) {
+) : Polygon(vertices, rotation) {
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)
     }
 
     override fun clone(): FhysicsObject {
-        return ConvexPolygon(position, vertices.map { it.copy() }.toTypedArray(), rotation)
+        return ConvexPolygon(vertices.map { position + it.copy() }.toTypedArray(), rotation)
     }
 
     override fun toString(): String {
