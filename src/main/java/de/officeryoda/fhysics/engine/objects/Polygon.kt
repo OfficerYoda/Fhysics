@@ -6,36 +6,71 @@ import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import kotlin.math.abs
 
-class Polygon(
+abstract class Polygon(
     position: Vector2,
     val vertices: Array<Vector2>, // must be CCW
     rotation: Float = 0f,
 ) : FhysicsObject(position, calculatePolygonArea(vertices), rotation) {
 
+    override fun updatePosition() {
+        super.updatePosition()
+        rotation += 0.01f
+    }
+
+    open fun getAxes(): Set<Vector2> {
+        // Calculate the normals of the polygon's sides based on its rotation
+        val axes: MutableSet<Vector2> = mutableSetOf()
+        val transformedVertices = getTransformedVertices()
+
+        for (i: Int in transformedVertices.indices) {
+            val j: Int = (i + 1) % transformedVertices.size
+            val edge: Vector2 = transformedVertices[j] - transformedVertices[i]
+            val normal: Vector2 = Vector2(-edge.y, edge.x).normalized()
+            axes.add(normal)
+        }
+
+        return axes
+    }
+
     override fun project(axis: Vector2): Projection {
-        val min: Float = vertices.minOf { it.dot(axis) }
-        val max: Float = vertices.maxOf { it.dot(axis) }
+        val transformedVertices: List<Vector2> = getTransformedVertices()
+        val min: Float = transformedVertices.minOf { it.dot(axis) }
+        val max: Float = transformedVertices.maxOf { it.dot(axis) }
         return Projection(min, max)
     }
 
     override fun contains(pos: Vector2): Boolean {
         if (!boundingBox.contains(pos)) return false
 
-        // TODO: This might be wrong
-        // Rotate the point to make the polygon axis-aligned
-        val rotatedPos: Vector2 = pos.rotatedAround(position, -rotation)
+        val transformedVertices: List<Vector2> = getTransformedVertices()
+        var intersects = 0
 
-        // Check if the point is inside the axis-aligned polygon
-        return vertices.all { it.dot(rotatedPos) >= 0 }
+        for (i: Int in transformedVertices.indices) {
+            val j: Int = (i + 1) % transformedVertices.size
+            val xi: Float = transformedVertices[i].x
+            val yi: Float = transformedVertices[i].y
+            val xj: Float = transformedVertices[j].x
+            val yj: Float = transformedVertices[j].y
+
+            val isIntersect: Boolean =
+                ((yi > pos.y) != (yj > pos.y)) && (pos.x < (xj - xi) * (pos.y - yi) / (yj - yi) + xi)
+            if (isIntersect) intersects++
+        }
+
+        return intersects and 1 == 1
     }
 
-    fun getTranslatedVertices(): List<Vector2> {
-        return vertices.map { it.rotatedAround(position, rotation) }
+    /**
+     * Transforms the vertices from local space to world space
+     * taking into account the position and rotation of the polygon
+     *
+     * @return The transformed vertices
+     */
+    open fun getTransformedVertices(): List<Vector2> {
+        return vertices.map { it.rotatedAround(Vector2.ZERO, rotation) + position }
     }
 
-    override fun testCollision(other: FhysicsObject): CollisionInfo {
-        return other.testCollision(this) // works because FhysicsObject is abstract (aka double dispatch)
-    }
+    abstract override fun testCollision(other: FhysicsObject): CollisionInfo
 
     override fun testCollision(other: Circle): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
@@ -47,14 +82,6 @@ class Polygon(
 
     override fun testCollision(other: Polygon): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
-    }
-
-    override fun clone(): FhysicsObject {
-        return Polygon(position, vertices.map { it.copy() }.toTypedArray(), rotation)
-    }
-
-    override fun toString(): String {
-        return "Polygon(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, vertices=${vertices.contentToString()})"
     }
 }
 

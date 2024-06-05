@@ -3,10 +3,10 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
-import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
@@ -74,7 +74,6 @@ object FhysicsCore {
         objectsAtStepSizeIncrease = objectCount
     }
 
-
     fun startEverything() {
         Thread { FhysicsObjectDrawer().launch() }.start()
         startUpdateLoop()
@@ -140,7 +139,7 @@ object FhysicsCore {
     fun checkBorderCollision(obj: FhysicsObject) {
         when (obj) {
             is Circle -> handleCircleBorderCollision(obj)
-            is Rectangle -> handleRectangleBorderCollision(obj)
+            is Polygon -> handlePolygonBorderCollision(obj)
         }
     }
 
@@ -170,8 +169,7 @@ object FhysicsCore {
         }
     }
 
-
-    private fun handleRectangleBorderCollision(obj: Rectangle) {
+    private fun handlePolygonBorderCollision(obj: Polygon) {
         val axesBorderProjection: List<Pair<Vector2, Projection>> = listOf(
             Pair(Vector2(-1f, 0f), Projection(Float.MIN_VALUE, BORDER.x)),
             Pair(Vector2(1f, 0f), Projection(BORDER.x + BORDER.width, Float.MAX_VALUE)),

@@ -223,15 +223,14 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygon(poly: Polygon) {
-        val vertices: List<Vector2> = poly.getTranslatedVertices()
+        val vertices: List<Vector2> = poly.getTransformedVertices()
 
-        val center: Vector2 = poly.position
         val xPoints = DoubleArray(vertices.size)
         val yPoints = DoubleArray(vertices.size)
 
         for (i: Int in vertices.indices) {
-            xPoints[i] = worldToScreenX(vertices[i].x + center.x)
-            yPoints[i] = worldToScreenY(vertices[i].y + center.y)
+            xPoints[i] = worldToScreenX(vertices[i].x)
+            yPoints[i] = worldToScreenY(vertices[i].y)
         }
 
         gc.fillPolygon(xPoints, yPoints, vertices.size)
@@ -366,15 +365,13 @@ class FhysicsObjectDrawer : Application() {
     private fun drawStats() {
         val stats: ArrayList<String> = ArrayList()
 
-        if (UIController.drawMSPU || UIController.drawUPS) { // Check both because UPS is calculated from MSPU
-            val mspu: Double = FhysicsCore.updateTimer.average() // Milliseconds per Update
-            val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
-
+        if (UIController.drawMSPU || UIController.drawUPS) {
             if (UIController.drawMSPU) {
-                stats.add("MSPU: $mspuRounded")
+                stats.add("MSPU: ${FhysicsCore.updateTimer.rounded()}")
             }
 
             if (UIController.drawUPS) {
+                val mspu: Double = FhysicsCore.updateTimer.average() // Milliseconds per Update
                 val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
                 val upsRounded: String = String.format(Locale.US, "%.2f", ups)
                 stats.add("UPS: $upsRounded")

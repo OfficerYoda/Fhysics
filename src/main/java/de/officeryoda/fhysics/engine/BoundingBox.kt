@@ -82,7 +82,7 @@ data class BoundingBox(
      * @param poly The polygon to set the bounding box from.
      */
     private fun setFromPolygon(poly: Polygon) {
-        val translatedVertices: List<Vector2> = poly.getTranslatedVertices()
+        val translatedVertices: List<Vector2> = poly.getTransformedVertices()
 
         val minX: Float = translatedVertices.minOf { it.x }
         val maxX: Float = translatedVertices.maxOf { it.x }
@@ -118,7 +118,7 @@ data class BoundingBox(
      */
     fun contains(pos: Vector2): Boolean {
         return pos.x in x..(x + width) &&
-                pos.y in pos.y..(y + height)
+                pos.y in y..(y + height)
     }
 
     /**

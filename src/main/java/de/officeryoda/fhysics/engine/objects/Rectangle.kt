@@ -13,14 +13,13 @@ class Rectangle(
     val width: Float,
     val height: Float,
     rotation: Float = 0f,
-) : FhysicsObject(position, width * height, rotation) {
+) : Polygon(position, createRectangleVertices(width, height), rotation) {
 
     init {
         color = Color.decode("#4287f5")
-//        static = true
     }
 
-    fun getAxes(): Set<Vector2> {
+    override fun getAxes(): Set<Vector2> {
         // Calculate the normals of the rectangle's sides based on its rotation
         val axis1 = Vector2(cos(rotation), sin(rotation))
         val axis2 = Vector2(-sin(rotation), cos(rotation))
@@ -28,10 +27,9 @@ class Rectangle(
     }
 
     override fun project(axis: Vector2): Projection {
-        // Project the rectangle's vertices onto the axis and return the range of scalar values
-        val vertices: List<Vector2> = getTranslatedVertices()
-        val min: Float = vertices.minOf { it.dot(axis) }
-        val max: Float = vertices.maxOf { it.dot(axis) }
+        val transformedVertices: List<Vector2> = getTransformedVertices()
+        val min: Float = transformedVertices.minOf { it.dot(axis) }
+        val max: Float = transformedVertices.maxOf { it.dot(axis) }
         return Projection(min, max)
     }
 
@@ -47,23 +45,12 @@ class Rectangle(
                 rotatedPos.y in (position.y - halfHeight)..(position.y + halfHeight)
     }
 
-    private fun getTranslatedVertices(): List<Vector2> {
-        val halfWidth: Float = width / 2
-        val halfHeight: Float = height / 2
+    override fun getTransformedVertices(): List<Vector2> {
+        // Get the four corners of the rectangle before rotation
+        val corners: Array<Vector2> = createRectangleVertices(width, height)
 
-        // Calculate the four corners of the rectangle before rotation
-        val topLeft = Vector2(position.x - halfWidth, position.y + halfHeight)
-        val topRight = Vector2(position.x + halfWidth, position.y + halfHeight)
-        val bottomLeft = Vector2(position.x - halfWidth, position.y - halfHeight)
-        val bottomRight = Vector2(position.x + halfWidth, position.y - halfHeight)
-
-        // Rotate the corners around the rectangle's center
-        val rotatedTopLeft: Vector2 = topLeft.rotatedAround(position, rotation)
-        val rotatedTopRight: Vector2 = topRight.rotatedAround(position, rotation)
-        val rotatedBottomLeft: Vector2 = bottomLeft.rotatedAround(position, rotation)
-        val rotatedBottomRight: Vector2 = bottomRight.rotatedAround(position, rotation)
-
-        return listOf(rotatedTopLeft, rotatedTopRight, rotatedBottomLeft, rotatedBottomRight)
+        // Rotate the rectangle's corners
+        return corners.map { it.rotatedAround(Vector2.ZERO, rotation) + position }
     }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
@@ -89,4 +76,23 @@ class Rectangle(
     override fun toString(): String {
         return "Rectangle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height, rotation=$rotation)"
     }
+}
+
+/**
+ * Creates the vertices of a rectangle with the given width and height
+ *
+ * @param width The width of the rectangle
+ * @param height The height of the rectangle
+ * @return The vertices of the rectangle
+ */
+fun createRectangleVertices(width: Float, height: Float): Array<Vector2> {
+    val halfWidth: Float = width / 2
+    val halfHeight: Float = height / 2
+
+    return arrayOf(
+        Vector2(-halfWidth, -halfHeight),
+        Vector2(halfWidth, -halfHeight),
+        Vector2(halfWidth, halfHeight),
+        Vector2(-halfWidth, halfHeight)
+    )
 }

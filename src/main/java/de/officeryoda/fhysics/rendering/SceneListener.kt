@@ -3,7 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.ConvexPolygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
@@ -112,7 +112,7 @@ object SceneListener {
                     // Map the vertices relative to the center
                     val vertices: List<Vector2> = ensureCCW(polyVertices.map { it - polyCenter })
                     // create the polygon
-                    val polygon = Polygon(polyCenter, vertices.toTypedArray())
+                    val polygon = ConvexPolygon(polyCenter, vertices.toTypedArray())
 
                     FhysicsCore.spawn(polygon)
 
@@ -364,12 +364,7 @@ object SceneListener {
         val size: Int = polyVertices.size
         if (size < 3) return false
 
-        if (areLinesIntersecting()) return false
-        if (isConcave()) {
-            println("Polygon is concave")
-            return false
-        }
-        return true
+        return !areLinesIntersecting() && !isConcave()
     }
 
     /**
