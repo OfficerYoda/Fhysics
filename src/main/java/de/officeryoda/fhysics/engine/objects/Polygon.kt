@@ -8,13 +8,9 @@ import kotlin.math.abs
 
 class Polygon(
     position: Vector2,
-    val vertices: Array<Vector2>,
+    val vertices: Array<Vector2>, // must be CCW
     rotation: Float = 0f,
 ) : FhysicsObject(position, calculatePolygonArea(vertices), rotation) {
-
-    init {
-        ensureCCW(vertices)
-    }
 
     override fun project(axis: Vector2): Projection {
         val min: Float = vertices.minOf { it.dot(axis) }
@@ -79,25 +75,4 @@ private fun calculatePolygonArea(vertices: Array<Vector2>): Float {
 
     // Ensure that the area is positive
     return abs(signedArea)
-}
-
-/**
- * Ensures that the polygon vertices are in counter-clockwise order
- * by reversing the vertices if the polygon is clockwise
- *
- * @param vertices the vertices of the polygon
- */
-private fun ensureCCW(vertices: Array<Vector2>) {
-    // Calculate the signed area of the polygon
-    var signedArea = 0f
-    for (i: Int in vertices.indices) {
-        val j: Int = (i + 1) % vertices.size
-        signedArea += vertices[i].x * vertices[j].y - vertices[j].x * vertices[i].y
-    }
-    signedArea /= 2
-
-    // Reverse the vertices if the polygon is CW
-    if (signedArea < 0) {
-        vertices.reverse()
-    }
 }

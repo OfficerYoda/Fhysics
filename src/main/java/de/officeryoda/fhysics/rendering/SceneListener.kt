@@ -75,6 +75,11 @@ object SceneListener {
     var polyVertices: MutableList<Vector2> = ArrayList()
 
     /**
+     * Whether the polygon is valid
+     */
+    var validPolygon = true
+
+    /**
      * Handles mouse pressed events
      *
      * @param e the mouse event
@@ -105,9 +110,9 @@ object SceneListener {
                     val polyCenter: Vector2 =
                         polyVertices.reduce { acc, vector2 -> acc + vector2 } / polyVertices.size.toFloat()
                     // Map the vertices relative to the center
-                    val vertices: Array<Vector2> = polyVertices.map { it - polyCenter }.toTypedArray()
+                    val vertices: List<Vector2> = ensureCCW(polyVertices.map { it - polyCenter })
                     // create the polygon
-                    val polygon = Polygon(polyCenter, vertices)
+                    val polygon = Polygon(polyCenter, vertices.toTypedArray())
 
                     FhysicsCore.spawn(polygon)
 
@@ -129,55 +134,6 @@ object SceneListener {
         } else {
             drawer.selectedObject = null
         }
-    }
-
-    var validPolygon = true
-
-    private fun validatePolyVertices(): Boolean {
-        val size = polyVertices.size
-        if (size < 3) return false
-
-        for (i: Int in 0 until size) {
-            for (j: Int in i + 1 until size) {
-                val line1: Pair<Vector2, Vector2> = Pair(polyVertices[i], polyVertices[(i + 1) % size])
-                val line2: Pair<Vector2, Vector2> = Pair(polyVertices[j], polyVertices[(j + 1) % size])
-                if (doLinesIntersect(line1, line2)) {
-                    return false
-                }
-            }
-        }
-        return true
-    }
-
-    /**
-     * Checks if two lines intersect
-     *
-     * @param lineA the first line
-     * @param lineB the second line
-     */
-    private fun doLinesIntersect(lineA: Pair<Vector2, Vector2>, lineB: Pair<Vector2, Vector2>): Boolean {
-        val a: Vector2 = lineA.first
-        val b: Vector2 = lineA.second
-        val c: Vector2 = lineB.first
-        val d: Vector2 = lineB.second
-
-        val denominator: Float = ((b.x - a.x) * (d.y - c.y)) - ((b.y - a.y) * (d.x - c.x))
-
-        // If the denominator is zero, lines are parallel and do not intersect
-        if (denominator == 0.0f) {
-            return false
-        }
-
-        // Calculate the numerators of the line intersection formula
-        val numeratorA: Float = ((a.y - c.y) * (d.x - c.x)) - ((a.x - c.x) * (d.y - c.y))
-        val numeratorB: Float = ((a.y - c.y) * (b.x - a.x)) - ((a.x - c.x) * (b.y - a.y))
-
-        // Calculate r and s parameters
-        val r: Float = numeratorA / denominator
-        val s: Float = numeratorB / denominator
-
-        // If r and s are both between 0 and 1, lines intersect (excluding endpoints)
-        return (0f < r && r < 1f) && (0f < s && s < 1f)
     }
 
     /**
@@ -303,6 +259,25 @@ object SceneListener {
     }
 
     /**
+     * Handles key pressed events
+     *
+     * @param event the key event
+     */
+    fun onKeyPressed(event: KeyEvent) {
+        when (event.code) {
+            KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
+            KeyCode.SPACE -> FhysicsCore.update()
+            KeyCode.ENTER -> FhysicsCore.update()
+            KeyCode.Z -> drawer.resetZoom()
+            KeyCode.J -> QuadTree.capacity -= 5
+            KeyCode.K -> QuadTree.capacity += 5
+            KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
+            KeyCode.Q -> println(QuadTree.root)
+            else -> {}
+        }
+    }
+
+    /**
      * Creates a preview of a rectangle with the current mouse position
      * and the position where the dragging started
      *
@@ -351,25 +326,6 @@ object SceneListener {
     }
 
     /**
-     * Handles key pressed events
-     *
-     * @param event the key event
-     */
-    fun onKeyPressed(event: KeyEvent) {
-        when (event.code) {
-            KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
-            KeyCode.SPACE -> FhysicsCore.update()
-            KeyCode.ENTER -> FhysicsCore.update()
-            KeyCode.Z -> drawer.resetZoom()
-            KeyCode.J -> QuadTree.capacity -= 5
-            KeyCode.K -> QuadTree.capacity += 5
-            KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
-            KeyCode.Q -> println(QuadTree.root)
-            else -> {}
-        }
-    }
-
-    /**
      * Spawns an object at the mouse position
      */
     private fun spawnObject() {
@@ -395,5 +351,113 @@ object SceneListener {
     private fun hasDraggedMinDistance(): Boolean {
         if (dragStartWorldPos == null) return false
         return (mouseWorldPos - dragStartWorldPos!!).sqrMagnitude() >= MIN_DRAG_DISTANCE * MIN_DRAG_DISTANCE
+    }
+
+    /**
+     * Validates the polygon vertices
+     * Checks if the polygon is valid by checking if the lines intersect
+     * and if the polygon is convex
+     *
+     * @return true if the polygon is valid
+     */
+    private fun validatePolyVertices(): Boolean {
+        val size: Int = polyVertices.size
+        if (size < 3) return false
+
+        if (areLinesIntersecting()) return false
+        if (isConcave()) {
+            println("Polygon is concave")
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Checks if the lines of the polygon are intersecting
+     *
+     * @return true if the lines are intersecting
+     */
+    private fun areLinesIntersecting(): Boolean {
+        val size: Int = polyVertices.size
+        for (i: Int in 0 until size) {
+            for (j: Int in i + 1 until size) {
+                val line1: Pair<Vector2, Vector2> = Pair(polyVertices[i], polyVertices[(i + 1) % size])
+                val line2: Pair<Vector2, Vector2> = Pair(polyVertices[j], polyVertices[(j + 1) % size])
+                if (doLinesIntersect(line1, line2)) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    /**
+     * Checks if two lines intersect
+     *
+     * @param lineA the first line
+     * @param lineB the second line
+     */
+    private fun doLinesIntersect(lineA: Pair<Vector2, Vector2>, lineB: Pair<Vector2, Vector2>): Boolean {
+        val a: Vector2 = lineA.first
+        val b: Vector2 = lineA.second
+        val c: Vector2 = lineB.first
+        val d: Vector2 = lineB.second
+
+        val denominator: Float = ((b.x - a.x) * (d.y - c.y)) - ((b.y - a.y) * (d.x - c.x))
+
+        // If the denominator is zero, lines are parallel and do not intersect
+        if (denominator == 0.0f) {
+            return false
+        }
+
+        // Calculate the numerators of the line intersection formula
+        val numeratorA: Float = ((a.y - c.y) * (d.x - c.x)) - ((a.x - c.x) * (d.y - c.y))
+        val numeratorB: Float = ((a.y - c.y) * (b.x - a.x)) - ((a.x - c.x) * (b.y - a.y))
+
+        // Calculate r and s parameters
+        val r: Float = numeratorA / denominator
+        val s: Float = numeratorB / denominator
+
+        // If r and s are both between 0 and 1, lines intersect (excluding endpoints)
+        return (0f < r && r < 1f) && (0f < s && s < 1f)
+    }
+
+    /**
+     * Checks if the polygon is concave
+     *
+     * @return true if the polygon is concave
+     */
+    private fun isConcave(): Boolean {
+        val vertices: List<Vector2> = ensureCCW(polyVertices)
+        val size: Int = vertices.size
+        for (i: Int in 0 until size) {
+            val a: Vector2 = vertices[i]
+            val b: Vector2 = vertices[(i + 1) % size]
+            val c: Vector2 = vertices[(i + 2) % size]
+
+            val crossProduct: Float = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+            if (crossProduct < 0) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Returns the vertices in counter-clockwise order
+     *
+     * @param vertices the vertices of the polygon
+     */
+    private fun ensureCCW(vertices: List<Vector2>): List<Vector2> {
+        // Calculate the signed area of the polygon
+        var signedArea = 0f
+        for (i: Int in vertices.indices) {
+            val j: Int = (i + 1) % vertices.size
+            signedArea += vertices[i].x * vertices[j].y - vertices[j].x * vertices[i].y
+        }
+        signedArea /= 2
+
+        // Reverse the vertices if the polygon is CW
+        return if (signedArea < 0) vertices.reversed() else vertices
     }
 }
