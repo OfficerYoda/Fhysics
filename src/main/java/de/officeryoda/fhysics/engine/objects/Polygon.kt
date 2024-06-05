@@ -12,11 +12,6 @@ abstract class Polygon(
     rotation: Float = 0f,
 ) : FhysicsObject(position, calculatePolygonArea(vertices), rotation) {
 
-    override fun updatePosition() {
-        super.updatePosition()
-        rotation += 0.01f
-    }
-
     open fun getAxes(): Set<Vector2> {
         // Calculate the normals of the polygon's sides based on its rotation
         val axes: MutableSet<Vector2> = mutableSetOf()

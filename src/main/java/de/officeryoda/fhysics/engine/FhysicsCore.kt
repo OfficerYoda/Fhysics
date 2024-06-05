@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -70,6 +71,8 @@ object FhysicsCore {
 //        val rect3 = Rectangle(Vector2(60.0F, 50.0F), 10.0F, 10.0F)
 //        spawn(rect3)
 
+        for (i in 1..10)
+            spawn(FhysicsObjectFactory.randomConvexPolygon())
 
         objectsAtStepSizeIncrease = objectCount
     }

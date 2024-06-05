@@ -122,7 +122,7 @@ object SceneListener {
             }
 
             polyVertices.add(pos)
-            validPolygon = validatePolyVertices()
+            validPolygon = validatePolyVertices(polyVertices)
 
             return
         }
@@ -360,11 +360,11 @@ object SceneListener {
      *
      * @return true if the polygon is valid
      */
-    private fun validatePolyVertices(): Boolean {
-        val size: Int = polyVertices.size
+    fun validatePolyVertices(vertices: MutableList<Vector2>): Boolean {
+        val size: Int = vertices.size
         if (size < 3) return false
 
-        return !areLinesIntersecting() && !isConcave()
+        return !areLinesIntersecting(vertices) && !isConcave(vertices)
     }
 
     /**
@@ -372,12 +372,12 @@ object SceneListener {
      *
      * @return true if the lines are intersecting
      */
-    private fun areLinesIntersecting(): Boolean {
-        val size: Int = polyVertices.size
+    private fun areLinesIntersecting(vertices: MutableList<Vector2>): Boolean {
+        val size: Int = vertices.size
         for (i: Int in 0 until size) {
             for (j: Int in i + 1 until size) {
-                val line1: Pair<Vector2, Vector2> = Pair(polyVertices[i], polyVertices[(i + 1) % size])
-                val line2: Pair<Vector2, Vector2> = Pair(polyVertices[j], polyVertices[(j + 1) % size])
+                val line1: Pair<Vector2, Vector2> = Pair(vertices[i], vertices[(i + 1) % size])
+                val line2: Pair<Vector2, Vector2> = Pair(vertices[j], vertices[(j + 1) % size])
                 if (doLinesIntersect(line1, line2)) {
                     return true
                 }
@@ -422,13 +422,13 @@ object SceneListener {
      *
      * @return true if the polygon is concave
      */
-    private fun isConcave(): Boolean {
-        val vertices: List<Vector2> = ensureCCW(polyVertices)
-        val size: Int = vertices.size
+    private fun isConcave(vertices: MutableList<Vector2>): Boolean {
+        val ccwVertices: List<Vector2> = ensureCCW(vertices)
+        val size: Int = ccwVertices.size
         for (i: Int in 0 until size) {
-            val a: Vector2 = vertices[i]
-            val b: Vector2 = vertices[(i + 1) % size]
-            val c: Vector2 = vertices[(i + 2) % size]
+            val a: Vector2 = ccwVertices[i]
+            val b: Vector2 = ccwVertices[(i + 1) % size]
+            val c: Vector2 = ccwVertices[(i + 2) % size]
 
             val crossProduct: Float = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
             if (crossProduct < 0) {
