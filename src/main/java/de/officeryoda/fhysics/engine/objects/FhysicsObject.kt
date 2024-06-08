@@ -82,10 +82,11 @@ abstract class FhysicsObject protected constructor(
     abstract fun clone(): FhysicsObject
 
     protected fun colorFromIndex(index: Int): Color {
-        val colors: List<Color> =
-            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
+        return Color(134, 158, 196, 128)
+//        val colors: List<Color> =
+//            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
 //        return colors[id % colors.size]
-        return colors[index % colors.size]
+//        return colors[index % colors.size]
 //        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
 //
 //        return color
