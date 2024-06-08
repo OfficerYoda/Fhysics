@@ -155,8 +155,8 @@ class FhysicsObjectDrawer : Application() {
         if (UIController.drawQuadTree) QuadTree.root.drawNode(this)
 
         drawBorder()
-        drawDebugPoints()
         drawDebugLines()
+        drawDebugPoints()
         drawStats()
     }
 
@@ -307,8 +307,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawDebugLines() {
-
-        gc.lineWidth = 2.0
+        gc.lineWidth = 4.0
 
         for (triple: Triple<Line2D.Float, Color, Int> in debugLines.toList()) {
             val start: Vector2 = worldToScreen(Vector2(triple.first.x1, triple.first.y1))
