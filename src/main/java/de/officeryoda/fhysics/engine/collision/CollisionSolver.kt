@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
 
 abstract class CollisionSolver {
 

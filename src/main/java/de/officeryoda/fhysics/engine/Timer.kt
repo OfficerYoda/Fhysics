@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine
 
 import java.util.*
 
-class Timer(private val maxDurations: Int) {
+class Timer(private val maxDurations: Int = 50) {
 
     private val updateDurations: LinkedList<Long> = LinkedList()
     private var startTime: Long = -1L
@@ -33,5 +33,9 @@ class Timer(private val maxDurations: Int) {
 
     fun reset() {
         updateDurations.clear()
+    }
+
+    fun rounded(decimalPlaces: Int = 2): String {
+        return String.format(Locale.US, "%.${decimalPlaces}f", average())
     }
 }

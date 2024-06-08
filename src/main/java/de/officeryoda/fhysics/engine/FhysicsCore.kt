@@ -3,11 +3,8 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
+import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.objects.Circle
-import de.officeryoda.fhysics.objects.FhysicsObject
-import de.officeryoda.fhysics.objects.FhysicsObjectFactory
-import de.officeryoda.fhysics.objects.Rectangle
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
@@ -47,16 +44,21 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        for (i in 1..4000) {
-//            val circle: Circle = FhysicsObjectFactory.randomCircle()
-////            circle.velocity.set(Vector2.ZERO)
-//            spawn(circle)
-//        }
-//
+
+
+        for (i in 1..20) {
+            val circle: Circle = FhysicsObjectFactory.randomCircle()
+//            circle.velocity.set(Vector2.ZERO)
+            spawn(circle)
+        }
+
         for (i in 1..20) {
             val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
             spawn(rect)
         }
+
+        for (i in 1..10)
+            spawn(FhysicsObjectFactory.randomConvexPolygon())
 
         // spawn a rotated rectangle in the center
 //        val rect =
@@ -64,17 +66,20 @@ object FhysicsCore {
 //        rect.velocity += Vector2(10f, 12f) * 2f
 //        spawn(rect)
 
-        // spawn a rectangle to the left and to the right
-//        val rect2 = Rectangle(Vector2(20.0F, 50.0F), 10.0F, 10.0F)
-//        rect2.velocity += Vector2(5f, 0f)
-//        spawn(rect2)
-//        val rect3 = Rectangle(Vector2(60.0F, 50.0F), 10.0F, 10.0F)
-//        spawn(rect3)
-
+        // a 5 sided polygon in the center
+//        val vertices = arrayOf(
+//            Vector2(-1.0F, -5.0F),
+//            Vector2(1.0F, -5.0F),
+//            Vector2(0.0F, 5.0F),
+////            Vector2(5.0F, 15.0F),
+////            Vector2(-5.0F, 10.0F)
+//        )
+//        val poly = ConvexPolygon(Vector2(50.0F, 50.0F), vertices)
+//        poly.static = true
+//        spawn(poly)
 
         objectsAtStepSizeIncrease = objectCount
     }
-
 
     fun startEverything() {
         Thread { FhysicsObjectDrawer().launch() }.start()
@@ -141,7 +146,7 @@ object FhysicsCore {
     fun checkBorderCollision(obj: FhysicsObject) {
         when (obj) {
             is Circle -> handleCircleBorderCollision(obj)
-            is Rectangle -> handleRectangleBorderCollision(obj)
+            is Polygon -> handlePolygonBorderCollision(obj)
         }
     }
 
@@ -171,8 +176,7 @@ object FhysicsCore {
         }
     }
 
-
-    private fun handleRectangleBorderCollision(obj: Rectangle) {
+    private fun handlePolygonBorderCollision(obj: Polygon) {
         val axesBorderProjection: List<Pair<Vector2, Projection>> = listOf(
             Pair(Vector2(-1f, 0f), Projection(Float.MIN_VALUE, BORDER.x)),
             Pair(Vector2(1f, 0f), Projection(BORDER.x + BORDER.width, Float.MAX_VALUE)),

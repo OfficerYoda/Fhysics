@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.objects
+package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
@@ -13,7 +13,7 @@ abstract class FhysicsObject protected constructor(
     var rotation: Float = 0f, // in radians
 ) {
     val id: Int = FhysicsCore.nextId()
-    var color: Color = colorFromIndex()
+    var color: Color = colorFromIndex(0)
     val boundingBox: BoundingBox = BoundingBox()
         get() {
             // only update the bounding box if it hasn't been updated this update cycle
@@ -67,32 +67,29 @@ abstract class FhysicsObject protected constructor(
         acceleration.set(Vector2.ZERO)
     }
 
-    private fun colorFromIndex(): Color {
-        val colors: List<Color> =
-            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
-        return colors[id % 1]
-//        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
-//
-//        return color
-    }
+    abstract fun project(axis: Vector2): Projection
 
-    fun testCollision(other: FhysicsObject): CollisionInfo {
-        return when (other) {
-            is Circle -> testCollision(other)
-            is Rectangle -> testCollision(other)
-            else -> throw IllegalArgumentException("Unsupported object type for collision")
-        }
-    }
+    abstract fun contains(pos: Vector2): Boolean
+
+    abstract fun testCollision(other: FhysicsObject): CollisionInfo
 
     abstract fun testCollision(other: Circle): CollisionInfo
 
     abstract fun testCollision(other: Rectangle): CollisionInfo
 
-    abstract fun project(axis: Vector2): Projection
-
-    abstract fun contains(pos: Vector2): Boolean
+    abstract fun testCollision(other: Polygon): CollisionInfo
 
     abstract fun clone(): FhysicsObject
+
+    protected fun colorFromIndex(index: Int): Color {
+        val colors: List<Color> =
+            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
+//        return colors[id % colors.size]
+        return colors[index % colors.size]
+//        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
+//
+//        return color
+    }
 
     override fun toString(): String {
         return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"

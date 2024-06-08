@@ -5,9 +5,10 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Circle
-import de.officeryoda.fhysics.objects.FhysicsObject
-import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.lerp
 import de.officeryoda.fhysics.rendering.RenderUtil.lerpV2
@@ -148,22 +149,12 @@ class FhysicsObjectDrawer : Application() {
 
         if (hoveredObject != null) drawObjectPulsing(hoveredObject!!)
         if (selectedObject != null && selectedObject !== hoveredObject) drawObjectPulsing(selectedObject!!)
-        if (UIController.drawSpawnPreview && this.hoveredObject == null) drawSpawnPreview()
+        if (UIController.drawSpawnPreview && hoveredObject == null) drawSpawnPreview()
         if (UIController.drawQuadTree) QuadTree.root.drawNode(this)
 
         drawBorder()
         drawDebugPoints()
         drawStats()
-    }
-
-    private fun checkForHoveredObject(): FhysicsObject? {
-        // Check if the mouse is still hovering over the object
-        val obj: FhysicsObject? =
-            this.hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
-                ?: QuadTree.root.query(SceneListener.mouseWorldPos)
-
-        // If the object is in the remove queue, don't return it
-        return obj.takeUnless { QuadTree.removeQueue.contains(it) }
     }
 
     private fun drawObjectPulsing(obj: FhysicsObject) {
@@ -172,20 +163,11 @@ class FhysicsObjectDrawer : Application() {
         val color = Color(c.red, c.green, c.blue, alpha)
         setFillColor(color)
 
-        if (obj is Circle) {
-            drawCircle(obj)
-        } else if (obj is Rectangle) {
-            drawRectangle(obj)
+        when (obj) {
+            is Circle -> drawCircle(obj)
+            is Rectangle -> drawRectangle(obj)
+            is Polygon -> drawPolygon(obj)
         }
-    }
-
-    private fun lerpZoom() {
-        // A value I think looks good
-        val interpolation = 0.12F
-
-        // Lerp the zoom and zoomCenter
-        zoom = lerp(zoom, targetZoom, interpolation.toDouble())
-        zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
     }
 
     fun drawObject(obj: FhysicsObject) {
@@ -197,23 +179,22 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(obj.color)
 
         // Draw Object
-        if (obj is Circle) {
-            drawCircle(obj)
-        } else if (obj is Rectangle) {
-            drawRectangle(obj)
+        when (obj) {
+            is Circle -> drawCircle(obj)
+            is Rectangle -> drawRectangle(obj)
+            is Polygon -> drawPolygon(obj)
         }
     }
 
     private fun drawCircle(circle: Circle) {
         val pos: Vector2 = worldToScreen(circle.position)
         val radius: Double = circle.radius * zoom
-        val diameter: Double = 2 * radius
 
         gc.fillOval(
             pos.x - radius,
             pos.y - radius,
-            diameter,
-            diameter
+            2 * radius,
+            2 * radius
         )
     }
 
@@ -241,17 +222,66 @@ class FhysicsObjectDrawer : Application() {
         gc.restore()
     }
 
+    private fun drawPolygon(poly: Polygon) {
+        val vertices: List<Vector2> = poly.getTransformedVertices()
+
+        val xPoints = DoubleArray(vertices.size)
+        val yPoints = DoubleArray(vertices.size)
+
+        for (i: Int in vertices.indices) {
+            xPoints[i] = worldToScreenX(vertices[i].x)
+            yPoints[i] = worldToScreenY(vertices[i].y)
+        }
+
+        gc.fillPolygon(xPoints, yPoints, vertices.size)
+    }
+
     private fun drawSpawnPreview() {
         // Triangle temp for nothing selected to spawn
-        if (UIController.spawnObjectType == SpawnObjectType.NOTHING) return
+        when (UIController.spawnObjectType) {
+            SpawnObjectType.NOTHING -> return
+            SpawnObjectType.POLYGON -> drawPolygonPreview()
+            else -> drawObject(spawnPreview!!)
+        }
+    }
 
-        drawObject(spawnPreview!!)
+    private fun drawPolygonPreview() {
+        val vertices: List<Vector2> = SceneListener.polyVertices
+
+        if (vertices.isEmpty()) return
+
+        gc.beginPath()
+
+        for (i: Int in vertices.indices) {
+            val vertex: Vector2 = worldToScreen(vertices[i])
+            gc.lineTo(vertex.x.toDouble(), vertex.y.toDouble())
+        }
+
+        val c: Color = Color.WHITE
+        val transparentC = Color(c.red, c.green, c.blue, 128)
+
+        setStrokeColor(c)
+        setFillColor(transparentC)
+
+        gc.stroke()
+        if (!SceneListener.validPolygon)
+            setFillColor(Color(255, 0, 0, 128))
+        gc.fill()
+
+        // Draw a circle at the first vertex for easier closing
+        setFillColor(Color(0, 255, 0, 128))
+        val firstVertex: Vector2 = worldToScreen(vertices.first())
+        val radius: Double = SceneListener.POLYGON_CLOSE_RADIUS.toDouble() * zoom
+        gc.fillOval(
+            firstVertex.x.toDouble() - radius,
+            firstVertex.y.toDouble() - radius,
+            2 * radius,
+            2 * radius
+        )
     }
 
     private fun drawDebugPoints() {
         val pointSize = 6.0
-
-        val duration = 200 // The amount of Frames the point should be visible
 
         for (triple: Triple<Vector2, Color, Int> in debugPoints.toList()) {
             val pos: Vector2 = worldToScreen(triple.first)
@@ -265,8 +295,8 @@ class FhysicsObjectDrawer : Application() {
 
             // Update the duration of the point
             // If the max duration is reached remove the point
-            if (triple.third < duration) {
-                debugPoints[debugPoints.indexOf(triple)] = Triple(triple.first, triple.second, triple.third + 1)
+            if (triple.third > 0) {
+                debugPoints[debugPoints.indexOf(triple)] = Triple(triple.first, triple.second, triple.third - 1)
             } else {
                 debugPoints.remove(triple)
             }
@@ -333,15 +363,13 @@ class FhysicsObjectDrawer : Application() {
     private fun drawStats() {
         val stats: ArrayList<String> = ArrayList()
 
-        if (UIController.drawMSPU || UIController.drawUPS) { // Check both because UPS is calculated from MSPU
-            val mspu: Double = FhysicsCore.updateTimer.average() // Milliseconds per Update
-            val mspuRounded: String = String.format(Locale.US, "%.2f", mspu)
-
+        if (UIController.drawMSPU || UIController.drawUPS) {
             if (UIController.drawMSPU) {
-                stats.add("MSPU: $mspuRounded")
+                stats.add("MSPU: ${FhysicsCore.updateTimer.rounded()}")
             }
 
             if (UIController.drawUPS) {
+                val mspu: Double = FhysicsCore.updateTimer.average() // Milliseconds per Update
                 val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
                 val upsRounded: String = String.format(Locale.US, "%.2f", ups)
                 stats.add("UPS: $upsRounded")
@@ -379,9 +407,9 @@ class FhysicsObjectDrawer : Application() {
         }
     }
 
-    // =====Debug functions=====
-    fun addDebugPoint(point: Vector2, color: Color = Color.RED) {
-        debugPoints.add(Triple(point.copy(), color, 0))
+    /// =====Debug functions=====
+    fun addDebugPoint(point: Vector2, color: Color = Color.RED, duration: Int = 200) {
+        debugPoints.add(Triple(point.copy(), color, duration))
     }
 
     /// =====Window size functions=====
@@ -419,6 +447,26 @@ class FhysicsObjectDrawer : Application() {
     }
 
     /// =====Utility functions=====
+    private fun lerpZoom() {
+        // A value I think looks good
+        val interpolation = 0.12F
+
+        // Lerp the zoom and zoomCenter
+        zoom = lerp(zoom, targetZoom, interpolation.toDouble())
+        zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
+    }
+
+    private fun checkForHoveredObject(): FhysicsObject? {
+
+        // Check if the mouse is still hovering over the object
+        val obj: FhysicsObject? =
+            this.hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
+                ?: QuadTree.root.query(SceneListener.mouseWorldPos)
+
+        // If the object is in the remove queue, don't return it
+        return obj.takeUnless { QuadTree.removeQueue.contains(it) }
+    }
+
     fun resetZoom() {
         targetZoom = calculateZoom()
         zoom = targetZoom

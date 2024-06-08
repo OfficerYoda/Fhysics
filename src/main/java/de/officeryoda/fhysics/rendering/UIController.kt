@@ -7,9 +7,9 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Circle
-import de.officeryoda.fhysics.objects.FhysicsObject
-import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
@@ -113,6 +113,13 @@ class UIController {
 
     /// =====Spawn Object=====
     @FXML
+    fun onSpawnNothingClicked() {
+        spawnObjectType = SpawnObjectType.NOTHING
+        updateSpawnPreview()
+        setSpawnFieldAvailability(radius = false, width = false, height = false)
+    }
+
+    @FXML
     fun onSpawnCircleClicked() {
         spawnObjectType = SpawnObjectType.CIRCLE
         updateSpawnPreview()
@@ -127,10 +134,12 @@ class UIController {
     }
 
     @FXML
-    fun onSpawnNothingClicked() {
-        spawnObjectType = SpawnObjectType.NOTHING
+    fun onSpawnPolygonClicked() {
+        spawnObjectType = SpawnObjectType.POLYGON
         updateSpawnPreview()
         setSpawnFieldAvailability(radius = false, width = false, height = false)
+        // Clear the polygon vertices list for a new polygon
+        SceneListener.polyVertices.clear()
     }
 
     fun updateSpawnPreview() {
@@ -143,6 +152,11 @@ class UIController {
         val obj: FhysicsObject = when (spawnObjectType) {
             SpawnObjectType.CIRCLE -> Circle(SceneListener.mouseWorldPos, spawnRadius)
             SpawnObjectType.RECTANGLE -> Rectangle(SceneListener.mouseWorldPos, spawnWidth, spawnHeight)
+            SpawnObjectType.POLYGON -> {
+                val circle = Circle(SceneListener.mouseWorldPos, spawnRadius)
+                circle.color = Color.RED
+                circle
+            }
             else -> throw IllegalArgumentException("Invalid spawn object type")
         }
 
@@ -296,7 +310,7 @@ class UIController {
     @FXML
     fun onTimeSpeedTyped() {
         timeSpeed = parseTextField(txtTimeSpeed)
-        FhysicsCore.dt = 1.0F / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
+        FhysicsCore.dt = 1.0f / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
     }
 
     /// =====QuadTree=====
@@ -387,9 +401,10 @@ class UIController {
         restrictToNumericInput(txtSpawnHeight, false)
 
         when (spawnObjectType) {
+            SpawnObjectType.NOTHING -> onSpawnNothingClicked()
             SpawnObjectType.CIRCLE -> onSpawnCircleClicked()
             SpawnObjectType.RECTANGLE -> onSpawnRectangleClicked()
-            SpawnObjectType.NOTHING -> onSpawnNothingClicked()
+            SpawnObjectType.POLYGON -> onSpawnPolygonClicked()
         }
 
         /// =====Gravity=====
@@ -473,11 +488,11 @@ class UIController {
             private set
         var drawSpawnPreview: Boolean = true
             private set
-        var spawnRadius: Float = 1.0F
+        var spawnRadius: Float = 0.2668028f
             private set
-        var spawnWidth: Float = 1.0F
+        var spawnWidth: Float = 1.0f
             private set
-        var spawnHeight: Float = 1.0F
+        var spawnHeight: Float = 1.0f
             private set
 
         /// =====Object Properties=====
@@ -496,7 +511,7 @@ class UIController {
             private set
 
         /// =====Time=====
-        var timeSpeed: Float = 1.0F
+        var timeSpeed: Float = 1.0f
             private set
 
         /// =====QuadTree=====
@@ -519,15 +534,16 @@ class UIController {
         var drawObjectCount: Boolean = false
             private set
 
-        var wallElasticity: Float = 1.0F
+        var wallElasticity: Float = 1.0f
             private set
     }
 }
 
 enum class SpawnObjectType {
+    NOTHING,
     CIRCLE,
     RECTANGLE,
-    NOTHING
+    POLYGON
 }
 
 enum class GravityType {

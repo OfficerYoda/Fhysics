@@ -1,8 +1,9 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.objects.Circle
-import de.officeryoda.fhysics.objects.FhysicsObject
-import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -76,6 +77,25 @@ data class BoundingBox(
     }
 
     /**
+     * Sets the bounding box to the bounding box of the given polygon.
+     *
+     * @param poly The polygon to set the bounding box from.
+     */
+    private fun setFromPolygon(poly: Polygon) {
+        val translatedVertices: List<Vector2> = poly.getTransformedVertices()
+
+        val minX: Float = translatedVertices.minOf { it.x }
+        val maxX: Float = translatedVertices.maxOf { it.x }
+        val minY: Float = translatedVertices.minOf { it.y }
+        val maxY: Float = translatedVertices.maxOf { it.y }
+
+        this.x = minX
+        this.y = minY
+        this.width = maxX - minX
+        this.height = maxY - minY
+    }
+
+    /**
      * Sets the bounding box to the bounding box of the given physics object.
      *
      * @param obj The physics object to set the bounding box from.
@@ -85,6 +105,7 @@ data class BoundingBox(
         return when (obj) {
             is Circle -> setFromCircle(obj)
             is Rectangle -> setFromRectangle(obj)
+            is Polygon -> setFromPolygon(obj)
             else -> throw IllegalArgumentException("Unsupported object type for bounding box")
         }
     }
@@ -97,7 +118,7 @@ data class BoundingBox(
      */
     fun contains(pos: Vector2): Boolean {
         return pos.x in x..(x + width) &&
-                pos.y in pos.y..(y + height)
+                pos.y in y..(y + height)
     }
 
     /**

@@ -1,21 +1,17 @@
-package de.officeryoda.fhysics.objects
+package de.officeryoda.fhysics.engine.objects
 
+import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
-import de.officeryoda.fhysics.engine.Projection
 
 class Circle(
     position: Vector2,
     val radius: Float,
 ) : FhysicsObject(position, (Math.PI * radius * radius).toFloat()) {
 
-    override fun testCollision(other: Circle): CollisionInfo {
-        return CollisionFinder.testCollision(this, other)
-    }
-
-    override fun testCollision(other: Rectangle): CollisionInfo {
-        return CollisionFinder.testCollision(this, other)
+    init {
+        color = colorFromIndex(0)
     }
 
     override fun project(axis: Vector2): Projection {
@@ -26,6 +22,22 @@ class Circle(
 
     override fun contains(pos: Vector2): Boolean {
         return pos.sqrDistance(position) <= radius * radius
+    }
+
+    override fun testCollision(other: FhysicsObject): CollisionInfo {
+        return other.testCollision(this) // works because FhysicsObject is abstract (aka double dispatch)
+    }
+
+    override fun testCollision(other: Circle): CollisionInfo {
+        return CollisionFinder.testCollision(this, other)
+    }
+
+    override fun testCollision(other: Rectangle): CollisionInfo {
+        return CollisionFinder.testCollision(this, other)
+    }
+
+    override fun testCollision(other: Polygon): CollisionInfo {
+        return CollisionFinder.testCollision(other, this)
     }
 
     override fun clone(): FhysicsObject {

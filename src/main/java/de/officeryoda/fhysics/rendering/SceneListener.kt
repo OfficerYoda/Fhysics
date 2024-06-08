@@ -3,7 +3,8 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.ConvexPolygon
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
 import javafx.scene.input.*
@@ -64,31 +65,80 @@ object SceneListener {
     private var canceledDragSpawn: Boolean = false
 
     /**
+     * The radius around the first polygon vertex where the polygon closes when clicked inside
+     */
+    const val POLYGON_CLOSE_RADIUS = 1.0f
+
+    /**
+     * The vertices of the polygon being created
+     */
+    var polyVertices: MutableList<Vector2> = ArrayList()
+
+    /**
+     * Whether the polygon is valid
+     */
+    var validPolygon = true
+
+    /**
      * Handles mouse pressed events
      *
      * @param e the mouse event
      */
     fun onMousePressed(e: MouseEvent) {
         when (e.button) {
-            MouseButton.PRIMARY -> {
-                // Select object if hovered, otherwise spawn object
-                if (drawer.hoveredObject != null) {
-                    drawer.selectedObject = drawer.hoveredObject
-                    UIController.instance.expandObjectPropertiesPane()
-                } else {
-                    drawer.selectedObject = null
-                }
-            }
-
-            MouseButton.SECONDARY -> {
-                rightPressed = true
-                rightPressedPos = RenderUtil.screenToWorld(Vector2(e.x.toFloat(), e.y.toFloat()))
-            }
-
+            MouseButton.PRIMARY -> handlePrimaryButtonPressed()
+            MouseButton.SECONDARY -> handleSecondaryButtonPressed()
             else -> {}
         }
 
         UIController.instance.updateObjectPropertiesValues()
+    }
+
+    /**
+     * Handles the press of the primary mouse button
+     */
+    private fun handlePrimaryButtonPressed() {
+        // Add a vertex to the polygon
+        if (UIController.spawnObjectType == SpawnObjectType.POLYGON) {
+            val pos: Vector2 = mouseWorldPos.copy()
+
+            // Create the polygon if the polygon is complete
+            if (polyVertices.size > 2 && validPolygon) {
+                val startPos: Vector2 = polyVertices.first()
+                if (pos.sqrDistance(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
+                    // Map the vertices relative to the center
+                    val vertices: List<Vector2> = ensureCCW(polyVertices.map { it })
+                    // create the polygon
+                    val polygon = ConvexPolygon(vertices.toTypedArray())
+
+                    FhysicsCore.spawn(polygon)
+
+                    polyVertices.clear()
+                    return
+                }
+            }
+
+            polyVertices.add(pos)
+            validPolygon = validatePolyVertices(polyVertices)
+
+            return
+        }
+
+        // Select object if hovered, otherwise spawn object
+        if (drawer.hoveredObject != null) {
+            drawer.selectedObject = drawer.hoveredObject
+            UIController.instance.expandObjectPropertiesPane()
+        } else {
+            drawer.selectedObject = null
+        }
+    }
+
+    /**
+     * Handles the press of the secondary mouse button
+     */
+    private fun handleSecondaryButtonPressed() {
+        rightPressed = true
+        rightPressedPos = mouseWorldPos.copy()
     }
 
     /**
@@ -98,18 +148,16 @@ object SceneListener {
      */
     fun onMouseReleased(e: MouseEvent) {
         when (e.button) {
-            MouseButton.PRIMARY -> handlePrimaryButtonRelease()
-            MouseButton.SECONDARY -> handleSecondaryButtonRelease()
+            MouseButton.PRIMARY -> handlePrimaryButtonReleased()
+            MouseButton.SECONDARY -> handleSecondaryButtonReleased()
             else -> {}
         }
     }
 
     /**
      * Handles the release of the primary mouse button
-     *
-     * @param e the mouse event
      */
-    private fun handlePrimaryButtonRelease() {
+    private fun handlePrimaryButtonReleased() {
         when {
             hasDraggedMinDistance() -> {
                 if (!canceledDragSpawn) {
@@ -117,34 +165,30 @@ object SceneListener {
                     UIController.instance.updateSpawnPreview()
                 }
             }
+
             drawer.hoveredObject == null && !canceledDragSpawn -> {
                 spawnObject()
             }
         }
 
-        resetDragState()
-    }
-
-    /**
-     * Resets the drag state
-     */
-    private fun resetDragState() {
+        // Reset the drag state
         canceledDragSpawn = false
         dragStartWorldPos = null
     }
 
     /**
      * Handles the release of the secondary mouse button
-     *
-     * @param e the mouse event
      */
-    private fun handleSecondaryButtonRelease() {
+    private fun handleSecondaryButtonReleased() {
         // Cancel drag spawning
         if (dragStartWorldPos != null) {
             canceledDragSpawn = true
             dragStartWorldPos = null
             UIController.instance.updateSpawnPreview()
         }
+
+        // Clear the polygon vertices for a new polygon
+        polyVertices.clear()
 
         rightPressed = false
     }
@@ -205,8 +249,28 @@ object SceneListener {
         onMouseMoved(e)
 
         when (e.button) {
-            MouseButton.PRIMARY -> dragRectanglePreview(e)
+            MouseButton.PRIMARY -> dragRectanglePreview()
             MouseButton.SECONDARY -> dragCamera(e)
+            else -> {}
+        }
+    }
+
+    /**
+     * Handles key pressed events
+     *
+     * @param event the key event
+     */
+    fun onKeyPressed(event: KeyEvent) {
+        when (event.code) {
+            KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
+            KeyCode.SPACE -> FhysicsCore.update()
+            KeyCode.ENTER -> FhysicsCore.update()
+            KeyCode.Z -> drawer.resetZoom()
+            KeyCode.J -> QuadTree.capacity -= 5
+            KeyCode.K -> QuadTree.capacity += 5
+            KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
+            KeyCode.Q -> println(QuadTree.root)
+            KeyCode.S -> println(drawer.selectedObject)
             else -> {}
         }
     }
@@ -215,10 +279,9 @@ object SceneListener {
      * Creates a preview of a rectangle with the current mouse position
      * and the position where the dragging started
      *
-     * @param e the mouse event
      * @return the preview rectangle
      */
-    private fun dragRectanglePreview(e: MouseEvent) {
+    private fun dragRectanglePreview() {
         // Don't create a drag preview if the spawn object type is not a rectangle
         if (UIController.spawnObjectType != SpawnObjectType.RECTANGLE) return
 
@@ -261,28 +324,7 @@ object SceneListener {
     }
 
     /**
-     * Handles key pressed events
-     *
-     * @param event the key event
-     */
-    fun onKeyPressed(event: KeyEvent) {
-        when (event.code) {
-            KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
-            KeyCode.SPACE -> FhysicsCore.update()
-            KeyCode.ENTER -> FhysicsCore.update()
-            KeyCode.Z -> drawer.resetZoom()
-            KeyCode.J -> QuadTree.capacity -= 5
-            KeyCode.K -> QuadTree.capacity += 5
-            KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
-            KeyCode.Q -> println(QuadTree.root)
-            else -> {}
-        }
-    }
-
-    /**
      * Spawns an object at the mouse position
-     *
-     * @param e the mouse event
      */
     private fun spawnObject() {
         // Check if spawn pos is outside the border
@@ -307,5 +349,108 @@ object SceneListener {
     private fun hasDraggedMinDistance(): Boolean {
         if (dragStartWorldPos == null) return false
         return (mouseWorldPos - dragStartWorldPos!!).sqrMagnitude() >= MIN_DRAG_DISTANCE * MIN_DRAG_DISTANCE
+    }
+
+    /**
+     * Validates the polygon vertices
+     * Checks if the polygon is valid by checking if the lines intersect
+     * and if the polygon is convex
+     *
+     * @return true if the polygon is valid
+     */
+    fun validatePolyVertices(vertices: MutableList<Vector2>): Boolean {
+        val size: Int = vertices.size
+        if (size < 3) return false
+
+        return !areLinesIntersecting(vertices) && !isConcave(vertices)
+    }
+
+    /**
+     * Checks if the lines of the polygon are intersecting
+     *
+     * @return true if the lines are intersecting
+     */
+    private fun areLinesIntersecting(vertices: MutableList<Vector2>): Boolean {
+        val size: Int = vertices.size
+        for (i: Int in 0 until size) {
+            for (j: Int in i + 1 until size) {
+                val line1: Pair<Vector2, Vector2> = Pair(vertices[i], vertices[(i + 1) % size])
+                val line2: Pair<Vector2, Vector2> = Pair(vertices[j], vertices[(j + 1) % size])
+                if (doLinesIntersect(line1, line2)) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    /**
+     * Checks if two lines intersect
+     *
+     * @param lineA the first line
+     * @param lineB the second line
+     */
+    private fun doLinesIntersect(lineA: Pair<Vector2, Vector2>, lineB: Pair<Vector2, Vector2>): Boolean {
+        val a: Vector2 = lineA.first
+        val b: Vector2 = lineA.second
+        val c: Vector2 = lineB.first
+        val d: Vector2 = lineB.second
+
+        val denominator: Float = ((b.x - a.x) * (d.y - c.y)) - ((b.y - a.y) * (d.x - c.x))
+
+        // If the denominator is zero, lines are parallel and do not intersect
+        if (denominator == 0.0f) {
+            return false
+        }
+
+        // Calculate the numerators of the line intersection formula
+        val numeratorA: Float = ((a.y - c.y) * (d.x - c.x)) - ((a.x - c.x) * (d.y - c.y))
+        val numeratorB: Float = ((a.y - c.y) * (b.x - a.x)) - ((a.x - c.x) * (b.y - a.y))
+
+        // Calculate r and s parameters
+        val r: Float = numeratorA / denominator
+        val s: Float = numeratorB / denominator
+
+        // If r and s are both between 0 and 1, lines intersect (excluding endpoints)
+        return (0f < r && r < 1f) && (0f < s && s < 1f)
+    }
+
+    /**
+     * Checks if the polygon is concave
+     *
+     * @return true if the polygon is concave
+     */
+    private fun isConcave(vertices: MutableList<Vector2>): Boolean {
+        val ccwVertices: List<Vector2> = ensureCCW(vertices)
+        val size: Int = ccwVertices.size
+        for (i: Int in 0 until size) {
+            val a: Vector2 = ccwVertices[i]
+            val b: Vector2 = ccwVertices[(i + 1) % size]
+            val c: Vector2 = ccwVertices[(i + 2) % size]
+
+            val crossProduct: Float = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+            if (crossProduct < 0) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Returns the vertices in counter-clockwise order
+     *
+     * @param vertices the vertices of the polygon
+     */
+    private fun ensureCCW(vertices: List<Vector2>): List<Vector2> {
+        // Calculate the signed area of the polygon
+        var signedArea = 0f
+        for (i: Int in vertices.indices) {
+            val j: Int = (i + 1) % vertices.size
+            signedArea += vertices[i].x * vertices[j].y - vertices[j].x * vertices[i].y
+        }
+        signedArea /= 2
+
+        // Reverse the vertices if the polygon is CW
+        return if (signedArea < 0) vertices.reversed() else vertices
     }
 }
