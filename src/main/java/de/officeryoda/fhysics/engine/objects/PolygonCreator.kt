@@ -3,102 +3,81 @@ package de.officeryoda.fhysics.engine.objects
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.rendering.RenderUtil
 import java.awt.Color
-import de.officeryoda.fhysics.engine.objects.`Hertel-Mehlhorn-Convex-Decomposition` as HMCD
 
-/**
- * Converts polygons to convex polygons.
- */
 object PolygonCreator {
 
-    fun createPolygon(inputVertices: Array<Vector2>): de.officeryoda.fhysics.engine.objects.Polygon {
-        ensureCCW(inputVertices)
-//        if (!isConcave(inputVertices)) return ConvexPolygon(inputVertices)
+    /**
+     * Creates a polygon from the given vertices
+     *
+     * @param vertices the vertices of the polygon
+     * @return the polygon
+     */
+    fun createPolygon(vertices: Array<Vector2>): Polygon {
+        ensureCCW(vertices)
+        if (!isConcave(vertices)) return ConvexPolygon(vertices)
 
-        // Create concave polygon
-//        HMCDDecomposing(inputVertices)
-
-        var verts = arrayOf(
-            Vector2(40f, 40f),
-            Vector2(60f, 40f),
-            Vector2(60f, 60f),
-            Vector2(50f, 70f),
-            Vector2(40f, 60f)
-        )
-        ensureCCW(verts)
-        fixCollinearPoints(verts)
-
-        verts = inputVertices
-
-        val triangles = triangulate(verts.toList())
+        val triangles: MutableList<Array<Vector2>> = triangulate(vertices.toMutableList())
         // draw triangles
         triangles.forEach { triangle ->
-            RenderUtil.drawer.addDebugLine(triangle[0], triangle[1], Color.RED, 2000000)
-            RenderUtil.drawer.addDebugLine(triangle[1], triangle[2], Color.RED, 2000000)
-            RenderUtil.drawer.addDebugLine(triangle[2], triangle[0], Color.RED, 2000000)
+            RenderUtil.drawer.addDebugLine(triangle[0], triangle[1], Color.RED, 8400)
+            RenderUtil.drawer.addDebugLine(triangle[1], triangle[2], Color.RED, 8400)
+            RenderUtil.drawer.addDebugLine(triangle[2], triangle[0], Color.RED, 8400)
         }
 
-        val convexPolygons = mergeTriangles(triangles)
+        val convexPolygons: MutableList<Array<Vector2>> = mergePolygons(triangles)
         // draw merged triangles
         convexPolygons.forEach { poly ->
-            for (i in poly.indices) {
-                RenderUtil.drawer.addDebugLine(poly[i], poly[(i + 1) % poly.size], Color.GREEN, 2000000)
+            for (i: Int in poly.indices) {
+                RenderUtil.drawer.addDebugLine(poly[i], poly[(i + 1) % poly.size], Color.GREEN, 8400)
             }
         }
 
-        return ConvexPolygon(verts)
+        return ConvexPolygon(vertices)
     }
 
-    //    data class Triangle(val p1: Vector2, val p2: Vector2, val p3: Vector2)
-    private fun fixCollinearPoints(points: Array<Vector2>) {
-        for (i in points.indices) {
-            for (j in i + 1 until points.size) {
-                for (k in j + 1 until points.size) {
-                    val p1 = points[i]
-                    val p2 = points[j]
-                    val p3 = points[k]
+    /**
+     * Triangulates a polygon
+     *
+     * It has problems with collinear points, but the appearance of those is unlikely when creating polygons by hand
+     *
+     * @param polygon the polygon to triangulate
+     * @return a list of triangles
+     */
+    private fun triangulate(polygon: MutableList<Vector2>): MutableList<Array<Vector2>> {
+        val triangles: MutableList<Array<Vector2>> = mutableListOf()
 
-                    if (isCollinear(p1, p2, p3)) {
-                        // Perturb the middle point slightly to break collinearity
-                        val epsilon = 1e-5f
-                        points[i] = p1 + Vector2(epsilon, 0f)
-                        points[j] = p2 + Vector2(-epsilon, 0f)
-                    }
-                }
-            }
-        }
-    }
+        while (polygon.size > 3) {
+            for (i: Int in polygon.indices) {
+                val prev: Vector2 = polygon[(i - 1 + polygon.size) % polygon.size]
+                val curr: Vector2 = polygon[i]
+                val next: Vector2 = polygon[(i + 1) % polygon.size]
 
-    private fun isCollinear(p1: Vector2, p2: Vector2, p3: Vector2): Boolean {
-        val crossProduct = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)
-        return crossProduct == 0f // Points are collinear if cross product is zero
-    }
-
-    private fun triangulate(polygon: List<Vector2>): List<Array<Vector2>> {
-        val triangles = mutableListOf<Array<Vector2>>()
-        val vertices = polygon.toMutableList()
-
-        while (vertices.size > 3) {
-            for (i in vertices.indices) {
-                val prev = vertices[(i - 1 + vertices.size) % vertices.size]
-                val curr = vertices[i]
-                val next = vertices[(i + 1) % vertices.size]
-
-                if (isEar(prev, curr, next, vertices)) {
+                if (isEar(prev, curr, next, polygon)) {
                     triangles.add(arrayOf(prev, curr, next))
-                    vertices.removeAt(i)
+                    polygon.removeAt(i)
                     break
                 }
             }
         }
 
-        triangles.add(arrayOf(vertices[0], vertices[1], vertices[2]))
+        triangles.add(arrayOf(polygon[0], polygon[1], polygon[2]))
         return triangles
     }
 
+    /**
+     * Checks if a triangle is an ear
+     *
+     * An ear is a triangle that does not contain any other vertices of the polygon inside it
+     *
+     * @param p1 the first vertex of the triangle
+     * @param p2 the second vertex of the triangle
+     * @param p3 the third vertex of the triangle
+     * @param polygon the polygon containing the triangle
+     */
     private fun isEar(p1: Vector2, p2: Vector2, p3: Vector2, polygon: List<Vector2>): Boolean {
         // Check if the triangle (p1, p2, p3) is an ear
         if (!isConvex(p1, p2, p3)) return false
-        for (vertex in polygon) {
+        for (vertex: Vector2 in polygon) {
             if (vertex != p1 && vertex != p2 && vertex != p3 && isPointInTriangle(vertex, p1, p2, p3)) {
                 return false
             }
@@ -106,98 +85,95 @@ object PolygonCreator {
         return true
     }
 
-    private fun mergeTriangles(triangles: List<Array<Vector2>>): MutableList<Array<Vector2>> {
-        val mergedPolygons = mutableListOf<Array<Vector2>>()
-        val mergedIndices = mutableSetOf<Int>()
-        val loopingList = triangles.toMutableList()
-        var mergedSomething = true
-
-        while (mergedSomething) {
-            mergedSomething = false
-            mergedPolygons.clear()
-            mergedIndices.clear()
-
-            for (i in loopingList.indices) {
-                if (mergedIndices.contains(i)) continue
-
-                val objA: Array<Vector2> = loopingList[i]
-                var merged = false
-                for (j in i + 1..<loopingList.size) {
-                    if (mergedIndices.contains(j)) continue
-
-                    val objB: Array<Vector2> = loopingList[j]
-
-                    val newPoly: Array<Vector2?> = arrayOfNulls(objA.size + objB.size - 2)
-                    val sharedEdge = shareEdge(objA, objB) ?: continue
-
-                    // Add the first polygon up to the shared edge
-                    var k = 0
-                    while (k <= sharedEdge.first) {
-                        newPoly[k] = objA[k]
-                        k++
-                    }
-                    // Add the second polygon up to the shared edge
-                    var l = sharedEdge.second + 2
-                    repeat(objB.size - 2) {
-                        newPoly[k] = objB[l % objB.size]
-                        k++
-                        l++
-                    }
-                    // Add the rest of the first polygon
-                    repeat(objA.size - sharedEdge.first - 1) {
-                        newPoly[k] = objA[(sharedEdge.first + 1 + it) % objA.size]
-                        k++
-                    }
-
-                    if (newPoly.size != newPoly.filterNotNull().size) {
-                        throw Exception("Null in newPoly") // TODO remove; just here for testing
-                    }
-
-                    if (isConcave(newPoly.filterNotNull().toTypedArray())) break
-
-
-                    mergedPolygons.add(newPoly as Array<Vector2>)
-                    mergedIndices.add(j)
-                    merged = true
-                    mergedSomething = true
-
-                    break
-                }
-
-                if (!merged && !mergedIndices.contains(i)) {
-                    mergedPolygons.add(objA)
-                }
-            }
-
-            loopingList.clear()
-            loopingList.addAll(mergedPolygons)
-        }
-
-        return mergedPolygons
+    /**
+     * Checks if a point is inside a triangle
+     *
+     * @param p the point
+     * @param p1 the first vertex of the triangle
+     * @param p2 the second vertex of the triangle
+     * @param p3 the third vertex of the triangle
+     */
+    private fun isPointInTriangle(p: Vector2, p1: Vector2, p2: Vector2, p3: Vector2): Boolean {
+        // WTF is going on here but it works
+        val area: Float = 0.5f * (-p2.y * p3.x + p1.y * (-p2.x + p3.x) + p1.x * (p2.y - p3.y) + p2.x * p3.y)
+        val s: Float = 1 / (2 * area) * (p1.y * p3.x - p1.x * p3.y + (p3.y - p1.y) * p.x + (p1.x - p3.x) * p.y)
+        val t: Float = 1 / (2 * area) * (p1.x * p2.y - p1.y * p2.x + (p1.y - p2.y) * p.x + (p2.x - p1.x) * p.y)
+        val u: Float = 1 - s - t
+        return s >= 0 && t >= 0 && u >= 0
     }
 
+    /**
+     * Merges triangles to create convex polygons
+     *
+     * @param triangles the triangles to merge
+     * @return a list of convex polygons
+     */
+    private fun mergePolygons(triangles: MutableList<Array<Vector2>>): MutableList<Array<Vector2>> {
+        val polygons: MutableList<Array<Vector2>> = triangles
+        var merged = true
+
+        while (merged) {
+            merged = false
+            for (i: Int in polygons.indices) {
+                for (j: Int in i + 1 until polygons.size) {
+                    val sharedEdge: Pair<Int, Int> = shareEdge(polygons[i], polygons[j]) ?: continue
+                    val mergedPolygon: Array<Vector2> =
+                        mergePolygons(polygons[i], polygons[j], sharedEdge)
+
+                    if (!isConcave(mergedPolygon)) {
+                        polygons[i] = mergedPolygon
+                        polygons.removeAt(j)
+                        merged = true
+                        break
+                    }
+                }
+
+                if (merged) break
+            }
+        }
+
+        return polygons
+    }
+
+    /**
+     * Merges two polygons by removing the shared edge
+     *
+     * @param polyA the first polygon
+     * @param polyB the second polygon
+     * @param sharedEdge the shared edge between the polygons
+     */
+    private fun mergePolygons(
+        polyA: Array<Vector2>,
+        polyB: Array<Vector2>,
+        sharedEdge: Pair<Int, Int>,
+    ): Array<Vector2> {
+        val newPoly: MutableList<Vector2> = mutableListOf()
+
+        newPoly.addAll(polyA.take(sharedEdge.first + 1)) // Add all points of A before the shared edge
+        newPoly.addAll((sharedEdge.second + 2 until sharedEdge.second + polyB.size).map { polyB[it % polyB.size] }) // Add all points of B except the shared edge
+        newPoly.addAll((sharedEdge.first + 1 until polyA.size).map { polyA[it % polyA.size] }) // Add the rest of the points of A
+
+        return newPoly.toTypedArray()
+    }
+
+    /**
+     * Finds the shared edge between two polygons
+     *
+     * @param polyA the first polygon
+     * @param polyB the second polygon
+     * @return the indices of the shared edge in the polygons or null if no edge is shared
+     */
     private fun shareEdge(polyA: Array<Vector2>, polyB: Array<Vector2>): Pair<Int, Int>? {
-        for (i in polyA.indices) {
-            val p1 = polyA[i]
-            val p2 = polyA[(i + 1) % polyA.size]
-            for (j in polyB.indices) {
-                val p3 = polyB[j]
-                val p4 = polyB[(j + 1) % polyB.size]
+        for (i: Int in polyA.indices) {
+            val p1: Vector2 = polyA[i]
+            val p2: Vector2 = polyA[(i + 1) % polyA.size]
+            polyB.indices.forEach { j ->
+                val p3: Vector2 = polyB[j]
+                val p4: Vector2 = polyB[(j + 1) % polyB.size]
                 if (p1 == p4 && p2 == p3) return Pair(i, j)
             }
         }
         return null
-    }
-
-    private fun isConvex(p1: Vector2, p2: Vector2, p3: Vector2): Boolean {
-        return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x) > 0
-    }
-
-    private fun isPointInTriangle(p: Vector2, p1: Vector2, p2: Vector2, p3: Vector2): Boolean {
-        val area = 0.5 * (-p2.y * p3.x + p1.y * (-p2.x + p3.x) + p1.x * (p2.y - p3.y) + p2.x * p3.y)
-        val s = 1 / (2 * area) * (p1.y * p3.x - p1.x * p3.y + (p3.y - p1.y) * p.x + (p1.x - p3.x) * p.y)
-        val t = 1 / (2 * area) * (p1.x * p2.y - p1.y * p2.x + (p1.y - p2.y) * p.x + (p2.x - p1.x) * p.y)
-        return s > 0 && t > 0 && (1 - s - t) > 0
     }
 
     /**
@@ -212,7 +188,7 @@ object PolygonCreator {
         val size: Int = vertices.size
         if (size < 3) return false
 
-        return !areLinesIntersecting(vertices)
+        return !areEdgesIntersecting(vertices)
     }
 
     /**
@@ -220,7 +196,7 @@ object PolygonCreator {
      *
      * @return true if the lines are intersecting
      */
-    private fun areLinesIntersecting(vertices: MutableList<Vector2>): Boolean {
+    private fun areEdgesIntersecting(vertices: MutableList<Vector2>): Boolean {
         val size: Int = vertices.size
         for (i: Int in 0 until size) {
             for (j: Int in i + 1 until size) {
@@ -276,12 +252,21 @@ object PolygonCreator {
             val b: Vector2 = vertices[(i + 1) % size]
             val c: Vector2 = vertices[(i + 2) % size]
 
-            val crossProduct: Float = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
-            if (crossProduct < 0) {
-                return true
-            }
+            if (!isConvex(a, b, c)) return true
         }
         return false
+    }
+
+    /**
+     * Checks if the angle between three points is convex
+     *
+     * @param p1 the first point
+     * @param p2 the second point
+     * @param p3 the third point
+     * @return true if the angle is convex
+     */
+    private fun isConvex(p1: Vector2, p2: Vector2, p3: Vector2): Boolean {
+        return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x) > 0
     }
 
     /**
@@ -314,40 +299,5 @@ object PolygonCreator {
         }
 
         return signedArea / 2
-    }
-
-    private fun concavePolygonExample(ignore: List<Vector2>): List<List<Vector2>> {
-        val vertices: List<List<Vector2>> = listOf(
-            listOf(Vector2(2.07f, 5.35f), Vector2(5.7f, 4.1f), Vector2(3.75f, 2.15f)),
-            listOf(Vector2(2.07f, 5.35f), Vector2(6.85f, 7.50f), Vector2(5.7f, 4.1f)),
-            listOf(Vector2(6.85f, 7.5f), Vector2(7.0f, 3.65f), Vector2(5.7f, 4.1f))
-        )
-
-        vertices.forEach { polygon ->
-            polygon.forEach { vertex ->
-                vertex *= 3f
-                vertex += Vector2(40f, 40f)
-            }
-        }
-
-        return vertices
-    }
-
-    private fun HMCDDecomposing(inputVertices: Array<Vector2>) {
-        val (vertices: ArrayList<Vertex>, edges: ArrayList<Edge>) = HMCD.triangulate(inputVertices)
-        HMCD.decompose(vertices, edges)
-        HMCD.addOuterEdges(vertices, edges)
-
-        val edgeSet: Set<Edge> = edges.toSet()
-
-        edgeSet.forEach { edge ->
-            val color = HMCD.generateRandomColor()
-            RenderUtil.drawer.addDebugLine(
-                HMCD.vertexToVector2(edge.start), HMCD.vertexToVector2(edge.end), color, 2000000
-            )
-        }
-        vertices.forEach {
-            RenderUtil.drawer.addDebugPoint(HMCD.vertexToVector2(it), Color.PINK, 2000000)
-        }
     }
 }
