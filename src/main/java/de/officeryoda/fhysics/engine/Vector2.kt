@@ -67,6 +67,16 @@ data class Vector2
     }
 
     /**
+     * Calculates the cross product of this Vector2 with another Vector2.
+     *
+     * @param other The other Vector2.
+     * @return The cross product of the two Vector2 instances.
+     */
+    fun cross(other: Vector2): Float {
+        return this.x * other.y - this.y * other.x
+    }
+
+    /**
      * Calculates the magnitude (length) of the Vector2.
      *
      * @return The magnitude of the Vector2.

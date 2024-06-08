@@ -3,7 +3,6 @@ package de.officeryoda.fhysics.engine.objects
 import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.rendering.SceneListener
 import java.util.*
 import kotlin.math.PI
 import kotlin.math.cos
@@ -53,7 +52,7 @@ object FhysicsObjectFactory {
                 vertices.add(Vector2(x, y))
             }
             // Check if the generated polygon is concave
-            val isValid: Boolean = SceneListener.validatePolyVertices(vertices)
+            val isValid: Boolean = PolygonCreator.validatePolyVertices(vertices)
         } while (!isValid) // Repeat until a valid polygon is generated
 
         val pos = randomPosInsideBounds(5F)

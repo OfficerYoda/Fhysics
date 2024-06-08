@@ -13,7 +13,7 @@ abstract class Polygon(
 
     init {
         vertices.forEach { it -= position }
-        color = colorFromIndex(2)
+        color = colorFromIndex(id)
     }
 
     open fun getAxes(): Set<Vector2> {
