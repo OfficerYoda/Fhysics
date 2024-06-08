@@ -10,33 +10,71 @@ import de.officeryoda.fhysics.engine.objects.`Hertel-Mehlhorn-Convex-Decompositi
  */
 object PolygonCreator {
 
-    fun createPolygon(inputVertices: Array<Vector2>): Polygon {
+    fun createPolygon(inputVertices: Array<Vector2>): de.officeryoda.fhysics.engine.objects.Polygon {
         ensureCCW(inputVertices)
         if (!isConcave(inputVertices))
             return ConvexPolygon(inputVertices)
 
         // Create concave polygon
-        val (vertices: ArrayList<Vertex>, edges: ArrayList<Edge>) = HMCD.triangulate(inputVertices)
-        HMCD.decompose(vertices, edges)
-        HMCD.addOuterEdges(vertices, edges)
+//        HMCDDecomposing(inputVertices)
 
-        val edgeSet: Set<Edge> = edges.toSet()
-
-        edgeSet.forEach { edge ->
-            val color = HMCD.generateRandomColor()
-            RenderUtil.drawer.addDebugLine(
-                HMCD.vertexToVector2(edge.start),
-                HMCD.vertexToVector2(edge.end),
-                color,
-                2000000
-            )
-        }
-        vertices.forEach {
-            RenderUtil.drawer.addDebugPoint(HMCD.vertexToVector2(it), Color.PINK, 2000000)
+        val triangles = triangulate(inputVertices.toList())
+        // draw triangles
+        triangles.forEach { triangle ->
+            RenderUtil.drawer.addDebugLine(triangle.p1, triangle.p2, Color.RED, 2000000)
+            RenderUtil.drawer.addDebugLine(triangle.p2, triangle.p3, Color.RED, 2000000)
+            RenderUtil.drawer.addDebugLine(triangle.p3, triangle.p1, Color.RED, 2000000)
         }
 
         return ConvexPolygon(inputVertices)
     }
+
+    data class Triangle(val p1: Vector2, val p2: Vector2, val p3: Vector2)
+
+    fun triangulate(polygon: List<Vector2>): List<Triangle> {
+        val triangles = mutableListOf<Triangle>()
+        val vertices = polygon.toMutableList()
+
+        while (vertices.size > 3) {
+            for (i in vertices.indices) {
+                val prev = vertices[(i - 1 + vertices.size) % vertices.size]
+                val curr = vertices[i]
+                val next = vertices[(i + 1) % vertices.size]
+
+                if (isEar(prev, curr, next, vertices)) {
+                    triangles.add(Triangle(prev, curr, next))
+                    vertices.removeAt(i)
+                    break
+                }
+            }
+        }
+
+        triangles.add(Triangle(vertices[0], vertices[1], vertices[2]))
+        return triangles
+    }
+
+    fun isEar(p1: Vector2, p2: Vector2, p3: Vector2, polygon: List<Vector2>): Boolean {
+        // Check if the triangle (p1, p2, p3) is an ear
+        if (!isConvex(p1, p2, p3)) return false
+        for (vertex in polygon) {
+            if (vertex != p1 && vertex != p2 && vertex != p3 && isPointInTriangle(vertex, p1, p2, p3)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    fun isConvex(p1: Vector2, p2: Vector2, p3: Vector2): Boolean {
+        return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x) > 0
+    }
+
+    fun isPointInTriangle(p: Vector2, p1: Vector2, p2: Vector2, p3: Vector2): Boolean {
+        val area = 0.5 * (-p2.y * p3.x + p1.y * (-p2.x + p3.x) + p1.x * (p2.y - p3.y) + p2.x * p3.y)
+        val s = 1 / (2 * area) * (p1.y * p3.x - p1.x * p3.y + (p3.y - p1.y) * p.x + (p1.x - p3.x) * p.y)
+        val t = 1 / (2 * area) * (p1.x * p2.y - p1.y * p2.x + (p1.y - p2.y) * p.x + (p2.x - p1.x) * p.y)
+        return s > 0 && t > 0 && (1 - s - t) > 0
+    }
+
 
     /**
      * Validates the polygon vertices
@@ -169,5 +207,26 @@ object PolygonCreator {
         }
 
         return vertices
+    }
+
+    private fun HMCDDecomposing(inputVertices: Array<Vector2>) {
+        val (vertices: ArrayList<Vertex>, edges: ArrayList<Edge>) = HMCD.triangulate(inputVertices)
+        HMCD.decompose(vertices, edges)
+        HMCD.addOuterEdges(vertices, edges)
+
+        val edgeSet: Set<Edge> = edges.toSet()
+
+        edgeSet.forEach { edge ->
+            val color = HMCD.generateRandomColor()
+            RenderUtil.drawer.addDebugLine(
+                HMCD.vertexToVector2(edge.start),
+                HMCD.vertexToVector2(edge.end),
+                color,
+                2000000
+            )
+        }
+        vertices.forEach {
+            RenderUtil.drawer.addDebugPoint(HMCD.vertexToVector2(it), Color.PINK, 2000000)
+        }
     }
 }
