@@ -24,15 +24,16 @@ object PolygonCreator {
             RenderUtil.drawer.addDebugLine(triangle[2], triangle[0], Color.RED, 8400)
         }
 
-        val convexPolygons: MutableList<Array<Vector2>> = mergePolygons(triangles)
+        val polygonIndices: Array<Array<Int>> = mergePolygons(vertices, triangles)
         // draw merged triangles
-        convexPolygons.forEach { poly ->
-            for (i: Int in poly.indices) {
-                RenderUtil.drawer.addDebugLine(poly[i], poly[(i + 1) % poly.size], Color.GREEN, 8400)
+        polygonIndices.forEach { polygon ->
+            polygon.indices.forEach { i ->
+                val j: Int = (i + 1) % polygon.size
+                RenderUtil.drawer.addDebugLine(vertices[polygon[i]], vertices[polygon[j]], Color.GREEN, 8400)
             }
         }
 
-        return ConvexPolygon(vertices)
+        return ConcavePolygon(vertices, polygonIndices)
     }
 
     /**
@@ -40,27 +41,27 @@ object PolygonCreator {
      *
      * It has problems with collinear points, but the appearance of those is unlikely when creating polygons by hand
      *
-     * @param polygon the polygon to triangulate
+     * @param vertices the polygon to triangulate
      * @return a list of triangles
      */
-    private fun triangulate(polygon: MutableList<Vector2>): MutableList<Array<Vector2>> {
+    private fun triangulate(vertices: MutableList<Vector2>): MutableList<Array<Vector2>> {
         val triangles: MutableList<Array<Vector2>> = mutableListOf()
 
-        while (polygon.size > 3) {
-            for (i: Int in polygon.indices) {
-                val prev: Vector2 = polygon[(i - 1 + polygon.size) % polygon.size]
-                val curr: Vector2 = polygon[i]
-                val next: Vector2 = polygon[(i + 1) % polygon.size]
+        while (vertices.size > 3) {
+            for (i: Int in vertices.indices) {
+                val prev: Vector2 = vertices[(i - 1 + vertices.size) % vertices.size]
+                val curr: Vector2 = vertices[i]
+                val next: Vector2 = vertices[(i + 1) % vertices.size]
 
-                if (isEar(prev, curr, next, polygon)) {
+                if (isEar(prev, curr, next, vertices)) {
                     triangles.add(arrayOf(prev, curr, next))
-                    polygon.removeAt(i)
+                    vertices.removeAt(i)
                     break
                 }
             }
         }
 
-        triangles.add(arrayOf(polygon[0], polygon[1], polygon[2]))
+        triangles.add(arrayOf(vertices[0], vertices[1], vertices[2]))
         return triangles
     }
 
@@ -105,10 +106,11 @@ object PolygonCreator {
     /**
      * Merges triangles to create convex polygons
      *
-     * @param triangles the triangles to merge
+     * @param vertices all vertices of the polygon
+     * @param triangles the indexed triangles of the polygon
      * @return a list of convex polygons
      */
-    private fun mergePolygons(triangles: MutableList<Array<Vector2>>): MutableList<Array<Vector2>> {
+    private fun mergePolygons(vertices: Array<Vector2>, triangles: MutableList<Array<Vector2>>): Array<Array<Int>> {
         val polygons: MutableList<Array<Vector2>> = triangles
         var merged = true
 
@@ -132,7 +134,15 @@ object PolygonCreator {
             }
         }
 
-        return polygons
+        val verticesIndicesMap: Map<Vector2, Int> = vertices.withIndex().associate { it.value to it.index }
+        val polygonIndices: Array<Array<Int>> =
+            polygons.map { polygon ->
+                polygon.map { vertex ->
+                    verticesIndicesMap[vertex]!!
+                }.toTypedArray()
+            }.toTypedArray()
+
+        return polygonIndices
     }
 
     /**
