@@ -484,11 +484,11 @@ class UIController {
         lateinit var drawer: FhysicsObjectDrawer
 
         /// =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.POLYGON
             private set
         var drawSpawnPreview: Boolean = true
             private set
-        var spawnRadius: Float = 0.2668028f
+        var spawnRadius: Float = 1.0f
             private set
         var spawnWidth: Float = 1.0f
             private set

@@ -3,7 +3,6 @@ package de.officeryoda.fhysics.engine.objects
 import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.rendering.SceneListener
 import java.util.*
 import kotlin.math.PI
 import kotlin.math.cos
@@ -23,8 +22,8 @@ object FhysicsObjectFactory {
     }
 
     fun randomRectangle(): Rectangle {
-        val width: Float = RANDOM.nextFloat(1.0F, 20.0F)
-        val height: Float = RANDOM.nextFloat(1.0F, 20.0F)
+        val width: Float = RANDOM.nextFloat(1.0F, 10.0F)
+        val height: Float = RANDOM.nextFloat(1.0F, 10.0F)
         val pos: Vector2 = randomPosInsideBounds(0.0F)
         val rot: Float = RANDOM.nextFloat(2 * PI.toFloat())
 
@@ -34,7 +33,7 @@ object FhysicsObjectFactory {
         return rect
     }
 
-    fun randomConvexPolygon(): ConvexPolygon {
+    fun randomPolygon(): Polygon {
         var vertices: MutableList<Vector2>
         val numVertices: Int = RANDOM.nextInt(4, 6)
 
@@ -53,11 +52,11 @@ object FhysicsObjectFactory {
                 vertices.add(Vector2(x, y))
             }
             // Check if the generated polygon is concave
-            val isValid: Boolean = SceneListener.validatePolyVertices(vertices)
+            val isValid: Boolean = PolygonCreator.validatePolyVertices(vertices)
         } while (!isValid) // Repeat until a valid polygon is generated
 
-        val pos = randomPosInsideBounds(5F)
-        val poly = ConvexPolygon(vertices.map { pos + it }.toTypedArray())
+        val pos: Vector2 = randomPosInsideBounds(5F)
+        val poly: Polygon = PolygonCreator.createPolygon(vertices.map { it + pos }.toTypedArray())
         poly.velocity.set(randomVector2(-10.0F, 10.0F))
 
         return poly

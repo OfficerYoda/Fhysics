@@ -57,8 +57,9 @@ object FhysicsCore {
             spawn(rect)
         }
 
-        for (i in 1..10)
-            spawn(FhysicsObjectFactory.randomConvexPolygon())
+        for (i in 1..10) {
+            spawn(FhysicsObjectFactory.randomPolygon())
+        }
 
         // spawn a rotated rectangle in the center
 //        val rect =

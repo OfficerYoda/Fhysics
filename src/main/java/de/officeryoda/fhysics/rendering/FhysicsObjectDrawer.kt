@@ -29,6 +29,7 @@ import javafx.scene.text.Font
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import java.awt.Color
+import java.awt.geom.Line2D
 import java.awt.geom.Rectangle2D
 import java.lang.Math.toDegrees
 import java.util.*
@@ -52,6 +53,7 @@ class FhysicsObjectDrawer : Application() {
 
     // Debug properties
     private val debugPoints: MutableList<Triple<Vector2, Color, Int>> = ArrayList()
+    private val debugLines: MutableList<Triple<Line2D.Float, Color, Int>> = ArrayList()
 
     // Window size properties
     val width: Double get() = stage.scene.width
@@ -153,6 +155,7 @@ class FhysicsObjectDrawer : Application() {
         if (UIController.drawQuadTree) QuadTree.root.drawNode(this)
 
         drawBorder()
+        drawDebugLines()
         drawDebugPoints()
         drawStats()
     }
@@ -303,6 +306,28 @@ class FhysicsObjectDrawer : Application() {
         }
     }
 
+    private fun drawDebugLines() {
+        gc.lineWidth = 4.0
+
+        for (triple: Triple<Line2D.Float, Color, Int> in debugLines.toList()) {
+            val start: Vector2 = worldToScreen(Vector2(triple.first.x1, triple.first.y1))
+            val end: Vector2 = worldToScreen(Vector2(triple.first.x2, triple.first.y2))
+
+            setStrokeColor(triple.second)
+            gc.strokeLine(start.x.toDouble(), start.y.toDouble(), end.x.toDouble(), end.y.toDouble())
+
+            // Update the duration of the line
+            // If the max duration is reached remove the line
+            if (triple.third > 0) {
+                debugLines[debugLines.indexOf(triple)] = Triple(triple.first, triple.second, triple.third - 1)
+            } else {
+                debugLines.remove(triple)
+            }
+        }
+
+        gc.lineWidth = 1.0
+    }
+
     private fun drawBorder() {
         setStrokeColor(Color.GRAY)
         gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
@@ -410,6 +435,10 @@ class FhysicsObjectDrawer : Application() {
     /// =====Debug functions=====
     fun addDebugPoint(point: Vector2, color: Color = Color.RED, duration: Int = 200) {
         debugPoints.add(Triple(point.copy(), color, duration))
+    }
+
+    fun addDebugLine(start: Vector2, end: Vector2, color: Color = Color.RED, duration: Int = 200) {
+        debugLines.add(Triple(Line2D.Float(start.x, start.y, end.x, end.y), color, duration))
     }
 
     /// =====Window size functions=====

@@ -8,7 +8,7 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 class Circle(
     position: Vector2,
     val radius: Float,
-) : FhysicsObject(position, (Math.PI * radius * radius).toFloat()) {
+) : FhysicsObject(position, Vector2.ZERO, (Math.PI * radius * radius).toFloat()) {
 
     init {
         color = colorFromIndex(0)
@@ -29,10 +29,6 @@ class Circle(
     }
 
     override fun testCollision(other: Circle): CollisionInfo {
-        return CollisionFinder.testCollision(this, other)
-    }
-
-    override fun testCollision(other: Rectangle): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
     }
 

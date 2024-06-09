@@ -3,7 +3,8 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.ConvexPolygon
+import de.officeryoda.fhysics.engine.objects.PolygonCreator
+import de.officeryoda.fhysics.engine.objects.PolygonCreator.validatePolyVertices
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
@@ -106,18 +107,12 @@ object SceneListener {
             if (polyVertices.size > 2 && validPolygon) {
                 val startPos: Vector2 = polyVertices.first()
                 if (pos.sqrDistance(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
-                    // Map the vertices relative to the center
-                    val vertices: List<Vector2> = ensureCCW(polyVertices.map { it })
-                    // create the polygon
-                    val polygon = ConvexPolygon(vertices.toTypedArray())
-
-                    FhysicsCore.spawn(polygon)
-
-                    polyVertices.clear()
+                    createAndSpawnPolygon()
                     return
                 }
             }
 
+            // Add the vertex to the polygon
             polyVertices.add(pos)
             validPolygon = validatePolyVertices(polyVertices)
 
@@ -131,6 +126,14 @@ object SceneListener {
         } else {
             drawer.selectedObject = null
         }
+    }
+
+    private fun createAndSpawnPolygon() {
+        // Map the vertices relative to the center
+        val polygon = PolygonCreator.createPolygon(polyVertices.toTypedArray())
+        FhysicsCore.spawn(polygon)
+
+        polyVertices.clear()
     }
 
     /**
@@ -349,108 +352,5 @@ object SceneListener {
     private fun hasDraggedMinDistance(): Boolean {
         if (dragStartWorldPos == null) return false
         return (mouseWorldPos - dragStartWorldPos!!).sqrMagnitude() >= MIN_DRAG_DISTANCE * MIN_DRAG_DISTANCE
-    }
-
-    /**
-     * Validates the polygon vertices
-     * Checks if the polygon is valid by checking if the lines intersect
-     * and if the polygon is convex
-     *
-     * @return true if the polygon is valid
-     */
-    fun validatePolyVertices(vertices: MutableList<Vector2>): Boolean {
-        val size: Int = vertices.size
-        if (size < 3) return false
-
-        return !areLinesIntersecting(vertices) && !isConcave(vertices)
-    }
-
-    /**
-     * Checks if the lines of the polygon are intersecting
-     *
-     * @return true if the lines are intersecting
-     */
-    private fun areLinesIntersecting(vertices: MutableList<Vector2>): Boolean {
-        val size: Int = vertices.size
-        for (i: Int in 0 until size) {
-            for (j: Int in i + 1 until size) {
-                val line1: Pair<Vector2, Vector2> = Pair(vertices[i], vertices[(i + 1) % size])
-                val line2: Pair<Vector2, Vector2> = Pair(vertices[j], vertices[(j + 1) % size])
-                if (doLinesIntersect(line1, line2)) {
-                    return true
-                }
-            }
-        }
-        return false
-    }
-
-    /**
-     * Checks if two lines intersect
-     *
-     * @param lineA the first line
-     * @param lineB the second line
-     */
-    private fun doLinesIntersect(lineA: Pair<Vector2, Vector2>, lineB: Pair<Vector2, Vector2>): Boolean {
-        val a: Vector2 = lineA.first
-        val b: Vector2 = lineA.second
-        val c: Vector2 = lineB.first
-        val d: Vector2 = lineB.second
-
-        val denominator: Float = ((b.x - a.x) * (d.y - c.y)) - ((b.y - a.y) * (d.x - c.x))
-
-        // If the denominator is zero, lines are parallel and do not intersect
-        if (denominator == 0.0f) {
-            return false
-        }
-
-        // Calculate the numerators of the line intersection formula
-        val numeratorA: Float = ((a.y - c.y) * (d.x - c.x)) - ((a.x - c.x) * (d.y - c.y))
-        val numeratorB: Float = ((a.y - c.y) * (b.x - a.x)) - ((a.x - c.x) * (b.y - a.y))
-
-        // Calculate r and s parameters
-        val r: Float = numeratorA / denominator
-        val s: Float = numeratorB / denominator
-
-        // If r and s are both between 0 and 1, lines intersect (excluding endpoints)
-        return (0f < r && r < 1f) && (0f < s && s < 1f)
-    }
-
-    /**
-     * Checks if the polygon is concave
-     *
-     * @return true if the polygon is concave
-     */
-    private fun isConcave(vertices: MutableList<Vector2>): Boolean {
-        val ccwVertices: List<Vector2> = ensureCCW(vertices)
-        val size: Int = ccwVertices.size
-        for (i: Int in 0 until size) {
-            val a: Vector2 = ccwVertices[i]
-            val b: Vector2 = ccwVertices[(i + 1) % size]
-            val c: Vector2 = ccwVertices[(i + 2) % size]
-
-            val crossProduct: Float = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
-            if (crossProduct < 0) {
-                return true
-            }
-        }
-        return false
-    }
-
-    /**
-     * Returns the vertices in counter-clockwise order
-     *
-     * @param vertices the vertices of the polygon
-     */
-    private fun ensureCCW(vertices: List<Vector2>): List<Vector2> {
-        // Calculate the signed area of the polygon
-        var signedArea = 0f
-        for (i: Int in vertices.indices) {
-            val j: Int = (i + 1) % vertices.size
-            signedArea += vertices[i].x * vertices[j].y - vertices[j].x * vertices[i].y
-        }
-        signedArea /= 2
-
-        // Reverse the vertices if the polygon is CW
-        return if (signedArea < 0) vertices.reversed() else vertices
     }
 }
