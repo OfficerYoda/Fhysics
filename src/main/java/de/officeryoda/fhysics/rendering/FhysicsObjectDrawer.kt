@@ -5,7 +5,10 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.lerp
 import de.officeryoda.fhysics.rendering.RenderUtil.lerpV2
@@ -223,19 +226,6 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygon(poly: Polygon) {
-        if (poly is ConcavePolygon) {
-            for (subPoly: SubPolygon in poly.subPolygons) {
-                // set random color
-//                setFillColor(Color(i * 50 + 50, i * 50 + 50, i * 50 + 50, 255))
-                setFillColor(subPoly.color)
-                drawPolygon(subPoly)
-            }
-            return
-        }
-        if (poly is SubPolygon) {
-            addDebugPoint(poly.center, Color.YELLOW, 1)
-        }
-
         val vertices: List<Vector2> = poly.getTransformedVertices()
 
         val xPoints = DoubleArray(vertices.size)
