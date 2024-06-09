@@ -32,10 +32,6 @@ class Circle(
         return CollisionFinder.testCollision(this, other)
     }
 
-    override fun testCollision(other: Rectangle): CollisionInfo {
-        return CollisionFinder.testCollision(this, other)
-    }
-
     override fun testCollision(other: Polygon): CollisionInfo {
         return CollisionFinder.testCollision(other, this)
     }

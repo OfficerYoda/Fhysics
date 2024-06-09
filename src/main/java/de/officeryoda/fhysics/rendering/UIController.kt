@@ -488,7 +488,7 @@ class UIController {
             private set
         var drawSpawnPreview: Boolean = true
             private set
-        var spawnRadius: Float = 0.2668028f
+        var spawnRadius: Float = 1.0f
             private set
         var spawnWidth: Float = 1.0f
             private set
@@ -502,7 +502,7 @@ class UIController {
         /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0f, 0.0f)
+        val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
         val gravityPoint: Vector2 = Vector2( // The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()

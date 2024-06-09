@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
-import de.officeryoda.fhysics.engine.objects.Rectangle
 import kotlin.math.sqrt
 
 object CollisionFinder {
@@ -34,85 +33,6 @@ object CollisionFinder {
         return CollisionInfo(circleA, circleB, collisionNormal, overlap)
     }
 
-    /**
-     * Tests for collision between a circle and a rectangle
-     *
-     * @param circle The circle
-     * @param rect The rectangle
-     * @return A CollisionInfo object containing information about the collision
-     */
-    fun testCollision(circle: Circle, rect: Rectangle): CollisionInfo {
-        // Check if the bounding boxes overlap
-        if (!rect.boundingBox.overlaps(circle.boundingBox)) {
-            return CollisionInfo()
-        }
-
-        // Get the rectangle's axes (normals of its sides)
-        val axes: Set<Vector2> = rect.getAxes()
-
-        // Check for no overlap on each axis
-        axes.forEach { axis: Vector2 ->
-            if (!testProjectionOverlap(axis, rect, circle).hasOverlap) return CollisionInfo()
-        }
-
-        // Get the closest point on the rectangle to the circle's center
-        val closestPoint: Vector2 = getClosestPoint(rect, circle.position)
-
-        // Do a final check onto the axis from the circle to the closest point
-        val finalAxis: Vector2 = (closestPoint - circle.position).normalized()
-        val projResult: ProjectionResult = testProjectionOverlap(finalAxis, circle, rect)
-        if (!projResult.hasOverlap) return CollisionInfo()
-
-        // Calculate the collision normal and overlap with the final axis
-        if (finalAxis.dot(rect.position - circle.position) < 0) {
-            finalAxis.negate()
-        }
-
-        return CollisionInfo(circle, rect, finalAxis, projResult.getOverlap())
-    }
-
-    /**
-     * Tests for collision between two rectangles
-     *
-     * @param rectA The first rectangle
-     * @param rectB The second rectangle
-     * @return A CollisionInfo object containing information about the collision
-     */
-    fun testCollision(rectA: Rectangle, rectB: Rectangle): CollisionInfo {
-        // Check if the bounding boxes overlap
-        if (!rectA.boundingBox.overlaps(rectB.boundingBox)) {
-            return CollisionInfo()
-        }
-
-        // Get the rectangles axes (normals of its sides)
-        val axes: Set<Vector2> = rectA.getAxes() + rectB.getAxes()
-        var normal: Vector2 = Vector2.ZERO
-        var depth: Float = Float.MAX_VALUE
-
-        axes.forEach { axis: Vector2 ->
-            // Project the rectangles onto the axis
-            val projResult: ProjectionResult = testProjectionOverlap(axis, rectA, rectB)
-
-            // Check for no overlap
-            if (!projResult.hasOverlap) return CollisionInfo()
-
-            val overlap: Float = projResult.getOverlap()
-
-            // Check if the overlap is the smallest so far
-            if (overlap < depth) {
-                depth = overlap
-                normal = axis
-            }
-        }
-
-        // Make sure the normal points in the right direction
-        if (normal.dot(rectB.position - rectA.position) < 0) {
-            normal.negate()
-        }
-
-        return CollisionInfo(rectA, rectB, normal, depth)
-    }
-
     fun testCollision(poly: Polygon, circle: Circle): CollisionInfo {
         if (!poly.boundingBox.overlaps(circle.boundingBox)) return CollisionInfo()
 
@@ -126,7 +46,7 @@ object CollisionFinder {
             if (!projResult.hasOverlap) return CollisionInfo()
         }
 
-        // Get the closest point on the rectangle to the circle's center
+        // Get the closest point on the polygons to the circle's center
         val closestPoint: Vector2 = getClosestPoint(poly, circle.position)
 
         // Do a final check onto the axis from the circle to the closest point
@@ -140,10 +60,6 @@ object CollisionFinder {
         }
 
         return CollisionInfo(circle, poly, finalAxis, projResult.getOverlap())
-    }
-
-    fun testCollision(poly: Polygon, rect: Rectangle): CollisionInfo {
-        return testCollision(rect, poly)
     }
 
     fun testCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
@@ -186,7 +102,7 @@ object CollisionFinder {
      * @return A boolean indicating if the projections overlap
      */
     private fun testProjectionOverlap(axis: Vector2, objA: FhysicsObject, objB: FhysicsObject): ProjectionResult {
-        // Project the rectangle and the circle onto the axis
+        // Project the objects onto the axis
         val projectionA: Projection = objA.project(axis)
         val projectionB: Projection = objB.project(axis)
 

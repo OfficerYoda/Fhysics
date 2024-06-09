@@ -75,8 +75,6 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun testCollision(other: Circle): CollisionInfo
 
-    abstract fun testCollision(other: Rectangle): CollisionInfo
-
     abstract fun testCollision(other: Polygon): CollisionInfo
 
     abstract fun clone(): FhysicsObject
