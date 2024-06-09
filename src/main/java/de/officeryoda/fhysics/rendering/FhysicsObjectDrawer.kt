@@ -224,7 +224,7 @@ class FhysicsObjectDrawer : Application() {
 
     private fun drawPolygon(poly: Polygon) {
         if (poly is ConcavePolygon) {
-            for ((i, subPoly) in poly.subPolygons.withIndex()) {
+            for (subPoly: SubPolygon in poly.subPolygons) {
                 // set random color
 //                setFillColor(Color(i * 50 + 50, i * 50 + 50, i * 50 + 50, 255))
                 setFillColor(subPoly.color)
@@ -232,6 +232,10 @@ class FhysicsObjectDrawer : Application() {
             }
             return
         }
+        if (poly is SubPolygon) {
+            addDebugPoint(poly.center, Color.YELLOW, 1)
+        }
+
         val vertices: List<Vector2> = poly.getTransformedVertices()
 
         val xPoints = DoubleArray(vertices.size)

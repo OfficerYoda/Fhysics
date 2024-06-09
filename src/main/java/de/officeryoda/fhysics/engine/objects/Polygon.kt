@@ -9,6 +9,7 @@ import kotlin.math.abs
 abstract class Polygon : FhysicsObject {
 
     val vertices: Array<Vector2>
+    open val center: Vector2 = position
 
     // must be CCW and in global space
     constructor(position: Vector2, velocity: Vector2, vertices: Array<Vector2>, rotation: Float = 0f) : super(

@@ -26,7 +26,7 @@ abstract class FhysicsObject protected constructor(
         }
 
     val acceleration: Vector2 = Vector2.ZERO
-    var static: Boolean = false
+    open var static: Boolean = false
         set(value) {
             field = value
             if (value) {

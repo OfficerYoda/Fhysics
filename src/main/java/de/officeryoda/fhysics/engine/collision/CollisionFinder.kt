@@ -7,8 +7,6 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.ConcavePolygon
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
-import de.officeryoda.fhysics.rendering.RenderUtil
-import java.awt.Color
 import kotlin.math.sqrt
 
 object CollisionFinder {
@@ -43,8 +41,7 @@ object CollisionFinder {
             poly.subPolygons.forEach { subPoly: Polygon ->
                 val collisionInfo: CollisionInfo = testCollision(subPoly, circle)
                 if (collisionInfo.hasCollision) {
-                    println("CollisionInfo: $collisionInfo")
-                    return collisionInfo
+                    return CollisionInfo(circle, poly, collisionInfo.normal, collisionInfo.depth)
                 }
             }
             return CollisionInfo()
@@ -62,15 +59,13 @@ object CollisionFinder {
 
         // Get the closest point on the polygons to the circle's center
         val closestPoint: Vector2 = getClosestPoint(poly, circle.position)
-        RenderUtil.drawer.addDebugPoint(closestPoint, Color.GREEN)
 
         // Do a final check onto the axis from the circle to the closest point
         val finalAxis: Vector2 = (closestPoint - circle.position).normalized()
         val projResult: ProjectionResult = testProjectionOverlap(finalAxis, poly, circle)
         if (!projResult.hasOverlap) return CollisionInfo()
 
-        // Calculate the collision normal and overlap with the final axis
-        if (finalAxis.dot(poly.position - circle.position) < 0) {
+        if (finalAxis.dot(poly.center - circle.position) < 0) {
             finalAxis.negate()
         }
 
@@ -80,32 +75,8 @@ object CollisionFinder {
     fun testCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
         if (!polyA.boundingBox.overlaps(polyB.boundingBox)) return CollisionInfo()
 
-        println("!!! THIS IS VERY SCUFFED !!! AND PROBABLY HAS BUGS !!! [testCollision(polyA: Polygon, polyB: Polygon)]")
-        // handle concave polygons
-        if (polyA is ConcavePolygon && polyB is ConcavePolygon) {
-            polyA.subPolygons.forEach { subPolyA: Polygon ->
-                polyB.subPolygons.forEach { subPolyB: Polygon ->
-                    val collisionInfo: CollisionInfo = testCollision(subPolyA, subPolyB)
-                    if (collisionInfo.hasCollision) return collisionInfo
-                }
-            }
-            return CollisionInfo()
-        }
-        // handle concave polygon
-        if (polyA is ConcavePolygon) {
-            polyA.subPolygons.forEach { subPoly: Polygon ->
-                val collisionInfo: CollisionInfo = testCollision(subPoly, polyB)
-                if (collisionInfo.hasCollision) return collisionInfo
-            }
-            return CollisionInfo()
-        }
-        // handle concave polygon
-        if (polyB is ConcavePolygon) {
-            polyB.subPolygons.forEach { subPoly: Polygon ->
-                val collisionInfo: CollisionInfo = testCollision(polyA, subPoly)
-                if (collisionInfo.hasCollision) return collisionInfo
-            }
-            return CollisionInfo()
+        if (polyA is ConcavePolygon || polyB is ConcavePolygon) {
+            return testConcavePolygonCollision(polyA, polyB)
         }
 
         val axes: Set<Vector2> = polyA.getAxes() + polyB.getAxes()
@@ -134,6 +105,34 @@ object CollisionFinder {
         }
 
         return CollisionInfo(polyA, polyB, normal, depth)
+    }
+
+    /**
+     * Tests for collision between one or two concave polygons
+     * This method is called when at least one of the polygons is a concave polygon
+     *
+     * @param polyA The first polygon
+     * @param polyB The second polygon
+     * @return A CollisionInfo object containing information about the collision
+     */
+    private fun testConcavePolygonCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
+        val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
+        val polygonsB: List<Polygon> = if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB)
+
+        for (subPolyA: Polygon in polygonsA) {
+            for (subPolyB: Polygon in polygonsB) {
+                val collisionInfo: CollisionInfo = testCollision(subPolyA, subPolyB)
+                if (collisionInfo.hasCollision) {
+                    val normal: Vector2 = collisionInfo.normal
+                    if (normal.dot(subPolyB.center - subPolyA.center) < 0) {
+                        normal.negate()
+                    }
+                    return CollisionInfo(polyA, polyB, normal, collisionInfo.depth)
+                }
+            }
+        }
+
+        return CollisionInfo()
     }
 
     /**

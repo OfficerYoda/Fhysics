@@ -9,17 +9,20 @@ class ConcavePolygon(
     rotation: Float = 0f,
 ) : Polygon(vertices, rotation) {
 
-    var subPolygons: MutableList<ConvexPolygon> = mutableListOf()
+    var subPolygons: MutableList<SubPolygon> = mutableListOf()
+    override var static: Boolean
+        get() = super.static
+        set(value) {
+            super.static = value
+            subPolygons.forEach { it.static = value }
+        }
 
     init {
         subPolygonIndices.forEach { indices ->
             val subVertices: Array<Vector2> = indices.map { vertices[it] + position }.toTypedArray()
-            subPolygons.add(ConvexPolygon(position, velocity, subVertices, rotation))
+            val center = calculatePolygonCenter(subVertices)
+            subPolygons.add(SubPolygon(position, center, velocity, subVertices, rotation))
         }
-    }
-
-    override fun getAxes(): Set<Vector2> {
-        throw UnsupportedOperationException("This should not happen")
     }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
@@ -28,5 +31,32 @@ class ConcavePolygon(
 
     override fun clone(): FhysicsObject {
         TODO("Not yet implemented")
+    }
+}
+
+class SubPolygon(
+    position: Vector2,
+    center: Vector2,
+    velocity: Vector2,
+    vertices: Array<Vector2>,
+    rotation: Float = 0f,
+) : Polygon(position, velocity, vertices, rotation) {
+
+    private val centerOffset = center - position
+    override val center
+        get() = position + centerOffset
+
+
+    override fun testCollision(other: FhysicsObject): CollisionInfo {
+        return other.testCollision(this)
+    }
+
+    override fun clone(): FhysicsObject {
+        TODO()
+//        return SubPolygon(vertices.map { it.copy() }.toTypedArray(), indices, position.copy(), velocity.copy(), rotation)
+    }
+
+    override fun toString(): String {
+        return "SubPolygon(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, vertices=${vertices.contentToString()})"
     }
 }
