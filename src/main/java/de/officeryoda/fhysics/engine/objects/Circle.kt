@@ -8,7 +8,7 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 class Circle(
     position: Vector2,
     val radius: Float,
-) : FhysicsObject(position, (Math.PI * radius * radius).toFloat()) {
+) : FhysicsObject(position, Vector2.ZERO, (Math.PI * radius * radius).toFloat()) {
 
     init {
         color = colorFromIndex(0)

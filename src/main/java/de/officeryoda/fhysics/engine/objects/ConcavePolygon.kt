@@ -8,6 +8,20 @@ class ConcavePolygon(
     subPolygonIndices: Array<Array<Int>>, // the indices of the vertices that form the convex sub-polygons
     rotation: Float = 0f,
 ) : Polygon(vertices, rotation) {
+
+    var subPolygons: MutableList<ConvexPolygon> = mutableListOf()
+
+    init {
+        subPolygonIndices.forEach { indices ->
+            val subVertices: Array<Vector2> = indices.map { vertices[it] + position }.toTypedArray()
+            subPolygons.add(ConvexPolygon(position, velocity, subVertices, rotation))
+        }
+    }
+
+    override fun getAxes(): Set<Vector2> {
+        throw UnsupportedOperationException("This should not happen")
+    }
+
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)
     }

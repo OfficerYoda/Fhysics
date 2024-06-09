@@ -1,8 +1,6 @@
 package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.rendering.RenderUtil
-import java.awt.Color
 
 object PolygonCreator {
 
@@ -18,21 +16,32 @@ object PolygonCreator {
 
         val triangles: MutableList<Array<Vector2>> = triangulate(vertices.toMutableList())
         // draw triangles
-        triangles.forEach { triangle ->
-            RenderUtil.drawer.addDebugLine(triangle[0], triangle[1], Color.RED, 8400)
-            RenderUtil.drawer.addDebugLine(triangle[1], triangle[2], Color.RED, 8400)
-            RenderUtil.drawer.addDebugLine(triangle[2], triangle[0], Color.RED, 8400)
-        }
+//        triangles.forEach { triangle ->
+//            RenderUtil.drawer.addDebugLine(triangle[0], triangle[1], Color.RED, 8400)
+//            RenderUtil.drawer.addDebugLine(triangle[1], triangle[2], Color.RED, 8400)
+//            RenderUtil.drawer.addDebugLine(triangle[2], triangle[0], Color.RED, 8400)
+//        }
 
         val polygonIndices: Array<Array<Int>> = mergePolygons(vertices, triangles)
         // draw merged triangles
-        polygonIndices.forEach { polygon ->
-            polygon.indices.forEach { i ->
-                val j: Int = (i + 1) % polygon.size
-                RenderUtil.drawer.addDebugLine(vertices[polygon[i]], vertices[polygon[j]], Color.GREEN, 8400)
-            }
-        }
+//        polygonIndices.forEach { polygon ->
+//            polygon.indices.forEach { i ->
+//                val j: Int = (i + 1) % polygon.size
+//                RenderUtil.drawer.addDebugLine(vertices[polygon[i]], vertices[polygon[j]], Color.GREEN, 8400)
+//            }
+//        }
 
+        // create sub-polygons
+//        polygonIndices.forEach { indices ->
+//            val subVertices: MutableList<Vector2> = mutableListOf()
+//            indices.forEach { index ->
+//                subVertices.add(vertices[index].copy())
+//            }
+//            val element = ConvexPolygon(subVertices.toTypedArray())
+//            FhysicsCore.spawn(element)
+//        }
+//
+//        return ConvexPolygon(arrayOf(Vector2.ZERO, Vector2.ZERO, Vector2.ZERO))
         return ConcavePolygon(vertices, polygonIndices)
     }
 

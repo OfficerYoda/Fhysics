@@ -6,15 +6,28 @@ import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import kotlin.math.abs
 
-abstract class Polygon(
-    val vertices: Array<Vector2>, // must be CCW and in global space
-    rotation: Float = 0f,
-) : FhysicsObject(calculatePolygonCenter(vertices), calculatePolygonArea(vertices), rotation) {
+abstract class Polygon : FhysicsObject {
 
-    init {
+    val vertices: Array<Vector2>
+
+    // must be CCW and in global space
+    constructor(position: Vector2, velocity: Vector2, vertices: Array<Vector2>, rotation: Float = 0f) : super(
+        position,
+        velocity,
+        calculatePolygonArea(vertices),
+        rotation
+    ) {
+        this.vertices = vertices
         vertices.forEach { it -= position }
         color = colorFromIndex(id)
     }
+
+    constructor(vertices: Array<Vector2>, rotation: Float) : this(
+        calculatePolygonCenter(vertices),
+        Vector2.ZERO,
+        vertices,
+        rotation
+    )
 
     open fun getAxes(): Set<Vector2> {
         // Calculate the normals of the polygon's sides based on its rotation
@@ -78,32 +91,34 @@ abstract class Polygon(
     override fun testCollision(other: Polygon): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
     }
-}
 
-/**
- * Calculates the area of a polygon
- * The area will always be positive
- *
- * @param vertices the vertices of the polygon
- */
-private fun calculatePolygonArea(vertices: Array<Vector2>): Float {
-    var signedArea = 0f
-    for (i: Int in vertices.indices) {
-        val j: Int = (i + 1) % vertices.size
-        signedArea += vertices[i].x * vertices[j].y
-        signedArea -= vertices[j].x * vertices[i].y
+    companion object {
+        /**
+         * Calculates the area of a polygon
+         * The area will always be positive
+         *
+         * @param vertices the vertices of the polygon
+         */
+        fun calculatePolygonArea(vertices: Array<Vector2>): Float {
+            var signedArea = 0f
+            for (i: Int in vertices.indices) {
+                val j: Int = (i + 1) % vertices.size
+                signedArea += vertices[i].x * vertices[j].y
+                signedArea -= vertices[j].x * vertices[i].y
+            }
+            signedArea /= 2
+
+            // Ensure that the area is positive
+            return abs(signedArea)
+        }
+
+        /**
+         * Calculates the center of a polygon
+         *
+         * @param vertices the vertices of the polygon
+         */
+        fun calculatePolygonCenter(vertices: Array<Vector2>): Vector2 {
+            return vertices.reduce { acc, vector2 -> acc + vector2 } / vertices.size.toFloat()
+        }
     }
-    signedArea /= 2
-
-    // Ensure that the area is positive
-    return abs(signedArea)
-}
-
-/**
- * Calculates the center of a polygon
- *
- * @param vertices the vertices of the polygon
- */
-fun calculatePolygonCenter(vertices: Array<Vector2>): Vector2 {
-    return vertices.reduce { acc, vector2 -> acc + vector2 } / vertices.size.toFloat()
 }

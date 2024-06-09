@@ -9,6 +9,7 @@ import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
     val position: Vector2,
+    val velocity: Vector2 = Vector2.ZERO,
     mass: Float,
     var rotation: Float = 0f, // in radians
 ) {
@@ -25,7 +26,6 @@ abstract class FhysicsObject protected constructor(
         }
 
     val acceleration: Vector2 = Vector2.ZERO
-    val velocity: Vector2 = Vector2.ZERO
     var static: Boolean = false
         set(value) {
             field = value
@@ -80,10 +80,10 @@ abstract class FhysicsObject protected constructor(
     abstract fun clone(): FhysicsObject
 
     protected fun colorFromIndex(index: Int): Color {
-        return Color(134, 158, 196, 128)
-//        val colors: List<Color> =
-//            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
-//        return colors[id % colors.size]
+//        return Color(134, 158, 196, 128)
+        val colors: List<Color> =
+            listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
+        return colors[id % colors.size]
 //        return colors[index % colors.size]
 //        val color = Color.getHSBColor(((id / 3.0f) / 255f) % 1f, 1f, 1f)
 //
