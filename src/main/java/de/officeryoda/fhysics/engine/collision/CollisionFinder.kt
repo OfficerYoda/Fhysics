@@ -7,7 +7,7 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.ConcavePolygon
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
-import kotlin.math.sqrt
+import kotlin.math.min
 
 object CollisionFinder {
 
@@ -29,35 +29,38 @@ object CollisionFinder {
 
         // Calculate collision normal and overlap
         val collisionNormal: Vector2 = (circleB.position - circleA.position).normalized()
-        val overlap: Float = radii - sqrt(sqrDst)
+        val projA: Projection = circleA.project(collisionNormal)
+        val projB: Projection = circleB.project(collisionNormal)
+        val overlap: Float = min(
+            projA.max - projB.min,
+            projB.max - projA.min
+        )
 
         return CollisionInfo(circleA, circleB, collisionNormal, overlap)
     }
 
+    /**
+     * Tests for collision between a polygon and a circle
+     *
+     * @param poly The polygon
+     * @param circle The circle
+     * @return A CollisionInfo object containing information about the collision
+     */
     fun testCollision(poly: Polygon, circle: Circle): CollisionInfo {
         if (!poly.boundingBox.overlaps(circle.boundingBox)) return CollisionInfo()
 
         if (poly is ConcavePolygon) {
-            poly.subPolygons.forEach { subPoly: Polygon ->
-                val collisionInfo: CollisionInfo = testCollision(subPoly, circle)
-                if (collisionInfo.hasCollision) {
-                    return CollisionInfo(circle, poly, collisionInfo.normal, collisionInfo.depth)
-                }
-            }
-            return CollisionInfo()
+            return testConcavePolygonCollision(poly, circle)
         }
 
         val axes: Set<Vector2> = poly.getAxes()
 
         axes.forEach { axis: Vector2 ->
-            // Project the objects onto the axis
             val projResult: ProjectionResult = testProjectionOverlap(axis, poly, circle)
 
-            // Check for no overlap
             if (!projResult.hasOverlap) return CollisionInfo()
         }
 
-        // Get the closest point on the polygons to the circle's center
         val closestPoint: Vector2 = getClosestPoint(poly, circle.position)
 
         // Do a final check onto the axis from the circle to the closest point
@@ -65,6 +68,7 @@ object CollisionFinder {
         val projResult: ProjectionResult = testProjectionOverlap(finalAxis, poly, circle)
         if (!projResult.hasOverlap) return CollisionInfo()
 
+        // Make sure the normal points in the right direction
         if (finalAxis.dot(poly.position - circle.position) < 0) {
             finalAxis.negate()
         }
@@ -72,6 +76,13 @@ object CollisionFinder {
         return CollisionInfo(circle, poly, finalAxis, projResult.getOverlap())
     }
 
+    /**
+     * Tests for collision between two polygons
+     *
+     * @param polyA The first polygon
+     * @param polyB The second polygon
+     * @return A CollisionInfo object containing information about the collision
+     */
     fun testCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
         if (!polyA.boundingBox.overlaps(polyB.boundingBox)) return CollisionInfo()
 
@@ -84,10 +95,8 @@ object CollisionFinder {
         var depth: Float = Float.MAX_VALUE
 
         axes.forEach { axis: Vector2 ->
-            // Project the objects onto the axis
             val projResult: ProjectionResult = testProjectionOverlap(axis, polyA, polyB)
 
-            // Check for no overlap
             if (!projResult.hasOverlap) return CollisionInfo()
 
             val overlap: Float = projResult.getOverlap()
@@ -108,6 +117,25 @@ object CollisionFinder {
     }
 
     /**
+     * Tests for collision between a concave polygon and a circle
+     *
+     * @param poly The concave polygon
+     * @param circle The circle
+     * @return A CollisionInfo object containing information about the collision
+     */
+    private fun testConcavePolygonCollision(poly: ConcavePolygon, circle: Circle): CollisionInfo {
+        // Check for collision between the circle and every sub-polygon
+        poly.subPolygons.forEach { subPoly: Polygon ->
+            val collisionInfo: CollisionInfo = testCollision(subPoly, circle)
+            if (collisionInfo.hasCollision) {
+                return CollisionInfo(circle, poly, collisionInfo.normal, collisionInfo.depth)
+            }
+        }
+
+        return CollisionInfo()
+    }
+
+    /**
      * Tests for collision between one or two concave polygons
      * This method is called when at least one of the polygons is a concave polygon
      *
@@ -119,16 +147,19 @@ object CollisionFinder {
         val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
         val polygonsB: List<Polygon> = if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB)
 
+        // Check for collision between every sub-polygon pair
         for (subPolyA: Polygon in polygonsA) {
             for (subPolyB: Polygon in polygonsB) {
                 val collisionInfo: CollisionInfo = testCollision(subPolyA, subPolyB)
-                if (collisionInfo.hasCollision) {
-                    val normal: Vector2 = collisionInfo.normal
-                    if (normal.dot(subPolyB.position - subPolyA.position) < 0) {
-                        normal.negate()
-                    }
-                    return CollisionInfo(polyA, polyB, normal, collisionInfo.depth)
+
+                if (!collisionInfo.hasCollision) continue
+
+                val normal: Vector2 = collisionInfo.normal
+                if (normal.dot(subPolyB.position - subPolyA.position) < 0) {
+                    normal.negate()
                 }
+
+                return CollisionInfo(polyA, polyB, normal, collisionInfo.depth)
             }
         }
 
@@ -144,7 +175,6 @@ object CollisionFinder {
      * @return A boolean indicating if the projections overlap
      */
     private fun testProjectionOverlap(axis: Vector2, objA: FhysicsObject, objB: FhysicsObject): ProjectionResult {
-        // Project the objects onto the axis
         val projectionA: Projection = objA.project(axis)
         val projectionB: Projection = objB.project(axis)
 

@@ -12,23 +12,23 @@ object FhysicsObjectFactory {
     private val RANDOM: Random = Random()
 
     fun randomCircle(): Circle {
-        val radius: Float = RANDOM.nextFloat(0.5F, 0.7F)
+        val radius: Float = RANDOM.nextFloat(0.5f, 0.7f)
         val pos: Vector2 = randomPosInsideBounds(buffer = radius)
         val circle = Circle(pos, radius)
 
-        circle.velocity.set(randomVector2(-10.0F, 10.0F))
+        circle.velocity.set(randomVector2(-10.0f, 10.0f))
 
         return circle
     }
 
     fun randomRectangle(): Rectangle {
-        val width: Float = RANDOM.nextFloat(1.0F, 10.0F)
-        val height: Float = RANDOM.nextFloat(1.0F, 10.0F)
-        val pos: Vector2 = randomPosInsideBounds(0.0F)
+        val width: Float = RANDOM.nextFloat(1.0f, 10.0f)
+        val height: Float = RANDOM.nextFloat(1.0f, 10.0f)
+        val pos: Vector2 = randomPosInsideBounds(0.0f)
         val rot: Float = RANDOM.nextFloat(2 * PI.toFloat())
 
         val rect = Rectangle(pos, width, height, rot)
-        rect.velocity += randomVector2(-10.0F, 10.0F)
+        rect.velocity += randomVector2(-10.0f, 10.0f)
 
         return rect
     }
@@ -55,9 +55,9 @@ object FhysicsObjectFactory {
             val isValid: Boolean = PolygonCreator.validatePolyVertices(vertices)
         } while (!isValid) // Repeat until a valid polygon is generated
 
-        val pos: Vector2 = randomPosInsideBounds(5F)
+        val pos: Vector2 = randomPosInsideBounds(5f)
         val poly: Polygon = PolygonCreator.createPolygon(vertices.map { it + pos }.toTypedArray())
-        poly.velocity.set(randomVector2(-10.0F, 10.0F))
+        poly.velocity.set(randomVector2(-10.0f, 10.0f))
 
         return poly
     }
