@@ -65,7 +65,7 @@ object CollisionFinder {
         val projResult: ProjectionResult = testProjectionOverlap(finalAxis, poly, circle)
         if (!projResult.hasOverlap) return CollisionInfo()
 
-        if (finalAxis.dot(poly.center - circle.position) < 0) {
+        if (finalAxis.dot(poly.position - circle.position) < 0) {
             finalAxis.negate()
         }
 
@@ -124,7 +124,7 @@ object CollisionFinder {
                 val collisionInfo: CollisionInfo = testCollision(subPolyA, subPolyB)
                 if (collisionInfo.hasCollision) {
                     val normal: Vector2 = collisionInfo.normal
-                    if (normal.dot(subPolyB.center - subPolyA.center) < 0) {
+                    if (normal.dot(subPolyB.position - subPolyA.position) < 0) {
                         normal.negate()
                     }
                     return CollisionInfo(polyA, polyB, normal, collisionInfo.depth)

@@ -6,22 +6,12 @@ import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import kotlin.math.abs
 
-abstract class Polygon : FhysicsObject {
-
-    val vertices: Array<Vector2>
-    open val center: Vector2 = position
-
-    // must be CCW and in global space
-    constructor(position: Vector2, velocity: Vector2, vertices: Array<Vector2>, rotation: Float = 0f) : super(
-        position,
-        velocity,
-        calculatePolygonArea(vertices),
-        rotation
-    ) {
-        this.vertices = vertices
-        vertices.forEach { it -= position }
-        color = colorFromIndex(id)
-    }
+abstract class Polygon(
+    position: Vector2,
+    velocity: Vector2,
+    val vertices: Array<Vector2>, // must be CCW and in global space
+    rotation: Float = 0f,
+) : FhysicsObject(position, velocity, calculatePolygonArea(vertices), rotation) {
 
     constructor(vertices: Array<Vector2>, rotation: Float) : this(
         calculatePolygonCenter(vertices),
@@ -29,6 +19,11 @@ abstract class Polygon : FhysicsObject {
         vertices,
         rotation
     )
+
+    init {
+        // convert vertices to local space
+        vertices.forEach { it -= position }
+    }
 
     open fun getAxes(): Set<Vector2> {
         // Calculate the normals of the polygon's sides based on its rotation
@@ -80,7 +75,7 @@ abstract class Polygon : FhysicsObject {
      * @return The transformed vertices
      */
     open fun getTransformedVertices(): List<Vector2> {
-        return vertices.map { it.rotatedAround(Vector2.ZERO, rotation) + position }
+        return vertices.map { it.rotatedAround(Vector2.ZERO, rotation) + super.position }
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo
