@@ -11,7 +11,7 @@ class Circle(
 ) : FhysicsObject(position, Vector2.ZERO, (Math.PI * radius * radius).toFloat()) {
 
     override fun project(axis: Vector2): Projection {
-        // Project the circle's center onto the axis and return the range of scalar values
+        // Project the circle's center onto the axis and add and subtract the radius to get the projection
         val centerProjection: Float = position.dot(axis)
         return Projection(centerProjection - radius, centerProjection + radius)
     }

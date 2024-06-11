@@ -6,6 +6,7 @@ import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import kotlin.math.abs
 
+// primary constructor is used to sync position and velocity from sub-polygons with the main polygon
 abstract class Polygon(
     position: Vector2,
     velocity: Vector2,
@@ -13,6 +14,7 @@ abstract class Polygon(
     rotation: Float = 0f,
 ) : FhysicsObject(position, velocity, calculatePolygonArea(vertices), rotation) {
 
+    // Used for creating every polygon except sub-polygons
     constructor(vertices: Array<Vector2>, rotation: Float) : this(
         calculatePolygonCenter(vertices),
         Vector2.ZERO,

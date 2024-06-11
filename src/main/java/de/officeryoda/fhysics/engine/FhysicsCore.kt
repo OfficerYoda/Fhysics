@@ -20,7 +20,7 @@ import kotlin.math.sign
 object FhysicsCore {
 
     /// =====constants=====
-    val BORDER: BoundingBox = BoundingBox(0.0F, 0.0F, 100.0F, 100.0F) // x and y must be 0.0
+    val BORDER: BoundingBox = BoundingBox(0.0f, 0.0f, 100.0f, 100.0f) // x and y must be 0.0
     private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
     const val UPDATES_PER_SECOND: Int = 120
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
@@ -34,7 +34,7 @@ object FhysicsCore {
 
     var updateCount = 0
 
-    var dt: Float = 1.0F / UPDATES_PER_SECOND
+    var dt: Float = 1.0f / UPDATES_PER_SECOND
     var running: Boolean = true
     val updateTimer = Timer(50)
 
@@ -48,21 +48,20 @@ object FhysicsCore {
 
     init {
 
-
-//        for (i in 1..20) {
-//            val circle: Circle = FhysicsObjectFactory.randomCircle()
-////            circle.velocity.set(Vector2.ZERO)
-//            spawn(circle)
-//        }
+        for (i in 1..300) {
+            val circle: Circle = FhysicsObjectFactory.randomCircle()
+//            circle.velocity.set(Vector2.ZERO)
+            spawn(circle)
+        }
 //
 //        for (i in 1..20) {
 //            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
 //            spawn(rect)
 //        }
-
-        for (i in 1..20) {
-            spawn(FhysicsObjectFactory.randomPolygon())
-        }
+//
+//        for (i in 1..10) {
+//            spawn(FhysicsObjectFactory.randomPolygon())
+//        }
 
         // spawn a rotated rectangle in the center
 //        val rect =

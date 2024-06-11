@@ -12,24 +12,16 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
  * @property depth The overlap distance between the objects.
  */
 data class CollisionInfo(
-    val hasCollision: Boolean = false,
-    val objA: FhysicsObject? = null,
-    val objB: FhysicsObject? = null,
-    val normal: Vector2 = Vector2.ZERO,
-    val depth: Float = -1.0F,
+    val objA: FhysicsObject?,
+    val objB: FhysicsObject?,
+    val normal: Vector2,
+    val depth: Float,
 ) {
+
+    val hasCollision: Boolean = depth != Float.NEGATIVE_INFINITY
+
     /**
-     * Secondary constructor used to create a CollisionInfo instance when a collision occurs.
-     * @param objA The first physics object involved in the collision.
-     * @param objB The second physics object involved in the collision.
-     * @param normal The normal vector along the line of collision. (Points from objA to objB)
-     * @param depth The overlap distance between the objects.
+     * Secondary constructor used to create a CollisionInfo instance when no collision occurred.
      */
-    constructor(objA: FhysicsObject?, objB: FhysicsObject?, normal: Vector2, depth: Float) : this(
-        true,
-        objA,
-        objB,
-        normal,
-        depth
-    )
+    constructor() : this(null, null, Vector2.ZERO, Float.NEGATIVE_INFINITY)
 }
