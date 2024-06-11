@@ -3,7 +3,10 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.collision.ElasticCollision
-import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
+import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -46,18 +49,18 @@ object FhysicsCore {
     init {
 
 
-        for (i in 1..20) {
-            val circle: Circle = FhysicsObjectFactory.randomCircle()
-//            circle.velocity.set(Vector2.ZERO)
-            spawn(circle)
-        }
+//        for (i in 1..20) {
+//            val circle: Circle = FhysicsObjectFactory.randomCircle()
+////            circle.velocity.set(Vector2.ZERO)
+//            spawn(circle)
+//        }
+//
+//        for (i in 1..20) {
+//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
+//            spawn(rect)
+//        }
 
         for (i in 1..20) {
-            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
-            spawn(rect)
-        }
-
-        for (i in 1..10) {
             spawn(FhysicsObjectFactory.randomPolygon())
         }
 

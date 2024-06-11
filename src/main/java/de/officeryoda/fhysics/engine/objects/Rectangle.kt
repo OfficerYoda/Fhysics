@@ -13,10 +13,6 @@ class Rectangle(
     rotation: Float = 0f,
 ) : Polygon(createRectangleVertices(width, height).map { it + position }.toTypedArray(), rotation) {
 
-    init {
-        color = colorFromIndex(1)
-    }
-
     override fun getAxes(): Set<Vector2> {
         // Calculate the normals of the rectangle's sides based on its rotation
         val axis1 = Vector2(cos(rotation), sin(rotation))
