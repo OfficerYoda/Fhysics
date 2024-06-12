@@ -390,7 +390,7 @@ class FhysicsObjectDrawer : Application() {
 
         if (UIController.drawMSPU || UIController.drawUPS) {
             if (UIController.drawMSPU) {
-                stats.add("MSPU: ${FhysicsCore.updateTimer.rounded()}")
+                stats.add("MSPU: ${FhysicsCore.updateTimer.roundedString()}")
             }
 
             if (UIController.drawUPS) {
