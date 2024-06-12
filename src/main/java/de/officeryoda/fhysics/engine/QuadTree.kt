@@ -294,37 +294,25 @@ data class QuadTree(
 
     /// =====Async functions=====
     private fun updateObjectsAndRebuildChildrenAsync() {
-        val tl = Thread { topLeft!!.updateObjectsAndRebuild() }
-        val tr = Thread { topRight!!.updateObjectsAndRebuild() }
-        val bl = Thread { botLeft!!.updateObjectsAndRebuild() }
-        val br = Thread { botRight!!.updateObjectsAndRebuild() }
+        val futures: MutableList<Future<*>> = mutableListOf()
+        futures.add(threadPool.submit { topLeft!!.updateObjectsAndRebuild() })
+        futures.add(threadPool.submit { topRight!!.updateObjectsAndRebuild() })
+        futures.add(threadPool.submit { botLeft!!.updateObjectsAndRebuild() })
+        futures.add(threadPool.submit { botRight!!.updateObjectsAndRebuild() })
 
-        tl.start()
-        tr.start()
-        bl.start()
-        br.start()
-
-        tl.join()
-        tr.join()
-        bl.join()
-        br.join()
+        // Wait for all tasks to finish
+        waitForAllFutures(futures)
     }
 
     private fun handleCollisionsInChildrenAsync() {
-        val tl = Thread { topLeft!!.handleCollisions() }
-        val tr = Thread { topRight!!.handleCollisions() }
-        val bl = Thread { botLeft!!.handleCollisions() }
-        val br = Thread { botRight!!.handleCollisions() }
+        val futures: MutableList<Future<*>> = mutableListOf()
+        futures.add(threadPool.submit { topLeft!!.handleCollisions() })
+        futures.add(threadPool.submit { topRight!!.handleCollisions() })
+        futures.add(threadPool.submit { botLeft!!.handleCollisions() })
+        futures.add(threadPool.submit { botRight!!.handleCollisions() })
 
-        tl.start()
-        tr.start()
-        bl.start()
-        br.start()
-
-        tl.join()
-        tr.join()
-        bl.join()
-        br.join()
+        // Wait for all tasks to finish
+        waitForAllFutures(futures)
     }
 
     private fun waitForAllFutures(futures: MutableList<Future<*>>) {
