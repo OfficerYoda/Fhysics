@@ -35,7 +35,7 @@ class Timer(private val maxDurations: Int = 50) {
         updateDurations.clear()
     }
 
-    fun rounded(decimalPlaces: Int = 2): String {
+    fun roundedString(decimalPlaces: Int = 2): String {
         return String.format(Locale.US, "%.${decimalPlaces}f", average())
     }
 }

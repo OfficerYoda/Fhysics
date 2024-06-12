@@ -1,36 +1,40 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 data class QuadTree(
     private val boundary: BoundingBox,
     private val parent: QuadTree?,
 ) {
 
+    private lateinit var threadPool: ExecutorService
+
     val objects: MutableList<FhysicsObject> = ArrayList()
     private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite division
     private val isRoot: Boolean = parent == null
 
-    var divided: Boolean = false
-        private set
+    private var divided: Boolean = false
 
     // Child nodes
-    var topLeft: QuadTree? = null
-        private set
-    var topRight: QuadTree? = null
-        private set
-    var botLeft: QuadTree? = null
-        private set
-    var botRight: QuadTree? = null
-        private set
+    private var topLeft: QuadTree? = null
+    private var topRight: QuadTree? = null
+    private var botLeft: QuadTree? = null
+    private var botRight: QuadTree? = null
 
     private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
 
     init {
         if (isRoot) {
             root = this
+            // Only need thread pool in root
+            threadPool = Executors.newFixedThreadPool(4)
         }
     }
 
@@ -131,7 +135,6 @@ data class QuadTree(
         if (isRoot) {
             // Update root children async
             updateObjectsAndRebuildChildrenAsync()
-            return
         } else {
             topLeft!!.updateObjectsAndRebuild()
             topRight!!.updateObjectsAndRebuild()
@@ -221,7 +224,42 @@ data class QuadTree(
     private fun updateObject(it: FhysicsObject) {
         it.updatePosition()
 
-        FhysicsCore.checkBorderCollision(it)
+        CollisionSolver.checkBorderCollision(it)
+    }
+
+    /// =====Collision functions=====
+    fun handleCollisions() {
+        if (divided) {
+            handleCollisionsInChildren()
+        } else {
+            val numObjects: Int = objects.size
+
+            for (i: Int in objects.indices) {
+                for (j: Int in i + 1 until numObjects) {
+                    handleCollision(objects[i], objects[j])
+                }
+            }
+        }
+    }
+
+    private fun handleCollisionsInChildren() {
+        if (isRoot) {
+            // Update root children async
+            handleCollisionsInChildrenAsync()
+        } else {
+            topLeft!!.handleCollisions()
+            topRight!!.handleCollisions()
+            botLeft!!.handleCollisions()
+            botRight!!.handleCollisions()
+        }
+    }
+
+    private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
+        val points: CollisionInfo = objA.testCollision(objB)
+
+        if (!points.hasCollision) return
+
+        CollisionSolver.solveCollision(points)
     }
 
     /// =====Drawing functions=====
@@ -270,6 +308,29 @@ data class QuadTree(
         tr.join()
         bl.join()
         br.join()
+    }
+
+    private fun handleCollisionsInChildrenAsync() {
+        val tl = Thread { topLeft!!.handleCollisions() }
+        val tr = Thread { topRight!!.handleCollisions() }
+        val bl = Thread { botLeft!!.handleCollisions() }
+        val br = Thread { botRight!!.handleCollisions() }
+
+        tl.start()
+        tr.start()
+        bl.start()
+        br.start()
+
+        tl.join()
+        tr.join()
+        bl.join()
+        br.join()
+    }
+
+    private fun waitForAllFutures(futures: MutableList<Future<*>>) {
+        for (future: Future<*> in futures) {
+            future.get()
+        }
     }
 
     /// =====Utility functions=====

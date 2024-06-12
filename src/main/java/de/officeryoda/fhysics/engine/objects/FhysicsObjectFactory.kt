@@ -12,7 +12,7 @@ object FhysicsObjectFactory {
     private val RANDOM: Random = Random()
 
     fun randomCircle(): Circle {
-        val radius: Float = RANDOM.nextFloat(0.5f, 0.7f)
+        val radius: Float = RANDOM.nextFloat(0.2f, 0.4f)
         val pos: Vector2 = randomPosInsideBounds(buffer = radius)
         val circle = Circle(pos, radius)
 
