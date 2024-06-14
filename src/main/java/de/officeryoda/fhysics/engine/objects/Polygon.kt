@@ -30,7 +30,7 @@ abstract class Polygon(
     open fun getAxes(): Set<Vector2> {
         // Calculate the normals of the polygon's sides based on its rotation
         val axes: MutableSet<Vector2> = mutableSetOf()
-        val transformedVertices: List<Vector2> = getTransformedVertices()
+        val transformedVertices: Array<Vector2> = getTransformedVertices()
 
         for (i: Int in transformedVertices.indices) {
             val j: Int = (i + 1) % transformedVertices.size
@@ -43,7 +43,7 @@ abstract class Polygon(
     }
 
     override fun project(axis: Vector2): Projection {
-        val transformedVertices: List<Vector2> = getTransformedVertices()
+        val transformedVertices: Array<Vector2> = getTransformedVertices()
 
         // Project the polygon's vertices onto the axis
         var min: Float = Float.POSITIVE_INFINITY
@@ -60,7 +60,7 @@ abstract class Polygon(
     override fun contains(pos: Vector2): Boolean {
         if (!boundingBox.contains(pos)) return false
 
-        val transformedVertices: List<Vector2> = getTransformedVertices()
+        val transformedVertices: Array<Vector2> = getTransformedVertices()
         var intersects = 0
 
         for (i: Int in transformedVertices.indices) {
@@ -84,8 +84,8 @@ abstract class Polygon(
      *
      * @return The transformed vertices
      */
-    open fun getTransformedVertices(): List<Vector2> {
-        return vertices.map { it.rotatedAround(Vector2.ZERO, rotation) + super.position }
+    open fun getTransformedVertices(): Array<Vector2> {
+        return vertices.map { it.rotatedAround(Vector2.ZERO, rotation) + super.position }.toTypedArray()
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo
@@ -96,6 +96,16 @@ abstract class Polygon(
 
     override fun testCollision(other: Polygon): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
+    }
+
+    abstract override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
+
+    override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
+        return CollisionFinder.findContactPoints(this, other, info)
+    }
+
+    override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
+        return CollisionFinder.findContactPoints(this, other, info)
     }
 
     companion object {

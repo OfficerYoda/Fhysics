@@ -18,10 +18,14 @@ data class CollisionInfo(
     val depth: Float,
 ) {
 
+    /**
+     * Indicates whether a collision has occurred.
+     */
     val hasCollision: Boolean = depth != Float.NEGATIVE_INFINITY
 
     /**
      * Secondary constructor used to create a CollisionInfo instance when no collision occurred.
      */
     constructor() : this(null, null, Vector2.ZERO, Float.NEGATIVE_INFINITY)
+
 }

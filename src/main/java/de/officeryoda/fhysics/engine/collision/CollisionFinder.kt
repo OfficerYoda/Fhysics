@@ -7,9 +7,12 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.ConcavePolygon
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
+import kotlin.math.absoluteValue
 import kotlin.math.min
 
 object CollisionFinder {
+
+    /// =====Collision Detection=====
 
     /**
      * Tests for collision between two circles
@@ -185,32 +188,170 @@ object CollisionFinder {
      * Gets the closest point on the polygon to the external point
      *
      * @param poly The polygon
-     * @param externalPoint The external point
+     * @param point The external point
      */
-    private fun getClosestPoint(poly: Polygon, externalPoint: Vector2): Vector2 {
-        var closestPoint: Vector2 = Vector2.ZERO
-        var minDistance: Float = Float.MAX_VALUE
+    private fun getClosestPoint(poly: Polygon, point: Vector2): Vector2 {
+        var closestPoint: Pair<Vector2, Float> = Pair(Vector2.ZERO, Float.MAX_VALUE)
 
-        val vertices: List<Vector2> = poly.getTransformedVertices()
+        val vertices: Array<Vector2> = poly.getTransformedVertices()
 
         for (i: Int in vertices.indices) {
             val start: Vector2 = vertices[i]
-            val end: Vector2 = vertices[(i + 1) % vertices.size] // Wrap around to the first vertex for the last edge
+            val end: Vector2 = vertices[(i + 1) % vertices.size]
 
-            // Calculate the closest point on the current edge to the external point
-            val edge: Vector2 = end - start
-            val t: Float = ((externalPoint - start).dot(edge)) / edge.sqrMagnitude()
+            // Get the closest point on the current edge to the external point
+            val pointEdgeDistance: Pair<Vector2, Float> = getPointEdgeDistance(start, end, point)
 
-            // If the closest point on the line defined by the edge is not on the edge itself, ignore it
-            val closestPointOnEdge: Vector2 = if (t in 0.0..1.0) start + edge * t else continue
-
-            val distance: Float = closestPointOnEdge.sqrDistance(externalPoint)
-            if (distance < minDistance) {
-                minDistance = distance
-                closestPoint = closestPointOnEdge
+            if (pointEdgeDistance.second < closestPoint.second) {
+                closestPoint = pointEdgeDistance
             }
         }
 
-        return closestPoint
+        return closestPoint.first
+    }
+
+    /**
+     * Gets the closest point on an edge to an external point
+     *
+     * @param start The start point of the edge
+     * @param end The end point of the edge
+     * @param point The external point
+     * @return A pair containing the closest point on the edge and the square distance to the external point
+     */
+    private fun getPointEdgeDistance(start: Vector2, end: Vector2, point: Vector2): Pair<Vector2, Float> {
+        // Calculate the closest point on the current edge to the external point
+        val edge: Vector2 = end - start
+        val t: Float = ((point - start).dot(edge)) / edge.sqrMagnitude()
+
+        // Get the closest point on the edge
+        val closestPointOnEdge: Vector2 = when {
+            t < 0.0 -> start
+            t > 1.0 -> end
+            else -> start + edge * t
+        }
+
+        return Pair(closestPointOnEdge, closestPointOnEdge.sqrDistance(point))
+    }
+
+    /// =====Contact Points=====
+
+    // TODO remove redundant parameters
+
+    /**
+     * Finds the contact points between two circles
+     *
+     * @param circleA The first circle
+     * @param circleB The second circle
+     * @param info The CollisionInfo object containing information about the collision
+     * @return An array containing the contact points
+     */
+    fun findContactPoints(circleA: Circle, circleB: Circle, info: CollisionInfo): Array<Vector2> {
+        val contactPoint: Vector2 = circleA.position + info.normal * circleA.radius
+        return arrayOf(contactPoint)
+    }
+
+    /**
+     * Finds the contact points between a polygon and a circle
+     *
+     * @param poly The polygon
+     * @param circle The circle
+     * @param info The CollisionInfo object containing information about the collision
+     * @return An array containing the contact points
+     */
+    fun findContactPoints(poly: Polygon, circle: Circle, info: CollisionInfo): Array<Vector2> {
+        if (info.objA == circle) {
+            val contactPoint: Vector2 = circle.position + info.normal * circle.radius
+            return arrayOf(contactPoint)
+        } else {
+            val contactPoint: Vector2 = circle.position - info.normal * circle.radius
+            return arrayOf(contactPoint)
+        }
+    }
+
+    /**
+     * Finds the contact points between two polygons
+     *
+     * @param polyA The first polygon
+     * @param polyB The second polygon
+     * @param info The CollisionInfo object containing information about the collision
+     * @return An array containing the contact points
+     */
+    fun findContactPoints(polyA: Polygon, polyB: Polygon, info: CollisionInfo): Array<Vector2> {
+        var contactA: Vector2 = Vector2.ZERO
+        var contactB: Vector2 = Vector2.ZERO
+        var contactCount = 0
+        var minDistance: Float = Float.MAX_VALUE
+
+        val verticesA: Array<Vector2> = polyA.getTransformedVertices()
+        val verticesB: Array<Vector2> = polyB.getTransformedVertices()
+
+        // Check for contact points between the vertices of polyA and the edges of polyB
+        for (i: Int in verticesA.indices) {
+            val vertex: Vector2 = verticesA[i]
+            for (j: Int in verticesB.indices) {
+                val va: Vector2 = verticesB[j]
+                val vb: Vector2 = verticesB[(j + 1) % verticesB.size]
+
+                val (closestPoint: Vector2, distance: Float) = getPointEdgeDistance(va, vb, vertex)
+
+                if (nearlyEquals(distance, minDistance)) {
+                    if (!nearlyEquals(closestPoint, contactA)) {
+                        contactB = closestPoint
+                        contactCount = 2
+                    }
+                } else if (distance < minDistance) {
+                    minDistance = distance
+                    contactA = closestPoint
+                    contactCount = 1
+                }
+            }
+        }
+
+        // Check for contact points between the vertices of polyB and the edges of polyA
+        for (i: Int in verticesB.indices) {
+            val vertex: Vector2 = verticesB[i]
+            for (j: Int in verticesA.indices) {
+                val va: Vector2 = verticesA[j]
+                val vb: Vector2 = verticesA[(j + 1) % verticesA.size]
+
+                val (closestPoint: Vector2, distance: Float) = getPointEdgeDistance(va, vb, vertex)
+
+                if (nearlyEquals(distance, minDistance)) {
+                    if (!nearlyEquals(closestPoint, contactA)) {
+                        contactB = closestPoint
+                        contactCount = 2
+                    }
+                } else if (distance < minDistance) {
+                    minDistance = distance
+                    contactA = closestPoint
+                    contactCount = 1
+                }
+            }
+        }
+
+        return if (contactCount == 2) arrayOf(contactA, contactB) else arrayOf(contactA)
+    }
+
+    /**
+     * Checks if two floats are nearly equal
+     *
+     * @param a The first float
+     * @param b The second float
+     * @return A boolean indicating if the floats are nearly equal
+     */
+    private fun nearlyEquals(a: Float, b: Float): Boolean {
+        val epsilon = 0.0001f
+        return (a - b).absoluteValue < epsilon
+    }
+
+    /**
+     * Checks if two vectors are nearly equal
+     *
+     * @param a The first vector
+     * @param b The second vector
+     * @return A boolean indicating if the vectors are nearly equal
+     */
+    private fun nearlyEquals(a: Vector2, b: Vector2): Boolean {
+        return nearlyEquals(a.x, b.x) && nearlyEquals(a.y, b.y)
     }
 }

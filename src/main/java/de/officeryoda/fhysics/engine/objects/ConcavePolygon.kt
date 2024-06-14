@@ -29,6 +29,10 @@ class ConcavePolygon(
         return other.testCollision(this)
     }
 
+    override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
+        return other.findContactPoints(this, info)
+    }
+
     override fun clone(): FhysicsObject {
         TODO("Not yet implemented")
     }

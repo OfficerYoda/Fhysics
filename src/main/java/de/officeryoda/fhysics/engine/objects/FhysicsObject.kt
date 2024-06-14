@@ -77,6 +77,12 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun testCollision(other: Polygon): CollisionInfo
 
+    abstract fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
+
+    abstract fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2>
+
+    abstract fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2>
+
     abstract fun clone(): FhysicsObject
 
     private fun colorFromId(): Color {

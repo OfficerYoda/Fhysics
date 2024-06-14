@@ -12,6 +12,10 @@ class ConvexPolygon(
         return other.testCollision(this)
     }
 
+    override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
+        return other.findContactPoints(this, info)
+    }
+
     override fun clone(): FhysicsObject {
         return ConvexPolygon(vertices.map { position + it.copy() }.toTypedArray(), rotation)
     }

@@ -8,6 +8,7 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController
 
 object CollisionSolver {
@@ -17,7 +18,11 @@ object CollisionSolver {
      *
      * @param info The CollisionInfo object containing information about the collision
      */
-    fun solveCollision(info: CollisionInfo) {
+    fun solveCollision(info: CollisionInfo, contactPoints: Array<Vector2>) {
+        for (element: Vector2 in contactPoints) {
+            DebugDrawer.addDebugPoint(element)
+        }
+
         // separate the objects to prevent tunneling and other anomalies
         separateOverlappingObjects(info)
 
@@ -29,7 +34,7 @@ object CollisionSolver {
         val relativeVelocity: Vector2 = objB.velocity - objA.velocity
 
         // Return if the objects are already moving away from each other
-        if (relativeVelocity.dot(info.normal) >= 0) return
+        if (relativeVelocity.dot(info.normal) > 0) return
 
         val impulseMagnitude: Float = -2f * relativeVelocity.dot(info.normal) / (objA.invMass + objB.invMass)
         val impulse: Vector2 = impulseMagnitude * info.normal
@@ -43,24 +48,17 @@ object CollisionSolver {
      *
      * @param info The CollisionInfo object containing information about the collision
      */
-    private fun separateOverlappingObjects(info: CollisionInfo) {
+    fun separateOverlappingObjects(info: CollisionInfo) {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
         if (objA.static && objB.static) return
 
-        val totalMass: Float =
-            when {
-                !objA.static && !objB.static -> objA.mass + objB.mass
-                objA.static -> objB.mass
-                else -> objA.mass
-            }
-
         val overlap: Vector2 = info.depth * info.normal
 
         // if both objects are non-static, separate them by their mass ratio else move the non-static object by the overlap
-        if (!objA.static) objA.position -= if (!objB.static) (objB.mass / totalMass) * overlap else overlap
-        if (!objB.static) objB.position += if (!objA.static) (objA.mass / totalMass) * overlap else overlap
+        if (!objA.static) objA.position -= if (!objB.static) 0.5f * overlap else overlap
+        if (!objB.static) objB.position += if (!objA.static) 0.5f * overlap else overlap
     }
 
     fun checkBorderCollision(obj: FhysicsObject) {

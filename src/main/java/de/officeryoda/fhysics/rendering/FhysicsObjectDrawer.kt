@@ -213,7 +213,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygon(poly: Polygon) {
-        val vertices: List<Vector2> = poly.getTransformedVertices()
+        val vertices: Array<Vector2> = poly.getTransformedVertices()
 
         val xPoints = DoubleArray(vertices.size)
         val yPoints = DoubleArray(vertices.size)

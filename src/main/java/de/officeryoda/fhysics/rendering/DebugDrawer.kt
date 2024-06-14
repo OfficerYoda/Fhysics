@@ -60,7 +60,7 @@ object DebugDrawer {
             if (point.durationFrames > 0) {
                 point.durationFrames--
             } else {
-                debugPoints.add(point)
+                debugPoints.remove(point)
             }
         }
     }

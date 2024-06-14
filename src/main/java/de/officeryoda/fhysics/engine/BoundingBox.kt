@@ -93,7 +93,7 @@ data class BoundingBox(
      * @param poly The polygon to set the bounding box from.
      */
     private fun setFromPolygon(poly: Polygon) {
-        val transformedVertices: List<Vector2> = poly.getTransformedVertices()
+        val transformedVertices: Array<Vector2> = poly.getTransformedVertices()
 
         var minX: Float = Float.MAX_VALUE
         var maxX: Float = Float.MIN_VALUE

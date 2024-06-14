@@ -31,16 +31,20 @@ class Rectangle(
                 rotatedPos.y in (position.y - halfHeight)..(position.y + halfHeight)
     }
 
-    override fun getTransformedVertices(): List<Vector2> {
+    override fun getTransformedVertices(): Array<Vector2> {
         // Get the four corners of the rectangle before rotation
         val corners: Array<Vector2> = createRectangleVertices(width, height)
 
         // Rotate the rectangle's corners
-        return corners.map { it.rotatedAround(Vector2.ZERO, rotation) + position }
+        return corners.map { it.rotatedAround(Vector2.ZERO, rotation) + position }.toTypedArray()
     }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this) // works because FhysicsObject is abstract (aka double dispatch)
+    }
+
+    override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
+        return other.findContactPoints(this, info)
     }
 
     override fun clone(): FhysicsObject {

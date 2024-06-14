@@ -259,11 +259,12 @@ data class QuadTree(
     private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
         if (objA.static && objB.static) return
 
-        val points: CollisionInfo = objA.testCollision(objB)
+        val info: CollisionInfo = objA.testCollision(objB)
 
-        if (!points.hasCollision) return
-
-        CollisionSolver.solveCollision(points)
+        if (!info.hasCollision) return
+        CollisionSolver.separateOverlappingObjects(info)
+        val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
+        CollisionSolver.solveCollision(info, contactPoints)
     }
 
     /// =====Drawing functions=====
