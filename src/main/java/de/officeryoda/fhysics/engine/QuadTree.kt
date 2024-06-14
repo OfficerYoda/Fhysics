@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.concurrent.ExecutorService
@@ -163,40 +164,6 @@ data class QuadTree(
         objects.removeAll(toRemove)
     }
 
-    private fun tryCollapse() {
-        if (!divided) return
-
-        // This doesn't take object on the edges into account, but it should be fine
-        val objectsInChildren: Int = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
-        if (objectsInChildren < capacity) {
-            divided = false
-            // Add every child object to the parent
-            // Set to prevent duplicates due to the edges
-            val objectsSet: HashSet<FhysicsObject> = HashSet()
-            objectsSet.addAll(topLeft!!.objects)
-            objectsSet.addAll(topRight!!.objects)
-            objectsSet.addAll(botLeft!!.objects)
-            objectsSet.addAll(botRight!!.objects)
-
-            objects.addAll(objectsSet)
-        }
-    }
-
-    fun tryDivide() {
-        when {
-            divided -> {
-                topLeft!!.tryDivide()
-                topRight!!.tryDivide()
-                botLeft!!.tryDivide()
-                botRight!!.tryDivide()
-            }
-
-            objects.size > capacity -> {
-                divide()
-            }
-        }
-    }
-
     private fun addRebuildObject(obj: FhysicsObject) {
         // If the object is still fully in the boundary, or it is the root, add it to the rebuild list
         if (boundary.contains(obj.boundingBox) || isRoot) {
@@ -225,6 +192,41 @@ data class QuadTree(
         it.updatePosition()
 
         CollisionSolver.checkBorderCollision(it)
+    }
+
+    private fun tryCollapse() {
+        if (!divided) return
+
+        // This doesn't take object on the edges into account, but it should be fine
+        val objectsInChildren: Int = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
+        if (objectsInChildren <= capacity) {
+            divided = false
+            // Add every child object to the parent
+            // Use a Set to prevent duplicates due to the edges
+            val objectsSet: HashSet<FhysicsObject> = HashSet()
+            objectsSet.addAll(rebuildObjects)
+            objectsSet.addAll(topLeft!!.objects)
+            objectsSet.addAll(topRight!!.objects)
+            objectsSet.addAll(botLeft!!.objects)
+            objectsSet.addAll(botRight!!.objects)
+
+            objects.addAll(objectsSet)
+        }
+    }
+
+    fun tryDivide() {
+        when {
+            divided -> {
+                topLeft!!.tryDivide()
+                topRight!!.tryDivide()
+                botLeft!!.tryDivide()
+                botRight!!.tryDivide()
+            }
+
+            objects.size > capacity -> {
+                divide()
+            }
+        }
     }
 
     /// =====Collision functions=====
@@ -276,7 +278,7 @@ data class QuadTree(
 
             UIController.drawBoundingBoxes -> objects.forEach {
                 drawer.drawObject(it)
-                drawer.drawBoundingBox(it)
+                DebugDrawer.drawBoundingBox(it)
             }
 
             else -> objects.forEach { drawer.drawObject(it) }
@@ -285,7 +287,7 @@ data class QuadTree(
 
     fun drawNode(drawer: FhysicsObjectDrawer) {
         if (!divided) {
-            drawer.transformAndDrawQuadTreeNode(boundary, objects.size)
+            DebugDrawer.transformAndDrawQuadTreeNode(boundary, objects.size)
         } else {
             topLeft!!.drawNode(drawer)
             topRight!!.drawNode(drawer)
@@ -325,7 +327,7 @@ data class QuadTree(
 
     /// =====Utility functions=====
     /**
-     * Counts the objects in the QuadTree
+     * Counts the objects in this QuadTree node and its children
      *
      * This function will count the same object multiple times if it is in multiple nodes
      * For counting unique objects, use [countUnique]
@@ -341,7 +343,7 @@ data class QuadTree(
     }
 
     /**
-     * Counts the unique objects in the QuadTree
+     * Counts the unique objects in this QuadTree node and its children
      *
      * Unlike the [count] function, this function will not count the same object multiple times
      *
