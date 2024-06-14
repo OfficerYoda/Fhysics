@@ -5,6 +5,8 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sin
 
 data class BoundingBox(
@@ -51,6 +53,7 @@ data class BoundingBox(
         val halfWidth: Float = rect.width / 2
         val halfHeight: Float = rect.height / 2
 
+        // Calculate the corners of the rectangle
         val corners: Array<Vector2> = arrayOf(
             Vector2(-halfWidth, -halfHeight),
             Vector2(halfWidth, -halfHeight),
@@ -58,6 +61,7 @@ data class BoundingBox(
             Vector2(-halfWidth, halfHeight)
         )
 
+        // Rotate the corners of the rectangle
         val rotatedCorners: List<Vector2> = corners.map { corner ->
             Vector2(
                 rect.position.x + corner.x * cos - corner.y * sin,
@@ -65,10 +69,17 @@ data class BoundingBox(
             )
         }
 
-        val minX: Float = rotatedCorners.minOf { it.x }
-        val maxX: Float = rotatedCorners.maxOf { it.x }
-        val minY: Float = rotatedCorners.minOf { it.y }
-        val maxY: Float = rotatedCorners.maxOf { it.y }
+        var minX: Float = Float.MAX_VALUE
+        var maxX: Float = Float.MIN_VALUE
+        var minY: Float = Float.MAX_VALUE
+        var maxY: Float = Float.MIN_VALUE
+
+        for (vector: Vector2 in rotatedCorners) {
+            minX = min(minX, vector.x)
+            maxX = max(maxX, vector.x)
+            minY = min(minY, vector.y)
+            maxY = max(maxY, vector.y)
+        }
 
         this.x = minX
         this.y = minY
@@ -82,12 +93,19 @@ data class BoundingBox(
      * @param poly The polygon to set the bounding box from.
      */
     private fun setFromPolygon(poly: Polygon) {
-        val translatedVertices: List<Vector2> = poly.getTransformedVertices()
+        val transformedVertices: List<Vector2> = poly.getTransformedVertices()
 
-        val minX: Float = translatedVertices.minOf { it.x }
-        val maxX: Float = translatedVertices.maxOf { it.x }
-        val minY: Float = translatedVertices.minOf { it.y }
-        val maxY: Float = translatedVertices.maxOf { it.y }
+        var minX: Float = Float.MAX_VALUE
+        var maxX: Float = Float.MIN_VALUE
+        var minY: Float = Float.MAX_VALUE
+        var maxY: Float = Float.MIN_VALUE
+
+        for (vector: Vector2 in transformedVertices) {
+            minX = min(minX, vector.x)
+            maxX = max(maxX, vector.x)
+            minY = min(minY, vector.y)
+            maxY = max(maxY, vector.y)
+        }
 
         this.x = minX
         this.y = minY

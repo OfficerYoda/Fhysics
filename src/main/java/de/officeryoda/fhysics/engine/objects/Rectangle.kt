@@ -1,6 +1,5 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import kotlin.math.cos
@@ -18,13 +17,6 @@ class Rectangle(
         val axis1 = Vector2(cos(rotation), sin(rotation))
         val axis2 = Vector2(-sin(rotation), cos(rotation))
         return setOf(axis1, axis2)
-    }
-
-    override fun project(axis: Vector2): Projection {
-        val transformedVertices: List<Vector2> = getTransformedVertices()
-        val min: Float = transformedVertices.minOf { it.dot(axis) }
-        val max: Float = transformedVertices.maxOf { it.dot(axis) }
-        return Projection(min, max)
     }
 
     override fun contains(pos: Vector2): Boolean {
