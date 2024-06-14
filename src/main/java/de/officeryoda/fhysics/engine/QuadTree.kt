@@ -255,6 +255,8 @@ data class QuadTree(
     }
 
     private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
+        if (objA.static && objB.static) return
+
         val points: CollisionInfo = objA.testCollision(objB)
 
         if (!points.hasCollision) return

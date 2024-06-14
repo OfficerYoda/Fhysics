@@ -44,8 +44,16 @@ abstract class Polygon(
 
     override fun project(axis: Vector2): Projection {
         val transformedVertices: List<Vector2> = getTransformedVertices()
-        val min: Float = transformedVertices.minOf { it.dot(axis) }
-        val max: Float = transformedVertices.maxOf { it.dot(axis) }
+
+        // Project the polygon's vertices onto the axis
+        var min: Float = Float.POSITIVE_INFINITY
+        var max: Float = Float.NEGATIVE_INFINITY
+        for (vertex: Vector2 in transformedVertices) {
+            val projection: Float = vertex.dot(axis)
+            if (projection < min) min = projection
+            if (projection > max) max = projection
+        }
+
         return Projection(min, max)
     }
 
