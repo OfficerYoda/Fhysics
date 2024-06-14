@@ -57,6 +57,22 @@ data class Vector2
     }
 
     /**
+     * Rotates the Vector2 around the origin by the given angle.
+     *
+     * @param angle The angle of rotation in radians.
+     * @return The rotated Vector2.
+     */
+    fun rotated(angle: Float): Vector2 {
+        val cosAngle: Float = cos(angle)
+        val sinAngle: Float = sin(angle)
+
+        val rotatedX: Float = this.x * cosAngle - this.y * sinAngle
+        val rotatedY: Float = this.x * sinAngle + this.y * cosAngle
+
+        return Vector2(rotatedX, rotatedY)
+    }
+
+    /**
      * Calculates the dot product of this Vector2 with another Vector2.
      *
      * @param other The other Vector2.
@@ -90,7 +106,7 @@ data class Vector2
      * @param other The other Vector2.
      * @return The distance between the two Vector2 instances.
      */
-    fun distance(other: Vector2): Float {
+    fun distanceTo(other: Vector2): Float {
         return sqrt(sqrDistance(other))
     }
 

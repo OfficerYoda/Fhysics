@@ -12,6 +12,7 @@ import javafx.scene.text.Text
 import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.util.*
+import kotlin.math.PI
 import kotlin.math.min
 
 object DebugDrawer {
@@ -30,12 +31,14 @@ object DebugDrawer {
 
     private val debugPoints: MutableList<DebugPoint> = ArrayList()
     private val debugLines: MutableList<DebugLine> = ArrayList()
+    private val debugVectors: MutableList<DebugVector> = ArrayList()
 
     /// =====Draw functions=====
     fun drawDebug() {
         if (UIController.drawQuadTree) QuadTree.root.drawNode(drawer)
         drawDebugPoints()
         drawDebugLines()
+        drawDebugVectors()
         drawStats()
     }
 
@@ -57,20 +60,17 @@ object DebugDrawer {
             if (point.durationFrames > 0) {
                 point.durationFrames--
             } else {
-                debugPoints.remove(point)
+                debugPoints.add(point)
             }
         }
     }
 
     private fun drawDebugLines() {
-        gc.lineWidth = 4.0
+        gc.lineWidth = 2.0
 
         for (line: DebugLine in debugLines.toList()) {
-            val start: Vector2 = RenderUtil.worldToScreen(line.start)
-            val end: Vector2 = RenderUtil.worldToScreen(line.end)
-
             RenderUtil.setStrokeColor(line.color)
-            gc.strokeLine(start.x.toDouble(), start.y.toDouble(), end.x.toDouble(), end.y.toDouble())
+            strokeLine(line.start, line.end)
 
             // Update the duration of the line
             // If the max duration is reached remove the line
@@ -82,6 +82,54 @@ object DebugDrawer {
         }
 
         gc.lineWidth = 1.0
+    }
+
+    private fun drawDebugVectors() {
+        gc.lineWidth = 2.0
+
+        // Draw the vectors as an arrow from the support to the direction
+        for (vector: DebugVector in debugVectors.toList()) {
+            RenderUtil.setStrokeColor(vector.color)
+            drawVector(vector.support, vector.direction)
+
+            // Update the duration of the vector
+            // If the max duration is reached remove the vector
+            if (vector.durationFrames > 0) {
+                vector.durationFrames--
+            } else {
+                debugVectors.remove(vector)
+            }
+        }
+
+        gc.lineWidth = 1.0
+    }
+
+    private fun strokeLine(start: Vector2, end: Vector2) {
+        val screenStart: Vector2 = RenderUtil.worldToScreen(start)
+        val screenEnd: Vector2 = RenderUtil.worldToScreen(end)
+        gc.strokeLine(
+            screenStart.x.toDouble(),
+            screenStart.y.toDouble(),
+            screenEnd.x.toDouble(),
+            screenEnd.y.toDouble()
+        )
+    }
+
+    private fun drawVector(support: Vector2, direction: Vector2) {
+        // Draw the vectors as an arrow from the support in the direction
+        val end: Vector2 = support + direction
+
+        // Draw the main line of the vector
+        strokeLine(support, end)
+
+        // Length and angle of the arrowhead lines
+        val arrowHeadLength: Float = min(10f, direction.magnitude() / 3.6f)
+        val arrowAngle = 0.523599f // 30 degrees in radians
+        val arrowHead: Vector2 = direction.normalized() * arrowHeadLength
+
+        // Draw the arrowhead lines
+        strokeLine(end, arrowHead.rotated((PI - arrowAngle).toFloat()) + end)
+        strokeLine(end, arrowHead.rotated((PI + arrowAngle).toFloat()) + end)
     }
 
     private fun drawStats() {
@@ -192,18 +240,15 @@ object DebugDrawer {
     }
 
     /// =====Debug add functions=====
-    fun addDebugPoint(position: Vector2, color: Color = Color.RED, durationFrames: Int = 200) {
+    fun addDebugPoint(position: Vector2, color: Color = Color.RED, durationFrames: Int = 240) {
         debugPoints.add(DebugPoint(position, color, durationFrames))
     }
 
-    fun addDebugLine(start: Vector2, end: Vector2, color: Color = Color.GREEN, durationFrames: Int = 200) {
+    fun addDebugLine(start: Vector2, end: Vector2, color: Color = Color.GREEN, durationFrames: Int = 240) {
         debugLines.add(DebugLine(start, end, color, durationFrames))
     }
+
+    fun addDebugVector(support: Vector2, direction: Vector2, color: Color = Color.BLUE, durationFrames: Int = 240) {
+        debugVectors.add(DebugVector(support, direction, color, durationFrames))
+    }
 }
-
-abstract class DebugElement(val color: Color, var durationFrames: Int = 200)
-
-class DebugPoint(val position: Vector2, color: Color, durationFrames: Int = 200) : DebugElement(color, durationFrames)
-
-class DebugLine(val start: Vector2, val end: Vector2, color: Color, durationFrames: Int = 200) :
-    DebugElement(color, durationFrames)
