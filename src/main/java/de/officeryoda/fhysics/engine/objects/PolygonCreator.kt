@@ -17,9 +17,9 @@ object PolygonCreator {
         val triangles: MutableList<Array<Vector2>> = triangulate(vertices.toMutableList())
         // draw triangles
 //        triangles.forEach { triangle ->
-//            RenderUtil.drawer.addDebugLine(triangle[0], triangle[1], Color.RED, 8400)
-//            RenderUtil.drawer.addDebugLine(triangle[1], triangle[2], Color.RED, 8400)
-//            RenderUtil.drawer.addDebugLine(triangle[2], triangle[0], Color.RED, 8400)
+//            DebugDrawer.addDebugLine(triangle[0].copy(), triangle[1].copy(), Color.RED, 2400)
+//            DebugDrawer.addDebugLine(triangle[1].copy(), triangle[2].copy(), Color.RED, 2400)
+//            DebugDrawer.addDebugLine(triangle[2].copy(), triangle[0].copy(), Color.RED, 2400)
 //        }
 
         val polygonIndices: Array<Array<Int>> = mergePolygons(vertices, triangles)
@@ -27,21 +27,10 @@ object PolygonCreator {
 //        polygonIndices.forEach { polygon ->
 //            polygon.indices.forEach { i ->
 //                val j: Int = (i + 1) % polygon.size
-//                RenderUtil.drawer.addDebugLine(vertices[polygon[i]], vertices[polygon[j]], Color.GREEN, 8400)
+//                DebugDrawer.addDebugLine(vertices[polygon[i]].copy(), vertices[polygon[j]].copy(), Color.GREEN, 2400)
 //            }
 //        }
 
-        // create sub-polygons
-//        polygonIndices.forEach { indices ->
-//            val subVertices: MutableList<Vector2> = mutableListOf()
-//            indices.forEach { index ->
-//                subVertices.add(vertices[index].copy())
-//            }
-//            val element = ConvexPolygon(subVertices.toTypedArray())
-//            FhysicsCore.spawn(element)
-//        }
-//
-//        return ConvexPolygon(arrayOf(Vector2.ZERO, Vector2.ZERO, Vector2.ZERO))
         return ConcavePolygon(vertices, polygonIndices)
     }
 

@@ -1,36 +1,41 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 data class QuadTree(
     private val boundary: BoundingBox,
     private val parent: QuadTree?,
 ) {
 
+    private lateinit var threadPool: ExecutorService
+
     val objects: MutableList<FhysicsObject> = ArrayList()
     private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite division
     private val isRoot: Boolean = parent == null
 
-    var divided: Boolean = false
-        private set
+    private var divided: Boolean = false
 
     // Child nodes
-    var topLeft: QuadTree? = null
-        private set
-    var topRight: QuadTree? = null
-        private set
-    var botLeft: QuadTree? = null
-        private set
-    var botRight: QuadTree? = null
-        private set
+    private var topLeft: QuadTree? = null
+    private var topRight: QuadTree? = null
+    private var botLeft: QuadTree? = null
+    private var botRight: QuadTree? = null
 
     private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
 
     init {
         if (isRoot) {
             root = this
+            // Only need thread pool in root
+            threadPool = Executors.newFixedThreadPool(4)
         }
     }
 
@@ -131,7 +136,6 @@ data class QuadTree(
         if (isRoot) {
             // Update root children async
             updateObjectsAndRebuildChildrenAsync()
-            return
         } else {
             topLeft!!.updateObjectsAndRebuild()
             topRight!!.updateObjectsAndRebuild()
@@ -158,40 +162,6 @@ data class QuadTree(
         }
 
         objects.removeAll(toRemove)
-    }
-
-    private fun tryCollapse() {
-        if (!divided) return
-
-        // This doesn't take object on the edges into account, but it should be fine
-        val objectsInChildren: Int = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
-        if (objectsInChildren < capacity) {
-            divided = false
-            // Add every child object to the parent
-            // Set to prevent duplicates due to the edges
-            val objectsSet: HashSet<FhysicsObject> = HashSet()
-            objectsSet.addAll(topLeft!!.objects)
-            objectsSet.addAll(topRight!!.objects)
-            objectsSet.addAll(botLeft!!.objects)
-            objectsSet.addAll(botRight!!.objects)
-
-            objects.addAll(objectsSet)
-        }
-    }
-
-    fun tryDivide() {
-        when {
-            divided -> {
-                topLeft!!.tryDivide()
-                topRight!!.tryDivide()
-                botLeft!!.tryDivide()
-                botRight!!.tryDivide()
-            }
-
-            objects.size > capacity -> {
-                divide()
-            }
-        }
     }
 
     private fun addRebuildObject(obj: FhysicsObject) {
@@ -221,7 +191,79 @@ data class QuadTree(
     private fun updateObject(it: FhysicsObject) {
         it.updatePosition()
 
-        FhysicsCore.checkBorderCollision(it)
+        CollisionSolver.checkBorderCollision(it)
+    }
+
+    private fun tryCollapse() {
+        if (!divided) return
+
+        // This doesn't take object on the edges into account, but it should be fine
+        val objectsInChildren: Int = topLeft!!.count() + topRight!!.count() + botLeft!!.count() + botRight!!.count()
+        if (objectsInChildren <= capacity) {
+            divided = false
+            // Add every child object to the parent
+            // Use a Set to prevent duplicates due to the edges
+            val objectsSet: HashSet<FhysicsObject> = HashSet()
+            objectsSet.addAll(rebuildObjects)
+            objectsSet.addAll(topLeft!!.objects)
+            objectsSet.addAll(topRight!!.objects)
+            objectsSet.addAll(botLeft!!.objects)
+            objectsSet.addAll(botRight!!.objects)
+
+            objects.addAll(objectsSet)
+        }
+    }
+
+    fun tryDivide() {
+        when {
+            divided -> {
+                topLeft!!.tryDivide()
+                topRight!!.tryDivide()
+                botLeft!!.tryDivide()
+                botRight!!.tryDivide()
+            }
+
+            objects.size > capacity -> {
+                divide()
+            }
+        }
+    }
+
+    /// =====Collision functions=====
+    fun handleCollisions() {
+        if (divided) {
+            handleCollisionsInChildren()
+        } else {
+            val numObjects: Int = objects.size
+
+            for (i: Int in objects.indices) {
+                for (j: Int in i + 1 until numObjects) {
+                    handleCollision(objects[i], objects[j])
+                }
+            }
+        }
+    }
+
+    private fun handleCollisionsInChildren() {
+        if (isRoot) {
+            // Update root children async
+            handleCollisionsInChildrenAsync()
+        } else {
+            topLeft!!.handleCollisions()
+            topRight!!.handleCollisions()
+            botLeft!!.handleCollisions()
+            botRight!!.handleCollisions()
+        }
+    }
+
+    private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
+        if (objA.static && objB.static) return
+
+        val points: CollisionInfo = objA.testCollision(objB)
+
+        if (!points.hasCollision) return
+
+        CollisionSolver.solveCollision(points)
     }
 
     /// =====Drawing functions=====
@@ -236,7 +278,7 @@ data class QuadTree(
 
             UIController.drawBoundingBoxes -> objects.forEach {
                 drawer.drawObject(it)
-                drawer.drawBoundingBox(it)
+                DebugDrawer.drawBoundingBox(it)
             }
 
             else -> objects.forEach { drawer.drawObject(it) }
@@ -245,7 +287,7 @@ data class QuadTree(
 
     fun drawNode(drawer: FhysicsObjectDrawer) {
         if (!divided) {
-            drawer.transformAndDrawQuadTreeNode(boundary, objects.size)
+            DebugDrawer.transformAndDrawQuadTreeNode(boundary, objects.size)
         } else {
             topLeft!!.drawNode(drawer)
             topRight!!.drawNode(drawer)
@@ -256,25 +298,36 @@ data class QuadTree(
 
     /// =====Async functions=====
     private fun updateObjectsAndRebuildChildrenAsync() {
-        val tl = Thread { topLeft!!.updateObjectsAndRebuild() }
-        val tr = Thread { topRight!!.updateObjectsAndRebuild() }
-        val bl = Thread { botLeft!!.updateObjectsAndRebuild() }
-        val br = Thread { botRight!!.updateObjectsAndRebuild() }
+        val futures: MutableList<Future<*>> = mutableListOf()
+        futures.add(threadPool.submit { topLeft!!.updateObjectsAndRebuild() })
+        futures.add(threadPool.submit { topRight!!.updateObjectsAndRebuild() })
+        futures.add(threadPool.submit { botLeft!!.updateObjectsAndRebuild() })
+        futures.add(threadPool.submit { botRight!!.updateObjectsAndRebuild() })
 
-        tl.start()
-        tr.start()
-        bl.start()
-        br.start()
+        // Wait for all tasks to finish
+        waitForAllFutures(futures)
+    }
 
-        tl.join()
-        tr.join()
-        bl.join()
-        br.join()
+    private fun handleCollisionsInChildrenAsync() {
+        val futures: MutableList<Future<*>> = mutableListOf()
+        futures.add(threadPool.submit { topLeft!!.handleCollisions() })
+        futures.add(threadPool.submit { topRight!!.handleCollisions() })
+        futures.add(threadPool.submit { botLeft!!.handleCollisions() })
+        futures.add(threadPool.submit { botRight!!.handleCollisions() })
+
+        // Wait for all tasks to finish
+        waitForAllFutures(futures)
+    }
+
+    private fun waitForAllFutures(futures: MutableList<Future<*>>) {
+        for (future: Future<*> in futures) {
+            future.get()
+        }
     }
 
     /// =====Utility functions=====
     /**
-     * Counts the objects in the QuadTree
+     * Counts the objects in this QuadTree node and its children
      *
      * This function will count the same object multiple times if it is in multiple nodes
      * For counting unique objects, use [countUnique]
@@ -290,7 +343,7 @@ data class QuadTree(
     }
 
     /**
-     * Counts the unique objects in the QuadTree
+     * Counts the unique objects in this QuadTree node and its children
      *
      * Unlike the [count] function, this function will not count the same object multiple times
      *

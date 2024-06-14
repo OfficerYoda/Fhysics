@@ -44,7 +44,7 @@ object RenderUtil {
         }
 
     /**
-     * The target zoom factor of the drawer
+     * The graphics context of the drawer
      */
     private val gc: GraphicsContext
         get() = drawer.gc

@@ -12,7 +12,7 @@ import kotlin.math.sqrt
  */
 data class Vector2
 @JvmOverloads constructor(
-    var x: Float = 0.0F, var y: Float = 0.0F
+    var x: Float = 0.0f, var y: Float = 0.0f,
 ) {
     /**
      * Constructs a Vector2 with the same components as another Vector2.
@@ -28,10 +28,10 @@ data class Vector2
      */
     fun normalized(): Vector2 {
         val magnitude: Float = magnitude()
-        return if (magnitude != 0.0F) {
+        return if (magnitude != 0.0f) {
             Vector2(this.x / magnitude, this.y / magnitude)
         } else {
-            Vector2(0.0F, 0.0F)  // Handle division by zero, return a default zero vector.
+            Vector2(0.0f, 0.0f)  // Handle division by zero, return a default zero vector.
         }
     }
 
@@ -57,6 +57,22 @@ data class Vector2
     }
 
     /**
+     * Rotates the Vector2 around the origin by the given angle.
+     *
+     * @param angle The angle of rotation in radians.
+     * @return The rotated Vector2.
+     */
+    fun rotated(angle: Float): Vector2 {
+        val cosAngle: Float = cos(angle)
+        val sinAngle: Float = sin(angle)
+
+        val rotatedX: Float = this.x * cosAngle - this.y * sinAngle
+        val rotatedY: Float = this.x * sinAngle + this.y * cosAngle
+
+        return Vector2(rotatedX, rotatedY)
+    }
+
+    /**
      * Calculates the dot product of this Vector2 with another Vector2.
      *
      * @param other The other Vector2.
@@ -64,16 +80,6 @@ data class Vector2
      */
     fun dot(other: Vector2): Float {
         return this.x * other.x + this.y * other.y
-    }
-
-    /**
-     * Calculates the cross product of this Vector2 with another Vector2.
-     *
-     * @param other The other Vector2.
-     * @return The cross product of the two Vector2 instances.
-     */
-    fun cross(other: Vector2): Float {
-        return this.x * other.y - this.y * other.x
     }
 
     /**
@@ -100,7 +106,7 @@ data class Vector2
      * @param other The other Vector2.
      * @return The distance between the two Vector2 instances.
      */
-    fun distance(other: Vector2): Float {
+    fun distanceTo(other: Vector2): Float {
         return sqrt(sqrDistance(other))
     }
 
@@ -283,6 +289,6 @@ data class Vector2
          */
         @JvmStatic
         val ZERO: Vector2
-            get() = Vector2(0.0F, 0.0F)
+            get() = Vector2(0.0f, 0.0f)
     }
 }

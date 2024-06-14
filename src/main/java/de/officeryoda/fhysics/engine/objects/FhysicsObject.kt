@@ -8,13 +8,13 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
-    val position: Vector2,
+    open val position: Vector2,
     val velocity: Vector2 = Vector2.ZERO,
     mass: Float,
     var rotation: Float = 0f, // in radians
 ) {
     val id: Int = FhysicsCore.nextId()
-    var color: Color = colorFromIndex(0)
+    var color: Color = colorFromId()
     val boundingBox: BoundingBox = BoundingBox()
         get() {
             // only update the bounding box if it hasn't been updated this update cycle
@@ -79,8 +79,7 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun clone(): FhysicsObject
 
-    protected fun colorFromIndex(index: Int): Color {
-//        return Color(134, 158, 196, 128)
+    private fun colorFromId(): Color {
         val colors: List<Color> =
             listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
         return colors[id % colors.size]

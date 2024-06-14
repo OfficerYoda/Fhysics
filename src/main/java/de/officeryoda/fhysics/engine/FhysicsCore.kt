@@ -1,9 +1,6 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.collision.CollisionInfo
-import de.officeryoda.fhysics.engine.collision.CollisionSolver
-import de.officeryoda.fhysics.engine.collision.ElasticCollision
-import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -17,8 +14,7 @@ import kotlin.math.sign
 object FhysicsCore {
 
     /// =====constants=====
-    val BORDER: BoundingBox = BoundingBox(0.0F, 0.0F, 100.0F, 100.0F) // x and y must be 0.0
-    private val COLLISION_SOLVER: CollisionSolver = ElasticCollision
+    val BORDER: BoundingBox = BoundingBox(0.0f, 0.0f, 100.0f, 100.0f) // x and y must be 0.0
     const val UPDATES_PER_SECOND: Int = 120
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
     private const val QTC_START_STEP_SIZE = 10.0
@@ -31,7 +27,7 @@ object FhysicsCore {
 
     var updateCount = 0
 
-    var dt: Float = 1.0F / UPDATES_PER_SECOND
+    var dt: Float = 1.0f / UPDATES_PER_SECOND
     var running: Boolean = true
     val updateTimer = Timer(50)
 
@@ -45,21 +41,20 @@ object FhysicsCore {
 
     init {
 
-
-        for (i in 1..20) {
-            val circle: Circle = FhysicsObjectFactory.randomCircle()
-//            circle.velocity.set(Vector2.ZERO)
-            spawn(circle)
-        }
-
-        for (i in 1..20) {
-            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
-            spawn(rect)
-        }
-
-        for (i in 1..10) {
-            spawn(FhysicsObjectFactory.randomPolygon())
-        }
+//        for (i in 1..3000) {
+//            val circle: Circle = FhysicsObjectFactory.randomCircle()
+////            circle.velocity.set(Vector2.ZERO)
+//            spawn(circle)
+//        }
+//
+//        for (i in 1..20) {
+//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
+//            spawn(rect)
+//        }
+//
+//        for (i in 1..10) {
+//            spawn(FhysicsObjectFactory.randomPolygon())
+//        }
 
         // spawn a rotated rectangle in the center
 //        val rect =
@@ -106,7 +101,8 @@ object FhysicsCore {
         quadTree.insertObjects()
         quadTree.updateObjectsAndRebuild()
 
-        checkObjectCollision(quadTree)
+//        checkObjectCollision(quadTree)
+        quadTree.handleCollisions()
 
         if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
@@ -116,89 +112,6 @@ object FhysicsCore {
 
     fun spawn(obj: FhysicsObject) {
         QuadTree.toAdd.add(obj)
-    }
-
-    private fun checkObjectCollision(quadTree: QuadTree) {
-        if (quadTree.divided) {
-            checkObjectCollision(quadTree.topLeft!!)
-            checkObjectCollision(quadTree.topRight!!)
-            checkObjectCollision(quadTree.botLeft!!)
-            checkObjectCollision(quadTree.botRight!!)
-        } else {
-            val objects: MutableList<FhysicsObject> = quadTree.objects
-            val numObjects: Int = objects.size
-
-            for (i: Int in 0 until numObjects - 1) {
-                for (j: Int in i + 1 until numObjects) {
-                    handleCollision(objects[i], objects[j])
-                }
-            }
-        }
-    }
-
-    private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
-        val points: CollisionInfo = objA.testCollision(objB)
-
-        if (!points.hasCollision) return
-
-        COLLISION_SOLVER.solveCollision(points)
-    }
-
-    fun checkBorderCollision(obj: FhysicsObject) {
-        when (obj) {
-            is Circle -> handleCircleBorderCollision(obj)
-            is Polygon -> handlePolygonBorderCollision(obj)
-        }
-    }
-
-    private fun handleCircleBorderCollision(obj: Circle) {
-        when {
-            obj.position.x - obj.radius < 0.0F -> {
-                obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
-                obj.position.x = obj.radius
-            }
-
-            obj.position.x + obj.radius > BORDER.width -> {
-                obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
-                obj.position.x = (BORDER.width - obj.radius)
-            }
-        }
-
-        when {
-            obj.position.y - obj.radius < 0.0F -> {
-                obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
-                obj.position.y = obj.radius
-            }
-
-            obj.position.y + obj.radius > BORDER.height -> {
-                obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
-                obj.position.y = (BORDER.height - obj.radius)
-            }
-        }
-    }
-
-    private fun handlePolygonBorderCollision(obj: Polygon) {
-        val axesBorderProjection: List<Pair<Vector2, Projection>> = listOf(
-            Pair(Vector2(-1f, 0f), Projection(Float.MIN_VALUE, BORDER.x)),
-            Pair(Vector2(1f, 0f), Projection(BORDER.x + BORDER.width, Float.MAX_VALUE)),
-            Pair(Vector2(0f, -1f), Projection(Float.MIN_VALUE, BORDER.y)),
-            Pair(Vector2(0f, 1f), Projection(BORDER.y + BORDER.height, Float.MAX_VALUE))
-        )
-
-        axesBorderProjection.forEach { (axis: Vector2, borderProj: Projection) ->
-            val projection: Projection = obj.project(axis)
-            val projResult = ProjectionResult(projection, borderProj)
-
-            if (projResult.hasOverlap) {
-                val overlap: Float = projResult.getOverlap()
-
-                obj.position -= axis * overlap
-                when {
-                    axis.x != 0f -> obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
-                    axis.y != 0f -> obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
-                }
-            }
-        }
     }
 
     private fun optimizeQuadTreeCapacity() {

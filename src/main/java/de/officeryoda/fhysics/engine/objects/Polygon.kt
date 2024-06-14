@@ -6,29 +6,26 @@ import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import kotlin.math.abs
 
-abstract class Polygon : FhysicsObject {
+// primary constructor is used to sync position and velocity from sub-polygons with the main polygon
+abstract class Polygon(
+    position: Vector2,
+    velocity: Vector2,
+    val vertices: Array<Vector2>, // must be CCW and in global space
+    rotation: Float = 0f,
+) : FhysicsObject(position, velocity, calculatePolygonArea(vertices), rotation) {
 
-    val vertices: Array<Vector2>
-    open val center: Vector2 = position
-
-    // must be CCW and in global space
-    constructor(position: Vector2, velocity: Vector2, vertices: Array<Vector2>, rotation: Float = 0f) : super(
-        position,
-        velocity,
-        calculatePolygonArea(vertices),
-        rotation
-    ) {
-        this.vertices = vertices
-        vertices.forEach { it -= position }
-        color = colorFromIndex(id)
-    }
-
+    // Used for creating every polygon except sub-polygons
     constructor(vertices: Array<Vector2>, rotation: Float) : this(
         calculatePolygonCenter(vertices),
         Vector2.ZERO,
         vertices,
         rotation
     )
+
+    init {
+        // convert vertices to local space
+        vertices.forEach { it -= position }
+    }
 
     open fun getAxes(): Set<Vector2> {
         // Calculate the normals of the polygon's sides based on its rotation
@@ -47,8 +44,16 @@ abstract class Polygon : FhysicsObject {
 
     override fun project(axis: Vector2): Projection {
         val transformedVertices: List<Vector2> = getTransformedVertices()
-        val min: Float = transformedVertices.minOf { it.dot(axis) }
-        val max: Float = transformedVertices.maxOf { it.dot(axis) }
+
+        // Project the polygon's vertices onto the axis
+        var min: Float = Float.POSITIVE_INFINITY
+        var max: Float = Float.NEGATIVE_INFINITY
+        for (vertex: Vector2 in transformedVertices) {
+            val projection: Float = vertex.dot(axis)
+            if (projection < min) min = projection
+            if (projection > max) max = projection
+        }
+
         return Projection(min, max)
     }
 
@@ -80,7 +85,7 @@ abstract class Polygon : FhysicsObject {
      * @return The transformed vertices
      */
     open fun getTransformedVertices(): List<Vector2> {
-        return vertices.map { it.rotatedAround(Vector2.ZERO, rotation) + position }
+        return vertices.map { it.rotatedAround(Vector2.ZERO, rotation) + super.position }
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo

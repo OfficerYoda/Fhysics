@@ -11,10 +11,9 @@ class SubPolygon(
     rotation: Float = 0f,
 ) : Polygon(position, velocity, vertices, rotation) {
 
-    private val centerOffset = center - position
-    override val center
-        get() = position + centerOffset
-
+    private val centerOffset: Vector2 = center - position
+    override val position: Vector2
+        get() = super.position + centerOffset
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)
@@ -23,9 +22,9 @@ class SubPolygon(
     override fun clone(): FhysicsObject {
         return SubPolygon(
             position.copy(),
-            center.copy(),
+            calculatePolygonCenter(vertices),
             velocity.copy(),
-            vertices.map { it.copy() + center }.toTypedArray(),
+            vertices.map { it.copy() + centerOffset }.toTypedArray(),
             rotation
         )
     }
