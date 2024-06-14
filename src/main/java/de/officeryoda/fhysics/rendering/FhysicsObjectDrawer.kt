@@ -25,16 +25,10 @@ import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.control.Accordion
-import javafx.scene.text.Font
-import javafx.scene.text.Text
 import javafx.stage.Stage
 import java.awt.Color
-import java.awt.geom.Line2D
-import java.awt.geom.Rectangle2D
 import java.lang.Math.toDegrees
-import java.util.*
 import kotlin.math.PI
-import kotlin.math.min
 import kotlin.math.sin
 
 // Can't be converted to object because it is a JavaFX Application
@@ -51,14 +45,9 @@ class FhysicsObjectDrawer : Application() {
     var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2), (BORDER.height / 2))
     var zoomCenter: Vector2 = targetZoomCenter
 
-    // Debug properties
-    private val debugPoints: MutableList<Triple<Vector2, Color, Int>> = ArrayList()
-    private val debugLines: MutableList<Triple<Line2D.Float, Color, Int>> = ArrayList()
-
     // Window size properties
     val width: Double get() = stage.scene.width
     val height: Double get() = stage.scene.height // Use scene height to prevent including the window's title bar
-    private val titleBarHeight: Double = 39.0 // That's the default height of the window's title bar (in windows)
 
     // Object modification properties
     var spawnPreview: FhysicsObject? = null
@@ -73,6 +62,7 @@ class FhysicsObjectDrawer : Application() {
     override fun start(stage: Stage) {
         // Set the drawer in the RenderUtil
         RenderUtil.drawer = this
+        DebugDrawer.drawer = this
 
         this.stage = stage
 
@@ -152,25 +142,9 @@ class FhysicsObjectDrawer : Application() {
         if (hoveredObject != null) drawObjectPulsing(hoveredObject!!)
         if (selectedObject != null && selectedObject !== hoveredObject) drawObjectPulsing(selectedObject!!)
         if (UIController.drawSpawnPreview && hoveredObject == null) drawSpawnPreview()
-        if (UIController.drawQuadTree) QuadTree.root.drawNode(this)
 
         drawBorder()
-        drawDebugLines()
-        drawDebugPoints()
-        drawStats()
-    }
-
-    private fun drawObjectPulsing(obj: FhysicsObject) {
-        val alpha: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
-        val c: Color = obj.color
-        val color = Color(c.red, c.green, c.blue, alpha)
-        setFillColor(color)
-
-        when (obj) {
-            is Circle -> drawCircle(obj)
-            is Rectangle -> drawRectangle(obj)
-            is Polygon -> drawPolygon(obj)
-        }
+        DebugDrawer.drawDebug()
     }
 
     fun drawObject(obj: FhysicsObject) {
@@ -182,6 +156,19 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(obj.color)
 
         // Draw Object
+        when (obj) {
+            is Circle -> drawCircle(obj)
+            is Rectangle -> drawRectangle(obj)
+            is Polygon -> drawPolygon(obj)
+        }
+    }
+
+    private fun drawObjectPulsing(obj: FhysicsObject) {
+        val alpha: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
+        val c: Color = obj.color
+        val color = Color(c.red, c.green, c.blue, alpha)
+        setFillColor(color)
+
         when (obj) {
             is Circle -> drawCircle(obj)
             is Rectangle -> drawRectangle(obj)
@@ -283,162 +270,9 @@ class FhysicsObjectDrawer : Application() {
         )
     }
 
-    private fun drawDebugPoints() {
-        val pointSize = 6.0
-
-        for (triple: Triple<Vector2, Color, Int> in debugPoints.toList()) {
-            val pos: Vector2 = worldToScreen(triple.first)
-            setFillColor(triple.second)
-            gc.fillOval(
-                pos.x - pointSize / 2,
-                pos.y - pointSize / 2,
-                pointSize,
-                pointSize
-            )
-
-            // Update the duration of the point
-            // If the max duration is reached remove the point
-            if (triple.third > 0) {
-                debugPoints[debugPoints.indexOf(triple)] = Triple(triple.first, triple.second, triple.third - 1)
-            } else {
-                debugPoints.remove(triple)
-            }
-        }
-    }
-
-    private fun drawDebugLines() {
-        gc.lineWidth = 4.0
-
-        for (triple: Triple<Line2D.Float, Color, Int> in debugLines.toList()) {
-            val start: Vector2 = worldToScreen(Vector2(triple.first.x1, triple.first.y1))
-            val end: Vector2 = worldToScreen(Vector2(triple.first.x2, triple.first.y2))
-
-            setStrokeColor(triple.second)
-            gc.strokeLine(start.x.toDouble(), start.y.toDouble(), end.x.toDouble(), end.y.toDouble())
-
-            // Update the duration of the line
-            // If the max duration is reached remove the line
-            if (triple.third > 0) {
-                debugLines[debugLines.indexOf(triple)] = Triple(triple.first, triple.second, triple.third - 1)
-            } else {
-                debugLines.remove(triple)
-            }
-        }
-
-        gc.lineWidth = 1.0
-    }
-
     private fun drawBorder() {
         setStrokeColor(Color.GRAY)
         gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
-    }
-
-    fun drawBoundingBox(obj: FhysicsObject) {
-        val boundingBox: BoundingBox = obj.boundingBox
-
-        setStrokeColor(Color.RED)
-        gc.strokeRect(
-            worldToScreenX(boundingBox.x),
-            worldToScreenY(boundingBox.y + boundingBox.height),
-            boundingBox.width * zoom,
-            boundingBox.height * zoom
-        )
-    }
-
-    fun transformAndDrawQuadTreeNode(rect: BoundingBox, contentCount: Int) {
-        val x: Double = worldToScreenX(rect.x)
-        val y: Double = worldToScreenY(rect.y + rect.height)
-        val width: Double = rect.width * zoom
-        val height: Double = rect.height * zoom
-
-        // Draw Border
-        setStrokeColor(Color.WHITE)
-        gc.strokeRect(x, y, width, height)
-
-        // Only draw the fill if the option is enabled
-        if (!UIController.drawQTNodeUtilization) return
-
-        // Draw transparent fill
-        val quadTreeCapacity: Int = QuadTree.capacity
-        setFillColor(Color(66, 164, 245, (contentCount.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)))
-        gc.fillRect(x, y, width, height)
-        // Write the amount of objects in the cell
-        drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
-    }
-
-    private fun drawCenteredText(text: String, rect: Rectangle2D) {
-        val fontSize: Double = (rect.height / 2) // Adjust the divisor for the desired scaling
-        val font = Font("Spline Sans", fontSize)
-
-        gc.font = font
-        setFillColor(Color(255, 255, 255, 192))
-
-        val textNode = Text(text)
-        textNode.font = font
-
-        val textWidth: Double = textNode.layoutBounds.width
-        val textHeight: Double = textNode.layoutBounds.height
-
-        val centerX: Double = rect.x + (rect.width - textWidth) / 2
-        val centerY: Double = rect.y + (rect.height + textHeight / 2) / 2
-
-        gc.fillText(text, centerX, centerY)
-    }
-
-    private fun drawStats() {
-        val stats: ArrayList<String> = ArrayList()
-
-        if (UIController.drawMSPU || UIController.drawUPS) {
-            if (UIController.drawMSPU) {
-                stats.add("MSPU: ${FhysicsCore.updateTimer.roundedString()}")
-            }
-
-            if (UIController.drawUPS) {
-                val mspu: Double = FhysicsCore.updateTimer.average() // Milliseconds per Update
-                val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
-                val upsRounded: String = String.format(Locale.US, "%.2f", ups)
-                stats.add("UPS: $upsRounded")
-            }
-        }
-
-        if (UIController.drawObjectCount)
-            stats.add("Objects: ${QuadTree.root.countUnique()}")
-
-        if (UIController.drawQTCapacity)
-            stats.add("QuadTree Capacity: ${QuadTree.capacity}")
-
-        drawStatsList(stats)
-    }
-
-    private fun drawStatsList(stats: ArrayList<String>) {
-        val fontSize: Double = height / 30.0 // Adjust the divisor for the desired scaling
-        val font = Font("Spline Sans", fontSize)
-        gc.font = font
-        setFillColor(Color.WHITE)
-        setStrokeColor(Color.BLACK)
-
-        val lineHeight: Double = font.size
-        val borderSpacing = 5.0
-
-        for (i in 0 until stats.size) {
-            val text: String = stats[i]
-
-            if (UIController.drawQuadTree) {
-                // Outline the text for better readability
-                gc.strokeText(text, borderSpacing, height - i * lineHeight - borderSpacing)
-            }
-
-            gc.fillText(text, borderSpacing, height - i * lineHeight - borderSpacing)
-        }
-    }
-
-    /// =====Debug functions=====
-    fun addDebugPoint(point: Vector2, color: Color = Color.RED, duration: Int = 200) {
-        debugPoints.add(Triple(point.copy(), color, duration))
-    }
-
-    fun addDebugLine(start: Vector2, end: Vector2, color: Color = Color.RED, duration: Int = 200) {
-        debugLines.add(Triple(Line2D.Float(start.x, start.y, end.x, end.y), color, duration))
     }
 
     /// =====Window size functions=====
@@ -464,13 +298,13 @@ class FhysicsObjectDrawer : Application() {
         }
 
         stage.width = windowWidth + 16 // The 16 is a magic number to correct the width
-        stage.height = windowHeight + titleBarHeight
+        stage.height = windowHeight + TITLE_BAR_HEIGHT
     }
 
     private fun calculateZoom(): Double {
         // Normal zoom amount
         val borderHeight: Float = BORDER.height
-        val windowHeight: Double = stage.height - titleBarHeight
+        val windowHeight: Double = stage.height - TITLE_BAR_HEIGHT
 
         return windowHeight / borderHeight
     }
@@ -501,5 +335,9 @@ class FhysicsObjectDrawer : Application() {
         zoom = targetZoom
         targetZoomCenter = Vector2((BORDER.width / 2), (BORDER.height / 2))
         zoomCenter = targetZoomCenter
+    }
+
+    companion object {
+        const val TITLE_BAR_HEIGHT: Double = 39.0 // That's the default height of the window's title bar (in windows)
     }
 }
