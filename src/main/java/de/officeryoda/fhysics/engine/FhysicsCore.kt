@@ -41,15 +41,12 @@ object FhysicsCore {
 
     init {
 
-//        for (i in 1..3000) {
-//            val circle: Circle = FhysicsObjectFactory.randomCircle()
-////            circle.velocity.set(Vector2.ZERO)
-//            spawn(circle)
+//        for (i in 1..30) {
+//            spawn(FhysicsObjectFactory.randomCircle())
 //        }
 //
 //        for (i in 1..20) {
-//            val rect: Rectangle = FhysicsObjectFactory.randomRectangle()
-//            spawn(rect)
+//            spawn(FhysicsObjectFactory.randomRectangle())
 //        }
 //
 //        for (i in 1..10) {

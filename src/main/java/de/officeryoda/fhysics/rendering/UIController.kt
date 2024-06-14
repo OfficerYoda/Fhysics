@@ -148,13 +148,12 @@ class UIController {
             return
         }
 
-        Rectangle(SceneListener.mouseWorldPos, spawnWidth, spawnHeight)
         val obj: FhysicsObject = when (spawnObjectType) {
-            SpawnObjectType.CIRCLE -> Circle(SceneListener.mouseWorldPos, spawnRadius)
-            SpawnObjectType.RECTANGLE -> Rectangle(SceneListener.mouseWorldPos, spawnWidth, spawnHeight)
+            SpawnObjectType.CIRCLE -> Circle(SceneListener.mouseWorldPos.copy(), spawnRadius)
+            SpawnObjectType.RECTANGLE -> Rectangle(SceneListener.mouseWorldPos.copy(), spawnWidth, spawnHeight)
             SpawnObjectType.POLYGON -> {
-                val circle = Circle(SceneListener.mouseWorldPos, spawnRadius)
-                circle.color = Color.RED
+                val circle = Circle(SceneListener.mouseWorldPos.copy(), spawnRadius)
+                circle.color = Color.PINK
                 circle
             }
             else -> throw IllegalArgumentException("Invalid spawn object type")
@@ -484,7 +483,7 @@ class UIController {
         lateinit var drawer: FhysicsObjectDrawer
 
         /// =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.POLYGON
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.RECTANGLE
             private set
         var drawSpawnPreview: Boolean = true
             private set
@@ -502,7 +501,7 @@ class UIController {
         /// =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0f, 0.0f)
+        val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
         val gravityPoint: Vector2 = Vector2( // The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()

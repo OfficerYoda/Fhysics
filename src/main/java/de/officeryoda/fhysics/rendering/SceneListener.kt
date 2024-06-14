@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.PolygonCreator
 import de.officeryoda.fhysics.engine.objects.PolygonCreator.validatePolyVertices
 import de.officeryoda.fhysics.engine.objects.Rectangle
@@ -128,9 +129,12 @@ object SceneListener {
         }
     }
 
+    /**
+     * Creates and spawns a polygon from the current vertices
+     */
     private fun createAndSpawnPolygon() {
         // Map the vertices relative to the center
-        val polygon = PolygonCreator.createPolygon(polyVertices.toTypedArray())
+        val polygon: Polygon = PolygonCreator.createPolygon(polyVertices.toTypedArray())
         FhysicsCore.spawn(polygon)
 
         polyVertices.clear()
@@ -240,6 +244,8 @@ object SceneListener {
         // Update the mouse position
         mouseWorldPos.x = RenderUtil.screenToWorldX(e.x.toFloat()).toFloat()
         mouseWorldPos.y = RenderUtil.screenToWorldY(e.y.toFloat()).toFloat()
+
+        drawer.spawnPreview?.position?.set(mouseWorldPos)
     }
 
     /**
