@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -53,23 +54,9 @@ object FhysicsCore {
 //            spawn(FhysicsObjectFactory.randomPolygon())
 //        }
 
-        // spawn a rotated rectangle in the center
-//        val rect =
-//            Rectangle(Vector2((BORDER.width / 2), (BORDER.height / 2)), 30.0F, 10.0F, Math.toRadians(45.0).toFloat())
-//        rect.velocity += Vector2(10f, 12f) * 2f
-//        spawn(rect)
-
-        // a 5 sided polygon in the center
-//        val vertices = arrayOf(
-//            Vector2(-1.0F, -5.0F),
-//            Vector2(1.0F, -5.0F),
-//            Vector2(0.0F, 5.0F),
-////            Vector2(5.0F, 15.0F),
-////            Vector2(-5.0F, 10.0F)
-//        )
-//        val poly = ConvexPolygon(Vector2(50.0F, 50.0F), vertices)
-//        poly.static = true
-//        spawn(poly)
+        // Two rectangles that act as slides
+        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).static = true
+        spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).static = true
 
         objectsAtStepSizeIncrease = objectCount
     }
@@ -107,8 +94,9 @@ object FhysicsCore {
         updateTimer.stop()
     }
 
-    fun spawn(obj: FhysicsObject) {
+    fun spawn(obj: FhysicsObject): FhysicsObject {
         QuadTree.toAdd.add(obj)
+        return obj
     }
 
     private fun optimizeQuadTreeCapacity() {
@@ -163,7 +151,7 @@ object FhysicsCore {
             return UIController.gravityDirection
         } else {
             val minDst = 0.05F
-            val sqrDst: Float = UIController.gravityPoint.sqrDistance(pos)
+            val sqrDst: Float = UIController.gravityPoint.sqrDistanceTo(pos)
             if (sqrDst < minDst * minDst) {
                 // to not fling objects away and to avoid objects getting stuck in the
                 // gravity point causing it to vibrate and hitting other objects away

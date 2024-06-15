@@ -8,7 +8,6 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController
 
 object CollisionSolver {
@@ -19,10 +18,6 @@ object CollisionSolver {
      * @param info The CollisionInfo object containing information about the collision
      */
     fun solveCollision(info: CollisionInfo, contactPoints: Array<Vector2>) {
-        for (element: Vector2 in contactPoints) {
-            DebugDrawer.addDebugPoint(element)
-        }
-
         // separate the objects to prevent tunneling and other anomalies
         separateOverlappingObjects(info)
 
@@ -36,11 +31,17 @@ object CollisionSolver {
         // Return if the objects are already moving away from each other
         if (relativeVelocity.dot(info.normal) > 0) return
 
-        val impulseMagnitude: Float = -2f * relativeVelocity.dot(info.normal) / (objA.invMass + objB.invMass)
+        val e = 0.5f // Coefficient of restitution
+
+        val impulseMagnitude: Float = -(1f + e) * relativeVelocity.dot(info.normal) / (objA.invMass + objB.invMass)
         val impulse: Vector2 = impulseMagnitude * info.normal
 
         objA.velocity -= impulse * objA.invMass
         objB.velocity += impulse * objB.invMass
+    }
+
+    fun solveCollisionWithRotation(info: CollisionInfo, contactPoints: Array<Vector2>) {
+
     }
 
     /**
@@ -62,6 +63,8 @@ object CollisionSolver {
     }
 
     fun checkBorderCollision(obj: FhysicsObject) {
+        if (obj.static) return
+
         when (obj) {
             is Circle -> handleCircleBorderCollision(obj)
             is Polygon -> handlePolygonBorderCollision(obj)

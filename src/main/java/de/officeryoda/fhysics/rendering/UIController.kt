@@ -533,7 +533,7 @@ class UIController {
         var drawObjectCount: Boolean = false
             private set
 
-        var wallElasticity: Float = 1.0f
+        var wallElasticity: Float = 0.5f
             private set
     }
 }

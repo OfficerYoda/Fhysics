@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.FhysicsCore.dt
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
@@ -11,7 +12,8 @@ abstract class FhysicsObject protected constructor(
     open val position: Vector2,
     val velocity: Vector2 = Vector2.ZERO,
     mass: Float,
-    var rotation: Float = 0f, // in radians
+    var rotation: Float = 0f, // In radians
+    var rotVelocity: Float = 0f, // In radians per second
 ) {
 
     val id: Int = FhysicsCore.nextId()
@@ -59,15 +61,18 @@ abstract class FhysicsObject protected constructor(
         if (lastUpdate == FhysicsCore.updateCount) return
         lastUpdate = FhysicsCore.updateCount
 
-        val dt: Float = FhysicsCore.dt
-//        val damping = 0.00F
+        val damping = 0.0f
 
+        // Update Position
         acceleration += FhysicsCore.gravityAt(position)
         // Update velocity before position (semi-implicit Euler)
         velocity += acceleration * dt
-//        velocity *= (1 - damping)
+        velocity *= (1 - damping)
         position += velocity * dt
         acceleration.set(Vector2.ZERO)
+
+        // Update rotation
+        rotation += rotVelocity * dt
     }
 
     abstract fun project(axis: Vector2): Projection

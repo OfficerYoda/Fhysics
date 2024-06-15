@@ -23,7 +23,7 @@ object CollisionFinder {
      */
     fun testCollision(circleA: Circle, circleB: Circle): CollisionInfo {
         // Calculate squared distance between circle centers
-        val sqrDst: Float = circleA.position.sqrDistance(circleB.position)
+        val sqrDst: Float = circleA.position.sqrDistanceTo(circleB.position)
 
         val radii: Float = circleA.radius + circleB.radius
 
@@ -230,7 +230,7 @@ object CollisionFinder {
             else -> start + edge * t
         }
 
-        return Pair(closestPointOnEdge, closestPointOnEdge.sqrDistance(point))
+        return Pair(closestPointOnEdge, closestPointOnEdge.sqrDistanceTo(point))
     }
 
     /// =====Contact Points=====
@@ -352,6 +352,7 @@ object CollisionFinder {
      * @return A boolean indicating if the vectors are nearly equal
      */
     private fun nearlyEquals(a: Vector2, b: Vector2): Boolean {
-        return nearlyEquals(a.x, b.x) && nearlyEquals(a.y, b.y)
+        val epsilon = 0.0001f
+        return a.sqrDistanceTo(b) < epsilon
     }
 }

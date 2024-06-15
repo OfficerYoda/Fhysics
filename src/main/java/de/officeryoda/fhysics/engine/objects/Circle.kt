@@ -17,7 +17,7 @@ class Circle(
     }
 
     override fun contains(pos: Vector2): Boolean {
-        return pos.sqrDistance(position) <= radius * radius
+        return pos.sqrDistanceTo(position) <= radius * radius
     }
 
     override fun calculateInertia(): Float {

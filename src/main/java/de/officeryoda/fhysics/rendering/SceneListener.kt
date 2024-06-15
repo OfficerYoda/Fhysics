@@ -107,7 +107,7 @@ object SceneListener {
             // Create the polygon if the polygon is complete
             if (polyVertices.size > 2 && validPolygon) {
                 val startPos: Vector2 = polyVertices.first()
-                if (pos.sqrDistance(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
+                if (pos.sqrDistanceTo(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                     createAndSpawnPolygon()
                     return
                 }
