@@ -50,14 +50,7 @@ abstract class FhysicsObject protected constructor(
     private var lastUpdate = -1
     private var lastBBoxUpdate = -1
 
-    var inertia: Float = -1f
-        get() {
-            if (field == -1f) {
-                field = calculateInertia()
-            }
-            return field
-        }
-        private set
+    val inertia: Float by lazy { calculateInertia() }
 
     open fun updatePosition() {
         // Static objects don't move

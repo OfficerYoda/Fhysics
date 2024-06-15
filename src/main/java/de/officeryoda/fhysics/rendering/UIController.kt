@@ -232,7 +232,7 @@ class UIController {
         val obj: FhysicsObject = drawer.selectedObject!!
 
         cbPropertyStatic.isSelected = obj.static
-        txtPropertyMass.text = toStringWithTwoDecimalPlaces(obj.mass)
+        txtPropertyMass.text = toStringWithTwoDecimalPlaces(obj.inertia)
         txtPropertyRotation.text = toStringWithTwoDecimalPlaces(obj.rotation * RADIANS_TO_DEGREES)
         clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
     }
