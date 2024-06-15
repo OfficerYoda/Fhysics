@@ -11,15 +11,17 @@ abstract class Polygon(
     position: Vector2,
     velocity: Vector2,
     val vertices: Array<Vector2>, // must be CCW and in global space
-    rotation: Float = 0f,
-) : FhysicsObject(position, velocity, calculatePolygonArea(vertices), rotation) {
+    angle: Float,
+    angularVelocity: Float,
+) : FhysicsObject(position, velocity, calculatePolygonArea(vertices), angle, angularVelocity) {
 
     // Used for creating every polygon except sub-polygons
     constructor(vertices: Array<Vector2>, rotation: Float) : this(
         calculatePolygonCenter(vertices),
         Vector2.ZERO,
         vertices,
-        rotation
+        rotation,
+        0f
     )
 
     init {

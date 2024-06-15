@@ -7,8 +7,11 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.SubPolygon
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController
+import java.awt.Color
 
 object CollisionSolver {
 
@@ -19,11 +22,17 @@ object CollisionSolver {
      * @param contactPoints The contact points of the collision
      */
     fun solveCollision(info: CollisionInfo, contactPoints: Array<Vector2>) {
-        // Separate the objects to prevent tunneling and other anomalies
-        separateOverlappingObjects(info)
+        for (point in contactPoints) {
+            DebugDrawer.addDebugPoint(point, Color.RED, 20)
+        }
 
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
+
+        if (objA is SubPolygon || objB is SubPolygon) {
+            println("SubPolygon")
+            throw Exception("SubPolygon")
+        }
 
         // No need to solve collision if both objects are static
         if (objA.static && objB.static) return

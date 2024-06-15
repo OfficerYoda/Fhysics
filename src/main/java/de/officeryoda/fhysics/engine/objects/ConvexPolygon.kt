@@ -5,8 +5,8 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 
 class ConvexPolygon(
     vertices: Array<Vector2>, // must be CCW and in global space
-    rotation: Float = 0f,
-) : Polygon(vertices, rotation) {
+    angle: Float = 0f,
+) : Polygon(vertices, angle) {
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)

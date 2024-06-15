@@ -8,8 +8,9 @@ class SubPolygon(
     center: Vector2,
     velocity: Vector2,
     vertices: Array<Vector2>,
-    rotation: Float = 0f,
-) : Polygon(position, velocity, vertices, rotation) {
+    angle: Float,
+    angularVelocity: Float,
+) : Polygon(position, velocity, vertices, angle, angularVelocity) {
 
     private val centerOffset: Vector2 = center - position
     override val position: Vector2
@@ -29,7 +30,8 @@ class SubPolygon(
             calculatePolygonCenter(vertices),
             velocity.copy(),
             vertices.map { it.copy() + centerOffset }.toTypedArray(),
-            angle
+            angle,
+            angularVelocity
         )
     }
 

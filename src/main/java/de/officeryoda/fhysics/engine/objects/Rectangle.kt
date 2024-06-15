@@ -9,8 +9,8 @@ class Rectangle(
     position: Vector2,
     val width: Float,
     val height: Float,
-    rotation: Float = 0f,
-) : Polygon(createRectangleVertices(width, height).map { it + position }.toTypedArray(), rotation) {
+    angle: Float = 0f,
+) : Polygon(createRectangleVertices(width, height).map { it + position }.toTypedArray(), angle) {
 
     override fun getAxes(): Set<Vector2> {
         // Calculate the normals of the rectangle's sides based on its rotation
