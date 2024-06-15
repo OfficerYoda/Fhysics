@@ -47,8 +47,8 @@ data class BoundingBox(
      * @param rect The rectangle to set the bounding box from.
      */
     private fun setFromRectangle(rect: Rectangle) {
-        val cos: Float = cos(rect.rotation)
-        val sin: Float = sin(rect.rotation)
+        val cos: Float = cos(rect.angle)
+        val sin: Float = sin(rect.angle)
 
         val halfWidth: Float = rect.width / 2
         val halfHeight: Float = rect.height / 2

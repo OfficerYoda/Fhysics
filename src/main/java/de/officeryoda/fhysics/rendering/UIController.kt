@@ -156,6 +156,7 @@ class UIController {
                 circle.color = Color.PINK
                 circle
             }
+
             else -> throw IllegalArgumentException("Invalid spawn object type")
         }
 
@@ -205,7 +206,7 @@ class UIController {
 
     @FXML
     fun onPropertyRotationTyped() {
-        drawer.selectedObject!!.rotation = parseTextField(txtPropertyRotation) * DEGREES_TO_RADIANS
+        drawer.selectedObject!!.angle = parseTextField(txtPropertyRotation) * DEGREES_TO_RADIANS
     }
 
     @FXML
@@ -232,8 +233,10 @@ class UIController {
         val obj: FhysicsObject = drawer.selectedObject!!
 
         cbPropertyStatic.isSelected = obj.static
+//        txtPropertyMass.text = toStringWithTwoDecimalPlaces(obj.mass)
         txtPropertyMass.text = toStringWithTwoDecimalPlaces(obj.inertia)
-        txtPropertyRotation.text = toStringWithTwoDecimalPlaces(obj.rotation * RADIANS_TO_DEGREES)
+//        txtPropertyRotation.text = toStringWithTwoDecimalPlaces(obj.angle * RADIANS_TO_DEGREES)
+        txtPropertyRotation.text = toStringWithTwoDecimalPlaces(obj.invInertia)
         clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
     }
 

@@ -14,14 +14,14 @@ class Rectangle(
 
     override fun getAxes(): Set<Vector2> {
         // Calculate the normals of the rectangle's sides based on its rotation
-        val axis1 = Vector2(cos(rotation), sin(rotation))
-        val axis2 = Vector2(-sin(rotation), cos(rotation))
+        val axis1 = Vector2(cos(angle), sin(angle))
+        val axis2 = Vector2(-sin(angle), cos(angle))
         return setOf(axis1, axis2)
     }
 
     override fun contains(pos: Vector2): Boolean {
         // Rotate the point to make the rectangle axis-aligned
-        val rotatedPos: Vector2 = pos.rotatedAround(position, -rotation)
+        val rotatedPos: Vector2 = pos.rotatedAround(position, -angle)
 
         val halfWidth: Float = width / 2f
         val halfHeight: Float = height / 2f
@@ -40,7 +40,7 @@ class Rectangle(
         val corners: Array<Vector2> = createRectangleVertices(width, height)
 
         // Rotate the rectangle's corners
-        return corners.map { it.rotatedAround(Vector2.ZERO, rotation) + position }.toTypedArray()
+        return corners.map { it.rotatedAround(Vector2.ZERO, angle) + position }.toTypedArray()
     }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
@@ -52,11 +52,11 @@ class Rectangle(
     }
 
     override fun clone(): FhysicsObject {
-        return Rectangle(position.copy(), width, height, rotation)
+        return Rectangle(position.copy(), width, height, angle)
     }
 
     override fun toString(): String {
-        return "Rectangle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height, rotation=$rotation)"
+        return "Rectangle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height, rotation=$angle)"
     }
 }
 

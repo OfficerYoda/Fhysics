@@ -12,8 +12,8 @@ abstract class FhysicsObject protected constructor(
     open val position: Vector2,
     val velocity: Vector2 = Vector2.ZERO,
     mass: Float,
-    var rotation: Float = 0f, // In radians
-    var rotVelocity: Float = 0f, // In radians per second
+    var angle: Float = 0f, // In radians
+    var angularVelocity: Float = 0f, // In radians per second
 ) {
 
     val id: Int = FhysicsCore.nextId()
@@ -53,6 +53,7 @@ abstract class FhysicsObject protected constructor(
     private var lastBBoxUpdate = -1
 
     val inertia: Float by lazy { calculateInertia() }
+    val invInertia: Float by lazy { if (static) 0f else 1f / inertia }
 
     open fun updatePosition() {
         // Static objects don't move
@@ -72,7 +73,7 @@ abstract class FhysicsObject protected constructor(
         acceleration.set(Vector2.ZERO)
 
         // Update rotation
-        rotation += rotVelocity * dt
+        angle += angularVelocity * dt
     }
 
     abstract fun project(axis: Vector2): Projection

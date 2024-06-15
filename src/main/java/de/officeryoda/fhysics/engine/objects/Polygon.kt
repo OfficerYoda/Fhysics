@@ -104,7 +104,7 @@ abstract class Polygon(
      * @return The transformed vertices
      */
     open fun getTransformedVertices(): Array<Vector2> {
-        return vertices.map { it.rotatedAround(Vector2.ZERO, rotation) + super.position }.toTypedArray()
+        return vertices.map { it.rotatedAround(Vector2.ZERO, angle) + super.position }.toTypedArray()
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo

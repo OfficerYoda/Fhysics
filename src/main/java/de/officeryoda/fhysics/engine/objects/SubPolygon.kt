@@ -29,7 +29,7 @@ class SubPolygon(
             calculatePolygonCenter(vertices),
             velocity.copy(),
             vertices.map { it.copy() + centerOffset }.toTypedArray(),
-            rotation
+            angle
         )
     }
 

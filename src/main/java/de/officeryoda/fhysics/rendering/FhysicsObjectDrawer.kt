@@ -198,7 +198,7 @@ class FhysicsObjectDrawer : Application() {
         gc.translate(pos.x.toDouble(), pos.y.toDouble())
 
         // Rotate around the center of the rectangle
-        gc.rotate(-toDegrees(rect.rotation.toDouble()))
+        gc.rotate(-toDegrees(rect.angle.toDouble()))
 
         // Draw the rectangle
         gc.fillRect(

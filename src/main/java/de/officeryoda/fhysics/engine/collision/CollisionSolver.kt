@@ -8,7 +8,9 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController
+import java.awt.Color
 
 object CollisionSolver {
 
@@ -41,7 +43,64 @@ object CollisionSolver {
     }
 
     fun solveCollisionWithRotation(info: CollisionInfo, contactPoints: Array<Vector2>) {
+        for (point in contactPoints) {
+            DebugDrawer.addDebugPoint(point, Color.RED, 20)
+        }
 
+        // Separate the objects to prevent tunneling and other anomalies
+        separateOverlappingObjects(info)
+
+        // Get the objects
+        val objA: FhysicsObject = info.objA!!
+        val objB: FhysicsObject = info.objB!!
+
+        // No need to calculate the impulse if both objects are static
+        if (objA.static && objB.static) return
+
+        val e = 0.5f // Coefficient of restitution
+
+        val impulseList: ArrayList<Vector2> = arrayListOf()
+
+        // Calculate the impulses for each contact point
+        for (contactPoint: Vector2 in contactPoints) {
+            val ra: Vector2 = contactPoint - objA.position
+            val rb: Vector2 = contactPoint - objB.position
+
+            val raPerp = Vector2(-ra.y, ra.x)
+            val rbPerp = Vector2(-rb.y, rb.x)
+
+            val totalVelocityA: Vector2 = objA.velocity + rbPerp * objA.angularVelocity
+            val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
+
+            val relativeVelocity: Vector2 = totalVelocityB - totalVelocityA
+
+            // Continue if the objects are already moving away from each other
+            val contactVelocityMag: Float = relativeVelocity.dot(info.normal)
+            if (contactVelocityMag > 0) continue
+
+            // Calculate the impulse
+            val raPerpDotN: Float = raPerp.dot(info.normal)
+            val rbPerpDotN: Float = rbPerp.dot(info.normal)
+
+            var impulseMag: Float = -(1f + e) * contactVelocityMag
+            impulseMag /= objA.invMass + objB.invMass +
+                    (raPerpDotN * raPerpDotN) * objA.invInertia +
+                    (rbPerpDotN * rbPerpDotN) * objB.invInertia
+            impulseMag /= contactPoints.size // Distribute the impulse over all contact points
+
+            val impulse: Vector2 = impulseMag * info.normal
+            impulseList.add(impulse)
+        }
+
+        // Apply the impulses
+        for (i: Int in impulseList.indices) {
+            val impulse: Vector2 = impulseList[i]
+
+            objA.velocity += -impulse * objA.invMass
+            objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
+            objB.velocity += impulse * objB.invMass
+            objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
+        }
     }
 
     /**

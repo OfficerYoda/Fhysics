@@ -57,6 +57,7 @@ object FhysicsCore {
         // Two rectangles that act as slides
         spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).static = true
         spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).static = true
+        spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).static = true
 
         objectsAtStepSizeIncrease = objectCount
     }

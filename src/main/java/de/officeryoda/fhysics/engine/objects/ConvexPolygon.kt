@@ -17,7 +17,7 @@ class ConvexPolygon(
     }
 
     override fun clone(): FhysicsObject {
-        return ConvexPolygon(vertices.map { position + it.copy() }.toTypedArray(), rotation)
+        return ConvexPolygon(vertices.map { position + it.copy() }.toTypedArray(), angle)
     }
 
     override fun toString(): String {

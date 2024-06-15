@@ -41,7 +41,7 @@ class PolygonTest {
     fun `calculateInertia returns correct inertia for rotated polygon`() {
         val vertices = arrayOf(Vector2(0f, 0f), Vector2(1f, 0f), Vector2(1f, 1f), Vector2(0f, 1f))
         val polygon = PolygonCreator.createPolygon(vertices)
-        polygon.rotation = Math.PI.toFloat() / 4f
+        polygon.angle = Math.PI.toFloat() / 4f
 
         val inertia = polygon.calculateInertia()
 
