@@ -78,6 +78,25 @@ abstract class Polygon(
         return intersects and 1 == 1
     }
 
+    override fun calculateInertia(): Float {
+        var numerator = 0.0f
+        var denominator = 0.0f
+        val n: Int = vertices.size
+
+        for (i: Int in 0 until n) {
+            val current: Vector2 = vertices[i]
+            val next: Vector2 = vertices[(i + 1) % n]
+
+            val crossProduct: Float = current.cross(next)
+            val distanceTerm: Float = current.dot(current) + current.dot(next) + next.dot(next)
+
+            numerator += crossProduct * distanceTerm
+            denominator += crossProduct
+        }
+
+        return (mass * numerator) / (6 * denominator)
+    }
+
     /**
      * Transforms the vertices from local space to world space
      * taking into account the position and rotation of the polygon

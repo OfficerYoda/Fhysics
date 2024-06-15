@@ -31,6 +31,10 @@ class Rectangle(
                 rotatedPos.y in (position.y - halfHeight)..(position.y + halfHeight)
     }
 
+    override fun calculateInertia(): Float {
+        return (mass * (width * width + height * height)) / 12f
+    }
+
     override fun getTransformedVertices(): Array<Vector2> {
         // Get the four corners of the rectangle before rotation
         val corners: Array<Vector2> = createRectangleVertices(width, height)

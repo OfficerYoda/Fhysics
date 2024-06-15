@@ -13,6 +13,7 @@ abstract class FhysicsObject protected constructor(
     mass: Float,
     var rotation: Float = 0f, // in radians
 ) {
+
     val id: Int = FhysicsCore.nextId()
     var color: Color = colorFromId()
     val boundingBox: BoundingBox = BoundingBox()
@@ -49,6 +50,15 @@ abstract class FhysicsObject protected constructor(
     private var lastUpdate = -1
     private var lastBBoxUpdate = -1
 
+    var inertia: Float = -1f
+        get() {
+            if (field == -1f) {
+                field = calculateInertia()
+            }
+            return field
+        }
+        private set
+
     open fun updatePosition() {
         // Static objects don't move
         if (static) return
@@ -70,6 +80,8 @@ abstract class FhysicsObject protected constructor(
     abstract fun project(axis: Vector2): Projection
 
     abstract fun contains(pos: Vector2): Boolean
+
+    abstract fun calculateInertia(): Float
 
     abstract fun testCollision(other: FhysicsObject): CollisionInfo
 

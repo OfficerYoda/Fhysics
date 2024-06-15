@@ -14,12 +14,6 @@ data class Vector2
 @JvmOverloads constructor(
     var x: Float = 0.0f, var y: Float = 0.0f,
 ) {
-    /**
-     * Constructs a Vector2 with the same components as another Vector2.
-     *
-     * @param other The other Vector2.
-     */
-    constructor(other: Vector2) : this(other.x, other.y)
 
     /**
      * Returns a normalized version of the  Vector2.
@@ -83,6 +77,16 @@ data class Vector2
     }
 
     /**
+     * Calculates the cross product of this Vector2 with another Vector2.
+     *
+     * @param other The other Vector2.
+     * @return The cross product of the two Vector2 instances.
+     */
+    fun cross(other: Vector2): Float {
+        return this.x * other.y - this.y * other.x
+    }
+
+    /**
      * Calculates the magnitude (length) of the Vector2.
      *
      * @return The magnitude of the Vector2.
@@ -97,7 +101,7 @@ data class Vector2
      * @return The squared magnitude of the Vector2.
      */
     fun sqrMagnitude(): Float {
-        return x * x + y * y
+        return this.x * this.x + this.y * this.y
     }
 
     /**
@@ -248,7 +252,7 @@ data class Vector2
      * @return A string containing the values of the x and y components.
      */
     override fun toString(): String {
-        return "Vector2(x=$x, y=$y)"
+        return "Vector2(x=${this.x}, y=${this.y})"
     }
 
     /**
@@ -261,8 +265,8 @@ data class Vector2
         if (this === other) return true
         if (other !is Vector2) return false
 
-        if (x != other.x) return false
-        if (y != other.y) return false
+        if (this.x != other.x) return false
+        if (this.y != other.y) return false
 
         return true
     }
@@ -273,8 +277,8 @@ data class Vector2
      * @return A hash code value.
      */
     override fun hashCode(): Int {
-        var result = x.hashCode()
-        result = 31 * result + y.hashCode()
+        var result: Int = this.x.hashCode()
+        result = 31 * result + this.y.hashCode()
         return result
     }
 

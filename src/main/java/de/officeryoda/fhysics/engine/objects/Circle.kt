@@ -20,6 +20,10 @@ class Circle(
         return pos.sqrDistance(position) <= radius * radius
     }
 
+    override fun calculateInertia(): Float {
+        return (mass * radius * radius) / 2f
+    }
+
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this) // works because FhysicsObject is abstract (aka double dispatch)
     }
