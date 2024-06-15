@@ -12,7 +12,7 @@ abstract class FhysicsObject protected constructor(
     open val position: Vector2,
     val velocity: Vector2 = Vector2.ZERO,
     mass: Float,
-    var angle: Float = 0f, // In radians
+    open var angle: Float = 0f, // In radians
     var angularVelocity: Float = 0f, // In radians per second
 ) {
 

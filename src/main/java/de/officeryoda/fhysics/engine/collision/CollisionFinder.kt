@@ -153,16 +153,17 @@ object CollisionFinder {
         // Check for collision between every sub-polygon pair
         for (subPolyA: Polygon in polygonsA) {
             for (subPolyB: Polygon in polygonsB) {
-                val collisionInfo: CollisionInfo = testCollision(subPolyA, subPolyB)
+                val info: CollisionInfo = testCollision(subPolyA, subPolyB)
 
-                if (!collisionInfo.hasCollision) continue
+                if (!info.hasCollision) continue
 
-                val normal: Vector2 = collisionInfo.normal
+                // Make sure the normal points in the right direction relative to parent polygons
+                val normal: Vector2 = info.normal
                 if (normal.dot(subPolyB.position - subPolyA.position) < 0) {
                     normal.negate()
                 }
 
-                return CollisionInfo(polyA, polyB, normal, collisionInfo.depth)
+                return CollisionInfo(polyA, polyB, normal, info.depth)
             }
         }
 
@@ -234,8 +235,6 @@ object CollisionFinder {
     }
 
     /// =====Contact Points=====
-
-    // TODO remove redundant parameters
 
     /**
      * Finds the contact points between two circles

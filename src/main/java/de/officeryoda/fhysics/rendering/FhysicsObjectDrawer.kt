@@ -131,7 +131,7 @@ class FhysicsObjectDrawer : Application() {
         gc.clearRect(0.0, 0.0, width, height)
 
         // Find the hovered object (if any)
-        this.hoveredObject = checkForHoveredObject()
+        hoveredObject = checkForHoveredObject()
 
         // Draw the objects
         QuadTree.root.drawObjects(this)
@@ -146,9 +146,7 @@ class FhysicsObjectDrawer : Application() {
 
     fun drawObject(obj: FhysicsObject) {
         // Hovered and selected object will be drawn pulsing
-        if (obj === this.hoveredObject || obj === this.selectedObject) {
-            return
-        }
+        if (obj == hoveredObject || obj == selectedObject) return
 
         setFillColor(obj.color)
 
