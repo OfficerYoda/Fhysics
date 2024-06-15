@@ -94,6 +94,9 @@ class UIController {
     private lateinit var cbBoundingBoxes: CheckBox
 
     @FXML
+    private lateinit var cbSubPolygons: CheckBox
+
+    @FXML
     private lateinit var cbQTCapacity: CheckBox
 
     @FXML
@@ -352,6 +355,11 @@ class UIController {
     }
 
     @FXML
+    fun onSubPolygonsClicked() {
+        drawSubPolygons = cbSubPolygons.isSelected
+    }
+
+    @FXML
     fun onQTCapacityClicked() {
         drawQTCapacity = cbQTCapacity.isSelected
     }
@@ -443,6 +451,7 @@ class UIController {
 
         /// =====Debug=====
         cbBoundingBoxes.isSelected = drawBoundingBoxes
+        cbSubPolygons.isSelected = drawSubPolygons
         cbObjectCount.isSelected = drawObjectCount
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
@@ -524,6 +533,8 @@ class UIController {
 
         /// =====Debug=====
         var drawBoundingBoxes: Boolean = false
+            private set
+        var drawSubPolygons: Boolean = false
             private set
         var drawQTCapacity: Boolean = false
             private set
