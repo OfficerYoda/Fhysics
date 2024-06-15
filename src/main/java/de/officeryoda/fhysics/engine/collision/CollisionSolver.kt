@@ -8,57 +8,27 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController
-import java.awt.Color
 
 object CollisionSolver {
 
     /**
-     * Solves a collision between two objects in a perfectly elastic manner
+     * Solves the collision between two objects
      *
      * @param info The CollisionInfo object containing information about the collision
+     * @param contactPoints The contact points of the collision
      */
     fun solveCollision(info: CollisionInfo, contactPoints: Array<Vector2>) {
-        // separate the objects to prevent tunneling and other anomalies
-        separateOverlappingObjects(info)
-
-        // Get the objects
-        val objA: FhysicsObject = info.objA!!
-        val objB: FhysicsObject = info.objB!!
-
-        // Calculate relative velocity before collision; circleB doesn't move relatively speaking
-        val relativeVelocity: Vector2 = objB.velocity - objA.velocity
-
-        // Return if the objects are already moving away from each other
-        if (relativeVelocity.dot(info.normal) > 0) return
-
-        val e = 0.5f // Coefficient of restitution
-
-        val impulseMagnitude: Float = -(1f + e) * relativeVelocity.dot(info.normal) / (objA.invMass + objB.invMass)
-        val impulse: Vector2 = impulseMagnitude * info.normal
-
-        objA.velocity -= impulse * objA.invMass
-        objB.velocity += impulse * objB.invMass
-    }
-
-    fun solveCollisionWithRotation(info: CollisionInfo, contactPoints: Array<Vector2>) {
-        for (point in contactPoints) {
-            DebugDrawer.addDebugPoint(point, Color.RED, 20)
-        }
-
         // Separate the objects to prevent tunneling and other anomalies
         separateOverlappingObjects(info)
 
-        // Get the objects
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
-        // No need to calculate the impulse if both objects are static
+        // No need to solve collision if both objects are static
         if (objA.static && objB.static) return
 
         val e = 0.5f // Coefficient of restitution
-
         val impulseList: ArrayList<Vector2> = arrayListOf()
 
         // Calculate the impulses for each contact point
@@ -79,13 +49,13 @@ object CollisionSolver {
             if (contactVelocityMag > 0) continue
 
             // Calculate the impulse
-            val raPerpDotN: Float = raPerp.dot(info.normal)
-            val rbPerpDotN: Float = rbPerp.dot(info.normal)
+            val raPerpDotNormal: Float = raPerp.dot(info.normal)
+            val rbPerpDotNormal: Float = rbPerp.dot(info.normal)
 
             var impulseMag: Float = -(1f + e) * contactVelocityMag
             impulseMag /= objA.invMass + objB.invMass +
-                    (raPerpDotN * raPerpDotN) * objA.invInertia +
-                    (rbPerpDotN * rbPerpDotN) * objB.invInertia
+                    (raPerpDotNormal * raPerpDotNormal) * objA.invInertia +
+                    (rbPerpDotNormal * rbPerpDotNormal) * objB.invInertia
             impulseMag /= contactPoints.size // Distribute the impulse over all contact points
 
             val impulse: Vector2 = impulseMag * info.normal
@@ -179,5 +149,4 @@ object CollisionSolver {
             }
         }
     }
-
 }

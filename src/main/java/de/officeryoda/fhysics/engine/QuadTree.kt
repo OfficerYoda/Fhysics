@@ -264,7 +264,7 @@ data class QuadTree(
         if (!info.hasCollision) return
         CollisionSolver.separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
         val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
-        CollisionSolver.solveCollisionWithRotation(info, contactPoints)
+        CollisionSolver.solveCollision(info, contactPoints)
     }
 
     /// =====Drawing functions=====
