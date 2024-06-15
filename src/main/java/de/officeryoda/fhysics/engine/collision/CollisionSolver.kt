@@ -69,7 +69,7 @@ object CollisionSolver {
             val raPerp = Vector2(-ra.y, ra.x)
             val rbPerp = Vector2(-rb.y, rb.x)
 
-            val totalVelocityA: Vector2 = objA.velocity + rbPerp * objA.angularVelocity
+            val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
             val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
 
             val relativeVelocity: Vector2 = totalVelocityB - totalVelocityA
