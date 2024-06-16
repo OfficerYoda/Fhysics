@@ -16,11 +16,11 @@ abstract class Polygon(
 ) : FhysicsObject(position, velocity, calculatePolygonArea(vertices), angle, angularVelocity) {
 
     // Used for creating every polygon except sub-polygons
-    constructor(vertices: Array<Vector2>, rotation: Float) : this(
+    constructor(vertices: Array<Vector2>, angle: Float) : this(
         calculatePolygonCenter(vertices),
         Vector2.ZERO,
         vertices,
-        rotation,
+        angle,
         0f
     )
 

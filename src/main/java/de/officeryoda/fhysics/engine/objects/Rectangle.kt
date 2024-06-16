@@ -58,23 +58,25 @@ class Rectangle(
     override fun toString(): String {
         return "Rectangle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height, rotation=$angle)"
     }
-}
 
-/**
- * Creates the vertices of a rectangle with the given width and height
- *
- * @param width The width of the rectangle
- * @param height The height of the rectangle
- * @return The vertices of the rectangle
- */
-fun createRectangleVertices(width: Float, height: Float): Array<Vector2> {
-    val halfWidth: Float = width / 2
-    val halfHeight: Float = height / 2
+    companion object {
+        /**
+         * Creates the vertices of a rectangle with the given width and height
+         *
+         * @param width The width of the rectangle
+         * @param height The height of the rectangle
+         * @return The vertices of the rectangle
+         */
+        fun createRectangleVertices(width: Float, height: Float): Array<Vector2> {
+            val halfWidth: Float = width / 2
+            val halfHeight: Float = height / 2
 
-    return arrayOf(
-        Vector2(-halfWidth, -halfHeight),
-        Vector2(halfWidth, -halfHeight),
-        Vector2(halfWidth, halfHeight),
-        Vector2(-halfWidth, halfHeight)
-    )
+            return arrayOf(
+                Vector2(-halfWidth, -halfHeight),
+                Vector2(halfWidth, -halfHeight),
+                Vector2(halfWidth, halfHeight),
+                Vector2(-halfWidth, halfHeight)
+            )
+        }
+    }
 }
