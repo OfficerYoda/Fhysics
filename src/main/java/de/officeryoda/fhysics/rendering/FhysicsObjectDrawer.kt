@@ -7,6 +7,7 @@ import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
+import de.officeryoda.fhysics.rendering.RenderUtil.darkenColor
 import de.officeryoda.fhysics.rendering.RenderUtil.lerp
 import de.officeryoda.fhysics.rendering.RenderUtil.lerpV2
 import de.officeryoda.fhysics.rendering.RenderUtil.setFillColor
@@ -26,6 +27,7 @@ import javafx.stage.Stage
 import java.awt.Color
 import java.lang.Math.toDegrees
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.sin
 
 // Can't be converted to object because it is a JavaFX Application
@@ -87,6 +89,8 @@ class FhysicsObjectDrawer : Application() {
         gc = canvas.graphicsContext2D
         targetZoom = calculateZoom()
         zoom = targetZoom
+
+        gc.lineWidth = 2.0
 
         startAnimationTimer()
 
@@ -172,6 +176,8 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawCircle(circle: Circle) {
+        gc.lineWidth = 2.0 * zoom * 0.05
+
         val pos: Vector2 = worldToScreen(circle.position)
         val radius: Double = circle.radius * zoom
 
@@ -181,6 +187,16 @@ class FhysicsObjectDrawer : Application() {
             2 * radius,
             2 * radius
         )
+
+        // Show rotation
+        val end: Vector2 = circle.position + Vector2(cos(circle.angle), sin(circle.angle)) * circle.radius
+        val endScreen: Vector2 = worldToScreen(end)
+
+        // Darken the current fill color and use it as stroke color
+        setStrokeColor(darkenColor(RenderUtil.paintToColor(gc.fill)))
+        gc.strokeLine(pos.x.toDouble(), pos.y.toDouble(), endScreen.x.toDouble(), endScreen.y.toDouble())
+
+        gc.lineWidth = 2.0
     }
 
     private fun drawRectangle(rect: Rectangle) {

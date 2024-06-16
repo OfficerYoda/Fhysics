@@ -66,27 +66,20 @@ object DebugDrawer {
     }
 
     private fun drawDebugLines() {
-        gc.lineWidth = 2.0
-
         for (line: DebugLine in debugLines.toList()) {
             RenderUtil.setStrokeColor(line.color)
             strokeLine(line.start, line.end)
 
-            // Update the duration of the line
-            // If the max duration is reached remove the line
-            if (line.durationFrames > 0) {
+            // Only decrease the duration if the simulation is running
+            if (line.durationFrames > 0 && FhysicsCore.running) {
                 line.durationFrames--
             } else {
                 debugLines.remove(line)
             }
         }
-
-        gc.lineWidth = 1.0
     }
 
     private fun drawDebugVectors() {
-        gc.lineWidth = 2.0
-
         // Draw the vectors as an arrow from the support to the direction
         for (vector: DebugVector in debugVectors.toList()) {
             RenderUtil.setStrokeColor(vector.color)
@@ -100,8 +93,6 @@ object DebugDrawer {
                 debugVectors.remove(vector)
             }
         }
-
-        gc.lineWidth = 1.0
     }
 
     private fun strokeLine(start: Vector2, end: Vector2) {

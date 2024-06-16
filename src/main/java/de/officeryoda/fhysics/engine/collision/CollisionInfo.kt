@@ -28,4 +28,10 @@ data class CollisionInfo(
      */
     constructor() : this(null, null, Vector2.ZERO, Float.NEGATIVE_INFINITY)
 
+    /**
+     * Returns a string representation of the CollisionInfo object.
+     */
+    override fun toString(): String {
+        return "CollisionInfo(hasCollision=$hasCollision, normal=$normal, depth=$depth, objA=$objA, objB=$objB)"
+    }
 }

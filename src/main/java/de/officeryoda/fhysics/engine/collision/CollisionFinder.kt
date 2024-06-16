@@ -192,7 +192,8 @@ object CollisionFinder {
      * @param point The external point
      */
     private fun getClosestPoint(poly: Polygon, point: Vector2): Vector2 {
-        var closestPoint: Pair<Vector2, Float> = Pair(Vector2.ZERO, Float.MAX_VALUE)
+        var closestPoint: Vector2 = Vector2.ZERO
+        var minDistance: Float = Float.MAX_VALUE
 
         val vertices: Array<Vector2> = poly.getTransformedVertices()
 
@@ -201,14 +202,16 @@ object CollisionFinder {
             val end: Vector2 = vertices[(i + 1) % vertices.size]
 
             // Get the closest point on the current edge to the external point
-            val pointEdgeDistance: Pair<Vector2, Float> = getPointEdgeDistance(start, end, point)
+            val closestPointOnEdge: Vector2 = getClosestPointOnEdge(start, end, point)
+            val distance: Float = closestPointOnEdge.sqrDistanceTo(point)
 
-            if (pointEdgeDistance.second < closestPoint.second) {
-                closestPoint = pointEdgeDistance
+            if (distance < minDistance) {
+                closestPoint = closestPointOnEdge
+                minDistance = distance
             }
         }
 
-        return closestPoint.first
+        return closestPoint
     }
 
     /**
@@ -217,9 +220,9 @@ object CollisionFinder {
      * @param start The start point of the edge
      * @param end The end point of the edge
      * @param point The external point
-     * @return A pair containing the closest point on the edge and the square distance to the external point
+     * @return The closest point on the edge to the external point
      */
-    private fun getPointEdgeDistance(start: Vector2, end: Vector2, point: Vector2): Pair<Vector2, Float> {
+    private fun getClosestPointOnEdge(start: Vector2, end: Vector2, point: Vector2): Vector2 {
         // Calculate the closest point on the current edge to the external point
         val edge: Vector2 = end - start
         val t: Float = ((point - start).dot(edge)) / edge.sqrMagnitude()
@@ -231,7 +234,7 @@ object CollisionFinder {
             else -> start + edge * t
         }
 
-        return Pair(closestPointOnEdge, closestPointOnEdge.sqrDistanceTo(point))
+        return closestPointOnEdge
     }
 
     /// =====Contact Points=====
@@ -291,7 +294,8 @@ object CollisionFinder {
                 val va: Vector2 = verticesB[j]
                 val vb: Vector2 = verticesB[(j + 1) % verticesB.size]
 
-                val (closestPoint: Vector2, distance: Float) = getPointEdgeDistance(va, vb, vertex)
+                val closestPoint: Vector2 = getClosestPointOnEdge(va, vb, vertex)
+                val distance: Float = vertex.sqrDistanceTo(closestPoint)
 
                 if (nearlyEquals(distance, minDistance)) {
                     if (!nearlyEquals(closestPoint, contactA)) {
@@ -313,7 +317,8 @@ object CollisionFinder {
                 val va: Vector2 = verticesA[j]
                 val vb: Vector2 = verticesA[(j + 1) % verticesA.size]
 
-                val (closestPoint: Vector2, distance: Float) = getPointEdgeDistance(va, vb, vertex)
+                val closestPoint: Vector2 = getClosestPointOnEdge(va, vb, vertex)
+                val distance: Float = vertex.sqrDistanceTo(closestPoint)
 
                 if (nearlyEquals(distance, minDistance)) {
                     if (!nearlyEquals(closestPoint, contactA)) {

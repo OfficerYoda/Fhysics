@@ -165,6 +165,14 @@ object RenderUtil {
         return a + (b - a) * t
     }
 
+    /**
+     * Linearly interpolates between two values
+     *
+     * @param a the first value
+     * @param b the second value
+     * @param t the interpolation factor
+     * @return the interpolated value
+     */
     fun lerp(a: Double, b: Double, t: Double): Double {
         return a + (b - a) * t
     }
@@ -230,5 +238,19 @@ object RenderUtil {
      */
     fun setStrokeColor(color: Color) {
         gc.stroke = colorToPaint(color)
+    }
+
+    /**
+     * Darkens a color by a certain percentage
+     *
+     * @param color the original color
+     * @param percentage the percentage to darken the color by
+     * @return the darkened color
+     */
+    fun darkenColor(color: Color, percentage: Float = 0.3f): Color {
+        val red: Int = (color.red * (1 - percentage)).toInt().coerceIn(0, 255)
+        val green: Int = (color.green * (1 - percentage)).toInt().coerceIn(0, 255)
+        val blue: Int = (color.blue * (1 - percentage)).toInt().coerceIn(0, 255)
+        return Color(red, green, blue, color.alpha)
     }
 }
