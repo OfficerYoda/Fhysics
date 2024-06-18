@@ -41,11 +41,11 @@ class Circle(
     }
 
     override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, other, info)
+        return CollisionFinder.findContactPoints(this, other, info).first
     }
 
     override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(other, this, info)
+        return CollisionFinder.findContactPoints(other, this, info).first
     }
 
     override fun clone(): FhysicsObject {

@@ -15,7 +15,7 @@ data class CollisionInfo(
     val objA: FhysicsObject?,
     val objB: FhysicsObject?,
     val normal: Vector2,
-    val depth: Float,
+    val depth: Float, // Might be negative under some concave polygon collisions conditions
 ) {
 
     /**

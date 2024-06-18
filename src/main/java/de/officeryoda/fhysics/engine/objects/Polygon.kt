@@ -122,11 +122,11 @@ abstract class Polygon(
     abstract override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
 
     override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, other, info)
+        return CollisionFinder.findContactPoints(this, other, info).first
     }
 
     override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, other, info)
+        return CollisionFinder.findContactPoints(this, other, info).first
     }
 
     companion object {

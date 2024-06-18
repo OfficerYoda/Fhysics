@@ -2,10 +2,7 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.BorderObject
-import de.officeryoda.fhysics.engine.objects.Circle
-import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.wallElasticity
@@ -67,7 +64,7 @@ object CollisionSolver {
      */
     fun solveCollision(info: CollisionInfo, contactPoints: Array<Vector2>) {
         for (point: Vector2 in contactPoints) {
-            DebugDrawer.addDebugPoint(point, Color.RED, 20)
+            DebugDrawer.addDebugPoint(point, Color.RED, 1)
         }
 
         val objA: FhysicsObject = info.objA!!
@@ -81,16 +78,27 @@ object CollisionSolver {
 
         // Calculate the impulses for each contact point
         for (contactPoint: Vector2 in contactPoints) {
+//            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(objA.position, objA.velocity, Color.PINK, 1)
+//            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(objB.position, objB.velocity, Color.PINK, 1)
+
             val ra: Vector2 = contactPoint - objA.position
             val rb: Vector2 = contactPoint - objB.position
 
             val raPerp = Vector2(-ra.y, ra.x)
             val rbPerp = Vector2(-rb.y, rb.x)
 
+            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(contactPoint, raPerp, Color.BLUE, 1)
+            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(contactPoint, rbPerp, Color.BLUE, 1)
+
             val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
             val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
 
+            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(contactPoint, totalVelocityA, Color.ORANGE, 1)
+            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(contactPoint, totalVelocityB, Color.ORANGE, 1)
+
             val relativeVelocity: Vector2 = totalVelocityB - totalVelocityA
+
+            DebugDrawer.addDebugVector(contactPoint, relativeVelocity, Color.MAGENTA, 1)
 
             // Continue if the objects are already moving away from each other
             val contactVelocityMag: Float = relativeVelocity.dot(info.normal)
@@ -110,9 +118,6 @@ object CollisionSolver {
             impulseList.add(impulse)
         }
 
-        var angularDeltaA = 0f
-        var angularDeltaB = 0f
-
         // Apply the impulses
         for (i: Int in impulseList.indices) {
             val impulse: Vector2 = impulseList[i]
@@ -122,20 +127,32 @@ object CollisionSolver {
             objB.velocity += impulse * objB.invMass
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
 
-            if (objA is Polygon && !objA.static) {
-                angularDeltaA += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
-            }
-            if (objB is Polygon && !objB.static) {
-                angularDeltaB += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
-            }
-        }
+            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(
+                contactPoints[i],
+                -impulse * objA.invMass,
+                Color.GREEN,
+                1
+            )
+            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(
+                contactPoints[i],
+                impulse * objB.invMass,
+                Color.GREEN,
+                1
+            )
 
-//        if (objA is Polygon && !objA.static) {
-//            println("Angular Delta A: $angularDeltaA")
-//        }
-//        if (objB is Polygon && !objB.static) {
-//            println("Angular Delta B: $angularDeltaB")
-//        }
+            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(
+                contactPoints[i],
+                impulse.cross(contactPoints[i] - objA.position) * objA.invInertia * Vector2(-1f, 1f),
+                Color.CYAN,
+                1
+            )
+            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(
+                contactPoints[i],
+                -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia * Vector2(-1f, 1f),
+                Color.CYAN,
+                1
+            )
+        }
     }
 
     /**

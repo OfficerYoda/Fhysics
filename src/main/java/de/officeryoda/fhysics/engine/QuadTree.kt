@@ -262,6 +262,7 @@ data class QuadTree(
         val info: CollisionInfo = objA.testCollision(objB)
 
         if (!info.hasCollision) return
+//        DebugDrawer.addDebugVector(objB.position, info.normal, Color.WHITE, 1)
         CollisionSolver.separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
         val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
         CollisionSolver.solveCollision(info, contactPoints)

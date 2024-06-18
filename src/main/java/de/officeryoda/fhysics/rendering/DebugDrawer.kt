@@ -58,7 +58,9 @@ object DebugDrawer {
             // Update the duration of the point
             // If the max duration is reached remove the point
             if (point.durationFrames > 0) {
-                point.durationFrames--
+                if (FhysicsCore.running) {
+                    point.durationFrames--
+                }
             } else {
                 debugPoints.remove(point)
             }
@@ -71,8 +73,10 @@ object DebugDrawer {
             strokeLine(line.start, line.end)
 
             // Only decrease the duration if the simulation is running
-            if (line.durationFrames > 0 && FhysicsCore.running) {
-                line.durationFrames--
+            if (line.durationFrames > 0) {
+                if (FhysicsCore.running) {
+                    line.durationFrames--
+                }
             } else {
                 debugLines.remove(line)
             }
@@ -88,7 +92,9 @@ object DebugDrawer {
             // Update the duration of the vector
             // If the max duration is reached remove the vector
             if (vector.durationFrames > 0) {
-                vector.durationFrames--
+                if (FhysicsCore.running) {
+                    vector.durationFrames--
+                }
             } else {
                 debugVectors.remove(vector)
             }
