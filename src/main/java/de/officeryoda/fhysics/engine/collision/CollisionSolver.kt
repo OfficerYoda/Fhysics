@@ -78,8 +78,8 @@ object CollisionSolver {
 
         // Calculate the impulses for each contact point
         for (contactPoint: Vector2 in contactPoints) {
-//            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(objA.position, objA.velocity, Color.PINK, 1)
-//            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(objB.position, objB.velocity, Color.PINK, 1)
+            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(objA.position, objA.velocity, Color.PINK, 1)
+            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(objB.position, objB.velocity, Color.PINK, 1)
 
             val ra: Vector2 = contactPoint - objA.position
             val rb: Vector2 = contactPoint - objB.position
@@ -87,8 +87,8 @@ object CollisionSolver {
             val raPerp = Vector2(-ra.y, ra.x)
             val rbPerp = Vector2(-rb.y, rb.x)
 
-            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(contactPoint, raPerp, Color.BLUE, 1)
-            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(contactPoint, rbPerp, Color.BLUE, 1)
+            DebugDrawer.addDebugVector(contactPoint, raPerp, Color.BLUE, 1)
+            DebugDrawer.addDebugVector(contactPoint, rbPerp, Color.BLUE, 1)
 
             val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
             val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
@@ -219,4 +219,3 @@ object CollisionSolver {
         }
     }
 }
-

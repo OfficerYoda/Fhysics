@@ -152,6 +152,10 @@ object CollisionFinder {
      * @return A CollisionInfo object containing information about the collision
      */
     private fun testConcavePolygonCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
+        var deepestCollision = CollisionInfo()
+        var deepestPolyA: Polygon = polyA
+        var deepestPolyB: Polygon = polyB
+
         val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
         val polygonsB: List<Polygon> = if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB)
 
@@ -162,17 +166,25 @@ object CollisionFinder {
 
                 if (!info.hasCollision) continue
 
-                // Make sure the normal points in the right direction relative to parent polygons
-                val normal: Vector2 = info.normal
-                if (normal.dot(subPolyB.position - subPolyA.position) < 0) {
-                    normal.negate()
+                if (abs(deepestCollision.depth) < abs(info.depth) || deepestCollision.depth == Float.NEGATIVE_INFINITY) {
+                    deepestCollision = info
+                    deepestPolyA = subPolyA
+                    deepestPolyB = subPolyB
                 }
-
-                return CollisionInfo(polyA, polyB, normal, info.depth)
             }
         }
 
-        return CollisionInfo()
+        if (deepestCollision.hasCollision) {
+            // Make sure the normal points in the right direction relative to parent polygons
+            val normal: Vector2 = deepestCollision.normal
+            if (normal.dot(deepestPolyB.position - deepestPolyA.position) < 0) {
+                normal.negate()
+            }
+
+            deepestCollision = CollisionInfo(polyA, polyB, normal, deepestCollision.depth)
+        }
+
+        return deepestCollision
     }
 
     /**

@@ -32,6 +32,6 @@ data class CollisionInfo(
      * Returns a string representation of the CollisionInfo object.
      */
     override fun toString(): String {
-        return "CollisionInfo(hasCollision=$hasCollision, normal=$normal, depth=$depth, objA=$objA, objB=$objB)"
+        return "CollisionInfo(hasCollision=$hasCollision, normal=$normal, depth=$depth, objA.id=${objA?.id}, objB.id=${objB?.id})"
     }
 }

@@ -115,7 +115,7 @@ abstract class FhysicsObject protected constructor(
     }
 
     override fun toString(): String {
-        return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"
+        return "FhysicsObject(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color)"
     }
 
     // This method exist to make the list.contains() method faster
