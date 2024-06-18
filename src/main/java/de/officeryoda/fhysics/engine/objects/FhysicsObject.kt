@@ -39,6 +39,7 @@ abstract class FhysicsObject protected constructor(
             }
 
             invMass = if (value) 0f else 1f / mass
+            invInertia = if (value) 0f else 1f / inertia
         }
 
     var mass: Float = mass
@@ -53,7 +54,13 @@ abstract class FhysicsObject protected constructor(
     private var lastBBoxUpdate = -1
 
     val inertia: Float by lazy { calculateInertia() }
-    val invInertia: Float by lazy { if (static) 0f else 1f / inertia }
+    var invInertia: Float = -1f
+        get() {
+            if (field == -1f) {
+                field = if (static) 0f else 1f / inertia
+            }
+            return field
+        }
 
     open fun updatePosition() {
         // Static objects don't move
@@ -73,6 +80,7 @@ abstract class FhysicsObject protected constructor(
         acceleration.set(Vector2.ZERO)
 
         // Update rotation
+        angularVelocity *= (1 - damping)
         angle += angularVelocity * dt
     }
 
