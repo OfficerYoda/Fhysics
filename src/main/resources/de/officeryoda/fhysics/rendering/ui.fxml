@@ -398,10 +398,10 @@
                               <Tooltip text="Shows the bounding boxes of objects" />
                            </tooltip>
                         </CheckBox>
-                         <CheckBox fx:id="cbSubPolygons" mnemonicParsing="false" onMouseClicked="#onSubPolygonsClicked"
-                                   prefHeight="17.0" prefWidth="253.0" text="Sub-Polygons">
+                        <CheckBox fx:id="cbSubPolygons" mnemonicParsing="false" onMouseClicked="#onSubPolygonsClicked"
+                                  prefHeight="17.0" prefWidth="253.0" text="Sub-Polygons">
                              <tooltip>
-                                 <Tooltip text="Shows the sub-polygons of concave polygons"/>
+                                <Tooltip text="Shows the sub-polygons of concave polygons"/>
                            </tooltip>
                         </CheckBox>
                         <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Stats" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
@@ -421,7 +421,7 @@
                         </CheckBox>
                         <CheckBox fx:id="cbUPS" layoutX="10.0" layoutY="44.0" mnemonicParsing="false" onMouseClicked="#onUPSClicked" prefHeight="17.0" prefWidth="253.0" text="UPS">
                            <tooltip>
-                              <Tooltip text="Updates per second" />
+                              <Tooltip text="Updates per second (based on MSPU and max UPS)"/>
                            </tooltip>
                         </CheckBox>
                         <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="228.0" text="Object count">
