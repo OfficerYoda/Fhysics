@@ -2,7 +2,10 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.engine.objects.BorderObject
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.wallElasticity
@@ -78,27 +81,16 @@ object CollisionSolver {
 
         // Calculate the impulses for each contact point
         for (contactPoint: Vector2 in contactPoints) {
-            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(objA.position, objA.velocity, Color.PINK, 1)
-            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(objB.position, objB.velocity, Color.PINK, 1)
-
             val ra: Vector2 = contactPoint - objA.position
             val rb: Vector2 = contactPoint - objB.position
 
             val raPerp = Vector2(-ra.y, ra.x)
             val rbPerp = Vector2(-rb.y, rb.x)
 
-            DebugDrawer.addDebugVector(contactPoint, raPerp, Color.BLUE, 1)
-            DebugDrawer.addDebugVector(contactPoint, rbPerp, Color.BLUE, 1)
-
             val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
             val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
 
-            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(contactPoint, totalVelocityA, Color.ORANGE, 1)
-            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(contactPoint, totalVelocityB, Color.ORANGE, 1)
-
             val relativeVelocity: Vector2 = totalVelocityB - totalVelocityA
-
-            DebugDrawer.addDebugVector(contactPoint, relativeVelocity, Color.MAGENTA, 1)
 
             // Continue if the objects are already moving away from each other
             val contactVelocityMag: Float = relativeVelocity.dot(info.normal)
@@ -126,32 +118,6 @@ object CollisionSolver {
             objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
             objB.velocity += impulse * objB.invMass
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
-
-            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(
-                contactPoints[i],
-                -impulse * objA.invMass,
-                Color.GREEN,
-                1
-            )
-            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(
-                contactPoints[i],
-                impulse * objB.invMass,
-                Color.GREEN,
-                1
-            )
-
-            if (objA is ConcavePolygon) DebugDrawer.addDebugVector(
-                contactPoints[i],
-                impulse.cross(contactPoints[i] - objA.position) * objA.invInertia * Vector2(-1f, 1f),
-                Color.CYAN,
-                1
-            )
-            if (objB is ConcavePolygon) DebugDrawer.addDebugVector(
-                contactPoints[i],
-                -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia * Vector2(-1f, 1f),
-                Color.CYAN,
-                1
-            )
         }
     }
 

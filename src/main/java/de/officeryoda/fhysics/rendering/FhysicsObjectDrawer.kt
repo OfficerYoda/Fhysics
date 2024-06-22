@@ -53,7 +53,7 @@ class FhysicsObjectDrawer : Application() {
     var hoveredObject: FhysicsObject? = null
     var selectedObject: FhysicsObject? = null
 
-    /// =====Start functions=====
+    /// region =====Start functions=====
     fun launch() {
         launch(FhysicsObjectDrawer::class.java)
     }
@@ -127,7 +127,9 @@ class FhysicsObjectDrawer : Application() {
         }.start()
     }
 
-    /// =====Draw functions=====
+    /// endregion
+
+    /// region =====Draw functions=====
     fun drawFrame() {
         lerpZoom()
 
@@ -224,10 +226,6 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygon(poly: Polygon) {
-        if (poly is ConcavePolygon) {
-            DebugDrawer.addDebugPoint(poly.position, Color.YELLOW)
-        }
-
         if (UIController.drawSubPolygons && poly is ConcavePolygon) {
             for (subPoly: SubPolygon in poly.subPolygons) {
                 setFillColor(subPoly.color)
@@ -298,7 +296,9 @@ class FhysicsObjectDrawer : Application() {
         gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
     }
 
-    /// =====Window size functions=====
+    /// endregion
+
+    /// region =====Window size functions=====
     private fun setWindowSize() {
         // Calculate the window size
         val border: BoundingBox = BORDER
@@ -332,7 +332,9 @@ class FhysicsObjectDrawer : Application() {
         return windowHeight / borderHeight
     }
 
-    /// =====Utility functions=====
+    /// endregion
+
+    /// region =====Utility functions=====
     private fun lerpZoom() {
         // A value I think looks good
         val interpolation = 0.12F
@@ -360,7 +362,9 @@ class FhysicsObjectDrawer : Application() {
         zoomCenter = targetZoomCenter
     }
 
+    /// endregion
+
     companion object {
-        const val TITLE_BAR_HEIGHT: Double = 39.0 // That's the default height of the window's title bar (in windows)
+        const val TITLE_BAR_HEIGHT: Double = 39.0 // That's the default height of the window's title bar
     }
 }

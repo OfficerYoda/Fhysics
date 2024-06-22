@@ -18,7 +18,7 @@ import java.util.*
 
 class UIController {
 
-    /// =====Spawn Object=====
+    /// region =====Fields: Spawn Object=====
     @FXML
     private lateinit var cbSpawnPreview: CheckBox
 
@@ -31,7 +31,9 @@ class UIController {
     @FXML
     private lateinit var txtSpawnHeight: TextField
 
-    /// =====Object Properties=====
+    /// endregion
+
+    /// region =====Fields: Object Properties=====
     @FXML
     private lateinit var tpProperties: TitledPane
 
@@ -50,7 +52,9 @@ class UIController {
     @FXML
     private lateinit var clrPropertyColor: ColorPicker
 
-    /// =====Gravity=====
+    /// endregion
+
+    /// region =====Fields: Gravity=====
     @FXML
     private lateinit var txtGravityDirectionX: TextField
 
@@ -66,7 +70,9 @@ class UIController {
     @FXML
     private lateinit var txtGravityPointStrength: TextField
 
-    /// =====Time=====
+    /// endregion
+
+    /// region =====Fields: Time=====
     @FXML
     private lateinit var btnTimePause: ToggleButton
 
@@ -76,7 +82,9 @@ class UIController {
     @FXML
     private lateinit var txtTimeSpeed: TextField
 
-    /// =====QuadTree=====
+    /// endregion
+
+    /// region =====Fields: QuadTree=====
     @FXML
     private lateinit var cbQuadTree: CheckBox
 
@@ -89,7 +97,9 @@ class UIController {
     @FXML
     private lateinit var txtQuadTreeCapacity: TextField
 
-    /// =====Debug=====
+    /// endregion
+
+    /// region =====Fields: Debug=====
     @FXML
     private lateinit var cbBoundingBoxes: CheckBox
 
@@ -114,7 +124,9 @@ class UIController {
     @FXML
     private lateinit var lblWallElasticity: Label
 
-    /// =====Spawn Object=====
+    /// endregion
+
+    /// region =====Spawn Object=====
     @FXML
     fun onSpawnNothingClicked() {
         spawnObjectType = SpawnObjectType.NOTHING
@@ -196,7 +208,9 @@ class UIController {
         updateSpawnPreview()
     }
 
-    /// =====Object Properties=====
+    /// endregion
+
+    /// region =====Object Properties=====
     @FXML
     fun onPropertyStaticClicked() {
         drawer.selectedObject!!.static = cbPropertyStatic.isSelected
@@ -251,7 +265,9 @@ class UIController {
         return ((value * 100).toInt() / 100.0f).toString()
     }
 
-    /// =====Gravity=====
+    /// endregion
+
+    /// region =====Gravity=====
     @FXML
     fun onGravityDirectionClicked() {
         gravityType = GravityType.DIRECTIONAL
@@ -298,7 +314,9 @@ class UIController {
         txtGravityPointStrength.isDisable = !point
     }
 
-    /// =====Time=====
+    /// endregion
+
+    /// region =====Time=====
     @FXML
     fun onTimePauseClicked() {
         FhysicsCore.running = !btnTimePause.isSelected
@@ -316,7 +334,9 @@ class UIController {
         FhysicsCore.dt = 1.0f / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
     }
 
-    /// =====QuadTree=====
+    /// endregion
+
+    /// region =====QuadTree=====
     @FXML
     fun onQuadTreeClicked() {
         drawQuadTree = cbQuadTree.isSelected
@@ -348,7 +368,9 @@ class UIController {
         }
     }
 
-    /// =====Debug=====
+    /// endregion
+
+    /// region =====Debug=====
     @FXML
     fun onBoundingBoxesClicked() {
         drawBoundingBoxes = !drawBoundingBoxes
@@ -385,18 +407,24 @@ class UIController {
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
     }
 
-    /// =====Initialization and helper=====
+    /// endregion
+
+    /// region =====Initialization and helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
-        /// =====Singleton=====
+        /// region =====Singleton=====
         instance = this
         drawer = RenderUtil.drawer
 
-        /// =====Object Properties=====
+        /// endregion
+
+        /// region =====Object Properties=====
         restrictToNumericInput(txtPropertyMass, false)
         restrictToNumericInput(txtPropertyRotation)
 
-        /// =====Spawn Object=====
+        /// endregion
+
+        /// region =====Spawn Object=====
         cbSpawnPreview.isSelected = drawSpawnPreview
         txtSpawnRadius.text = spawnRadius.toString()
         txtSpawnWidth.text = spawnWidth.toString()
@@ -415,7 +443,9 @@ class UIController {
             SpawnObjectType.POLYGON -> onSpawnPolygonClicked()
         }
 
-        /// =====Gravity=====
+        /// endregion
+
+        /// region =====Gravity=====
         txtGravityDirectionX.text = gravityDirection.x.toString()
         txtGravityDirectionY.text = gravityDirection.y.toString()
         txtGravityPointX.text = gravityPoint.x.toString()
@@ -433,14 +463,18 @@ class UIController {
         restrictToNumericInput(txtGravityPointY)
         restrictToNumericInput(txtGravityPointStrength)
 
-        /// =====Time=====
+        /// endregion
+
+        /// region =====Time=====
         btnTimePause.isSelected = !FhysicsCore.running
         btnTimeStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
 
         restrictToNumericInput(txtTimeSpeed, false)
 
-        /// =====QuadTree=====
+        /// endregion
+
+        /// region =====QuadTree=====
         cbQuadTree.isSelected = drawQuadTree
         cbQTNodeUtilization.isDisable = !drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
@@ -449,7 +483,9 @@ class UIController {
 
         restrictToNumericInput(txtQuadTreeCapacity, false)
 
-        /// =====Debug=====
+        /// endregion
+
+        /// region =====Debug=====
         cbBoundingBoxes.isSelected = drawBoundingBoxes
         cbSubPolygons.isSelected = drawSubPolygons
         cbObjectCount.isSelected = drawObjectCount
@@ -458,6 +494,8 @@ class UIController {
 
         sldWallElasticity.value = wallElasticity.toDouble()
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
+
+        /// endregion
     }
 
     /**
@@ -487,12 +525,16 @@ class UIController {
         return textField.text.toFloatOrNull() ?: default
     }
 
+    /// endregion
+
     companion object {
-        /// =====Singleton=====
+        /// region =====Singleton=====
         lateinit var instance: UIController
         lateinit var drawer: FhysicsObjectDrawer
 
-        /// =====Spawn Object=====
+        /// endregion
+
+        /// region =====Spawn Object=====
         var spawnObjectType: SpawnObjectType = SpawnObjectType.POLYGON
             private set
         var drawSpawnPreview: Boolean = true
@@ -504,11 +546,15 @@ class UIController {
         var spawnHeight: Float = 1.0f
             private set
 
-        /// =====Object Properties=====
+        /// endregion
+
+        /// region =====Object Properties=====
         private const val DEGREES_TO_RADIANS: Float = 0.017453292f
         private const val RADIANS_TO_DEGREES: Float = 57.29578f
 
-        /// =====Gravity=====
+        /// endregion
+
+        /// region =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
         val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
@@ -519,11 +565,15 @@ class UIController {
         var gravityPointStrength: Float = 100.0f
             private set
 
-        /// =====Time=====
+        /// endregion
+
+        /// region =====Time=====
         var timeSpeed: Float = 1.0f
             private set
 
-        /// =====QuadTree=====
+        /// endregion
+
+        /// region =====QuadTree=====
         var drawQuadTree: Boolean = false
             private set
         var drawQTNodeUtilization: Boolean = true
@@ -531,7 +581,9 @@ class UIController {
         var optimizeQTCapacity: Boolean = false
             private set
 
-        /// =====Debug=====
+        /// endregion
+
+        /// region =====Debug=====
         var drawBoundingBoxes: Boolean = false
             private set
         var drawSubPolygons: Boolean = true
@@ -544,9 +596,10 @@ class UIController {
             private set
         var drawObjectCount: Boolean = false
             private set
-
         var wallElasticity: Float = 0.5f
             private set
+
+        /// endregion
     }
 }
 

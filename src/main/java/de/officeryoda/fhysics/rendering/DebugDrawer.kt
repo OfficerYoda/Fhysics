@@ -33,7 +33,7 @@ object DebugDrawer {
     private val debugLines: MutableList<DebugLine> = ArrayList()
     private val debugVectors: MutableList<DebugVector> = ArrayList()
 
-    /// =====Draw functions=====
+    /// region =====Draw functions=====
     fun drawDebug() {
         if (UIController.drawQuadTree) QuadTree.root.drawNode(drawer)
         drawDebugPoints()
@@ -236,7 +236,9 @@ object DebugDrawer {
         gc.fillText(text, centerX, centerY)
     }
 
-    /// =====Debug add functions=====
+    /// endregion
+
+    /// region =====Debug add-functions=====
     fun addDebugPoint(position: Vector2, color: Color = Color.RED, durationFrames: Int = 240) {
         debugPoints.add(DebugPoint(position, color, durationFrames))
     }
@@ -248,4 +250,6 @@ object DebugDrawer {
     fun addDebugVector(support: Vector2, direction: Vector2, color: Color = Color.BLUE, durationFrames: Int = 240) {
         debugVectors.add(DebugVector(support, direction, color, durationFrames))
     }
+
+    /// endregion
 }

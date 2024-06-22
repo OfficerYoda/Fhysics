@@ -130,7 +130,6 @@ object CollisionFinder {
     private fun testConcavePolygonCollision(poly: ConcavePolygon, circle: Circle): CollisionInfo {
         var deepestCollision = CollisionInfo()
 
-
         // Check for collision between the circle and every sub-polygon
         poly.subPolygons.forEach { subPoly: Polygon ->
             val collisionInfo: CollisionInfo = testCollision(subPoly, circle)
