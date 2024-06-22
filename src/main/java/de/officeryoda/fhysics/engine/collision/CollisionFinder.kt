@@ -153,8 +153,6 @@ object CollisionFinder {
      */
     private fun testConcavePolygonCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
         var deepestCollision = CollisionInfo()
-        var deepestPolyA: Polygon = polyA
-        var deepestPolyB: Polygon = polyB
 
         val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
         val polygonsB: List<Polygon> = if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB)
@@ -168,16 +166,15 @@ object CollisionFinder {
 
                 if (abs(deepestCollision.depth) < abs(info.depth) || deepestCollision.depth == Float.NEGATIVE_INFINITY) {
                     deepestCollision = info
-                    deepestPolyA = subPolyA
-                    deepestPolyB = subPolyB
                 }
             }
         }
 
         if (deepestCollision.hasCollision) {
-            // Make sure the normal points in the right direction relative to parent polygons
+
+            // Make sure the normal points in the right direction
             val normal: Vector2 = deepestCollision.normal
-            if (normal.dot(deepestPolyB.position - deepestPolyA.position) < 0) {
+            if (normal.dot(deepestCollision.objB!!.position - deepestCollision.objA!!.position) < 0) {
                 normal.negate()
             }
 
@@ -371,29 +368,24 @@ object CollisionFinder {
         var minDistance: Float = Float.MAX_VALUE
 
         // Check for contact points between the circle and every sub-polygon
-        poly.subPolygons.forEach { subPoly: Polygon ->
+        for (subPoly: Polygon in poly.subPolygons) {
             val subInfo: CollisionInfo = testCollision(subPoly, circle)
-            if (subInfo.hasCollision) {
-                val (subContactPoints, sqrDistance) = findContactPoints(subPoly, circle, subInfo)
-                if (nearlyEquals(sqrDistance, minDistance)) {
-                    // Check if the contact points are near any existing contact points
-                    for (contactPoint: Vector2 in subContactPoints) {
-                        var nearExisting = false
-                        for (existingContactPoint: Vector2 in contactPoints) {
-                            if (nearlyEquals(contactPoint, existingContactPoint)) {
-                                nearExisting = true
-                                break
-                            }
-                        }
-                        if (!nearExisting) {
-                            contactPoints.add(contactPoint)
-                        }
+            if (!subInfo.hasCollision) continue
+
+            val (subContactPoints: Array<Vector2>, sqrDistance: Float) = findContactPoints(subPoly, circle, subInfo)
+
+            if (nearlyEquals(sqrDistance, minDistance)) {
+                // Add the contact points that are not near any existing contact points
+                for (contactPoint: Vector2 in subContactPoints) {
+                    if (!isNearExisting(contactPoint, contactPoints)) {
+                        contactPoints.add(contactPoint)
                     }
-                } else if (sqrDistance < minDistance) {
-                    minDistance = sqrDistance
-                    contactPoints.clear()
-                    contactPoints.addAll(subContactPoints)
                 }
+            } else if (sqrDistance < minDistance) {
+                // Replace the contact points with the new ones
+                minDistance = sqrDistance
+                contactPoints.clear()
+                contactPoints.addAll(subContactPoints)
             }
         }
 
@@ -411,32 +403,39 @@ object CollisionFinder {
         for (subPolyA: Polygon in polygonsA) {
             for (subPolyB: Polygon in polygonsB) {
                 val subInfo: CollisionInfo = testCollision(subPolyA, subPolyB)
-                if (subInfo.hasCollision) {
-                    val (subContactPoints, sqrDistance) = findContactPoints(subPolyA, subPolyB, subInfo)
-                    if (nearlyEquals(sqrDistance, minDistance)) {
-                        // Check if the contact points are near any existing contact points
-                        for (contactPoint: Vector2 in subContactPoints) {
-                            var nearExisting = false
-                            for (existingContactPoint: Vector2 in contactPoints) {
-                                if (nearlyEquals(contactPoint, existingContactPoint)) {
-                                    nearExisting = true
-                                    break
-                                }
-                            }
-                            if (!nearExisting) {
-                                contactPoints.add(contactPoint)
-                            }
+                if (!subInfo.hasCollision) continue
+
+                val (subContactPoints: Array<Vector2>, sqrDistance: Float) =
+                    findContactPoints(subPolyA, subPolyB, subInfo)
+
+                if (nearlyEquals(sqrDistance, minDistance)) {
+                    // Add the contact points that are not near any existing contact points
+                    for (contactPoint: Vector2 in subContactPoints) {
+                        if (!isNearExisting(contactPoint, contactPoints)) {
+                            contactPoints.add(contactPoint)
                         }
-                    } else if (sqrDistance < minDistance) {
-                        minDistance = sqrDistance
-                        contactPoints.clear()
-                        contactPoints.addAll(subContactPoints)
                     }
+                } else if (sqrDistance < minDistance) {
+                    // Replace the contact points with the new ones
+                    minDistance = sqrDistance
+                    contactPoints.clear()
+                    contactPoints.addAll(subContactPoints)
                 }
             }
         }
 
         return contactPoints.toTypedArray()
+    }
+
+    /**
+     * Checks if a contact point is near any existing contact points
+     *
+     * @param contactPoint The contact point to check
+     * @param existingContactPoints The existing contact points
+     * @return A boolean indicating if the contact point is near any existing contact points
+     */
+    private fun isNearExisting(contactPoint: Vector2, existingContactPoints: List<Vector2>): Boolean {
+        return existingContactPoints.firstOrNull { nearlyEquals(contactPoint, it) } != null
     }
 
     /**
