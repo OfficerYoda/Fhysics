@@ -7,6 +7,8 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.ConcavePolygon
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.rendering.DebugDrawer
+import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.min
@@ -66,6 +68,7 @@ object CollisionFinder {
         }
 
         val closestPoint: Vector2 = getClosestPoint(poly, circle.position)
+        DebugDrawer.addDebugPoint(closestPoint, Color.WHITE, 1)
 
         // Do a final check onto the axis from the circle to the closest point
         val finalAxis: Vector2 = (closestPoint - circle.position).normalized()
@@ -276,9 +279,6 @@ object CollisionFinder {
      * @return An array containing the contact points
      */
     fun findContactPoints(poly: Polygon, circle: Circle, info: CollisionInfo): Pair<Array<Vector2>, Float> {
-        if (poly is ConcavePolygon) {
-            return Pair(findConcavePolygonContactPoints(poly, circle, info), 0f)
-        }
         if (info.objA == circle) {
             val contactPoint: Vector2 = circle.position + info.normal * circle.radius
             return Pair(arrayOf(contactPoint), 0f)
@@ -356,39 +356,6 @@ object CollisionFinder {
         }
 
         return Pair(if (contactCount == 2) arrayOf(contactA, contactB) else arrayOf(contactA), minDistance)
-    }
-
-    private fun findConcavePolygonContactPoints(
-        poly: ConcavePolygon,
-        circle: Circle,
-        info: CollisionInfo,
-    ): Array<Vector2> {
-        val contactPoints: MutableList<Vector2> = mutableListOf()
-        var minDistance: Float = Float.MAX_VALUE
-
-        // Check for contact points between the circle and every sub-polygon
-        for (subPoly: Polygon in poly.subPolygons) {
-            val subInfo: CollisionInfo = testCollision(subPoly, circle)
-            if (!subInfo.hasCollision) continue
-
-            val (subContactPoints: Array<Vector2>, sqrDistance: Float) = findContactPoints(subPoly, circle, subInfo)
-
-            if (nearlyEquals(sqrDistance, minDistance)) {
-                // Add the contact points that are not near any existing contact points
-                for (contactPoint: Vector2 in subContactPoints) {
-                    if (!isNearExisting(contactPoint, contactPoints)) {
-                        contactPoints.add(contactPoint)
-                    }
-                }
-            } else if (sqrDistance < minDistance) {
-                // Replace the contact points with the new ones
-                minDistance = sqrDistance
-                contactPoints.clear()
-                contactPoints.addAll(subContactPoints)
-            }
-        }
-
-        return contactPoints.toTypedArray()
     }
 
     private fun findConcavePolygonContactPoints(polyA: Polygon, polyB: Polygon, info: CollisionInfo): Array<Vector2> {

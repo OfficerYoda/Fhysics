@@ -118,6 +118,15 @@ object CollisionSolver {
             objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
             objB.velocity += impulse * objB.invMass
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
+
+            DebugDrawer.addDebugVector(contactPoints[i], info.normal, Color.PINK, 1)
+            if (objA is Circle) {
+                DebugDrawer.addDebugVector(contactPoints[i], contactPoints[i] - objA.position, Color.BLUE, 1)
+            } else if (objB is Circle) {
+                DebugDrawer.addDebugVector(contactPoints[i], contactPoints[i] - objB.position, Color.BLUE, 1)
+            }
+
+            DebugDrawer.addDebugPoint(contactPoints[i] - info.normal * info.depth * 10f, Color.GREEN, 1)
         }
     }
 
@@ -134,7 +143,6 @@ object CollisionSolver {
 
         val overlap: Vector2 = info.depth * info.normal
 
-        // if both objects are non-static, separate them by their mass ratio else move the non-static object by the overlap
         if (!objA.static) objA.position -= if (!objB.static) 0.5f * overlap else overlap
         if (!objB.static) objB.position += if (!objA.static) 0.5f * overlap else overlap
     }

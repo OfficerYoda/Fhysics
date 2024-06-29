@@ -1,8 +1,6 @@
 package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.PolygonCreator
-import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -59,14 +57,14 @@ object FhysicsCore {
 //        spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).static = true
 
         // Concave poly-poly fail case
-        spawn(Rectangle(Vector2(50.0f, 50.0f), 50.0f, 5.0f, Math.toRadians(45.0).toFloat())).static = true
-        val vertices: Array<Vector2> = arrayOf(
-            Vector2(x = 63.15453f, y = 67.090096f),
-            Vector2(x = 65.909904f, y = 71.445435f),
-            Vector2(x = 69.445435f, y = 67.909904f),
-            Vector2(x = 65.090096f, y = 75.554565f),
-        )
-        spawn(PolygonCreator.createPolygon(vertices))
+//        spawn(Rectangle(Vector2(50.0f, 50.0f), 50.0f, 5.0f, Math.toRadians(45.0).toFloat())).static = true
+//        val vertices: Array<Vector2> = arrayOf(
+//            Vector2(x = 63.15453f, y = 67.090096f),
+//            Vector2(x = 65.909904f, y = 71.445435f),
+//            Vector2(x = 69.445435f, y = 67.909904f),
+//            Vector2(x = 65.090096f, y = 75.554565f),
+//        )
+//        spawn(PolygonCreator.createPolygon(vertices))
 
         // Concave poly-circle fail case
 //        val vertices = arrayOf(
