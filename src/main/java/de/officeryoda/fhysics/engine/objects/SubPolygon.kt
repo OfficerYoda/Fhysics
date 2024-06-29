@@ -15,15 +15,11 @@ class SubPolygon(
     private val centerOffset: Vector2 = center - position
 
     override val position: Vector2
-        get() = super.position + centerOffset
+        get() = super.position + centerOffset.rotated(parent.angle)
 
     override var angle: Float
         get() = parent.angle
         set(value) = throw Exception("This should never happen: SubPolygon.angle is read-only")
-
-    override fun getTransformedVertices(): Array<Vector2> {
-        return super.getTransformedVertices()
-    }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)
