@@ -36,10 +36,13 @@ abstract class FhysicsObject protected constructor(
                 // Stop any movement if the object is set to static
                 acceleration.set(Vector2.ZERO)
                 velocity.set(Vector2.ZERO)
+                angularVelocity = 0f
+                invMass = 1f / mass
+                invInertia = 1f / inertia
+            } else {
+                invMass = 0f
+                invInertia = 0f
             }
-
-            invMass = if (value) 0f else 1f / mass
-            invInertia = if (value) 0f else 1f / inertia
         }
 
     var mass: Float = mass

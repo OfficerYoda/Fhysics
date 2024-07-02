@@ -71,7 +71,8 @@ object CollisionSolver {
         // No need to solve collision if both objects are static
         if (objA.static && objB.static) return
 
-        val normalForces: ArrayList<Float> = solveImpulse(objA, objB, contactPoints, info)
+        val normalForces: ArrayList<Float> =
+            solveImpulse(objA, objB, contactPoints, info)
         solveFriction(objA, objB, contactPoints, info, normalForces)
     }
 
@@ -151,6 +152,8 @@ object CollisionSolver {
 
         // Calculate the friction for each contact point
         for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
+            if (normalForces[i] == 0f) continue
+
             val ra: Vector2 = contactPoint - objA.position
             val rb: Vector2 = contactPoint - objB.position
 
