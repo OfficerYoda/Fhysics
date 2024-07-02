@@ -12,6 +12,9 @@ import de.officeryoda.fhysics.rendering.RenderUtil.setStrokeColor
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreen
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenX
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenY
+import de.officeryoda.fhysics.rendering.SceneListener.hoveredObject
+import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
+import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
 import javafx.animation.AnimationTimer
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
@@ -44,11 +47,6 @@ class FhysicsObjectDrawer : Application() {
     // Window size properties
     val width: Double get() = stage.scene.width
     val height: Double get() = stage.scene.height // Use scene height to prevent including the window's title bar
-
-    // Object modification properties TODO move this somewhere else
-    var spawnPreview: FhysicsObject? = null
-    var hoveredObject: FhysicsObject? = null
-    var selectedObject: FhysicsObject? = null
 
     // Draw timer
     val drawStopwatch = Stopwatch()
@@ -350,7 +348,7 @@ class FhysicsObjectDrawer : Application() {
 
         // Check if the mouse is still hovering over the object
         val obj: FhysicsObject? =
-            this.hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
+            hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
                 ?: QuadTree.root.query(SceneListener.mouseWorldPos)
 
         // If the object is in the remove queue, don't return it

@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.PolygonCreator
 import de.officeryoda.fhysics.engine.objects.PolygonCreator.validatePolyVertices
@@ -19,12 +20,17 @@ import kotlin.math.sign
 object SceneListener {
 
     /**
+     * The minimum distance the mouse has to be dragged to spawn a rectangle
+     */
+    private const val MIN_DRAG_DISTANCE: Float = 2.0F
+
+    /**
      * The position of the mouse in world space
      */
     val mouseWorldPos: Vector2 = Vector2.ZERO
 
     /**
-     * The position of the mouse when the right mouse button was pressed
+     * Whether the right mouse button is pressed
      */
     private var rightPressed: Boolean = false
 
@@ -52,11 +58,6 @@ object SceneListener {
         }
 
     /**
-     * The minimum distance the mouse has to be dragged to spawn a rectangle
-     */
-    private const val MIN_DRAG_DISTANCE: Float = 2.0F
-
-    /**
      * The position of the mouse when the dragging started
      */
     private var dragStartWorldPos: Vector2? = null
@@ -80,6 +81,21 @@ object SceneListener {
      * Whether the polygon is valid
      */
     var validPolygon = true
+
+    /**
+     * The preview object to spawn
+     */
+    var spawnPreview: FhysicsObject? = null
+
+    /**
+     * The object that is currently hovered by the mouse
+     */
+    var hoveredObject: FhysicsObject? = null
+
+    /**
+     * The object that is currently selected
+     */
+    var selectedObject: FhysicsObject? = null
 
     /**
      * Handles mouse pressed events
@@ -121,11 +137,11 @@ object SceneListener {
         }
 
         // Select object if hovered, otherwise spawn object
-        if (drawer.hoveredObject != null) {
-            drawer.selectedObject = drawer.hoveredObject
+        if (hoveredObject != null) {
+            selectedObject = hoveredObject
             UIController.instance.expandObjectPropertiesPane()
         } else {
-            drawer.selectedObject = null
+            selectedObject = null
         }
     }
 
@@ -168,12 +184,12 @@ object SceneListener {
         when {
             hasDraggedMinDistance() -> {
                 if (!canceledDragSpawn) {
-                    FhysicsCore.spawn(drawer.spawnPreview!!.clone())
+                    FhysicsCore.spawn(spawnPreview!!.clone())
                     UIController.instance.updateSpawnPreview()
                 }
             }
 
-            drawer.hoveredObject == null && !canceledDragSpawn -> {
+            hoveredObject == null && !canceledDragSpawn -> {
                 spawnObject()
             }
         }
@@ -245,7 +261,7 @@ object SceneListener {
         mouseWorldPos.x = RenderUtil.screenToWorldX(e.x.toFloat()).toFloat()
         mouseWorldPos.y = RenderUtil.screenToWorldY(e.y.toFloat()).toFloat()
 
-        drawer.spawnPreview?.position?.set(mouseWorldPos)
+        spawnPreview?.position?.set(mouseWorldPos)
     }
 
     /**
@@ -279,7 +295,7 @@ object SceneListener {
             KeyCode.K -> QuadTree.capacity += 5
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
             KeyCode.Q -> println(QuadTree.root)
-            KeyCode.S -> println(drawer.selectedObject)
+            KeyCode.S -> println(selectedObject)
             else -> {}
         }
     }
@@ -315,7 +331,7 @@ object SceneListener {
         val rect = Rectangle(pos, size.x, size.y)
         rect.color = Color(rect.color.red, rect.color.green, rect.color.blue, 128)
 
-        drawer.spawnPreview = rect
+        spawnPreview = rect
     }
 
     /**
@@ -347,7 +363,7 @@ object SceneListener {
 
         if (!validParams) return
 
-        FhysicsCore.spawn(drawer.spawnPreview!!.clone())
+        FhysicsCore.spawn(spawnPreview!!.clone())
     }
 
     /**
