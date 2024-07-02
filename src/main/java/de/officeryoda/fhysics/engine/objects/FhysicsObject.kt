@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.FhysicsCore.dt
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
@@ -11,8 +12,10 @@ abstract class FhysicsObject protected constructor(
     open val position: Vector2,
     val velocity: Vector2 = Vector2.ZERO,
     mass: Float,
-    var rotation: Float = 0f, // in radians
+    open var angle: Float = 0f, // In radians
+    var angularVelocity: Float = 0f, // In radians per second
 ) {
+
     val id: Int = FhysicsCore.nextId()
     var color: Color = colorFromId()
     val boundingBox: BoundingBox = BoundingBox()
@@ -36,6 +39,7 @@ abstract class FhysicsObject protected constructor(
             }
 
             invMass = if (value) 0f else 1f / mass
+            invInertia = if (value) 0f else 1f / inertia
         }
 
     var mass: Float = mass
@@ -49,6 +53,20 @@ abstract class FhysicsObject protected constructor(
     private var lastUpdate = -1
     private var lastBBoxUpdate = -1
 
+    val inertia: Float by lazy { calculateInertia() }
+    var invInertia: Float = -1f
+        get() {
+            if (field == -1f) {
+                field = if (static) 0f else 1f / inertia
+            }
+            return field
+        }
+
+    var restitution: Float = 0.5f
+        set(value) {
+            field = Math.clamp(value, 0f, 1f)
+        }
+
     open fun updatePosition() {
         // Static objects don't move
         if (static) return
@@ -56,26 +74,38 @@ abstract class FhysicsObject protected constructor(
         if (lastUpdate == FhysicsCore.updateCount) return
         lastUpdate = FhysicsCore.updateCount
 
-        val dt: Float = FhysicsCore.dt
-//        val damping = 0.00F
+        val damping = 0.0f
 
+        // Update Position
         acceleration += FhysicsCore.gravityAt(position)
         // Update velocity before position (semi-implicit Euler)
         velocity += acceleration * dt
-//        velocity *= (1 - damping)
+        velocity *= (1 - damping)
         position += velocity * dt
         acceleration.set(Vector2.ZERO)
+
+        // Update rotation
+        angularVelocity *= (1 - damping)
+        angle += angularVelocity * dt
     }
 
     abstract fun project(axis: Vector2): Projection
 
     abstract fun contains(pos: Vector2): Boolean
 
+    abstract fun calculateInertia(): Float
+
     abstract fun testCollision(other: FhysicsObject): CollisionInfo
 
     abstract fun testCollision(other: Circle): CollisionInfo
 
     abstract fun testCollision(other: Polygon): CollisionInfo
+
+    abstract fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
+
+    abstract fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2>
+
+    abstract fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2>
 
     abstract fun clone(): FhysicsObject
 
@@ -90,7 +120,7 @@ abstract class FhysicsObject protected constructor(
     }
 
     override fun toString(): String {
-        return "FhysicsObject(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color)"
+        return "FhysicsObject(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color)"
     }
 
     // This method exist to make the list.contains() method faster

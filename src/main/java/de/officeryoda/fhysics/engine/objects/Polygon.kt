@@ -11,15 +11,17 @@ abstract class Polygon(
     position: Vector2,
     velocity: Vector2,
     val vertices: Array<Vector2>, // must be CCW and in global space
-    rotation: Float = 0f,
-) : FhysicsObject(position, velocity, calculatePolygonArea(vertices), rotation) {
+    angle: Float,
+    angularVelocity: Float,
+) : FhysicsObject(position, velocity, calculatePolygonArea(vertices), angle, angularVelocity) {
 
     // Used for creating every polygon except sub-polygons
-    constructor(vertices: Array<Vector2>, rotation: Float) : this(
+    constructor(vertices: Array<Vector2>, angle: Float) : this(
         calculatePolygonCenter(vertices),
         Vector2.ZERO,
         vertices,
-        rotation
+        angle,
+        0f
     )
 
     init {
@@ -30,7 +32,7 @@ abstract class Polygon(
     open fun getAxes(): Set<Vector2> {
         // Calculate the normals of the polygon's sides based on its rotation
         val axes: MutableSet<Vector2> = mutableSetOf()
-        val transformedVertices: List<Vector2> = getTransformedVertices()
+        val transformedVertices: Array<Vector2> = getTransformedVertices()
 
         for (i: Int in transformedVertices.indices) {
             val j: Int = (i + 1) % transformedVertices.size
@@ -43,7 +45,7 @@ abstract class Polygon(
     }
 
     override fun project(axis: Vector2): Projection {
-        val transformedVertices: List<Vector2> = getTransformedVertices()
+        val transformedVertices: Array<Vector2> = getTransformedVertices()
 
         // Project the polygon's vertices onto the axis
         var min: Float = Float.POSITIVE_INFINITY
@@ -60,7 +62,7 @@ abstract class Polygon(
     override fun contains(pos: Vector2): Boolean {
         if (!boundingBox.contains(pos)) return false
 
-        val transformedVertices: List<Vector2> = getTransformedVertices()
+        val transformedVertices: Array<Vector2> = getTransformedVertices()
         var intersects = 0
 
         for (i: Int in transformedVertices.indices) {
@@ -78,14 +80,33 @@ abstract class Polygon(
         return intersects and 1 == 1
     }
 
+    override fun calculateInertia(): Float {
+        var numerator = 0.0f
+        var denominator = 0.0f
+        val n: Int = vertices.size
+
+        for (i: Int in 0 until n) {
+            val current: Vector2 = vertices[i]
+            val next: Vector2 = vertices[(i + 1) % n]
+
+            val crossProduct: Float = current.cross(next)
+            val distanceTerm: Float = current.dot(current) + current.dot(next) + next.dot(next)
+
+            numerator += crossProduct * distanceTerm
+            denominator += crossProduct
+        }
+
+        return (mass * numerator) / (6 * denominator)
+    }
+
     /**
      * Transforms the vertices from local space to world space
      * taking into account the position and rotation of the polygon
      *
      * @return The transformed vertices
      */
-    open fun getTransformedVertices(): List<Vector2> {
-        return vertices.map { it.rotatedAround(Vector2.ZERO, rotation) + super.position }
+    open fun getTransformedVertices(): Array<Vector2> {
+        return vertices.map { it.rotatedAround(Vector2.ZERO, angle) + super.position }.toTypedArray()
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo
@@ -96,6 +117,16 @@ abstract class Polygon(
 
     override fun testCollision(other: Polygon): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
+    }
+
+    abstract override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
+
+    override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
+        return CollisionFinder.findContactPoints(this, other, info).first
+    }
+
+    override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
+        return CollisionFinder.findContactPoints(this, other, info).first
     }
 
     companion object {

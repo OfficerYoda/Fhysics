@@ -3,10 +3,18 @@ package de.officeryoda.fhysics.engine.objects
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 
-class ConvexPolygon(
-    vertices: Array<Vector2>, // must be CCW and in global space
-    angle: Float = 0f,
-) : Polygon(vertices, angle) {
+class BorderObject(
+    private val axis: Vector2,
+    vertices: Array<Vector2>,
+) : Polygon(vertices, 0f) {
+
+    init {
+        static = true
+    }
+
+    override fun getAxes(): Set<Vector2> {
+        return setOf(axis)
+    }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)
@@ -17,10 +25,6 @@ class ConvexPolygon(
     }
 
     override fun clone(): FhysicsObject {
-        return ConvexPolygon(vertices.map { position + it.copy() }.toTypedArray(), angle)
-    }
-
-    override fun toString(): String {
-        return "Polygon(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, vertices=${vertices.contentToString()})"
+        return BorderObject(axis, getTransformedVertices())
     }
 }

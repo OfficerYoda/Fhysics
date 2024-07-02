@@ -47,8 +47,8 @@ data class BoundingBox(
      * @param rect The rectangle to set the bounding box from.
      */
     private fun setFromRectangle(rect: Rectangle) {
-        val cos: Float = cos(rect.rotation)
-        val sin: Float = sin(rect.rotation)
+        val cos: Float = cos(rect.angle)
+        val sin: Float = sin(rect.angle)
 
         val halfWidth: Float = rect.width / 2
         val halfHeight: Float = rect.height / 2
@@ -93,7 +93,7 @@ data class BoundingBox(
      * @param poly The polygon to set the bounding box from.
      */
     private fun setFromPolygon(poly: Polygon) {
-        val transformedVertices: List<Vector2> = poly.getTransformedVertices()
+        val transformedVertices: Array<Vector2> = poly.getTransformedVertices()
 
         var minX: Float = Float.MAX_VALUE
         var maxX: Float = Float.MIN_VALUE

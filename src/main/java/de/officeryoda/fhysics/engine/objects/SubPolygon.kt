@@ -8,15 +8,25 @@ class SubPolygon(
     center: Vector2,
     velocity: Vector2,
     vertices: Array<Vector2>,
-    rotation: Float = 0f,
-) : Polygon(position, velocity, vertices, rotation) {
+    angularVelocity: Float,
+    private val parent: ConcavePolygon,
+) : Polygon(position, velocity, vertices, parent.angle, angularVelocity) {
 
     private val centerOffset: Vector2 = center - position
+
     override val position: Vector2
-        get() = super.position + centerOffset
+        get() = super.position + centerOffset.rotated(parent.angle)
+
+    override var angle: Float
+        get() = parent.angle
+        set(value) = throw Exception("This should never happen: SubPolygon.angle is read-only")
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)
+    }
+
+    override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
+        return other.findContactPoints(this, info)
     }
 
     override fun clone(): FhysicsObject {
@@ -25,7 +35,8 @@ class SubPolygon(
             calculatePolygonCenter(vertices),
             velocity.copy(),
             vertices.map { it.copy() + centerOffset }.toTypedArray(),
-            rotation
+            angularVelocity,
+            parent
         )
     }
 

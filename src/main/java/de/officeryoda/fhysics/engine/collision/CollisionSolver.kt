@@ -1,41 +1,119 @@
 package de.officeryoda.fhysics.engine.collision
 
-import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.Projection
-import de.officeryoda.fhysics.engine.ProjectionResult
+import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.objects.BorderObject
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.rendering.UIController
+import de.officeryoda.fhysics.rendering.UIController.Companion.wallElasticity
 
 object CollisionSolver {
 
+    private val borderObjects: Array<BorderObject>
+
+    init {
+        // Create the border objects
+        val borderObjectList: MutableList<BorderObject> = mutableListOf()
+        val bigNumber = 1E6f
+
+        // Right edge
+        var vertices: Array<Vector2> = arrayOf(
+            Vector2(BORDER.x + BORDER.width, bigNumber),
+            Vector2(BORDER.x + BORDER.width, -bigNumber),
+            Vector2(bigNumber, -bigNumber),
+            Vector2(bigNumber, bigNumber)
+        )
+        borderObjectList.add(BorderObject(Vector2(1f, 0f), vertices))
+
+        // Left edge
+        vertices = arrayOf(
+            Vector2(-bigNumber, bigNumber),
+            Vector2(-bigNumber, -bigNumber),
+            Vector2(BORDER.x, -bigNumber),
+            Vector2(BORDER.x, bigNumber)
+        )
+        borderObjectList.add(BorderObject(Vector2(-1f, 0f), vertices))
+
+        // Top edge
+        vertices = arrayOf(
+            Vector2(-bigNumber, bigNumber),
+            Vector2(-bigNumber, BORDER.y + BORDER.height),
+            Vector2(bigNumber, BORDER.y + BORDER.height),
+            Vector2(bigNumber, bigNumber)
+        )
+        borderObjectList.add(BorderObject(Vector2(0f, 1f), vertices))
+
+        // Bottom edge
+        vertices = arrayOf(
+            Vector2(-bigNumber, BORDER.y),
+            Vector2(-bigNumber, -bigNumber),
+            Vector2(bigNumber, -bigNumber),
+            Vector2(bigNumber, BORDER.y)
+        )
+        borderObjectList.add(BorderObject(Vector2(0f, -1f), vertices))
+
+        borderObjects = borderObjectList.toTypedArray()
+    }
+
     /**
-     * Solves a collision between two objects in a perfectly elastic manner
+     * Solves the collision between two objects
      *
      * @param info The CollisionInfo object containing information about the collision
+     * @param contactPoints The contact points of the collision
      */
-    fun solveCollision(info: CollisionInfo) {
-        // separate the objects to prevent tunneling and other anomalies
-        separateOverlappingObjects(info)
-
-        // Get the objects
+    fun solveCollision(info: CollisionInfo, contactPoints: Array<Vector2>) {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
-        // Calculate relative velocity before collision; circleB doesn't move relatively speaking
-        val relativeVelocity: Vector2 = objB.velocity - objA.velocity
+        // No need to solve collision if both objects are static
+        if (objA.static && objB.static) return
 
-        // Return if the objects are already moving away from each other
-        if (relativeVelocity.dot(info.normal) >= 0) return
+        val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution
+//        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
+        val impulseList: ArrayList<Vector2> = arrayListOf()
 
-        val impulseMagnitude: Float = -2f * relativeVelocity.dot(info.normal) / (objA.invMass + objB.invMass)
-        val impulse: Vector2 = impulseMagnitude * info.normal
+        // Calculate the impulses for each contact point
+        for (contactPoint: Vector2 in contactPoints) {
+            val ra: Vector2 = contactPoint - objA.position
+            val rb: Vector2 = contactPoint - objB.position
 
-        objA.velocity -= impulse * objA.invMass
-        objB.velocity += impulse * objB.invMass
+            val raPerp = Vector2(-ra.y, ra.x)
+            val rbPerp = Vector2(-rb.y, rb.x)
+
+            val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
+            val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
+
+            val relativeVelocity: Vector2 = totalVelocityB - totalVelocityA
+
+            // Continue if the objects are already moving away from each other
+            val contactVelocityMag: Float = relativeVelocity.dot(info.normal)
+            if (contactVelocityMag > 0) continue
+
+            // Calculate the impulse
+            val raPerpDotNormal: Float = raPerp.dot(info.normal)
+            val rbPerpDotNormal: Float = rbPerp.dot(info.normal)
+
+            var impulseMag: Float = -(1f + e) * contactVelocityMag
+            impulseMag /= objA.invMass + objB.invMass +
+                    (raPerpDotNormal * raPerpDotNormal) * objA.invInertia +
+                    (rbPerpDotNormal * rbPerpDotNormal) * objB.invInertia
+            impulseMag /= contactPoints.size // Distribute the impulse over all contact points
+
+            val impulse: Vector2 = impulseMag * info.normal
+            impulseList.add(impulse)
+        }
+
+        // Apply the impulses
+        for (i: Int in impulseList.indices) {
+            val impulse: Vector2 = impulseList[i]
+
+            objA.velocity += -impulse * objA.invMass
+            objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
+            objB.velocity += impulse * objB.invMass
+            objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
+        }
     }
 
     /**
@@ -43,27 +121,21 @@ object CollisionSolver {
      *
      * @param info The CollisionInfo object containing information about the collision
      */
-    private fun separateOverlappingObjects(info: CollisionInfo) {
+    fun separateOverlappingObjects(info: CollisionInfo) {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
         if (objA.static && objB.static) return
 
-        val totalMass: Float =
-            when {
-                !objA.static && !objB.static -> objA.mass + objB.mass
-                objA.static -> objB.mass
-                else -> objA.mass
-            }
-
         val overlap: Vector2 = info.depth * info.normal
 
-        // if both objects are non-static, separate them by their mass ratio else move the non-static object by the overlap
-        if (!objA.static) objA.position -= if (!objB.static) (objB.mass / totalMass) * overlap else overlap
-        if (!objB.static) objB.position += if (!objA.static) (objA.mass / totalMass) * overlap else overlap
+        if (!objA.static) objA.position -= if (!objB.static) 0.5f * overlap else overlap
+        if (!objB.static) objB.position += if (!objA.static) 0.5f * overlap else overlap
     }
 
     fun checkBorderCollision(obj: FhysicsObject) {
+        if (obj.static) return
+
         when (obj) {
             is Circle -> handleCircleBorderCollision(obj)
             is Polygon -> handlePolygonBorderCollision(obj)
@@ -73,51 +145,37 @@ object CollisionSolver {
     private fun handleCircleBorderCollision(obj: Circle) {
         when {
             obj.position.x - obj.radius < 0.0F -> {
-                obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
+                obj.velocity.x = -obj.velocity.x * wallElasticity
                 obj.position.x = obj.radius
             }
 
-            obj.position.x + obj.radius > FhysicsCore.BORDER.width -> {
-                obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
-                obj.position.x = (FhysicsCore.BORDER.width - obj.radius)
+            obj.position.x + obj.radius > BORDER.width -> {
+                obj.velocity.x = -obj.velocity.x * wallElasticity
+                obj.position.x = (BORDER.width - obj.radius)
             }
         }
 
         when {
             obj.position.y - obj.radius < 0.0F -> {
-                obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
+                obj.velocity.y = -obj.velocity.y * wallElasticity
                 obj.position.y = obj.radius
             }
 
-            obj.position.y + obj.radius > FhysicsCore.BORDER.height -> {
-                obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
-                obj.position.y = (FhysicsCore.BORDER.height - obj.radius)
+            obj.position.y + obj.radius > BORDER.height -> {
+                obj.velocity.y = -obj.velocity.y * wallElasticity
+                obj.position.y = (BORDER.height - obj.radius)
             }
         }
     }
 
     private fun handlePolygonBorderCollision(obj: Polygon) {
-        val axesBorderProjection: List<Pair<Vector2, Projection>> = listOf(
-            Pair(Vector2(-1f, 0f), Projection(Float.MIN_VALUE, FhysicsCore.BORDER.x)),
-            Pair(Vector2(1f, 0f), Projection(FhysicsCore.BORDER.x + FhysicsCore.BORDER.width, Float.MAX_VALUE)),
-            Pair(Vector2(0f, -1f), Projection(Float.MIN_VALUE, FhysicsCore.BORDER.y)),
-            Pair(Vector2(0f, 1f), Projection(FhysicsCore.BORDER.y + FhysicsCore.BORDER.height, Float.MAX_VALUE))
-        )
-
-        axesBorderProjection.forEach { (axis: Vector2, borderProj: Projection) ->
-            val projection: Projection = obj.project(axis)
-            val projResult = ProjectionResult(projection, borderProj)
-
-            if (projResult.hasOverlap) {
-                val overlap: Float = projResult.getOverlap()
-
-                obj.position -= axis * overlap
-                when {
-                    axis.x != 0f -> obj.velocity.x = -obj.velocity.x * UIController.wallElasticity
-                    axis.y != 0f -> obj.velocity.y = -obj.velocity.y * UIController.wallElasticity
-                }
+        for (border: BorderObject in borderObjects) {
+            val info: CollisionInfo = border.testCollision(obj)
+            if (info.hasCollision) {
+                separateOverlappingObjects(info)
+                val contactPoints: Array<Vector2> = border.findContactPoints(obj, info)
+                solveCollision(info, contactPoints)
             }
         }
     }
-
 }

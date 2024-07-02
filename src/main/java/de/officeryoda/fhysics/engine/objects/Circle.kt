@@ -17,7 +17,11 @@ class Circle(
     }
 
     override fun contains(pos: Vector2): Boolean {
-        return pos.sqrDistance(position) <= radius * radius
+        return pos.sqrDistanceTo(position) <= radius * radius
+    }
+
+    override fun calculateInertia(): Float {
+        return (mass * radius * radius) / 2f
     }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
@@ -30,6 +34,18 @@ class Circle(
 
     override fun testCollision(other: Polygon): CollisionInfo {
         return CollisionFinder.testCollision(other, this)
+    }
+
+    override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
+        return other.findContactPoints(this, info)
+    }
+
+    override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
+        return CollisionFinder.findContactPoints(this, other, info).first
+    }
+
+    override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
+        return CollisionFinder.findContactPoints(other, this, info).first
     }
 
     override fun clone(): FhysicsObject {

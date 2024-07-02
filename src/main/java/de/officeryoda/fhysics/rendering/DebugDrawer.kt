@@ -33,7 +33,7 @@ object DebugDrawer {
     private val debugLines: MutableList<DebugLine> = ArrayList()
     private val debugVectors: MutableList<DebugVector> = ArrayList()
 
-    /// =====Draw functions=====
+    /// region =====Draw functions=====
     fun drawDebug() {
         if (UIController.drawQuadTree) QuadTree.root.drawNode(drawer)
         drawDebugPoints()
@@ -58,35 +58,32 @@ object DebugDrawer {
             // Update the duration of the point
             // If the max duration is reached remove the point
             if (point.durationFrames > 0) {
-                point.durationFrames--
+                if (FhysicsCore.running) {
+                    point.durationFrames--
+                }
             } else {
-                debugPoints.add(point)
+                debugPoints.remove(point)
             }
         }
     }
 
     private fun drawDebugLines() {
-        gc.lineWidth = 2.0
-
         for (line: DebugLine in debugLines.toList()) {
             RenderUtil.setStrokeColor(line.color)
             strokeLine(line.start, line.end)
 
-            // Update the duration of the line
-            // If the max duration is reached remove the line
+            // Only decrease the duration if the simulation is running
             if (line.durationFrames > 0) {
-                line.durationFrames--
+                if (FhysicsCore.running) {
+                    line.durationFrames--
+                }
             } else {
                 debugLines.remove(line)
             }
         }
-
-        gc.lineWidth = 1.0
     }
 
     private fun drawDebugVectors() {
-        gc.lineWidth = 2.0
-
         // Draw the vectors as an arrow from the support to the direction
         for (vector: DebugVector in debugVectors.toList()) {
             RenderUtil.setStrokeColor(vector.color)
@@ -95,13 +92,13 @@ object DebugDrawer {
             // Update the duration of the vector
             // If the max duration is reached remove the vector
             if (vector.durationFrames > 0) {
-                vector.durationFrames--
+                if (FhysicsCore.running) {
+                    vector.durationFrames--
+                }
             } else {
                 debugVectors.remove(vector)
             }
         }
-
-        gc.lineWidth = 1.0
     }
 
     private fun strokeLine(start: Vector2, end: Vector2) {
@@ -133,31 +130,32 @@ object DebugDrawer {
     }
 
     private fun drawStats() {
-        val stats: ArrayList<String> = ArrayList()
+        val stats: MutableList<String> = mutableListOf()
 
-        if (UIController.drawMSPU || UIController.drawUPS) {
-            if (UIController.drawMSPU) {
-                stats.add("MSPU: ${FhysicsCore.updateTimer.roundedString()}")
-            }
+        if (UIController.drawQTCapacity)
+            stats.add("QuadTree Capacity: ${QuadTree.capacity}")
 
-            if (UIController.drawUPS) {
-                val mspu: Double = FhysicsCore.updateTimer.average() // Milliseconds per Update
-                val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
-                val upsRounded: String = String.format(Locale.US, "%.2f", ups)
-                stats.add("UPS: $upsRounded")
-            }
+        if (UIController.drawMSPU) {
+            stats.add("MSPU: ${FhysicsCore.updateStopwatch.roundedString()}")
+        }
+
+        if (UIController.drawUPS) {
+            val mspu: Double = FhysicsCore.updateStopwatch.average()
+            val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
+            val upsRounded: String = String.format(Locale.US, "%.2f", ups)
+            stats.add("UPS: $upsRounded")
         }
 
         if (UIController.drawObjectCount)
             stats.add("Objects: ${QuadTree.root.countUnique()}")
 
-        if (UIController.drawQTCapacity)
-            stats.add("QuadTree Capacity: ${QuadTree.capacity}")
+        if (UIController.drawRenderTime)
+            stats.add("Render Time: ${drawer.drawStopwatch.roundedString()}")
 
-        drawStatsList(stats)
+        drawStatsList(stats.reversed()) // Reverse to make it same order as in settings
     }
 
-    private fun drawStatsList(stats: ArrayList<String>) {
+    private fun drawStatsList(stats: List<String>) {
         val height: Double = gc.canvas.height - FhysicsObjectDrawer.TITLE_BAR_HEIGHT
         val fontSize: Double = height / 30.0 // Adjust the divisor for the desired scaling
         val font = Font("Spline Sans", fontSize)
@@ -168,7 +166,7 @@ object DebugDrawer {
         val lineHeight: Double = font.size
         val borderSpacing = 5.0
 
-        for (i in 0 until stats.size) {
+        for (i: Int in 0 until stats.size) {
             val text: String = stats[i]
 
             if (UIController.drawQuadTree) {
@@ -239,7 +237,9 @@ object DebugDrawer {
         gc.fillText(text, centerX, centerY)
     }
 
-    /// =====Debug add functions=====
+    /// endregion
+
+    /// region =====Debug add-functions=====
     fun addDebugPoint(position: Vector2, color: Color = Color.RED, durationFrames: Int = 240) {
         debugPoints.add(DebugPoint(position, color, durationFrames))
     }
@@ -251,4 +251,6 @@ object DebugDrawer {
     fun addDebugVector(support: Vector2, direction: Vector2, color: Color = Color.BLUE, durationFrames: Int = 240) {
         debugVectors.add(DebugVector(support, direction, color, durationFrames))
     }
+
+    /// endregion
 }

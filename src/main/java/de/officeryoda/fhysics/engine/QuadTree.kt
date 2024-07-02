@@ -39,7 +39,7 @@ data class QuadTree(
         }
     }
 
-    /// =====Basic functions=====
+    /// region =====Basic functions=====
     private fun insert(obj: FhysicsObject) {
         if (!boundary.overlaps(obj.boundingBox)) return
         if (objects.contains(obj)) return
@@ -106,7 +106,9 @@ data class QuadTree(
         toAdd.clear()
     }
 
-    /// =====Rebuild and update functions=====
+    /// endregion
+
+    /// region =====Rebuild and update functions=====
     fun updateObjectsAndRebuild() {
         if (divided) {
             // Rebuild the children first
@@ -229,7 +231,9 @@ data class QuadTree(
         }
     }
 
-    /// =====Collision functions=====
+    /// endregion
+
+    /// region =====Collision functions=====
     fun handleCollisions() {
         if (divided) {
             handleCollisionsInChildren()
@@ -259,14 +263,17 @@ data class QuadTree(
     private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
         if (objA.static && objB.static) return
 
-        val points: CollisionInfo = objA.testCollision(objB)
+        val info: CollisionInfo = objA.testCollision(objB)
 
-        if (!points.hasCollision) return
-
-        CollisionSolver.solveCollision(points)
+        if (!info.hasCollision) return
+        CollisionSolver.separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
+        val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
+        CollisionSolver.solveCollision(info, contactPoints)
     }
 
-    /// =====Drawing functions=====
+    /// endregion
+
+    /// region =====Drawing functions=====
     fun drawObjects(drawer: FhysicsObjectDrawer) {
         when {
             divided -> {
@@ -296,7 +303,9 @@ data class QuadTree(
         }
     }
 
-    /// =====Async functions=====
+    /// endregion
+
+    /// region =====Async functions=====
     private fun updateObjectsAndRebuildChildrenAsync() {
         val futures: MutableList<Future<*>> = mutableListOf()
         futures.add(threadPool.submit { topLeft!!.updateObjectsAndRebuild() })
@@ -325,7 +334,9 @@ data class QuadTree(
         }
     }
 
-    /// =====Utility functions=====
+    /// endregion
+
+    /// region =====Utility functions=====
     /**
      * Counts the objects in this QuadTree node and its children
      *
@@ -371,6 +382,8 @@ data class QuadTree(
             "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, isMinWidth=$isMinWidth)"
         }
     }
+
+    /// endregion
 
     companion object {
         lateinit var root: QuadTree

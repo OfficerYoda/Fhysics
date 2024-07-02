@@ -15,13 +15,23 @@ data class CollisionInfo(
     val objA: FhysicsObject?,
     val objB: FhysicsObject?,
     val normal: Vector2,
-    val depth: Float,
+    val depth: Float, // Might be negative under some concave polygon collisions conditions
 ) {
 
+    /**
+     * Indicates whether a collision has occurred.
+     */
     val hasCollision: Boolean = depth != Float.NEGATIVE_INFINITY
 
     /**
      * Secondary constructor used to create a CollisionInfo instance when no collision occurred.
      */
     constructor() : this(null, null, Vector2.ZERO, Float.NEGATIVE_INFINITY)
+
+    /**
+     * Returns a string representation of the CollisionInfo object.
+     */
+    override fun toString(): String {
+        return "CollisionInfo(hasCollision=$hasCollision, normal=$normal, depth=$depth, objA.id=${objA?.id}, objB.id=${objB?.id})"
+    }
 }

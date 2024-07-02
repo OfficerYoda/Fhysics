@@ -1,15 +1,10 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.BoundingBox
-import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.*
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
-import de.officeryoda.fhysics.engine.QuadTree
-import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.Circle
-import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Polygon
-import de.officeryoda.fhysics.engine.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
+import de.officeryoda.fhysics.rendering.RenderUtil.darkenColor
 import de.officeryoda.fhysics.rendering.RenderUtil.lerp
 import de.officeryoda.fhysics.rendering.RenderUtil.lerpV2
 import de.officeryoda.fhysics.rendering.RenderUtil.setFillColor
@@ -17,6 +12,9 @@ import de.officeryoda.fhysics.rendering.RenderUtil.setStrokeColor
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreen
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenX
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenY
+import de.officeryoda.fhysics.rendering.SceneListener.hoveredObject
+import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
+import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
 import javafx.animation.AnimationTimer
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
@@ -29,6 +27,7 @@ import javafx.stage.Stage
 import java.awt.Color
 import java.lang.Math.toDegrees
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.sin
 
 // Can't be converted to object because it is a JavaFX Application
@@ -49,12 +48,10 @@ class FhysicsObjectDrawer : Application() {
     val width: Double get() = stage.scene.width
     val height: Double get() = stage.scene.height // Use scene height to prevent including the window's title bar
 
-    // Object modification properties
-    var spawnPreview: FhysicsObject? = null
-    var hoveredObject: FhysicsObject? = null
-    var selectedObject: FhysicsObject? = null
+    // Draw timer
+    val drawStopwatch = Stopwatch()
 
-    /// =====Start functions=====
+    /// region =====Start functions=====
     fun launch() {
         launch(FhysicsObjectDrawer::class.java)
     }
@@ -91,6 +88,8 @@ class FhysicsObjectDrawer : Application() {
         targetZoom = calculateZoom()
         zoom = targetZoom
 
+        gc.lineWidth = 2.0
+
         startAnimationTimer()
 
         stage.show()
@@ -126,15 +125,18 @@ class FhysicsObjectDrawer : Application() {
         }.start()
     }
 
-    /// =====Draw functions=====
+    /// endregion
+
+    /// region =====Draw functions=====
     fun drawFrame() {
+        drawStopwatch.start()
         lerpZoom()
 
         // Clear the stage
         gc.clearRect(0.0, 0.0, width, height)
 
         // Find the hovered object (if any)
-        this.hoveredObject = checkForHoveredObject()
+        hoveredObject = checkForHoveredObject()
 
         // Draw the objects
         QuadTree.root.drawObjects(this)
@@ -145,13 +147,12 @@ class FhysicsObjectDrawer : Application() {
 
         drawBorder()
         DebugDrawer.drawDebug()
+        drawStopwatch.stop()
     }
 
     fun drawObject(obj: FhysicsObject) {
         // Hovered and selected object will be drawn pulsing
-        if (obj === this.hoveredObject || obj === this.selectedObject) {
-            return
-        }
+        if (obj == hoveredObject || obj == selectedObject) return
 
         setFillColor(obj.color)
 
@@ -177,6 +178,8 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawCircle(circle: Circle) {
+        gc.lineWidth = 2.0 * zoom * 0.05
+
         val pos: Vector2 = worldToScreen(circle.position)
         val radius: Double = circle.radius * zoom
 
@@ -186,6 +189,16 @@ class FhysicsObjectDrawer : Application() {
             2 * radius,
             2 * radius
         )
+
+        // Show rotation
+        val end: Vector2 = circle.position + Vector2(cos(circle.angle), sin(circle.angle)) * circle.radius
+        val endScreen: Vector2 = worldToScreen(end)
+
+        // Darken the current fill color and use it as stroke color
+        setStrokeColor(darkenColor(RenderUtil.paintToColor(gc.fill)))
+        gc.strokeLine(pos.x.toDouble(), pos.y.toDouble(), endScreen.x.toDouble(), endScreen.y.toDouble())
+
+        gc.lineWidth = 2.0
     }
 
     private fun drawRectangle(rect: Rectangle) {
@@ -198,7 +211,7 @@ class FhysicsObjectDrawer : Application() {
         gc.translate(pos.x.toDouble(), pos.y.toDouble())
 
         // Rotate around the center of the rectangle
-        gc.rotate(-toDegrees(rect.rotation.toDouble()))
+        gc.rotate(-toDegrees(rect.angle.toDouble()))
 
         // Draw the rectangle
         gc.fillRect(
@@ -213,7 +226,15 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygon(poly: Polygon) {
-        val vertices: List<Vector2> = poly.getTransformedVertices()
+        if (UIController.drawSubPolygons && poly is ConcavePolygon) {
+            for (subPoly: SubPolygon in poly.subPolygons) {
+                setFillColor(subPoly.color)
+                drawPolygon(subPoly)
+            }
+            return
+        }
+
+        val vertices: Array<Vector2> = poly.getTransformedVertices()
 
         val xPoints = DoubleArray(vertices.size)
         val yPoints = DoubleArray(vertices.size)
@@ -275,7 +296,9 @@ class FhysicsObjectDrawer : Application() {
         gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
     }
 
-    /// =====Window size functions=====
+    /// endregion
+
+    /// region =====Window size functions=====
     private fun setWindowSize() {
         // Calculate the window size
         val border: BoundingBox = BORDER
@@ -309,7 +332,9 @@ class FhysicsObjectDrawer : Application() {
         return windowHeight / borderHeight
     }
 
-    /// =====Utility functions=====
+    /// endregion
+
+    /// region =====Utility functions=====
     private fun lerpZoom() {
         // A value I think looks good
         val interpolation = 0.12F
@@ -323,7 +348,7 @@ class FhysicsObjectDrawer : Application() {
 
         // Check if the mouse is still hovering over the object
         val obj: FhysicsObject? =
-            this.hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
+            hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
                 ?: QuadTree.root.query(SceneListener.mouseWorldPos)
 
         // If the object is in the remove queue, don't return it
@@ -337,7 +362,9 @@ class FhysicsObjectDrawer : Application() {
         zoomCenter = targetZoomCenter
     }
 
+    /// endregion
+
     companion object {
-        const val TITLE_BAR_HEIGHT: Double = 39.0 // That's the default height of the window's title bar (in windows)
+        const val TITLE_BAR_HEIGHT: Double = 39.0 // That's the default height of the window's title bar
     }
 }
