@@ -67,6 +67,9 @@ abstract class FhysicsObject protected constructor(
             field = Math.clamp(value, 0f, 1f)
         }
 
+    var frictionStatic: Float = 0.5f
+    var frictionDynamic: Float = 0.3f
+
     open fun updatePosition() {
         // Static objects don't move
         if (static) return
