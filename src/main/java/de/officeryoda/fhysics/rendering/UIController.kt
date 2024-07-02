@@ -10,6 +10,8 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Rectangle
+import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
+import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
@@ -171,7 +173,7 @@ class UIController {
 
     fun updateSpawnPreview() {
         if (spawnObjectType == SpawnObjectType.NOTHING) {
-            drawer.spawnPreview = null
+            spawnPreview = null
             return
         }
 
@@ -188,7 +190,7 @@ class UIController {
         }
 
         obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
-        drawer.spawnPreview = obj
+        spawnPreview = obj
     }
 
     private fun setSpawnFieldAvailability(radius: Boolean, width: Boolean, height: Boolean) {
@@ -225,27 +227,27 @@ class UIController {
     /// region =====Methods: Object Properties=====
     @FXML
     fun onPropertyStaticClicked() {
-        drawer.selectedObject!!.static = cbPropertyStatic.isSelected
+        selectedObject!!.static = cbPropertyStatic.isSelected
     }
 
     @FXML
     fun onPropertyColorAction() {
-        drawer.selectedObject!!.color = RenderUtil.paintToColor(clrPropertyColor.value)
+        selectedObject!!.color = RenderUtil.paintToColor(clrPropertyColor.value)
     }
 
     @FXML
     fun onPropertyMassTyped() {
-        drawer.selectedObject!!.mass = parseTextField(txtPropertyMass, 1.0f)
+        selectedObject!!.mass = parseTextField(txtPropertyMass, 1.0f)
     }
 
     @FXML
     fun onPropertyRotationTyped() {
-        drawer.selectedObject!!.angle = parseTextField(txtPropertyRotation) * DEGREES_TO_RADIANS
+        selectedObject!!.angle = parseTextField(txtPropertyRotation) * DEGREES_TO_RADIANS
     }
 
     @FXML
     fun onPropertyRestitutionTyped() {
-        drawer.selectedObject!!.restitution = parseTextField(txtPropertyRestitution)
+        selectedObject!!.restitution = parseTextField(txtPropertyRestitution)
     }
 
     @FXML
@@ -260,9 +262,9 @@ class UIController {
 
     @FXML
     fun onPropertyRemoveClicked() {
-        drawer.selectedObject?.let {
+        selectedObject?.let {
             QuadTree.removeQueue.add(it)
-            drawer.selectedObject = null
+            selectedObject = null
         }
     }
 
@@ -280,10 +282,10 @@ class UIController {
      * If an object is selected, the fields are enabled and filled with the object's values.
      */
     fun updateObjectPropertiesValues() {
-        apProperties.isDisable = drawer.selectedObject == null
-        if (drawer.selectedObject == null) return
+        apProperties.isDisable = selectedObject == null
+        if (selectedObject == null) return
 
-        val obj: FhysicsObject = drawer.selectedObject!!
+        val obj: FhysicsObject = selectedObject!!
 
         cbPropertyStatic.isSelected = obj.static
         clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
