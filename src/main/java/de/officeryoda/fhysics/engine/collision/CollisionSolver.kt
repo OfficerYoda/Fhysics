@@ -71,6 +71,7 @@ object CollisionSolver {
         if (objA.static && objB.static) return
 
         val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution
+//        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
         val impulseList: ArrayList<Vector2> = arrayListOf()
 
         // Calculate the impulses for each contact point

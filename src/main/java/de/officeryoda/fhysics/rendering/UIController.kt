@@ -44,13 +44,22 @@ class UIController {
     private lateinit var cbPropertyStatic: CheckBox
 
     @FXML
+    private lateinit var clrPropertyColor: ColorPicker
+
+    @FXML
     private lateinit var txtPropertyMass: TextField
 
     @FXML
     private lateinit var txtPropertyRotation: TextField
 
     @FXML
-    private lateinit var clrPropertyColor: ColorPicker
+    lateinit var txtPropertyRestitution: TextField
+
+    @FXML
+    lateinit var txtPropertyFrictionStatic: TextField
+
+    @FXML
+    lateinit var txtPropertyFrictionDynamic: TextField
 
     /// endregion
 
@@ -217,6 +226,11 @@ class UIController {
     }
 
     @FXML
+    fun onPropertyColorAction() {
+        drawer.selectedObject!!.color = RenderUtil.paintToColor(clrPropertyColor.value)
+    }
+
+    @FXML
     fun onPropertyMassTyped() {
         drawer.selectedObject!!.mass = parseTextField(txtPropertyMass, 1.0f)
     }
@@ -227,8 +241,18 @@ class UIController {
     }
 
     @FXML
-    fun onPropertyColorAction() {
-        drawer.selectedObject!!.color = RenderUtil.paintToColor(clrPropertyColor.value)
+    fun onPropertyRestitutionTyped() {
+        drawer.selectedObject!!.restitution = parseTextField(txtPropertyRestitution)
+    }
+
+    @FXML
+    fun onPropertyFrictionStaticTyped() {
+        // TODO
+    }
+
+    @FXML
+    fun onPropertyFrictionDynamicTyped() {
+        // TODO
     }
 
     @FXML
@@ -239,10 +263,19 @@ class UIController {
         }
     }
 
+    /**
+     * Expands the object properties pane.
+     */
     fun expandObjectPropertiesPane() {
         tpProperties.isExpanded = true
     }
 
+    /**
+     * Updates the values of the object properties fields.
+     *
+     * If no object is selected, the fields are disabled.
+     * If an object is selected, the fields are enabled and filled with the object's values.
+     */
     fun updateObjectPropertiesValues() {
         apProperties.isDisable = drawer.selectedObject == null
         if (drawer.selectedObject == null) return
@@ -250,9 +283,14 @@ class UIController {
         val obj: FhysicsObject = drawer.selectedObject!!
 
         cbPropertyStatic.isSelected = obj.static
+        clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
         txtPropertyMass.text = toStringWithTwoDecimalPlaces(obj.mass)
         txtPropertyRotation.text = toStringWithTwoDecimalPlaces(obj.angle * RADIANS_TO_DEGREES)
-        clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
+        txtPropertyRestitution.text = toStringWithTwoDecimalPlaces(obj.restitution)
+//        txtPropertyFrictionStatic.text = toStringWithTwoDecimalPlaces(obj.frictionStatic) // TODO
+//        txtPropertyFrictionDynamic.text = toStringWithTwoDecimalPlaces(obj.frictionDynamic) // TODO
+        txtPropertyRestitution.text = "TODO"
+        txtPropertyFrictionDynamic.text = "TODO"
     }
 
     /**
@@ -421,7 +459,9 @@ class UIController {
         /// region =====Object Properties=====
         restrictToNumericInput(txtPropertyMass, false)
         restrictToNumericInput(txtPropertyRotation)
-
+        restrictToNumericInput(txtPropertyRestitution, false)
+        restrictToNumericInput(txtPropertyFrictionStatic, false)
+        restrictToNumericInput(txtPropertyFrictionDynamic, false)
         /// endregion
 
         /// region =====Spawn Object=====
