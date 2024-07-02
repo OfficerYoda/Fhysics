@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine
 
 import java.util.*
 
-class Timer(private val maxDurations: Int = 50) {
+class Stopwatch(private val maxDurations: Int = 50) {
 
     private val updateDurations: LinkedList<Long> = LinkedList()
     private var startTime: Long = -1L

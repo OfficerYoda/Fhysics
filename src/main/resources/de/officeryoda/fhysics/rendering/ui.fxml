@@ -509,6 +509,12 @@
                               <Tooltip text="The amount of objects in the scene" />
                            </tooltip>
                         </CheckBox>
+                        <CheckBox fx:id="cbRenderTime" mnemonicParsing="false" onMouseClicked="#onRenderTimeClicked"
+                                  prefHeight="17.0" prefWidth="253.0" text="Render time">
+                           <tooltip>
+                              <Tooltip text="The average time it takes to render a frame in ms"/>
+                           </tooltip>
+                        </CheckBox>
                         <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Other" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
                            <font>
                               <Font name="System Italic" size="12.0" />

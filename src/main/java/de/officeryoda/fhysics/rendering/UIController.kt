@@ -128,6 +128,9 @@ class UIController {
     private lateinit var cbObjectCount: CheckBox
 
     @FXML
+    private lateinit var cbRenderTime: CheckBox
+
+    @FXML
     private lateinit var sldWallElasticity: Slider
 
     @FXML
@@ -135,7 +138,7 @@ class UIController {
 
     /// endregion
 
-    /// region =====Spawn Object=====
+    /// region =====Methods: Spawn Object=====
     @FXML
     fun onSpawnNothingClicked() {
         spawnObjectType = SpawnObjectType.NOTHING
@@ -219,7 +222,7 @@ class UIController {
 
     /// endregion
 
-    /// region =====Object Properties=====
+    /// region =====Methods: Object Properties=====
     @FXML
     fun onPropertyStaticClicked() {
         drawer.selectedObject!!.static = cbPropertyStatic.isSelected
@@ -305,7 +308,7 @@ class UIController {
 
     /// endregion
 
-    /// region =====Gravity=====
+    /// region =====Methods: Gravity=====
     @FXML
     fun onGravityDirectionClicked() {
         gravityType = GravityType.DIRECTIONAL
@@ -354,7 +357,7 @@ class UIController {
 
     /// endregion
 
-    /// region =====Time=====
+    /// region =====Methods: Time=====
     @FXML
     fun onTimePauseClicked() {
         FhysicsCore.running = !btnTimePause.isSelected
@@ -374,7 +377,7 @@ class UIController {
 
     /// endregion
 
-    /// region =====QuadTree=====
+    /// region =====Methods: QuadTree=====
     @FXML
     fun onQuadTreeClicked() {
         drawQuadTree = cbQuadTree.isSelected
@@ -408,7 +411,7 @@ class UIController {
 
     /// endregion
 
-    /// region =====Debug=====
+    /// region =====Methods: Debug=====
     @FXML
     fun onBoundingBoxesClicked() {
         drawBoundingBoxes = !drawBoundingBoxes
@@ -437,6 +440,11 @@ class UIController {
     @FXML
     fun onObjectCountClicked() {
         drawObjectCount = cbObjectCount.isSelected
+    }
+
+    @FXML
+    fun onRenderTimeClicked() {
+        drawRenderTime = cbRenderTime.isSelected
     }
 
     @FXML
@@ -597,7 +605,7 @@ class UIController {
         /// region =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
+        val gravityDirection: Vector2 = Vector2(0.0f, -0.0f)
         val gravityPoint: Vector2 = Vector2( // The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
@@ -635,6 +643,8 @@ class UIController {
         var drawUPS: Boolean = false
             private set
         var drawObjectCount: Boolean = false
+            private set
+        var drawRenderTime: Boolean = false
             private set
         var wallElasticity: Float = 0.5f
             private set

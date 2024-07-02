@@ -130,31 +130,32 @@ object DebugDrawer {
     }
 
     private fun drawStats() {
-        val stats: ArrayList<String> = ArrayList()
+        val stats: MutableList<String> = mutableListOf()
 
-        if (UIController.drawMSPU || UIController.drawUPS) {
-            if (UIController.drawMSPU) {
-                stats.add("MSPU: ${FhysicsCore.updateTimer.roundedString()}")
-            }
+        if (UIController.drawQTCapacity)
+            stats.add("QuadTree Capacity: ${QuadTree.capacity}")
 
-            if (UIController.drawUPS) {
-                val mspu: Double = FhysicsCore.updateTimer.average() // Milliseconds per Update
-                val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
-                val upsRounded: String = String.format(Locale.US, "%.2f", ups)
-                stats.add("UPS: $upsRounded")
-            }
+        if (UIController.drawMSPU) {
+            stats.add("MSPU: ${FhysicsCore.updateStopwatch.roundedString()}")
+        }
+
+        if (UIController.drawUPS) {
+            val mspu: Double = FhysicsCore.updateStopwatch.average()
+            val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
+            val upsRounded: String = String.format(Locale.US, "%.2f", ups)
+            stats.add("UPS: $upsRounded")
         }
 
         if (UIController.drawObjectCount)
             stats.add("Objects: ${QuadTree.root.countUnique()}")
 
-        if (UIController.drawQTCapacity)
-            stats.add("QuadTree Capacity: ${QuadTree.capacity}")
+        if (UIController.drawRenderTime)
+            stats.add("Render Time: ${drawer.drawStopwatch.roundedString()}")
 
-        drawStatsList(stats)
+        drawStatsList(stats.reversed()) // Reverse to make it same order as in settings
     }
 
-    private fun drawStatsList(stats: ArrayList<String>) {
+    private fun drawStatsList(stats: List<String>) {
         val height: Double = gc.canvas.height - FhysicsObjectDrawer.TITLE_BAR_HEIGHT
         val fontSize: Double = height / 30.0 // Adjust the divisor for the desired scaling
         val font = Font("Spline Sans", fontSize)
@@ -165,7 +166,7 @@ object DebugDrawer {
         val lineHeight: Double = font.size
         val borderSpacing = 5.0
 
-        for (i in 0 until stats.size) {
+        for (i: Int in 0 until stats.size) {
             val text: String = stats[i]
 
             if (UIController.drawQuadTree) {

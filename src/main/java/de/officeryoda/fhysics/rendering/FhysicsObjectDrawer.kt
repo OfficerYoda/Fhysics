@@ -1,10 +1,7 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.BoundingBox
-import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.*
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
-import de.officeryoda.fhysics.engine.QuadTree
-import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.darkenColor
@@ -48,10 +45,13 @@ class FhysicsObjectDrawer : Application() {
     val width: Double get() = stage.scene.width
     val height: Double get() = stage.scene.height // Use scene height to prevent including the window's title bar
 
-    // Object modification properties
+    // Object modification properties TODO move this somewhere else
     var spawnPreview: FhysicsObject? = null
     var hoveredObject: FhysicsObject? = null
     var selectedObject: FhysicsObject? = null
+
+    // Draw timer
+    val drawStopwatch = Stopwatch()
 
     /// region =====Start functions=====
     fun launch() {
@@ -131,6 +131,7 @@ class FhysicsObjectDrawer : Application() {
 
     /// region =====Draw functions=====
     fun drawFrame() {
+        drawStopwatch.start()
         lerpZoom()
 
         // Clear the stage
@@ -148,6 +149,7 @@ class FhysicsObjectDrawer : Application() {
 
         drawBorder()
         DebugDrawer.drawDebug()
+        drawStopwatch.stop()
     }
 
     fun drawObject(obj: FhysicsObject) {

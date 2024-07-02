@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.*
-import java.util.Timer
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.max
 import kotlin.math.sign
@@ -28,7 +27,7 @@ object FhysicsCore {
 
     var dt: Float = 1.0f / UPDATES_PER_SECOND
     var running: Boolean = true
-    val updateTimer = Timer(50)
+    val updateStopwatch = Stopwatch(50)
 
     // Quad tree capacity optimization
     val qtCapacity: MutableMap<Int, Double> = mutableMapOf()
@@ -97,7 +96,7 @@ object FhysicsCore {
     }
 
     fun update() {
-        updateTimer.start()
+        updateStopwatch.start()
 
         quadTree.insertObjects()
         quadTree.updateObjectsAndRebuild()
@@ -108,7 +107,7 @@ object FhysicsCore {
         if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
         updateCount++
-        updateTimer.stop()
+        updateStopwatch.stop()
     }
 
     fun spawn(obj: FhysicsObject): FhysicsObject {
@@ -119,7 +118,7 @@ object FhysicsCore {
     private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++
         if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame where the rebuild takes place which takes longer
-            val average: Double = updateTimer.average()
+            val average: Double = updateStopwatch.average()
 
             qtCapacity[QuadTree.capacity] = average
             val newCapacity: Int = calculateNextQTCapacity()
