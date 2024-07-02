@@ -62,6 +62,11 @@ abstract class FhysicsObject protected constructor(
             return field
         }
 
+    var restitution: Float = 0.5f
+        set(value) {
+            field = Math.clamp(value, 0f, 1f)
+        }
+
     open fun updatePosition() {
         // Static objects don't move
         if (static) return

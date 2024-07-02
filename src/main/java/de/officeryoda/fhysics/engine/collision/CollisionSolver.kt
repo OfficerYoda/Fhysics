@@ -7,9 +7,7 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.wallElasticity
-import java.awt.Color
 
 object CollisionSolver {
 
@@ -72,7 +70,7 @@ object CollisionSolver {
         // No need to solve collision if both objects are static
         if (objA.static && objB.static) return
 
-        val e = 0.5f // Coefficient of restitution
+        val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution
         val impulseList: ArrayList<Vector2> = arrayListOf()
 
         // Calculate the impulses for each contact point
