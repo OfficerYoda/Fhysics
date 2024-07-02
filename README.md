@@ -6,6 +6,10 @@ This project is a physics engine implemented in Kotlin. It provides functionalit
 
 This project is currently `in development`. The engine is functional and can be used to simulate physics in a 2D environment. Future updates will include additional features and optimizations.
 
-### Why the Name
+## Why the Name?
 
 As a big Star Wars fan, I initially wanted to call it "Force-Physics," but that felt too lengthy. Inspired by NVIDIA's "PhysX" engine, I decided to shorten it while maintaining the phonetic sound of "physics." Hence, "Fhysics" was born.
+
+## License
+
+This project is licensed under the terms of the MIT license. See the [LICENSE](LICENSE) file for the full information.
