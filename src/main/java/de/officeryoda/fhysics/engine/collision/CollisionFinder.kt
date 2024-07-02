@@ -7,8 +7,6 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.ConcavePolygon
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
-import de.officeryoda.fhysics.rendering.DebugDrawer
-import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.min
@@ -68,7 +66,6 @@ object CollisionFinder {
         }
 
         val closestPoint: Vector2 = getClosestPoint(poly, circle.position)
-        DebugDrawer.addDebugPoint(closestPoint, Color.WHITE, 1)
 
         // Do a final check onto the axis from the circle to the closest point
         val finalAxis: Vector2 = (closestPoint - circle.position).normalized()

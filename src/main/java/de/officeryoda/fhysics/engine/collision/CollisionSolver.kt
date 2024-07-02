@@ -66,10 +66,6 @@ object CollisionSolver {
      * @param contactPoints The contact points of the collision
      */
     fun solveCollision(info: CollisionInfo, contactPoints: Array<Vector2>) {
-        for (point: Vector2 in contactPoints) {
-            DebugDrawer.addDebugPoint(point, Color.RED, 1)
-        }
-
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
@@ -118,15 +114,6 @@ object CollisionSolver {
             objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
             objB.velocity += impulse * objB.invMass
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
-
-            DebugDrawer.addDebugVector(contactPoints[i], info.normal, Color.PINK, 1)
-            if (objA is Circle) {
-                DebugDrawer.addDebugVector(contactPoints[i], contactPoints[i] - objA.position, Color.BLUE, 1)
-            } else if (objB is Circle) {
-                DebugDrawer.addDebugVector(contactPoints[i], contactPoints[i] - objB.position, Color.BLUE, 1)
-            }
-
-            DebugDrawer.addDebugPoint(contactPoints[i] - info.normal * info.depth * 10f, Color.GREEN, 1)
         }
     }
 

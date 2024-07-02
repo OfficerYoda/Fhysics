@@ -15,7 +15,7 @@ object FhysicsCore {
 
     // Constants
     val BORDER: BoundingBox = BoundingBox(0.0f, 0.0f, 100.0f, 100.0f) // x and y must be 0.0
-    const val UPDATES_PER_SECOND: Int = 120
+    const val UPDATES_PER_SECOND: Int = 480
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
     private const val QTC_START_STEP_SIZE = 10.0
     val RENDER_LOCK = ReentrantLock()
