@@ -128,10 +128,14 @@ object CollisionSolver {
         for (i: Int in impulseList.indices) {
             val impulse: Vector2 = impulseList[i]
 
-            objA.velocity += -impulse * objA.invMass
-            objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
-            objB.velocity += impulse * objB.invMass
-            objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
+            if (!objA.static) {
+                objA.velocity += -impulse * objA.invMass
+                objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
+            }
+            if (!objB.static) {
+                objB.velocity += impulse * objB.invMass
+                objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
+            }
         }
 
         return normalForces
@@ -196,10 +200,14 @@ object CollisionSolver {
         for (i: Int in frictionList.indices) {
             val frictionImpulse: Vector2 = frictionList[i]
 
-            objA.velocity += -frictionImpulse * objA.invMass
-            objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia
-            objB.velocity += frictionImpulse * objB.invMass
-            objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia
+            if (!objA.static) {
+                objA.velocity += -frictionImpulse * objA.invMass
+                objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia
+            }
+            if (!objB.static) {
+                objB.velocity += frictionImpulse * objB.invMass
+                objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia
+            }
         }
     }
 

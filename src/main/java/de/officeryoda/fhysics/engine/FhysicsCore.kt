@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.extensions.times
@@ -64,6 +65,11 @@ object FhysicsCore {
 //            Vector2(x = 45.0f, y = 70.0f),
 //        )
 //        spawn(PolygonCreator.createPolygon(vertices)).static = true
+
+        // Spawn five circles in the top right
+        for (i: Int in 1..5) {
+            spawn(Circle(Vector2(90f - i * 5, 90f), 1f))
+        }
 
         objectsAtStepSizeIncrease = objectCount
     }
