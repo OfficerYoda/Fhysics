@@ -10,9 +10,9 @@ object PolygonCreator {
      * @param vertices the vertices of the polygon
      * @return the polygon
      */
-    fun createPolygon(vertices: Array<Vector2>): Polygon {
+    fun createPolygon(vertices: Array<Vector2>, angle: Float = 0f): Polygon {
         ensureCCW(vertices)
-        if (!isConcave(vertices)) return ConvexPolygon(vertices)
+        if (!isConcave(vertices)) return ConvexPolygon(vertices, angle)
 
         val triangles: MutableList<Array<Vector2>> = triangulate(vertices.toMutableList())
         // draw triangles
@@ -31,7 +31,7 @@ object PolygonCreator {
 //            }
 //        }
 
-        return ConcavePolygon(vertices, polygonIndices)
+        return ConcavePolygon(vertices, polygonIndices, angle)
     }
 
     /**
