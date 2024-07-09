@@ -11,7 +11,6 @@ import kotlin.math.min
 object CollisionFinder {
 
     /// region =====Collision Detection=====
-
     /**
      * Tests for collision between two circles
      *
@@ -247,11 +246,9 @@ object CollisionFinder {
 
         return closestPointOnEdge
     }
-
     /// endregion
 
     /// region =====Contact Points=====
-
     /**
      * Finds the contact points between two circles
      *
@@ -422,6 +419,5 @@ object CollisionFinder {
         val epsilon = 0.0001f
         return a.sqrDistanceTo(b) < epsilon
     }
-
     /// endregion
 }

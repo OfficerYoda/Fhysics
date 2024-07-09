@@ -73,7 +73,7 @@ object CollisionSolver {
 
         val normalForces: ArrayList<Float> =
             solveImpulse(objA, objB, contactPoints, info)
-//            solveFriction(objA, objB, contactPoints, info, normalForces)
+        solveFriction(objA, objB, contactPoints, info, normalForces)
     }
 
     private fun solveImpulse(

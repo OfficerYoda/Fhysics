@@ -9,7 +9,7 @@ class SubPolygon(
     velocity: Vector2,
     vertices: Array<Vector2>,
     angularVelocity: Float,
-    private val parent: ConcavePolygon,
+    val parent: ConcavePolygon,
 ) : Polygon(position, velocity, vertices, parent.angle, angularVelocity) {
 
     private val centerOffset: Vector2 = center - position
@@ -47,6 +47,6 @@ class SubPolygon(
     }
 
     override fun toString(): String {
-        return "SubPolygon(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, vertices=${vertices.contentToString()})"
+        return "SubPolygon(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, vertices=${vertices.contentToString()}, parent=$parent)"
     }
 }

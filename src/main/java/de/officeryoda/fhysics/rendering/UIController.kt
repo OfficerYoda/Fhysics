@@ -610,7 +610,7 @@ class UIController {
         /// region =====Debug=====
         var drawBoundingBoxes: Boolean = false
             private set
-        var drawSubPolygons: Boolean = true
+        var drawSubPolygons: Boolean = false
             private set
         var drawQTCapacity: Boolean = false
             private set

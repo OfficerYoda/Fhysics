@@ -129,6 +129,10 @@ abstract class Polygon(
         return CollisionFinder.findContactPoints(this, other, info).first
     }
 
+    override fun toString(): String {
+        return "Polygon(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, vertices=$vertices)"
+    }
+
     companion object {
         /**
          * Calculates the area of a polygon

@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.PolygonCreator
 import de.officeryoda.fhysics.engine.objects.Rectangle
@@ -70,6 +71,9 @@ object FhysicsCore {
 //        for (i: Int in 1..5) {
 //            spawn(Circle(Vector2(90f - i * 5, 90f), 1f))
 //        }
+
+        // Just to add one to the color cycle
+        QuadTree.removeQueue.add(spawn(Circle(Vector2(50f, 50f), 1f)))
 
         val vertices: Array<Vector2> = arrayOf(
             Vector2(0f, 0f),
