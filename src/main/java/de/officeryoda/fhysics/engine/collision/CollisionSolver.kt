@@ -9,6 +9,7 @@ import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.UIController.Companion.wallElasticity
 import kotlin.math.abs
+import kotlin.math.sqrt
 
 object CollisionSolver {
 
@@ -82,8 +83,8 @@ object CollisionSolver {
         contactPoints: Array<Vector2>,
         info: CollisionInfo,
     ): ArrayList<Float> {
-        val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution
-        //        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
+//        val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution <-- approximation
+        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
         val impulseList: ArrayList<Vector2> = arrayListOf()
         val normalForces: ArrayList<Float> = arrayListOf() // Used for friction
         val normal: Vector2 = info.normal

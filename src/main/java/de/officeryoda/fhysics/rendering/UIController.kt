@@ -259,6 +259,8 @@ class UIController {
             QuadTree.removeQueue.add(it)
             selectedObject = null
         }
+
+        updateObjectPropertiesValues()
     }
 
     /**

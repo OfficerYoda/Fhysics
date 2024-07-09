@@ -37,11 +37,11 @@ abstract class FhysicsObject protected constructor(
                 acceleration.set(Vector2.ZERO)
                 velocity.set(Vector2.ZERO)
                 angularVelocity = 0f
-                invMass = 1f / mass
-                invInertia = 1f / inertia
-            } else {
                 invMass = 0f
                 invInertia = 0f
+            } else {
+                invMass = 1f / mass
+                invInertia = 1f / inertia
             }
         }
 
@@ -71,7 +71,15 @@ abstract class FhysicsObject protected constructor(
         }
 
     var frictionStatic: Float = 0.5f
-    var frictionDynamic: Float = 0.3f
+        set(value) {
+            // Can be over one in real life, but it's very rare (rubber on dry concrete: ~1.0)
+            field = Math.clamp(value, 0f, 1f)
+        }
+    var frictionDynamic: Float = 0.35f
+        set(value) {
+            // Can be over one in real life, but it's very rare (rubber on dry concrete: ~0.8)
+            field = Math.clamp(value, 0f, 1f)
+        }
 
     open fun updatePosition() {
         // Static objects don't move
