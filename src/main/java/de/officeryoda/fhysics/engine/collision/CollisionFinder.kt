@@ -3,10 +3,7 @@ package de.officeryoda.fhysics.engine.collision
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.ProjectionResult
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.Circle
-import de.officeryoda.fhysics.engine.objects.ConcavePolygon
-import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.*
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.min
@@ -77,7 +74,8 @@ object CollisionFinder {
             finalAxis.negate()
         }
 
-        return CollisionInfo(circle, poly, finalAxis, projResult.getOverlap())
+        val targetPoly: Polygon = if (poly is SubPolygon) poly.parent else poly
+        return CollisionInfo(circle, targetPoly, finalAxis, projResult.getOverlap())
     }
 
     /**
