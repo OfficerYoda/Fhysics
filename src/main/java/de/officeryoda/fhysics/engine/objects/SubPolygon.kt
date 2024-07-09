@@ -21,6 +21,12 @@ class SubPolygon(
         get() = parent.angle
         set(value) = throw Exception("This should never happen: SubPolygon.angle is read-only")
 
+    override var static: Boolean
+        get() = parent.static
+        set(value) {
+            parent.static = value
+        }
+
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)
     }

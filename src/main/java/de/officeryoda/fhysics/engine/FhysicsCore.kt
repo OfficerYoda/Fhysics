@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.PolygonCreator
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -53,8 +53,8 @@ object FhysicsCore {
 //        }
 
         // Two rectangles that act as slides
-        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).static = true
-        spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).static = true
+//        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).static = true
+//        spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).static = true
         spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).static = true
 
         // Concave poly-circle fail case
@@ -67,9 +67,19 @@ object FhysicsCore {
 //        spawn(PolygonCreator.createPolygon(vertices)).static = true
 
         // Spawn five circles in the top right
-        for (i: Int in 1..5) {
-            spawn(Circle(Vector2(90f - i * 5, 90f), 1f))
-        }
+//        for (i: Int in 1..5) {
+//            spawn(Circle(Vector2(90f - i * 5, 90f), 1f))
+//        }
+
+        val vertices: Array<Vector2> = arrayOf(
+            Vector2(0f, 0f),
+            Vector2(5f, 0f),
+            Vector2(5f, 3f),
+            Vector2(0f, 2f),
+            Vector2(-2f, 3.5f)
+        )
+        vertices.forEach { it += Vector2(50f, 22.5f) }
+        spawn(PolygonCreator.createPolygon(vertices))
 
         objectsAtStepSizeIncrease = objectCount
     }

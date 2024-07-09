@@ -10,12 +10,6 @@ class ConcavePolygon(
 ) : Polygon(vertices, angle) {
 
     var subPolygons: MutableList<SubPolygon> = mutableListOf()
-    override var static: Boolean
-        get() = super.static
-        set(value) {
-            super.static = value
-            subPolygons.forEach { it.static = value }
-        }
 
     init {
         subPolygonIndices.forEach { indices ->

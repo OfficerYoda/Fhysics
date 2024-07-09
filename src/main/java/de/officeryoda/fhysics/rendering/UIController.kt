@@ -564,7 +564,7 @@ class UIController {
         /// endregion
 
         /// region =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.POLYGON
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
             private set
         var drawSpawnPreview: Boolean = true
             private set
