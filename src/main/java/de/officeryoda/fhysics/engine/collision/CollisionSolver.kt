@@ -7,7 +7,9 @@ import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.wallElasticity
+import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -71,6 +73,8 @@ object CollisionSolver {
 
         // No need to solve collision if both objects are static
         if (objA.static && objB.static) return
+
+        contactPoints.forEach { DebugDrawer.addDebugPoint(it, Color.red, 1) }
 
         val normalForces: ArrayList<Float> =
             solveImpulse(objA, objB, contactPoints, info)
@@ -264,14 +268,22 @@ object CollisionSolver {
         }
     }
 
-    private fun handlePolygonBorderCollision(obj: Polygon) {
-        for (border: BorderObject in borderObjects) {
+    private fun handlePolygonBorderCollision(obj: FhysicsObject) {
+        val borderObjects: List<Border> = listOf(
+            Border(Vector2(1f, 0f), BORDER.x + BORDER.width),
+            Border(Vector2(-1f, 0f), BORDER.x),
+            Border(Vector2(0f, 1f), BORDER.y + BORDER.height),
+            Border(Vector2(0f, -1f), BORDER.y)
+        )
+
+        // Move inside bounds
+        for (border: Border in borderObjects) {
             val info: CollisionInfo = border.testCollision(obj)
-            if (info.hasCollision) {
-                separateOverlappingObjects(info)
-                val contactPoints: Array<Vector2> = border.findContactPoints(obj, info)
-                solveCollision(info, contactPoints)
-            }
+            if (!info.hasCollision) continue
+
+            obj.position += -info.normal * info.depth
         }
+
+        // Find contact points
     }
 }

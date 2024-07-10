@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.dt
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.Border
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import java.awt.Color
 
@@ -118,6 +119,10 @@ abstract class FhysicsObject protected constructor(
     abstract fun contains(pos: Vector2): Boolean
 
     abstract fun calculateInertia(): Float
+
+    fun testCollision(border: Border): CollisionInfo {
+        return border.testCollision(this)
+    }
 
     abstract fun testCollision(other: FhysicsObject): CollisionInfo
 
