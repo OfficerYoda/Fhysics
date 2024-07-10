@@ -397,11 +397,25 @@ object CollisionFinder {
     /// endregion
 
     /// region =====Border-Object=====
+    /**
+     * Finds the contact points between a border and a circle
+     *
+     * @param border The border
+     * @param circle The circle
+     * @return An array containing the contact points
+     */
     fun findContactPoints(border: BorderEdge, circle: Circle): Array<Vector2> {
         val contactPoint: Vector2 = circle.position + border.normal * circle.radius
         return arrayOf(contactPoint)
     }
 
+    /**
+     * Finds the contact points between a border and a polygon
+     *
+     * @param border The border
+     * @param poly The polygon
+     * @return An array containing the contact points
+     */
     fun findContactPoints(border: BorderEdge, poly: Polygon): Array<Vector2> {
         if (poly is ConcavePolygon) {
             return findConcavePolygonContactPoints(border, poly)
@@ -430,6 +444,14 @@ object CollisionFinder {
         return contactPoints.toTypedArray()
     }
 
+
+    /**
+     * Finds the contact points between a border and a concave polygon
+     *
+     * @param border The border
+     * @param concavePolygon The concave polygon
+     * @return An array containing the contact points
+     */
     private fun findConcavePolygonContactPoints(border: BorderEdge, concavePolygon: ConcavePolygon): Array<Vector2> {
         val contactPoints: MutableList<Vector2> = mutableListOf()
 

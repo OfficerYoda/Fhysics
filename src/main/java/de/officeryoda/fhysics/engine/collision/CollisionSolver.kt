@@ -53,6 +53,15 @@ object CollisionSolver {
         solveFriction(objA, objB, contactPoints, info, normalForces)
     }
 
+    /**
+     * Solves the impulses for two colliding objects
+     *
+     * @param objA The first object involved in the collision
+     * @param objB The second object involved in the collision
+     * @param contactPoints The contact points of the collision
+     * @param info The CollisionInfo object containing information about the collision
+     * @return A list of normal forces for each contact point
+     */
     private fun solveImpulse(
         objA: FhysicsObject,
         objB: FhysicsObject,
@@ -118,6 +127,15 @@ object CollisionSolver {
         return normalForces
     }
 
+    /**
+     * Solves the friction for two colliding objects
+     *
+     * @param objA The first object involved in the collision
+     * @param objB The second object involved in the collision
+     * @param contactPoints The contact points of the collision
+     * @param info The CollisionInfo object containing information about the collision
+     * @param normalForces A list of normal forces for each contact point
+     */
     private fun solveFriction(
         objA: FhysicsObject,
         objB: FhysicsObject,
@@ -207,6 +225,11 @@ object CollisionSolver {
     /// endregion
 
     /// region =====Border Collision=====
+    /**
+     * Checks for and solves collisions between an object and the border
+     *
+     * @param obj The object to check for collision
+     */
     fun checkBorderCollision(obj: FhysicsObject) {
         if (obj.static) return
         // Return if the object is fully inside the border
@@ -215,9 +238,14 @@ object CollisionSolver {
         handleBorderCollision(obj)
     }
 
+    /**
+     * Handles the collision between an object and the border
+     *
+     * @param obj The object to check for collision
+     */
     private fun handleBorderCollision(obj: FhysicsObject) {
         // This is a separate step because the object might be outside two edges at the same time
-        val collidingBorders: MutableSet<BorderEdge> = moveInsideBounds(obj)
+        val collidingBorders: MutableSet<BorderEdge> = moveInsideBorder(obj)
 
         if (collidingBorders.isEmpty()) return
 
@@ -229,6 +257,12 @@ object CollisionSolver {
         }
     }
 
+    /**
+     * Solves the collision between an object and a border
+     *
+     * @param obj The object to check for collision
+     * @param border The border to check for collision
+     */
     private fun solveBorderCollision(
         obj: FhysicsObject,
         border: BorderEdge,
@@ -249,6 +283,12 @@ object CollisionSolver {
         }
     }
 
+    /**
+     * Removes duplicate contact points
+     *
+     * @param contactPoints The contact points to remove duplicates from
+     * @return The contact points without duplicates
+     */
     private fun removeDuplicates(contactPoints: Array<Vector2>): Array<Vector2> {
         val uniquePoints: MutableList<Vector2> = mutableListOf<Vector2>()
 
@@ -261,7 +301,13 @@ object CollisionSolver {
         return uniquePoints.toTypedArray()
     }
 
-    private fun moveInsideBounds(obj: FhysicsObject): MutableSet<BorderEdge> {
+    /**
+     * Moves an object inside the border
+     *
+     * @param obj The object to move
+     * @return A set of border edges the object is colliding with
+     */
+    private fun moveInsideBorder(obj: FhysicsObject): MutableSet<BorderEdge> {
         val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
         for (border: BorderEdge in borderObjects) {
             val info: CollisionInfo = border.testCollision(obj)
@@ -273,6 +319,14 @@ object CollisionSolver {
         return collidingBorders
     }
 
+    /**
+     * Solves the impulse for a border collision
+     *
+     * @param border The border the object is colliding with
+     * @param obj The object to solve the impulse for
+     * @param contactPoints The contact points of the collision
+     * @return A list of normal forces for each contact point
+     */
     private fun solveBorderImpulse(
         border: BorderEdge,
         obj: FhysicsObject,
@@ -324,6 +378,14 @@ object CollisionSolver {
         return normalForces
     }
 
+    /**
+     * Solves the friction for a border collision
+     *
+     * @param border The border the object is colliding with
+     * @param obj The object to solve the friction for
+     * @param contactPoints The contact points of the collision
+     * @param normalForces A list of normal forces for each contact point
+     */
     private fun solveBorderFriction(
         border: BorderEdge,
         obj: FhysicsObject,
