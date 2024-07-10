@@ -397,7 +397,6 @@ object CollisionFinder {
     /// endregion
 
     /// region =====Border-Object=====
-
     fun findContactPoints(border: BorderEdge, circle: Circle): Array<Vector2> {
         val contactPoint: Vector2 = circle.position + border.normal * circle.radius
         return arrayOf(contactPoint)

@@ -4,9 +4,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder.nearlyEquals
 import de.officeryoda.fhysics.engine.objects.BorderObject
-import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
@@ -237,39 +235,10 @@ object CollisionSolver {
     fun checkBorderCollision(obj: FhysicsObject) {
         if (obj.static) return
 
-        when (obj) {
-            is Circle -> handleCircleBorderCollision(obj)
-            is Polygon -> handlePolygonBorderCollision(obj)
-        }
+        handlePolygonBorderCollision(obj)
     }
 
-    private fun handleCircleBorderCollision(obj: Circle) {
-        when {
-            obj.position.x - obj.radius < 0.0F -> {
-                obj.velocity.x = -obj.velocity.x * borderRestitution
-                obj.position.x = obj.radius
-            }
-
-            obj.position.x + obj.radius > BORDER.width -> {
-                obj.velocity.x = -obj.velocity.x * borderRestitution
-                obj.position.x = (BORDER.width - obj.radius)
-            }
-        }
-
-        when {
-            obj.position.y - obj.radius < 0.0F -> {
-                obj.velocity.y = -obj.velocity.y * borderRestitution
-                obj.position.y = obj.radius
-            }
-
-            obj.position.y + obj.radius > BORDER.height -> {
-                obj.velocity.y = -obj.velocity.y * borderRestitution
-                obj.position.y = (BORDER.height - obj.radius)
-            }
-        }
-    }
-
-    private fun handlePolygonBorderCollision(obj: Polygon) {
+    private fun handlePolygonBorderCollision(obj: FhysicsObject) {
         val borderObjects: List<BorderEdge> = listOf(
             BorderEdge(Vector2(1f, 0f), BORDER.x + BORDER.width, Vector2(BORDER.x + BORDER.width, BORDER.y)),
             BorderEdge(Vector2(-1f, 0f), BORDER.x, Vector2(BORDER.x, BORDER.y + BORDER.height)),
@@ -285,23 +254,23 @@ object CollisionSolver {
 
         // Move inside bounds
         // This is a separate step because the object might be outside two edges at the same time
-        val edgeDepthMap: MutableMap<BorderEdge, Float> = mutableMapOf<BorderEdge, Float>()
+        val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
         for (border: BorderEdge in borderObjects) {
             val info: CollisionInfo = border.testCollision(obj)
             if (!info.hasCollision) continue
 
             obj.position += -info.normal * info.depth
-            edgeDepthMap[border] = info.depth
+            collidingBorders.add(border)
         }
 
-        if (edgeDepthMap.isEmpty()) return
+        if (collidingBorders.isEmpty()) return
 
         // Find contact points and solve collisions
         for (border: BorderEdge in borderObjects) {
-            if (!edgeDepthMap.keys.contains(border)) continue
+            if (!collidingBorders.contains(border)) continue
 
             // Find contact points
-            var contactPoints: Array<Vector2> = CollisionFinder.findContactPoints(border, obj)
+            var contactPoints: Array<Vector2> = obj.findContactPoints(border)
             contactPoints = removeDuplicates(contactPoints)
 
             // Draw them for debug

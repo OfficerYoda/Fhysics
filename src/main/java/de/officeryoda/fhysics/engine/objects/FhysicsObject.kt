@@ -130,6 +130,8 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun testCollision(other: Polygon): CollisionInfo
 
+    abstract fun findContactPoints(other: BorderEdge): Array<Vector2>
+
     abstract fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
 
     abstract fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2>

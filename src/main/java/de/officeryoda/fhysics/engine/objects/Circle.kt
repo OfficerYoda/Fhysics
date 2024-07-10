@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 
@@ -34,6 +35,10 @@ class Circle(
 
     override fun testCollision(other: Polygon): CollisionInfo {
         return CollisionFinder.testCollision(other, this)
+    }
+
+    override fun findContactPoints(other: BorderEdge): Array<Vector2> {
+        return CollisionFinder.findContactPoints(other, this)
     }
 
     override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
