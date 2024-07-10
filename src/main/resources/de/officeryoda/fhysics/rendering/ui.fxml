@@ -525,22 +525,24 @@
                         </Text>
                         <HBox>
                            <children>
-                              <Label prefWidth="85.0" text="Wall restitution ">
+                              <Label prefHeight="17.0" prefWidth="105.0" text="Border restitution ">
                                  <tooltip>
-                                    <Tooltip text="How bouncy the wall is&#10;0 = No bounce, 1 = Perfect bounce"/>
+                                    <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce"/>
                                  </tooltip>
                               </Label>
-                              <Slider fx:id="sldWallElasticity" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onWallElasticityChanged" prefHeight="17.0" prefWidth="120.0" value="1.0">
+                              <Slider fx:id="sldWallElasticity" blockIncrement="0.05" majorTickUnit="0.1" max="1.0"
+                                      minorTickCount="1" onMouseDragged="#onWallElasticityChanged" prefHeight="17.0"
+                                      prefWidth="108.0" value="1.0">
                                  <tooltip>
-                                    <Tooltip text="How bouncy the wall is&#10;0 = No bounce, 1 = Perfect bounce"/>
+                                    <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce"/>
                                  </tooltip>
                               </Slider>
-                              <Label fx:id="lblWallElasticity" prefWidth="25.0" text="1.00">
+                              <Label fx:id="lblWallElasticity" prefHeight="17.0" prefWidth="39.0" text="1.00">
                                  <padding>
                                     <Insets left="2.0" />
                                  </padding>
                                  <tooltip>
-                                    <Tooltip text="How bouncy the wall is&#10;0 = No bounce, 1 = Perfect bounce"/>
+                                    <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce"/>
                                  </tooltip>
                               </Label>
                            </children>

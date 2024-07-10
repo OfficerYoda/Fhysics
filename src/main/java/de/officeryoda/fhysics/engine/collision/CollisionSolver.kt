@@ -3,7 +3,6 @@ package de.officeryoda.fhysics.engine.collision
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionFinder.nearlyEquals
-import de.officeryoda.fhysics.engine.objects.BorderObject
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.DebugDrawer
@@ -14,52 +13,26 @@ import kotlin.math.sqrt
 
 object CollisionSolver {
 
-    private val borderObjects: Array<BorderObject>
-
-    init {
-        // Create the border objects
-        val borderObjectList: MutableList<BorderObject> = mutableListOf()
-        val bigNumber = 1E6f
-
-        // Right edge
-        var vertices: Array<Vector2> = arrayOf(
-            Vector2(BORDER.x + BORDER.width, bigNumber),
-            Vector2(BORDER.x + BORDER.width, -bigNumber),
-            Vector2(bigNumber, -bigNumber),
-            Vector2(bigNumber, bigNumber)
+    private val borderObjects: List<BorderEdge> = listOf(
+        BorderEdge(
+            Vector2(1f, 0f), BORDER.x + BORDER.width,
+            Vector2(BORDER.x + BORDER.width, BORDER.y)
+        ),
+        BorderEdge(
+            Vector2(-1f, 0f), BORDER.x,
+            Vector2(BORDER.x, BORDER.y + BORDER.height)
+        ),
+        BorderEdge(
+            Vector2(0f, 1f), BORDER.y + BORDER.height,
+            Vector2(BORDER.x + BORDER.width, BORDER.y + BORDER.height)
+        ),
+        BorderEdge(
+            Vector2(0f, -1f), BORDER.y,
+            Vector2(BORDER.x, BORDER.y)
         )
-        borderObjectList.add(BorderObject(Vector2(1f, 0f), vertices))
+    )
 
-        // Left edge
-        vertices = arrayOf(
-            Vector2(-bigNumber, bigNumber),
-            Vector2(-bigNumber, -bigNumber),
-            Vector2(BORDER.x, -bigNumber),
-            Vector2(BORDER.x, bigNumber)
-        )
-        borderObjectList.add(BorderObject(Vector2(-1f, 0f), vertices))
-
-        // Top edge
-        vertices = arrayOf(
-            Vector2(-bigNumber, bigNumber),
-            Vector2(-bigNumber, BORDER.y + BORDER.height),
-            Vector2(bigNumber, BORDER.y + BORDER.height),
-            Vector2(bigNumber, bigNumber)
-        )
-        borderObjectList.add(BorderObject(Vector2(0f, 1f), vertices))
-
-        // Bottom edge
-        vertices = arrayOf(
-            Vector2(-bigNumber, BORDER.y),
-            Vector2(-bigNumber, -bigNumber),
-            Vector2(bigNumber, -bigNumber),
-            Vector2(bigNumber, BORDER.y)
-        )
-        borderObjectList.add(BorderObject(Vector2(0f, -1f), vertices))
-
-        borderObjects = borderObjectList.toTypedArray()
-    }
-
+    /// region =====Object Collision=====
     /**
      * Solves the collision between two objects
      *
@@ -231,37 +204,20 @@ object CollisionSolver {
         if (!objA.static) objA.position -= if (!objB.static) 0.5f * overlap else overlap
         if (!objB.static) objB.position += if (!objA.static) 0.5f * overlap else overlap
     }
+    /// endregion
 
+    /// region =====Border Collision=====
     fun checkBorderCollision(obj: FhysicsObject) {
         if (obj.static) return
+        // Return if the object is fully inside the border
+        if (BORDER.contains(obj.boundingBox)) return
 
-        handlePolygonBorderCollision(obj)
+        handleBorderCollision(obj)
     }
 
-    private fun handlePolygonBorderCollision(obj: FhysicsObject) {
-        val borderObjects: List<BorderEdge> = listOf(
-            BorderEdge(Vector2(1f, 0f), BORDER.x + BORDER.width, Vector2(BORDER.x + BORDER.width, BORDER.y)),
-            BorderEdge(Vector2(-1f, 0f), BORDER.x, Vector2(BORDER.x, BORDER.y + BORDER.height)),
-            BorderEdge(
-                Vector2(0f, 1f),
-                BORDER.y + BORDER.height,
-                Vector2(BORDER.x + BORDER.width, BORDER.y + BORDER.height)
-            ),
-            BorderEdge(Vector2(0f, -1f), BORDER.y, Vector2(BORDER.x, BORDER.y))
-        )
-
-        // TODO add a bounding box check
-
-        // Move inside bounds
+    private fun handleBorderCollision(obj: FhysicsObject) {
         // This is a separate step because the object might be outside two edges at the same time
-        val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
-        for (border: BorderEdge in borderObjects) {
-            val info: CollisionInfo = border.testCollision(obj)
-            if (!info.hasCollision) continue
-
-            obj.position += -info.normal * info.depth
-            collidingBorders.add(border)
-        }
+        val collidingBorders: MutableSet<BorderEdge> = moveInsideBounds(obj)
 
         if (collidingBorders.isEmpty()) return
 
@@ -269,20 +225,27 @@ object CollisionSolver {
         for (border: BorderEdge in borderObjects) {
             if (!collidingBorders.contains(border)) continue
 
-            // Find contact points
-            var contactPoints: Array<Vector2> = obj.findContactPoints(border)
-            contactPoints = removeDuplicates(contactPoints)
+            solveBorderCollision(obj, border)
+        }
+    }
 
-            // Draw them for debug
-            contactPoints.forEach {
-                DebugDrawer.addDebugPoint(it, Color.green, 1)
-            }
+    private fun solveBorderCollision(
+        obj: FhysicsObject,
+        border: BorderEdge,
+    ) {
+        // Find contact points
+        var contactPoints: Array<Vector2> = obj.findContactPoints(border)
+        contactPoints = removeDuplicates(contactPoints)
 
-            // Solve collision
-            if (contactPoints.isNotEmpty()) {
-                val normalForces: ArrayList<Float> = solveImpulseBorder(border, obj, contactPoints)
-                solveFrictionBorder(border, obj, contactPoints, normalForces)
-            }
+        // Draw them for debug
+        contactPoints.forEach {
+            DebugDrawer.addDebugPoint(it, Color.green, 1)
+        }
+
+        // Solve collision
+        if (contactPoints.isNotEmpty()) {
+            val normalForces: ArrayList<Float> = solveBorderImpulse(border, obj, contactPoints)
+            solveBorderFriction(border, obj, contactPoints, normalForces)
         }
     }
 
@@ -298,7 +261,19 @@ object CollisionSolver {
         return uniquePoints.toTypedArray()
     }
 
-    private fun solveImpulseBorder(
+    private fun moveInsideBounds(obj: FhysicsObject): MutableSet<BorderEdge> {
+        val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
+        for (border: BorderEdge in borderObjects) {
+            val info: CollisionInfo = border.testCollision(obj)
+            if (!info.hasCollision) continue
+
+            obj.position += -info.normal * info.depth
+            collidingBorders.add(border)
+        }
+        return collidingBorders
+    }
+
+    private fun solveBorderImpulse(
         border: BorderEdge,
         obj: FhysicsObject,
         contactPoints: Array<Vector2>,
@@ -349,7 +324,7 @@ object CollisionSolver {
         return normalForces
     }
 
-    private fun solveFrictionBorder(
+    private fun solveBorderFriction(
         border: BorderEdge,
         obj: FhysicsObject,
         contactPoints: Array<Vector2>,
@@ -405,4 +380,5 @@ object CollisionSolver {
             obj.angularVelocity += frictionImpulse.cross(contactPoints[i] - obj.position) * obj.invInertia
         }
     }
+    /// endregion
 }

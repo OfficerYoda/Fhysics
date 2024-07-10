@@ -440,8 +440,8 @@ class UIController {
 
     @FXML
     fun onWallElasticityChanged() {
-        wallElasticity = sldWallElasticity.value.toFloat()
-        lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
+        borderRestitution = sldWallElasticity.value.toFloat()
+        lblWallElasticity.text = String.format(Locale.US, "%.2f", borderRestitution)
     }
     /// endregion
 
@@ -526,8 +526,8 @@ class UIController {
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
 
-        sldWallElasticity.value = wallElasticity.toDouble()
-        lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
+        sldWallElasticity.value = borderRestitution.toDouble()
+        lblWallElasticity.text = String.format(Locale.US, "%.2f", borderRestitution)
         /// endregion
     }
 
@@ -624,7 +624,7 @@ class UIController {
             private set
         var drawRenderTime: Boolean = false
             private set
-        var wallElasticity: Float = 0.5f
+        var borderRestitution: Float = 0.5f
             private set
         /// endregion
     }
