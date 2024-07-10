@@ -404,6 +404,10 @@ object CollisionFinder {
     }
 
     fun findContactPoints(border: BorderEdge, poly: Polygon): Array<Vector2> {
+        if (poly is ConcavePolygon) {
+            return findConcavePolygonContactPoints(border, poly)
+        }
+
         var contactPoints: MutableList<Vector2> = mutableListOf()
         val tangent = Vector2(-border.normal.y, border.normal.x)
         val vertices: Array<Vector2> = poly.getTransformedVertices()
@@ -422,6 +426,17 @@ object CollisionFinder {
                 minDistance = sqrDistance
                 contactPoints = mutableListOf(closestPoint)
             }
+        }
+
+        return contactPoints.toTypedArray()
+    }
+
+    private fun findConcavePolygonContactPoints(border: BorderEdge, concavePolygon: ConcavePolygon): Array<Vector2> {
+        val contactPoints: MutableList<Vector2> = mutableListOf()
+
+        for (subPoly: Polygon in concavePolygon.subPolygons) {
+            val subContactPoints: Array<Vector2> = findContactPoints(border, subPoly)
+            contactPoints.addAll(subContactPoints)
         }
 
         return contactPoints.toTypedArray()
@@ -460,7 +475,7 @@ object CollisionFinder {
      * @param b The second vector
      * @return A boolean indicating if the vectors are nearly equal
      */
-    private fun nearlyEquals(a: Vector2, b: Vector2): Boolean {
+    fun nearlyEquals(a: Vector2, b: Vector2): Boolean {
         return a.sqrDistanceTo(b) < EPSILON
     }
     /// endregion

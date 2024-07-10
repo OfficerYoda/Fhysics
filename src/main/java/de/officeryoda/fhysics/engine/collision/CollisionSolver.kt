@@ -295,6 +295,19 @@ object CollisionSolver {
             contactPoints.addAll(edgeContactPoints)
         }
 
+        // Remove duplicate contact points
+        val toRemove: MutableSet<Int> = mutableSetOf()
+        for (i: Int in contactPoints.indices) {
+            val pointA: Vector2 = contactPoints[i]
+            for (j: Int in i + 1 until contactPoints.size) {
+                val pointB: Vector2 = contactPoints[j]
+                if (CollisionFinder.nearlyEquals(pointA, pointB)) {
+                    toRemove.add(i)
+                }
+            }
+        }
+        toRemove.reversed().forEach { contactPoints.removeAt(it) }
+
         contactPoints.forEach {
             DebugDrawer.addDebugPoint(it, Color.green, 1)
         }
