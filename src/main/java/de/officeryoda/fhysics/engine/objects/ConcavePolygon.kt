@@ -34,7 +34,10 @@ class ConcavePolygon(
     }
 
     override fun clone(): FhysicsObject {
-        TODO("Not yet implemented")
+        val clone: ConcavePolygon =
+            PolygonCreator.createPolygon(vertices.map { it + position }.toTypedArray()) as ConcavePolygon
+        clone.angle = this.angle
+        return clone
     }
 }
 

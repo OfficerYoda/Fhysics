@@ -8,6 +8,7 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.UIController.Companion.wallElasticity
+import kotlin.math.abs
 
 object CollisionSolver {
 
@@ -70,9 +71,22 @@ object CollisionSolver {
         // No need to solve collision if both objects are static
         if (objA.static && objB.static) return
 
+        val normalForces: ArrayList<Float> =
+            solveImpulse(objA, objB, contactPoints, info)
+        solveFriction(objA, objB, contactPoints, info, normalForces)
+    }
+
+    private fun solveImpulse(
+        objA: FhysicsObject,
+        objB: FhysicsObject,
+        contactPoints: Array<Vector2>,
+        info: CollisionInfo,
+    ): ArrayList<Float> {
         val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution
-//        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
+        //        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
         val impulseList: ArrayList<Vector2> = arrayListOf()
+        val normalForces: ArrayList<Float> = arrayListOf() // Used for friction
+        val normal: Vector2 = info.normal
 
         // Calculate the impulses for each contact point
         for (contactPoint: Vector2 in contactPoints) {
@@ -88,12 +102,15 @@ object CollisionSolver {
             val relativeVelocity: Vector2 = totalVelocityB - totalVelocityA
 
             // Continue if the objects are already moving away from each other
-            val contactVelocityMag: Float = relativeVelocity.dot(info.normal)
-            if (contactVelocityMag > 0) continue
+            val contactVelocityMag: Float = relativeVelocity.dot(normal)
+            if (contactVelocityMag > 0) {
+                normalForces.add(0f)
+                continue
+            }
 
             // Calculate the impulse
-            val raPerpDotNormal: Float = raPerp.dot(info.normal)
-            val rbPerpDotNormal: Float = rbPerp.dot(info.normal)
+            val raPerpDotNormal: Float = raPerp.dot(normal)
+            val rbPerpDotNormal: Float = rbPerp.dot(normal)
 
             var impulseMag: Float = -(1f + e) * contactVelocityMag
             impulseMag /= objA.invMass + objB.invMass +
@@ -101,8 +118,10 @@ object CollisionSolver {
                     (rbPerpDotNormal * rbPerpDotNormal) * objB.invInertia
             impulseMag /= contactPoints.size // Distribute the impulse over all contact points
 
-            val impulse: Vector2 = impulseMag * info.normal
+            val impulse: Vector2 = impulseMag * normal
+
             impulseList.add(impulse)
+            normalForces.add(impulseMag)
         }
 
         // Apply the impulses
@@ -113,6 +132,74 @@ object CollisionSolver {
             objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
             objB.velocity += impulse * objB.invMass
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
+        }
+
+        return normalForces
+    }
+
+    private fun solveFriction(
+        objA: FhysicsObject,
+        objB: FhysicsObject,
+        contactPoints: Array<Vector2>,
+        info: CollisionInfo,
+        normalForces: ArrayList<Float>,
+    ) {
+        val sf: Float = (objA.frictionStatic + objB.frictionStatic) / 2 // Coefficient of static friction
+        val df: Float = (objA.frictionDynamic + objB.frictionDynamic) / 2 // Coefficient of dynamic friction
+
+        val frictionList: ArrayList<Vector2> = arrayListOf()
+        val normal: Vector2 = info.normal
+
+        // Calculate the friction for each contact point
+        for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
+            if (normalForces[i] == 0f) continue
+
+            val ra: Vector2 = contactPoint - objA.position
+            val rb: Vector2 = contactPoint - objB.position
+
+            val raPerp = Vector2(-ra.y, ra.x)
+            val rbPerp = Vector2(-rb.y, rb.x)
+
+            val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
+            val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
+
+            val relativeVelocity: Vector2 = totalVelocityB - totalVelocityA
+
+            // Get the tangent vector of the normal
+            var tangent: Vector2 = relativeVelocity - relativeVelocity.dot(normal) * normal
+            if (tangent.sqrMagnitude() < 0.0001f) continue
+            tangent = tangent.normalized()
+
+            // Calculate the friction impulse
+            val raPerpDotTangent: Float = raPerp.dot(tangent)
+            val rbPerpDotTangent: Float = rbPerp.dot(tangent)
+
+            var frictionMag: Float = -relativeVelocity.dot(tangent)
+            frictionMag /= objA.invMass + objB.invMass +
+                    (raPerpDotTangent * raPerpDotTangent) * objA.invInertia +
+                    (rbPerpDotTangent * rbPerpDotTangent) * objB.invInertia
+            frictionMag /= contactPoints.size // Distribute the impulse over all contact points
+
+            // Apply Coulomb's law
+            val normalForce: Float = normalForces[i]
+            val frictionImpulse: Vector2 =
+                if (abs(frictionMag) <= normalForce * sf) {
+                    frictionMag * tangent
+                } else {
+                    -normalForce * df * tangent
+                }
+
+            frictionList.add(frictionImpulse)
+        }
+
+        // Apply the impulses
+        for (i: Int in frictionList.indices) {
+            val frictionImpulse: Vector2 = frictionList[i]
+
+            objA.velocity += -frictionImpulse * objA.invMass
+            objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia
+            objB.velocity += frictionImpulse * objB.invMass
+            objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia
         }
     }
 

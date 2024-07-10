@@ -32,7 +32,6 @@ class UIController {
 
     @FXML
     private lateinit var txtSpawnHeight: TextField
-
     /// endregion
 
     /// region =====Fields: Object Properties=====
@@ -62,7 +61,6 @@ class UIController {
 
     @FXML
     lateinit var txtPropertyFrictionDynamic: TextField
-
     /// endregion
 
     /// region =====Fields: Gravity=====
@@ -80,7 +78,6 @@ class UIController {
 
     @FXML
     private lateinit var txtGravityPointStrength: TextField
-
     /// endregion
 
     /// region =====Fields: Time=====
@@ -92,7 +89,6 @@ class UIController {
 
     @FXML
     private lateinit var txtTimeSpeed: TextField
-
     /// endregion
 
     /// region =====Fields: QuadTree=====
@@ -107,7 +103,6 @@ class UIController {
 
     @FXML
     private lateinit var txtQuadTreeCapacity: TextField
-
     /// endregion
 
     /// region =====Fields: Debug=====
@@ -137,7 +132,6 @@ class UIController {
 
     @FXML
     private lateinit var lblWallElasticity: Label
-
     /// endregion
 
     /// region =====Methods: Spawn Object=====
@@ -221,7 +215,6 @@ class UIController {
         spawnHeight = parseTextField(txtSpawnHeight)
         updateSpawnPreview()
     }
-
     /// endregion
 
     /// region =====Methods: Object Properties=====
@@ -252,12 +245,12 @@ class UIController {
 
     @FXML
     fun onPropertyFrictionStaticTyped() {
-        // TODO
+        selectedObject!!.frictionStatic = parseTextField(txtPropertyFrictionStatic)
     }
 
     @FXML
     fun onPropertyFrictionDynamicTyped() {
-        // TODO
+        selectedObject!!.frictionDynamic = parseTextField(txtPropertyFrictionDynamic)
     }
 
     @FXML
@@ -292,10 +285,8 @@ class UIController {
         txtPropertyMass.text = toStringWithTwoDecimalPlaces(obj.mass)
         txtPropertyRotation.text = toStringWithTwoDecimalPlaces(obj.angle * RADIANS_TO_DEGREES)
         txtPropertyRestitution.text = toStringWithTwoDecimalPlaces(obj.restitution)
-//        txtPropertyFrictionStatic.text = toStringWithTwoDecimalPlaces(obj.frictionStatic) // TODO
-//        txtPropertyFrictionDynamic.text = toStringWithTwoDecimalPlaces(obj.frictionDynamic) // TODO
-        txtPropertyRestitution.text = "TODO"
-        txtPropertyFrictionDynamic.text = "TODO"
+        txtPropertyFrictionStatic.text = toStringWithTwoDecimalPlaces(obj.frictionStatic) // TODO
+        txtPropertyFrictionDynamic.text = toStringWithTwoDecimalPlaces(obj.frictionDynamic) // TODO
     }
 
     /**
@@ -307,7 +298,6 @@ class UIController {
     private fun toStringWithTwoDecimalPlaces(value: Float): String {
         return ((value * 100).toInt() / 100.0f).toString()
     }
-
     /// endregion
 
     /// region =====Methods: Gravity=====
@@ -356,7 +346,6 @@ class UIController {
         txtGravityPointY.isDisable = !point
         txtGravityPointStrength.isDisable = !point
     }
-
     /// endregion
 
     /// region =====Methods: Time=====
@@ -376,7 +365,6 @@ class UIController {
         timeSpeed = parseTextField(txtTimeSpeed)
         FhysicsCore.dt = 1.0f / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
     }
-
     /// endregion
 
     /// region =====Methods: QuadTree=====
@@ -410,7 +398,6 @@ class UIController {
             QuadTree.root.tryDivide()
         }
     }
-
     /// endregion
 
     /// region =====Methods: Debug=====
@@ -454,7 +441,6 @@ class UIController {
         wallElasticity = sldWallElasticity.value.toFloat()
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
     }
-
     /// endregion
 
     /// region =====Initialization and helper=====
@@ -492,7 +478,6 @@ class UIController {
             SpawnObjectType.RECTANGLE -> onSpawnRectangleClicked()
             SpawnObjectType.POLYGON -> onSpawnPolygonClicked()
         }
-
         /// endregion
 
         /// region =====Gravity=====
@@ -512,7 +497,6 @@ class UIController {
         restrictToNumericInput(txtGravityPointX)
         restrictToNumericInput(txtGravityPointY)
         restrictToNumericInput(txtGravityPointStrength)
-
         /// endregion
 
         /// region =====Time=====
@@ -521,7 +505,6 @@ class UIController {
         txtTimeSpeed.text = timeSpeed.toString()
 
         restrictToNumericInput(txtTimeSpeed, false)
-
         /// endregion
 
         /// region =====QuadTree=====
@@ -532,7 +515,6 @@ class UIController {
         txtQuadTreeCapacity.text = QuadTree.capacity.toString()
 
         restrictToNumericInput(txtQuadTreeCapacity, false)
-
         /// endregion
 
         /// region =====Debug=====
@@ -544,7 +526,6 @@ class UIController {
 
         sldWallElasticity.value = wallElasticity.toDouble()
         lblWallElasticity.text = String.format(Locale.US, "%.2f", wallElasticity)
-
         /// endregion
     }
 
@@ -574,14 +555,12 @@ class UIController {
     private fun parseTextField(textField: TextField, default: Float = 0.0f): Float {
         return textField.text.toFloatOrNull() ?: default
     }
-
     /// endregion
 
     companion object {
         /// region =====Singleton=====
         lateinit var instance: UIController
         lateinit var drawer: FhysicsObjectDrawer
-
         /// endregion
 
         /// region =====Spawn Object=====
@@ -595,32 +574,28 @@ class UIController {
             private set
         var spawnHeight: Float = 1.0f
             private set
-
         /// endregion
 
         /// region =====Object Properties=====
         private const val DEGREES_TO_RADIANS: Float = 0.017453292f
         private const val RADIANS_TO_DEGREES: Float = 57.29578f
-
         /// endregion
 
         /// region =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0f, -0.0f)
+        val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
         val gravityPoint: Vector2 = Vector2( // The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
         var gravityPointStrength: Float = 100.0f
             private set
-
         /// endregion
 
         /// region =====Time=====
         var timeSpeed: Float = 1.0f
             private set
-
         /// endregion
 
         /// region =====QuadTree=====
@@ -630,7 +605,6 @@ class UIController {
             private set
         var optimizeQTCapacity: Boolean = false
             private set
-
         /// endregion
 
         /// region =====Debug=====
@@ -650,7 +624,6 @@ class UIController {
             private set
         var wallElasticity: Float = 0.5f
             private set
-
         /// endregion
     }
 }

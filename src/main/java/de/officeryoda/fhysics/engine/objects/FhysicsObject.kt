@@ -36,10 +36,13 @@ abstract class FhysicsObject protected constructor(
                 // Stop any movement if the object is set to static
                 acceleration.set(Vector2.ZERO)
                 velocity.set(Vector2.ZERO)
+                angularVelocity = 0f
+                invMass = 1f / mass
+                invInertia = 1f / inertia
+            } else {
+                invMass = 0f
+                invInertia = 0f
             }
-
-            invMass = if (value) 0f else 1f / mass
-            invInertia = if (value) 0f else 1f / inertia
         }
 
     var mass: Float = mass
@@ -66,6 +69,9 @@ abstract class FhysicsObject protected constructor(
         set(value) {
             field = Math.clamp(value, 0f, 1f)
         }
+
+    var frictionStatic: Float = 0.5f
+    var frictionDynamic: Float = 0.3f
 
     open fun updatePosition() {
         // Static objects don't move
