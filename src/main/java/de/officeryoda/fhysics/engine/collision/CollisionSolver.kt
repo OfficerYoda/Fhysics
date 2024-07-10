@@ -268,16 +268,20 @@ object CollisionSolver {
         }
     }
 
-    private fun handlePolygonBorderCollision(obj: FhysicsObject) {
-        val borderObjects: List<Border> = listOf(
-            Border(Vector2(1f, 0f), BORDER.x + BORDER.width),
-            Border(Vector2(-1f, 0f), BORDER.x),
-            Border(Vector2(0f, 1f), BORDER.y + BORDER.height),
-            Border(Vector2(0f, -1f), BORDER.y)
+    private fun handlePolygonBorderCollision(obj: Polygon) {
+        val borderObjects: List<BorderEdge> = listOf(
+            BorderEdge(Vector2(1f, 0f), BORDER.x + BORDER.width, Vector2(BORDER.x + BORDER.width, BORDER.y)),
+            BorderEdge(Vector2(-1f, 0f), BORDER.x, Vector2(BORDER.x, BORDER.y + BORDER.height)),
+            BorderEdge(
+                Vector2(0f, 1f),
+                BORDER.y + BORDER.height,
+                Vector2(BORDER.x + BORDER.width, BORDER.y + BORDER.height)
+            ),
+            BorderEdge(Vector2(0f, -1f), BORDER.y, Vector2(BORDER.x, BORDER.y))
         )
 
         // Move inside bounds
-        for (border: Border in borderObjects) {
+        for (border: BorderEdge in borderObjects) {
             val info: CollisionInfo = border.testCollision(obj)
             if (!info.hasCollision) continue
 
@@ -285,5 +289,14 @@ object CollisionSolver {
         }
 
         // Find contact points
+        val contactPoints: MutableList<Vector2> = mutableListOf()
+        for (border: BorderEdge in borderObjects) {
+            val edgeContactPoints: Array<Vector2> = CollisionFinder.findContactPoints(border, obj)
+            contactPoints.addAll(edgeContactPoints)
+        }
+
+        contactPoints.forEach {
+            DebugDrawer.addDebugPoint(it, Color.green, 1)
+        }
     }
 }

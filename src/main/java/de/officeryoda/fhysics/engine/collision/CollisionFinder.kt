@@ -10,6 +10,8 @@ import kotlin.math.min
 
 object CollisionFinder {
 
+    private const val EPSILON: Float = 0.0001f
+
     /// region =====Collision Detection=====
     /**
      * Tests for collision between two circles
@@ -302,7 +304,7 @@ object CollisionFinder {
         val verticesA: Array<Vector2> = polyA.getTransformedVertices()
         val verticesB: Array<Vector2> = polyB.getTransformedVertices()
 
-        // Check for contact points between the vertices of polyA and the edges of polyB
+        // Check for contact points between the edges of polyA and the vertices of polyB
         for (i: Int in verticesA.indices) {
             val va: Vector2 = verticesA[i]
             val vb: Vector2 = verticesA[(i + 1) % verticesA.size]
@@ -325,7 +327,7 @@ object CollisionFinder {
             }
         }
 
-        // Check for contact points between the vertices of polyB and the edges of polyA
+        // Check for contact points between the edges of polyB and the vertices of polyA
         for (i: Int in verticesB.indices) {
             val va: Vector2 = verticesB[i]
             val vb: Vector2 = verticesB[(i + 1) % verticesB.size]
@@ -396,7 +398,39 @@ object CollisionFinder {
 
     /// region =====Border-Object=====
 
+    fun findContactPoints(border: BorderEdge, circle: Circle): Array<Vector2> {
+        val contactPoint: Vector2 = circle.position + border.normal * circle.radius
+        return arrayOf(contactPoint)
+    }
+
+    fun findContactPoints(border: BorderEdge, poly: Polygon): Array<Vector2> {
+        var contactPoints: MutableList<Vector2> = mutableListOf()
+        val tangent = Vector2(-border.normal.y, border.normal.x)
+        val vertices: Array<Vector2> = poly.getTransformedVertices()
+        var minDistance: Float = Float.MAX_VALUE
+
+        for (i: Int in vertices.indices) {
+            val vertex: Vector2 = vertices[i]
+            val closestPoint: Vector2 = border.edgeCorner + tangent * (vertex - border.edgeCorner).dot(tangent)
+
+            val sqrDistance: Float = vertex.sqrDistanceTo(closestPoint)
+            if (sqrDistance > EPSILON) continue
+
+            if (nearlyEquals(sqrDistance, minDistance) && !nearlyEquals(closestPoint, contactPoints[0])) {
+                contactPoints.add(closestPoint)
+            } else if (sqrDistance < minDistance) {
+                minDistance = sqrDistance
+                contactPoints = mutableListOf(closestPoint)
+            }
+        }
+
+        return contactPoints.toTypedArray()
+    }
+
     /// endregion
+
+    /// region =====Helper Methods=====
+
     /**
      * Checks if a contact point is near any existing contact points
      *
@@ -416,8 +450,7 @@ object CollisionFinder {
      * @return A boolean indicating if the floats are nearly equal
      */
     private fun nearlyEquals(a: Float, b: Float): Boolean {
-        val epsilon = 0.0001f
-        return (a - b).absoluteValue < epsilon
+        return (a - b).absoluteValue < EPSILON
     }
 
     /**
@@ -428,8 +461,8 @@ object CollisionFinder {
      * @return A boolean indicating if the vectors are nearly equal
      */
     private fun nearlyEquals(a: Vector2, b: Vector2): Boolean {
-        val epsilon = 0.0000f
-        return a.sqrDistanceTo(b) < epsilon
+        return a.sqrDistanceTo(b) < EPSILON
     }
+    /// endregion
     /// endregion
 }

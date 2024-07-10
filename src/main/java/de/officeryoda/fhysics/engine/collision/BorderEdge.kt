@@ -4,9 +4,10 @@ import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 
-data class Border(
+data class BorderEdge(
     val normal: Vector2,
     val borderPosition: Float,
+    val edgeCorner: Vector2, // The corner of the border from where the tangent of the normal points towards the center of the edge
 ) {
 
     /**
