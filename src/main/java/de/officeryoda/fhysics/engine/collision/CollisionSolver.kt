@@ -2,13 +2,14 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.CollisionFinder.nearlyEquals
 import de.officeryoda.fhysics.engine.objects.BorderObject
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.DebugDrawer
-import de.officeryoda.fhysics.rendering.UIController.Companion.wallElasticity
+import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
 import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.sqrt
@@ -87,7 +88,7 @@ object CollisionSolver {
         contactPoints: Array<Vector2>,
         info: CollisionInfo,
     ): ArrayList<Float> {
-//        val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution <-- approximation
+//        val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution <-- bad approximation
         val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
         val impulseList: ArrayList<Vector2> = arrayListOf()
         val normalForces: ArrayList<Float> = arrayListOf() // Used for friction
@@ -245,24 +246,24 @@ object CollisionSolver {
     private fun handleCircleBorderCollision(obj: Circle) {
         when {
             obj.position.x - obj.radius < 0.0F -> {
-                obj.velocity.x = -obj.velocity.x * wallElasticity
+                obj.velocity.x = -obj.velocity.x * borderRestitution
                 obj.position.x = obj.radius
             }
 
             obj.position.x + obj.radius > BORDER.width -> {
-                obj.velocity.x = -obj.velocity.x * wallElasticity
+                obj.velocity.x = -obj.velocity.x * borderRestitution
                 obj.position.x = (BORDER.width - obj.radius)
             }
         }
 
         when {
             obj.position.y - obj.radius < 0.0F -> {
-                obj.velocity.y = -obj.velocity.y * wallElasticity
+                obj.velocity.y = -obj.velocity.y * borderRestitution
                 obj.position.y = obj.radius
             }
 
             obj.position.y + obj.radius > BORDER.height -> {
-                obj.velocity.y = -obj.velocity.y * wallElasticity
+                obj.velocity.y = -obj.velocity.y * borderRestitution
                 obj.position.y = (BORDER.height - obj.radius)
             }
         }
@@ -280,36 +281,101 @@ object CollisionSolver {
             BorderEdge(Vector2(0f, -1f), BORDER.y, Vector2(BORDER.x, BORDER.y))
         )
 
+        // TODO add a bounding box check
+
         // Move inside bounds
+        // This is a separate step because the object might be outside two edges at the same time
+        val edgeDepthMap: MutableMap<BorderEdge, Float> = mutableMapOf<BorderEdge, Float>()
         for (border: BorderEdge in borderObjects) {
             val info: CollisionInfo = border.testCollision(obj)
             if (!info.hasCollision) continue
 
             obj.position += -info.normal * info.depth
+            edgeDepthMap[border] = info.depth
         }
 
-        // Find contact points
-        val contactPoints: MutableList<Vector2> = mutableListOf()
+        if (edgeDepthMap.isEmpty()) return
+
+        // Find contact points and solve collisions
         for (border: BorderEdge in borderObjects) {
-            val edgeContactPoints: Array<Vector2> = CollisionFinder.findContactPoints(border, obj)
-            contactPoints.addAll(edgeContactPoints)
-        }
+            if (!edgeDepthMap.keys.contains(border)) continue
 
-        // Remove duplicate contact points
-        val toRemove: MutableSet<Int> = mutableSetOf()
-        for (i: Int in contactPoints.indices) {
-            val pointA: Vector2 = contactPoints[i]
-            for (j: Int in i + 1 until contactPoints.size) {
-                val pointB: Vector2 = contactPoints[j]
-                if (CollisionFinder.nearlyEquals(pointA, pointB)) {
-                    toRemove.add(i)
-                }
+            // Find contact points
+            var contactPoints: Array<Vector2> = CollisionFinder.findContactPoints(border, obj)
+            contactPoints = removeDuplicates(contactPoints)
+
+            // Draw them for debug
+            contactPoints.forEach {
+                DebugDrawer.addDebugPoint(it, Color.green, 1)
+            }
+
+            // Solve collision
+            if (contactPoints.isNotEmpty()) {
+                solveImpulseBorder(border, obj, contactPoints)
             }
         }
-        toRemove.reversed().forEach { contactPoints.removeAt(it) }
+    }
 
-        contactPoints.forEach {
-            DebugDrawer.addDebugPoint(it, Color.green, 1)
+    private fun removeDuplicates(contactPoints: Array<Vector2>): Array<Vector2> {
+        val uniquePoints: MutableList<Vector2> = mutableListOf<Vector2>()
+
+        for (point: Vector2 in contactPoints) {
+            if (uniquePoints.none { existingPoint -> nearlyEquals(existingPoint, point) }) {
+                uniquePoints.add(point)
+            }
         }
+
+        return uniquePoints.toTypedArray()
+    }
+
+    private fun solveImpulseBorder(
+        border: BorderEdge,
+        obj: FhysicsObject,
+        contactPoints: Array<Vector2>,
+    ): ArrayList<Float> {
+//        val e: Float = (obj.restitution * borderRestitution) / 2 // Coefficient of restitution <-- bad approximation
+        val e: Float = sqrt(obj.restitution * borderRestitution) // Coefficient of restitution <-- correct formula
+        val impulseList: ArrayList<Vector2> = arrayListOf()
+        val normalForces: ArrayList<Float> = arrayListOf() // Used for friction
+        val normal: Vector2 = border.normal
+
+        // Calculate the impulses for each contact point
+        for (contactPoint: Vector2 in contactPoints) {
+            val r: Vector2 = contactPoint - obj.position
+
+            val rPerp = Vector2(-r.y, r.x)
+
+            val totalVelocity: Vector2 = obj.velocity + rPerp * obj.angularVelocity
+
+            // Continue if the objects are already moving away from each other
+            val contactVelocityMag: Float = -totalVelocity.dot(normal)
+            if (contactVelocityMag > 0) {
+                normalForces.add(0f)
+                continue
+            }
+
+            // Calculate the impulse
+            val rPerpDotNormal: Float = rPerp.dot(normal)
+
+            var impulseMag: Float = -(1f + e) * contactVelocityMag
+            impulseMag /= obj.invMass +
+                    (rPerpDotNormal * rPerpDotNormal) * obj.invInertia
+            impulseMag /= contactPoints.size // Distribute the impulse over all contact points
+
+            val impulse: Vector2 = impulseMag * normal
+
+            impulseList.add(impulse)
+            normalForces.add(impulseMag)
+        }
+
+        // Apply the impulses
+        for (i: Int in impulseList.indices) {
+            val impulse: Vector2 = impulseList[i]
+
+            obj.velocity += -impulse * obj.invMass
+            obj.angularVelocity += impulse.cross(contactPoints[i] - obj.position) * obj.invInertia
+        }
+
+        return normalForces
     }
 }
