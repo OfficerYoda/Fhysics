@@ -49,6 +49,8 @@ abstract class FhysicsObject protected constructor(
         set(value) {
             field = value
             invMass = if (static) 0f else 1f / value
+            inertia = calculateInertia()
+            invInertia = if (static) 0f else 1f / inertia
         }
     var invMass: Float = 1f / mass
         protected set
@@ -56,7 +58,15 @@ abstract class FhysicsObject protected constructor(
     private var lastUpdate = -1
     private var lastBBoxUpdate = -1
 
-    val inertia: Float by lazy { calculateInertia() }
+    var inertia: Float = -1f
+        get() {
+            if (field == -1f) {
+                field = calculateInertia()
+            }
+
+            invInertia = if (static) 0f else 1f / field
+            return field
+        }
     var invInertia: Float = -1f
         get() {
             if (field == -1f) {
