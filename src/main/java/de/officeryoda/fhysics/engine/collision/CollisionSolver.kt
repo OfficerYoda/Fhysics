@@ -284,24 +284,6 @@ object CollisionSolver {
     }
 
     /**
-     * Removes duplicate contact points
-     *
-     * @param contactPoints The contact points to remove duplicates from
-     * @return The contact points without duplicates
-     */
-    private fun removeDuplicates(contactPoints: Array<Vector2>): Array<Vector2> {
-        val uniquePoints: MutableList<Vector2> = mutableListOf<Vector2>()
-
-        for (point: Vector2 in contactPoints) {
-            if (uniquePoints.none { existingPoint -> nearlyEquals(existingPoint, point) }) {
-                uniquePoints.add(point)
-            }
-        }
-
-        return uniquePoints.toTypedArray()
-    }
-
-    /**
      * Moves an object inside the border
      *
      * @param obj The object to move
@@ -441,6 +423,24 @@ object CollisionSolver {
             obj.velocity += -frictionImpulse * obj.invMass
             obj.angularVelocity += frictionImpulse.cross(contactPoints[i] - obj.position) * obj.invInertia
         }
+    }
+
+    /**
+     * Removes duplicate contact points
+     *
+     * @param contactPoints The contact points to remove duplicates from
+     * @return The contact points without duplicates
+     */
+    private fun removeDuplicates(contactPoints: Array<Vector2>): Array<Vector2> {
+        val uniquePoints: MutableList<Vector2> = mutableListOf<Vector2>()
+
+        for (point: Vector2 in contactPoints) {
+            if (uniquePoints.none { existingPoint -> nearlyEquals(existingPoint, point) }) {
+                uniquePoints.add(point)
+            }
+        }
+
+        return uniquePoints.toTypedArray()
     }
     /// endregion
 }
