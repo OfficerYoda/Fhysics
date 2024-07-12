@@ -253,27 +253,13 @@ object CollisionFinder {
     /// region =====Contact Points=====
     /// region =====Object-Object=====
     /**
-     * Finds the contact points between two circles
+     * Finds the contact points in a collision with a circle
      *
-     * @param circleA The first circle
-     * @param circleB The second circle
-     * @param info The CollisionInfo object containing information about the collision
-     * @return An array containing the contact points
-     */
-    fun findContactPoints(circleA: Circle, circleB: Circle, info: CollisionInfo): Array<Vector2> {
-        val contactPoint: Vector2 = circleA.position + info.normal * circleA.radius
-        return arrayOf(contactPoint)
-    }
-
-    /**
-     * Finds the contact points between a polygon and a circle
-     *
-     * @param poly The polygon
      * @param circle The circle
      * @param info The CollisionInfo object containing information about the collision
      * @return An array containing the contact points
      */
-    fun findContactPoints(poly: Polygon, circle: Circle, info: CollisionInfo): Array<Vector2> {
+    fun findContactPoints(circle: Circle, info: CollisionInfo): Array<Vector2> {
         val offset: Vector2 = info.normal * circle.radius
         if (info.objB == circle) offset.negate()
 
