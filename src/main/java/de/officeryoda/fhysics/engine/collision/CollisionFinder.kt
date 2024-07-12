@@ -285,12 +285,11 @@ object CollisionFinder {
      *
      * @param polyA The first polygon
      * @param polyB The second polygon
-     * @param info The CollisionInfo object containing information about the collision
      * @return An array containing the contact points
      */
-    fun findContactPoints(polyA: Polygon, polyB: Polygon, info: CollisionInfo): Array<Vector2> {
+    fun findContactPoints(polyA: Polygon, polyB: Polygon): Array<Vector2> {
         if (polyA is ConcavePolygon || polyB is ConcavePolygon) {
-            return findConcavePolygonContactPoints(polyA, polyB, info)
+            return findConcavePolygonContactPoints(polyA, polyB)
         }
 
         val contactPoints: Array<Vector2> = arrayOf(Vector2.ZERO, Vector2.ZERO)
@@ -342,7 +341,7 @@ object CollisionFinder {
             }
         }
 
-        // To ensure that the contact point is close enough
+        // To ensure that the contact point is really a contact
         return if (minDistance > EPSILON) {
             arrayOf()
         } else {
@@ -355,9 +354,8 @@ object CollisionFinder {
      *
      * @param polyA The first polygon
      * @param polyB The second polygon
-     * @param info The CollisionInfo object containing information about the collision
      */
-    private fun findConcavePolygonContactPoints(polyA: Polygon, polyB: Polygon, info: CollisionInfo): Array<Vector2> {
+    private fun findConcavePolygonContactPoints(polyA: Polygon, polyB: Polygon): Array<Vector2> {
         val contactPoints: MutableList<Vector2> = mutableListOf()
 
         val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
@@ -366,13 +364,12 @@ object CollisionFinder {
         // Check for contact points between every sub-polygon pair
         for (subPolyA: Polygon in polygonsA) {
             for (subPolyB: Polygon in polygonsB) {
-                val subInfo: CollisionInfo = testCollision(subPolyA, subPolyB)
-                if (!subInfo.hasCollision) continue
+                if (!subPolyA.boundingBox.overlaps(subPolyB.boundingBox)) continue
 
-                val subContactPoints: Array<Vector2> = findContactPoints(subPolyA, subPolyB, subInfo)
+                val subContactPoints: Array<Vector2> = findContactPoints(subPolyA, subPolyB)
 
                 subContactPoints.forEach {
-                    if (isNearExisting(it, contactPoints)) {
+                    if (!isNearExisting(it, contactPoints)) {
                         contactPoints.add(it)
                     }
                 }

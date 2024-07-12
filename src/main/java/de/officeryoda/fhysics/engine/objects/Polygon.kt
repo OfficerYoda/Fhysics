@@ -131,7 +131,7 @@ abstract class Polygon(
     }
 
     override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, other, info)
+        return CollisionFinder.findContactPoints(this, other)
     }
 
     override fun toString(): String {
