@@ -247,12 +247,8 @@ object CollisionSolver {
         // This is a separate step because the object might be outside two edges at the same time
         val collidingBorders: MutableSet<BorderEdge> = moveInsideBorder(obj)
 
-        if (collidingBorders.isEmpty()) return
-
         // Find contact points and solve collisions
-        for (border: BorderEdge in borderObjects) {
-            if (!collidingBorders.contains(border)) continue
-
+        collidingBorders.forEach { border: BorderEdge ->
             solveBorderCollision(obj, border)
         }
     }

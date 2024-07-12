@@ -359,7 +359,6 @@ object CollisionFinder {
      */
     private fun findConcavePolygonContactPoints(polyA: Polygon, polyB: Polygon, info: CollisionInfo): Array<Vector2> {
         val contactPoints: MutableList<Vector2> = mutableListOf()
-        var minDistance: Float = Float.MAX_VALUE
 
         val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
         val polygonsB: List<Polygon> = if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB)
@@ -432,9 +431,12 @@ object CollisionFinder {
             }
         }
 
-        return if (contactCount == 2) contactPoints else arrayOf(contactPoints[0])
+        return when (contactCount) {
+            2 -> contactPoints
+            1 -> arrayOf(contactPoints[0])
+            else -> arrayOf()
+        }
     }
-
 
     /**
      * Finds the contact points between a border and a concave polygon
