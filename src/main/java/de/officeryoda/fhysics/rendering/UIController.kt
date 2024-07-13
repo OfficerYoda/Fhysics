@@ -54,13 +54,22 @@ class UIController {
     private lateinit var txtPropertyRotation: TextField
 
     @FXML
-    lateinit var txtPropertyRestitution: TextField
+    private lateinit var sldPropertyRestitution: Slider
 
     @FXML
-    lateinit var txtPropertyFrictionStatic: TextField
+    private lateinit var lblPropertyRestitution: Label
 
     @FXML
-    lateinit var txtPropertyFrictionDynamic: TextField
+    lateinit var sldPropertyFrictionStatic: Slider
+
+    @FXML
+    lateinit var lblPropertyFrictionStatic: Label
+
+    @FXML
+    lateinit var sldPropertyFrictionDynamic: Slider
+
+    @FXML
+    lateinit var lblPropertyFrictionDynamic: Label
     /// endregion
 
     /// region =====Fields: Gravity=====
@@ -128,10 +137,10 @@ class UIController {
     private lateinit var cbRenderTime: CheckBox
 
     @FXML
-    private lateinit var sldWallElasticity: Slider
+    private lateinit var sldWallRestitution: Slider
 
     @FXML
-    private lateinit var lblWallElasticity: Label
+    private lateinit var lblWallResitution: Label
     /// endregion
 
     /// region =====Methods: Spawn Object=====
@@ -239,18 +248,21 @@ class UIController {
     }
 
     @FXML
-    fun onPropertyRestitutionTyped() {
-        selectedObject!!.restitution = parseTextField(txtPropertyRestitution)
+    fun onPropertyRestitutionChanged() {
+        selectedObject!!.restitution = sldPropertyRestitution.value.toFloat()
+        lblPropertyRestitution.text = toRoundedString(selectedObject!!.restitution)
     }
 
     @FXML
-    fun onPropertyFrictionStaticTyped() {
-        selectedObject!!.frictionStatic = parseTextField(txtPropertyFrictionStatic)
+    fun onPropertyFrictionStaticChanged() {
+        selectedObject!!.frictionStatic = sldPropertyFrictionStatic.value.toFloat()
+        lblPropertyFrictionStatic.text = toRoundedString(selectedObject!!.frictionStatic)
     }
 
     @FXML
-    fun onPropertyFrictionDynamicTyped() {
-        selectedObject!!.frictionDynamic = parseTextField(txtPropertyFrictionDynamic)
+    fun onPropertyFrictionDynamicChanged() {
+        selectedObject!!.frictionDynamic = sldPropertyFrictionDynamic.value.toFloat()
+        lblPropertyFrictionDynamic.text = toRoundedString(selectedObject!!.frictionDynamic)
     }
 
     @FXML
@@ -284,22 +296,13 @@ class UIController {
 
         cbPropertyStatic.isSelected = obj.static
         clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
-        txtPropertyMass.text = toStringWithTwoDecimalPlaces(obj.mass)
-        txtPropertyRotation.text = toStringWithTwoDecimalPlaces(obj.angle * RADIANS_TO_DEGREES)
-        txtPropertyRestitution.text = toStringWithTwoDecimalPlaces(obj.restitution)
-        txtPropertyFrictionStatic.text = toStringWithTwoDecimalPlaces(obj.frictionStatic) // TODO
-        txtPropertyFrictionDynamic.text = toStringWithTwoDecimalPlaces(obj.frictionDynamic) // TODO
+        txtPropertyMass.text = toRoundedString(obj.mass)
+        txtPropertyRotation.text = toRoundedString(selectedObject!!.angle * RADIANS_TO_DEGREES)
+        setSliderAndLabel(sldPropertyRestitution, lblPropertyRestitution, obj.restitution)
+        setSliderAndLabel(sldPropertyFrictionStatic, lblPropertyFrictionStatic, obj.frictionStatic)
+        setSliderAndLabel(sldPropertyFrictionDynamic, lblPropertyFrictionDynamic, obj.frictionDynamic)
     }
 
-    /**
-     * Rounds a float value to two decimal places and converts it to a string.
-     *
-     * @param value The float value to convert.
-     * @return The string representation of the float value with two decimal places.
-     */
-    private fun toStringWithTwoDecimalPlaces(value: Float): String {
-        return ((value * 100).toInt() / 100.0f).toString()
-    }
     /// endregion
 
     /// region =====Methods: Gravity=====
@@ -439,9 +442,9 @@ class UIController {
     }
 
     @FXML
-    fun onWallElasticityChanged() {
-        borderRestitution = sldWallElasticity.value.toFloat()
-        lblWallElasticity.text = String.format(Locale.US, "%.2f", borderRestitution)
+    fun onWallRestitutionChanged() {
+        borderRestitution = sldWallRestitution.value.toFloat()
+        lblWallResitution.text = toRoundedString(borderRestitution)
     }
     /// endregion
 
@@ -457,9 +460,6 @@ class UIController {
         /// region =====Object Properties=====
         restrictToNumericInput(txtPropertyMass, false)
         restrictToNumericInput(txtPropertyRotation)
-        restrictToNumericInput(txtPropertyRestitution, false)
-        restrictToNumericInput(txtPropertyFrictionStatic, false)
-        restrictToNumericInput(txtPropertyFrictionDynamic, false)
         /// endregion
 
         /// region =====Spawn Object=====
@@ -525,10 +525,30 @@ class UIController {
         cbObjectCount.isSelected = drawObjectCount
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
-
-        sldWallElasticity.value = borderRestitution.toDouble()
-        lblWallElasticity.text = String.format(Locale.US, "%.2f", borderRestitution)
+        setSliderAndLabel(sldWallRestitution, lblWallResitution, borderRestitution)
         /// endregion
+    }
+
+    /**
+     * Rounds a float value to two decimal places and converts it to a string.
+     *
+     * @param value The float value to convert.
+     * @return The string representation of the float value with two decimal places.
+     */
+    private fun toRoundedString(value: Float): String {
+        return String.format(Locale.US, "%.2f", value)
+    }
+
+    /**
+     * Sets the value of a slider and its corresponding label.
+     *
+     * @param slider The slider to set the value of.
+     * @param label The label to set the text of.
+     * @param value The value to set the slider and label to.
+     */
+    private fun setSliderAndLabel(slider: Slider, label: Label, value: Float) {
+        slider.value = value.toDouble()
+        label.text = toRoundedString(value)
     }
 
     /**
@@ -612,7 +632,7 @@ class UIController {
         /// region =====Debug=====
         var drawBoundingBoxes: Boolean = false
             private set
-        var drawSubPolygons: Boolean = false
+        var drawSubPolygons: Boolean = true
             private set
         var drawQTCapacity: Boolean = false
             private set
