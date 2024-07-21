@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.dt
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import java.awt.Color
 
@@ -37,11 +38,11 @@ abstract class FhysicsObject protected constructor(
                 acceleration.set(Vector2.ZERO)
                 velocity.set(Vector2.ZERO)
                 angularVelocity = 0f
-                invMass = 1f / mass
-                invInertia = 1f / inertia
-            } else {
                 invMass = 0f
                 invInertia = 0f
+            } else {
+                invMass = 1f / mass
+                invInertia = 1f / inertia
             }
         }
 
@@ -49,6 +50,8 @@ abstract class FhysicsObject protected constructor(
         set(value) {
             field = value
             invMass = if (static) 0f else 1f / value
+            inertia = calculateInertia()
+            invInertia = if (static) 0f else 1f / inertia
         }
     var invMass: Float = 1f / mass
         protected set
@@ -56,7 +59,15 @@ abstract class FhysicsObject protected constructor(
     private var lastUpdate = -1
     private var lastBBoxUpdate = -1
 
-    val inertia: Float by lazy { calculateInertia() }
+    var inertia: Float = -1f
+        get() {
+            if (field == -1f) {
+                field = calculateInertia()
+            }
+
+            invInertia = if (static) 0f else 1f / field
+            return field
+        }
     var invInertia: Float = -1f
         get() {
             if (field == -1f) {
@@ -71,7 +82,15 @@ abstract class FhysicsObject protected constructor(
         }
 
     var frictionStatic: Float = 0.5f
-    var frictionDynamic: Float = 0.3f
+        set(value) {
+            // Can be over one in real life, but it's very rare (rubber on dry concrete: ~1.0)
+            field = Math.clamp(value, 0f, 1f)
+        }
+    var frictionDynamic: Float = 0.35f
+        set(value) {
+            // Can be over one in real life, but it's very rare (rubber on dry concrete: ~0.8)
+            field = Math.clamp(value, 0f, 1f)
+        }
 
     open fun updatePosition() {
         // Static objects don't move
@@ -101,11 +120,17 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun calculateInertia(): Float
 
+    fun testCollision(border: BorderEdge): CollisionInfo {
+        return border.testCollision(this)
+    }
+
     abstract fun testCollision(other: FhysicsObject): CollisionInfo
 
     abstract fun testCollision(other: Circle): CollisionInfo
 
     abstract fun testCollision(other: Polygon): CollisionInfo
+
+    abstract fun findContactPoints(other: BorderEdge): Array<Vector2>
 
     abstract fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
 

@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import kotlin.math.abs
@@ -119,14 +120,22 @@ abstract class Polygon(
         return CollisionFinder.testCollision(this, other)
     }
 
+    override fun findContactPoints(other: BorderEdge): Array<Vector2> {
+        return CollisionFinder.findContactPoints(other, this)
+    }
+
     abstract override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
 
     override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, other, info).first
+        return CollisionFinder.findContactPoints(other, info)
     }
 
     override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, other, info).first
+        return CollisionFinder.findContactPoints(this, other)
+    }
+
+    override fun toString(): String {
+        return "Polygon(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, vertices=$vertices)"
     }
 
     companion object {

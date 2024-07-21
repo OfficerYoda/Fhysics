@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 
@@ -36,16 +37,20 @@ class Circle(
         return CollisionFinder.testCollision(other, this)
     }
 
+    override fun findContactPoints(other: BorderEdge): Array<Vector2> {
+        return CollisionFinder.findContactPoints(other, this)
+    }
+
     override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
         return other.findContactPoints(this, info)
     }
 
     override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, other, info).first
+        return CollisionFinder.findContactPoints(this, info)
     }
 
     override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(other, this, info).first
+        return CollisionFinder.findContactPoints(this, info)
     }
 
     override fun clone(): FhysicsObject {
@@ -53,6 +58,6 @@ class Circle(
     }
 
     override fun toString(): String {
-        return "Circle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, radius=$radius)"
+        return "Circle(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, radius=$radius)"
     }
 }

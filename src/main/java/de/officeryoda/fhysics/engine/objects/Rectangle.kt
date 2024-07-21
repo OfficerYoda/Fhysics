@@ -56,7 +56,7 @@ class Rectangle(
     }
 
     override fun toString(): String {
-        return "Rectangle(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, static=$static, color=$color, width=$width, height=$height, rotation=$angle)"
+        return "Rectangle(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia,  static=$static, color=$color, width=$width, height=$height, rotation=$angle)"
     }
 
     companion object {

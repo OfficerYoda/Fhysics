@@ -3,18 +3,16 @@ package de.officeryoda.fhysics.engine.collision
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.ProjectionResult
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.Circle
-import de.officeryoda.fhysics.engine.objects.ConcavePolygon
-import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.*
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
 object CollisionFinder {
 
-    /// region =====Collision Detection=====
+    private const val EPSILON: Float = 0.0001f
 
+    /// region =====Collision Detection=====
     /**
      * Tests for collision between two circles
      *
@@ -77,7 +75,8 @@ object CollisionFinder {
             finalAxis.negate()
         }
 
-        return CollisionInfo(circle, poly, finalAxis, projResult.getOverlap())
+        val targetPoly: Polygon = if (poly is SubPolygon) poly.parent else poly
+        return CollisionInfo(circle, targetPoly, finalAxis, projResult.getOverlap())
     }
 
     /**
@@ -249,40 +248,22 @@ object CollisionFinder {
 
         return closestPointOnEdge
     }
-
     /// endregion
 
     /// region =====Contact Points=====
-
+    /// region =====Object-Object=====
     /**
-     * Finds the contact points between two circles
+     * Finds the contact points in a collision with a circle
      *
-     * @param circleA The first circle
-     * @param circleB The second circle
-     * @param info The CollisionInfo object containing information about the collision
-     * @return An array containing the contact points
-     */
-    fun findContactPoints(circleA: Circle, circleB: Circle, info: CollisionInfo): Pair<Array<Vector2>, Float> {
-        val contactPoint: Vector2 = circleA.position + info.normal * circleA.radius
-        return Pair(arrayOf(contactPoint), 0f)
-    }
-
-    /**
-     * Finds the contact points between a polygon and a circle
-     *
-     * @param poly The polygon
      * @param circle The circle
      * @param info The CollisionInfo object containing information about the collision
      * @return An array containing the contact points
      */
-    fun findContactPoints(poly: Polygon, circle: Circle, info: CollisionInfo): Pair<Array<Vector2>, Float> {
-        if (info.objA == circle) {
-            val contactPoint: Vector2 = circle.position + info.normal * circle.radius
-            return Pair(arrayOf(contactPoint), 0f)
-        } else {
-            val contactPoint: Vector2 = circle.position - info.normal * circle.radius
-            return Pair(arrayOf(contactPoint), 0f)
-        }
+    fun findContactPoints(circle: Circle, info: CollisionInfo): Array<Vector2> {
+        val offset: Vector2 = info.normal * circle.radius
+        if (info.objB == circle) offset.negate()
+
+        return arrayOf(circle.position + offset)
     }
 
     /**
@@ -290,74 +271,78 @@ object CollisionFinder {
      *
      * @param polyA The first polygon
      * @param polyB The second polygon
-     * @param info The CollisionInfo object containing information about the collision
      * @return An array containing the contact points
      */
-    fun findContactPoints(polyA: Polygon, polyB: Polygon, info: CollisionInfo): Pair<Array<Vector2>, Float> {
+    fun findContactPoints(polyA: Polygon, polyB: Polygon): Array<Vector2> {
         if (polyA is ConcavePolygon || polyB is ConcavePolygon) {
-            return Pair(findConcavePolygonContactPoints(polyA, polyB, info), 0f)
+            return findConcavePolygonContactPoints(polyA, polyB)
         }
 
-        var contactA: Vector2 = Vector2.ZERO
-        var contactB: Vector2 = Vector2.ZERO
+        val contactPoints: Array<Vector2> = arrayOf(Vector2.ZERO, Vector2.ZERO)
         var contactCount = 0
         var minDistance: Float = Float.MAX_VALUE
 
         val verticesA: Array<Vector2> = polyA.getTransformedVertices()
         val verticesB: Array<Vector2> = polyB.getTransformedVertices()
 
-        // Check for contact points between the vertices of polyA and the edges of polyB
+        // Check for contact points between the edges of polyA and the vertices of polyB
         for (i: Int in verticesA.indices) {
-            val vertex: Vector2 = verticesA[i]
+            val va: Vector2 = verticesA[i]
+            val vb: Vector2 = verticesA[(i + 1) % verticesA.size]
             for (j: Int in verticesB.indices) {
-                val va: Vector2 = verticesB[j]
-                val vb: Vector2 = verticesB[(j + 1) % verticesB.size]
+                val vertex: Vector2 = verticesB[j]
 
                 val closestPoint: Vector2 = getClosestPointOnEdge(va, vb, vertex)
-                val distance: Float = vertex.sqrDistanceTo(closestPoint)
+                val sqrDistance: Float = vertex.sqrDistanceTo(closestPoint)
 
-                if (nearlyEquals(distance, minDistance)) {
-                    if (!nearlyEquals(closestPoint, contactA)) {
-                        contactB = closestPoint
-                        contactCount = 2
-                    }
-                } else if (distance < minDistance) {
-                    minDistance = distance
-                    contactA = closestPoint
+                if (nearlyEquals(sqrDistance, minDistance) && !nearlyEquals(closestPoint, contactPoints[0])) {
+                    contactPoints[1] = closestPoint
+                    contactCount = 2
+                } else if (sqrDistance < minDistance) {
+                    minDistance = sqrDistance
+                    contactPoints[0] = closestPoint
                     contactCount = 1
                 }
             }
         }
 
-        // Check for contact points between the vertices of polyB and the edges of polyA
+        // Check for contact points between the edges of polyB and the vertices of polyA
         for (i: Int in verticesB.indices) {
-            val vertex: Vector2 = verticesB[i]
+            val va: Vector2 = verticesB[i]
+            val vb: Vector2 = verticesB[(i + 1) % verticesB.size]
             for (j: Int in verticesA.indices) {
-                val va: Vector2 = verticesA[j]
-                val vb: Vector2 = verticesA[(j + 1) % verticesA.size]
+                val vertex: Vector2 = verticesA[j]
 
                 val closestPoint: Vector2 = getClosestPointOnEdge(va, vb, vertex)
-                val distance: Float = vertex.sqrDistanceTo(closestPoint)
+                val sqrDistance: Float = vertex.sqrDistanceTo(closestPoint)
 
-                if (nearlyEquals(distance, minDistance)) {
-                    if (!nearlyEquals(closestPoint, contactA)) {
-                        contactB = closestPoint
-                        contactCount = 2
-                    }
-                } else if (distance < minDistance) {
-                    minDistance = distance
-                    contactA = closestPoint
+                if (nearlyEquals(sqrDistance, minDistance) && !nearlyEquals(closestPoint, contactPoints[0])) {
+                    contactPoints[1] = closestPoint
+                    contactCount = 2
+                } else if (sqrDistance < minDistance) {
+                    minDistance = sqrDistance
+                    contactPoints[0] = closestPoint
                     contactCount = 1
                 }
             }
         }
 
-        return Pair(if (contactCount == 2) arrayOf(contactA, contactB) else arrayOf(contactA), minDistance)
+        // To ensure that the contact point is really a contact
+        return if (minDistance > EPSILON) {
+            arrayOf()
+        } else {
+            if (contactCount == 2) contactPoints else arrayOf(contactPoints[0])
+        }
     }
 
-    private fun findConcavePolygonContactPoints(polyA: Polygon, polyB: Polygon, info: CollisionInfo): Array<Vector2> {
+    /**
+     * Finds the contact points between two polygons when at least one of them is a concave polygon
+     *
+     * @param polyA The first polygon
+     * @param polyB The second polygon
+     */
+    private fun findConcavePolygonContactPoints(polyA: Polygon, polyB: Polygon): Array<Vector2> {
         val contactPoints: MutableList<Vector2> = mutableListOf()
-        var minDistance: Float = Float.MAX_VALUE
 
         val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
         val polygonsB: List<Polygon> = if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB)
@@ -365,30 +350,97 @@ object CollisionFinder {
         // Check for contact points between every sub-polygon pair
         for (subPolyA: Polygon in polygonsA) {
             for (subPolyB: Polygon in polygonsB) {
-                val subInfo: CollisionInfo = testCollision(subPolyA, subPolyB)
-                if (!subInfo.hasCollision) continue
+                if (!subPolyA.boundingBox.overlaps(subPolyB.boundingBox)) continue
 
-                val (subContactPoints: Array<Vector2>, sqrDistance: Float) =
-                    findContactPoints(subPolyA, subPolyB, subInfo)
+                val subContactPoints: Array<Vector2> = findContactPoints(subPolyA, subPolyB)
 
-                if (nearlyEquals(sqrDistance, minDistance)) {
-                    // Add the contact points that are not near any existing contact points
-                    for (contactPoint: Vector2 in subContactPoints) {
-                        if (!isNearExisting(contactPoint, contactPoints)) {
-                            contactPoints.add(contactPoint)
-                        }
+                subContactPoints.forEach {
+                    if (!isNearExisting(it, contactPoints)) {
+                        contactPoints.add(it)
                     }
-                } else if (sqrDistance < minDistance) {
-                    // Replace the contact points with the new ones
-                    minDistance = sqrDistance
-                    contactPoints.clear()
-                    contactPoints.addAll(subContactPoints)
                 }
             }
         }
 
         return contactPoints.toTypedArray()
     }
+    /// endregion
+
+    /// region =====Border-Object=====
+    /**
+     * Finds the contact points between a border and a circle
+     *
+     * @param border The border
+     * @param circle The circle
+     * @return An array containing the contact points
+     */
+    fun findContactPoints(border: BorderEdge, circle: Circle): Array<Vector2> {
+        val contactPoint: Vector2 = circle.position + border.normal * circle.radius
+        return arrayOf(contactPoint)
+    }
+
+    /**
+     * Finds the contact points between a border and a polygon
+     *
+     * @param border The border
+     * @param poly The polygon
+     * @return An array containing the contact points
+     */
+    fun findContactPoints(border: BorderEdge, poly: Polygon): Array<Vector2> {
+        if (poly is ConcavePolygon) {
+            return findConcavePolygonContactPoints(border, poly)
+        }
+
+        val contactPoints: Array<Vector2> = arrayOf(Vector2.ZERO, Vector2.ZERO)
+        var contactCount = 0
+        val tangent = Vector2(-border.normal.y, border.normal.x)
+        val vertices: Array<Vector2> = poly.getTransformedVertices()
+        var minDistance: Float = Float.MAX_VALUE
+
+        for (i: Int in vertices.indices) {
+            val vertex: Vector2 = vertices[i]
+            val closestPoint: Vector2 = border.edgeCorner + tangent * (vertex - border.edgeCorner).dot(tangent)
+
+            val sqrDistance: Float = vertex.sqrDistanceTo(closestPoint)
+            if (sqrDistance > EPSILON) continue
+
+            if (nearlyEquals(sqrDistance, minDistance) && !nearlyEquals(closestPoint, contactPoints[0])) {
+                contactPoints[1] = closestPoint
+                contactCount = 2
+            } else if (sqrDistance < minDistance) {
+                minDistance = sqrDistance
+                contactPoints[0] = closestPoint
+                contactCount = 1
+            }
+        }
+
+        return when (contactCount) {
+            2 -> contactPoints
+            1 -> arrayOf(contactPoints[0])
+            else -> arrayOf()
+        }
+    }
+
+    /**
+     * Finds the contact points between a border and a concave polygon
+     *
+     * @param border The border
+     * @param concavePolygon The concave polygon
+     * @return An array containing the contact points
+     */
+    private fun findConcavePolygonContactPoints(border: BorderEdge, concavePolygon: ConcavePolygon): Array<Vector2> {
+        val contactPoints: MutableList<Vector2> = mutableListOf()
+
+        for (subPoly: Polygon in concavePolygon.subPolygons) {
+            val subContactPoints: Array<Vector2> = findContactPoints(border, subPoly)
+            contactPoints.addAll(subContactPoints)
+        }
+
+        return contactPoints.toTypedArray()
+    }
+    /// endregion
+
+    /// region =====Helper Methods=====
 
     /**
      * Checks if a contact point is near any existing contact points
@@ -409,8 +461,7 @@ object CollisionFinder {
      * @return A boolean indicating if the floats are nearly equal
      */
     private fun nearlyEquals(a: Float, b: Float): Boolean {
-        val epsilon = 0.0001f
-        return (a - b).absoluteValue < epsilon
+        return (a - b).absoluteValue < EPSILON
     }
 
     /**
@@ -420,10 +471,9 @@ object CollisionFinder {
      * @param b The second vector
      * @return A boolean indicating if the vectors are nearly equal
      */
-    private fun nearlyEquals(a: Vector2, b: Vector2): Boolean {
-        val epsilon = 0.0001f
-        return a.sqrDistanceTo(b) < epsilon
+    fun nearlyEquals(a: Vector2, b: Vector2): Boolean {
+        return a.sqrDistanceTo(b) < EPSILON
     }
-
+    /// endregion
     /// endregion
 }

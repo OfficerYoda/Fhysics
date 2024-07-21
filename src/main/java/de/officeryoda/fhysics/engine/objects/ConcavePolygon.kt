@@ -10,12 +10,6 @@ class ConcavePolygon(
 ) : Polygon(vertices, angle) {
 
     var subPolygons: MutableList<SubPolygon> = mutableListOf()
-    override var static: Boolean
-        get() = super.static
-        set(value) {
-            super.static = value
-            subPolygons.forEach { it.static = value }
-        }
 
     init {
         subPolygonIndices.forEach { indices ->
@@ -35,9 +29,12 @@ class ConcavePolygon(
 
     override fun clone(): FhysicsObject {
         val clone: ConcavePolygon =
-            PolygonCreator.createPolygon(vertices.map { it + position }.toTypedArray()) as ConcavePolygon
-        clone.angle = this.angle
+            PolygonCreator.createPolygon(vertices.map { it + position }.toTypedArray(), angle) as ConcavePolygon
         return clone
+    }
+
+    override fun toString(): String {
+        return "ConcavePolygon(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, vertices=$vertices)"
     }
 }
 
