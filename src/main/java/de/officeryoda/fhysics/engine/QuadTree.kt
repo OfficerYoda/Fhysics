@@ -163,6 +163,7 @@ data class QuadTree(
             }
             // Update each object
             updateObject(obj)
+
             // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
             if (!boundary.contains(obj.boundingBox)) {
                 parent!!.addRebuildObject(obj)
@@ -198,7 +199,7 @@ data class QuadTree(
     }
 
     private fun updateObject(it: FhysicsObject) {
-        it.updatePosition()
+        it.update()
 
         CollisionSolver.checkBorderCollision(it)
     }
@@ -292,7 +293,8 @@ data class QuadTree(
 
             UIController.drawBoundingBoxes -> objects.forEach {
                 drawer.drawObject(it)
-                DebugDrawer.drawBoundingBox(it)
+                it.boundingBox.setFromFhysicsObject(it) // Bounding boxes are only updated on the start of fhysics updates
+                DebugDrawer.drawBoundingBox(it.boundingBox)
             }
 
             else -> objects.forEach { drawer.drawObject(it) }

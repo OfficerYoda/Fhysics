@@ -106,8 +106,6 @@ object FhysicsCore {
 
         quadTree.insertObjects()
         quadTree.updateObjectsAndRebuild()
-
-//        checkObjectCollision(quadTree)
         quadTree.handleCollisions()
 
         if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()

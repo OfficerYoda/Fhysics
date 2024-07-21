@@ -20,14 +20,6 @@ abstract class FhysicsObject protected constructor(
     val id: Int = FhysicsCore.nextId()
     var color: Color = colorFromId()
     val boundingBox: BoundingBox = BoundingBox()
-        get() {
-            // only update the bounding box if it hasn't been updated this update cycle
-            if (lastBBoxUpdate != FhysicsCore.updateCount) {
-                lastBBoxUpdate = FhysicsCore.updateCount
-                boundingBox.setFromFhysicsObject(this)
-            }
-            return field
-        }
 
     val acceleration: Vector2 = Vector2.ZERO
     open var static: Boolean = false
@@ -44,6 +36,8 @@ abstract class FhysicsObject protected constructor(
                 invMass = 1f / mass
                 invInertia = 1f / inertia
             }
+
+            boundingBox.setFromFhysicsObject(this)
         }
 
     var mass: Float = mass
@@ -57,7 +51,6 @@ abstract class FhysicsObject protected constructor(
         protected set
 
     private var lastUpdate = -1
-    private var lastBBoxUpdate = -1
 
     var inertia: Float = -1f
         get() {
@@ -92,7 +85,7 @@ abstract class FhysicsObject protected constructor(
             field = Math.clamp(value, 0f, 1f)
         }
 
-    open fun updatePosition() {
+    open fun update() {
         // Static objects don't move
         if (static) return
         // Needed because multiple quadtree nodes can contain the same object
@@ -112,6 +105,9 @@ abstract class FhysicsObject protected constructor(
         // Update rotation
         angularVelocity *= (1 - damping)
         angle += angularVelocity * dt
+
+        // Update bounding box
+        boundingBox.setFromFhysicsObject(this)
     }
 
     abstract fun project(axis: Vector2): Projection

@@ -46,8 +46,6 @@ object CollisionSolver {
         // No need to solve collision if both objects are static
         if (objA.static && objB.static) return
 
-        contactPoints.forEach { DebugDrawer.addDebugPoint(it, Color.red, 1) }
-
         val normalForces: ArrayList<Float> =
             solveImpulse(objA, objB, contactPoints, info)
         solveFriction(objA, objB, contactPoints, info, normalForces)
@@ -274,7 +272,8 @@ object CollisionSolver {
 
         // Solve collision
         if (contactPoints.isNotEmpty()) {
-            val normalForces: ArrayList<Float> = solveBorderImpulse(border, obj, contactPoints)
+            val normalForces: ArrayList<Float> =
+                solveBorderImpulse(border, obj, contactPoints)
             solveBorderFriction(border, obj, contactPoints, normalForces)
         }
     }

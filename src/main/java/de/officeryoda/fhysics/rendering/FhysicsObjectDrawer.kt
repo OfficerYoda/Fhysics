@@ -226,9 +226,9 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygon(poly: Polygon) {
-        DebugDrawer.addDebugPoint(poly.position, Color.YELLOW)
+        DebugDrawer.addDebugPoint(poly.position, Color.YELLOW, 1)
         if (poly is SubPolygon) {
-            DebugDrawer.addDebugPoint(poly.parent.position, Color.YELLOW)
+            DebugDrawer.addDebugPoint(poly.parent.position, Color.YELLOW, 1)
         }
 
         if (UIController.drawSubPolygons && poly is ConcavePolygon) {
