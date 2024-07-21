@@ -39,6 +39,13 @@ data class QuadTree(
         }
     }
 
+    fun shutdownThreadPool() {
+        if (isRoot) {
+            println("Shutting down thread pool")
+            threadPool.shutdownNow()
+        }
+    }
+
     /// region =====Basic functions=====
     private fun insert(obj: FhysicsObject) {
         if (!boundary.overlaps(obj.boundingBox)) return
