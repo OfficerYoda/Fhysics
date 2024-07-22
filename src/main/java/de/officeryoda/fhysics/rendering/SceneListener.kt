@@ -288,8 +288,15 @@ object SceneListener {
     fun onKeyPressed(event: KeyEvent) {
         when (event.code) {
             KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
-            KeyCode.SPACE -> FhysicsCore.update()
-            KeyCode.ENTER -> FhysicsCore.update()
+            KeyCode.SPACE -> {
+                DebugDrawer.clearDebug()
+                FhysicsCore.update()
+            }
+
+            KeyCode.ENTER -> {
+                DebugDrawer.clearDebug()
+                FhysicsCore.update()
+            }
             KeyCode.Z -> drawer.resetZoom()
             KeyCode.J -> QuadTree.capacity -= 5
             KeyCode.K -> QuadTree.capacity += 5

@@ -165,7 +165,7 @@ object DebugDrawer {
         val lineHeight: Double = font.size
         val borderSpacing = 5.0
 
-        for (i: Int in 0 until stats.size) {
+        for (i: Int in stats.indices) {
             val text: String = stats[i]
 
             if (UIController.drawQuadTree) {
@@ -249,5 +249,10 @@ object DebugDrawer {
         debugVectors.add(DebugVector(support, direction, color, durationFrames))
     }
 
+    fun clearDebug() {
+        debugPoints.clear()
+        debugLines.clear()
+        debugVectors.clear()
+    }
     /// endregion
 }

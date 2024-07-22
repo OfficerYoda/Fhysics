@@ -77,7 +77,7 @@ abstract class FhysicsObject protected constructor(
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~1.0)
             field = Math.clamp(value, 0f, 1f)
         }
-    var frictionDynamic: Float = 0.35f
+    var frictionDynamic: Float = 0.45f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~0.8)
             field = Math.clamp(value, 0f, 1f)
