@@ -36,8 +36,6 @@ abstract class FhysicsObject protected constructor(
                 invMass = 1f / mass
                 invInertia = 1f / inertia
             }
-
-            boundingBox.setFromFhysicsObject(this)
         }
 
     var mass: Float = mass
