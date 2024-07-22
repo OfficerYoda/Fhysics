@@ -116,10 +116,10 @@ data class QuadTree(
     /// endregion
 
     /// region =====Rebuild and update functions=====
-    fun updateObjectsAndRebuild() {
+    fun rebuild() {
         if (divided) {
             // Rebuild the children first
-            updateChildren()
+            rebuildChildren()
             // Insert any objects that need to be rebuilt
             insertRebuildObjects()
             // Collapse the node if possible
@@ -128,8 +128,6 @@ data class QuadTree(
             if (isRoot) {
                 // Remove objects that are queued for removal
                 objects.removeAll(removeQueue)
-                // Update the remaining objects
-                objects.forEach { updateObject(it) }
             } else {
                 handleNonRootNode()
             }
@@ -141,15 +139,15 @@ data class QuadTree(
         }
     }
 
-    private fun updateChildren() {
+    private fun rebuildChildren() {
         if (isRoot) {
             // Update root children async
-            updateObjectsAndRebuildChildrenAsync()
+            rebuildChildrenAsync()
         } else {
-            topLeft!!.updateObjectsAndRebuild()
-            topRight!!.updateObjectsAndRebuild()
-            botLeft!!.updateObjectsAndRebuild()
-            botRight!!.updateObjectsAndRebuild()
+            topLeft!!.rebuild()
+            topRight!!.rebuild()
+            botLeft!!.rebuild()
+            botRight!!.rebuild()
         }
     }
 
@@ -161,8 +159,6 @@ data class QuadTree(
                 toRemove.add(obj)
                 continue
             }
-            // Update each object
-            updateObject(obj)
 
             // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
             if (!boundary.contains(obj.boundingBox)) {
@@ -196,12 +192,6 @@ data class QuadTree(
             insert(obj)
         }
         rebuildObjects.clear()
-    }
-
-    private fun updateObject(it: FhysicsObject) {
-        it.update()
-
-        CollisionSolver.checkBorderCollision(it)
     }
 
     private fun tryCollapse() {
@@ -239,6 +229,22 @@ data class QuadTree(
         }
     }
 
+    fun updateObjects() {
+        if (divided) {
+            topLeft!!.updateObjects()
+            topRight!!.updateObjects()
+            botLeft!!.updateObjects()
+            botRight!!.updateObjects()
+        } else {
+            objects.forEach { updateObject(it) }
+        }
+    }
+
+    private fun updateObject(it: FhysicsObject) {
+        it.update()
+
+        CollisionSolver.checkBorderCollision(it)
+    }
     /// endregion
 
     /// region =====Collision functions=====
@@ -315,12 +321,12 @@ data class QuadTree(
     /// endregion
 
     /// region =====Async functions=====
-    private fun updateObjectsAndRebuildChildrenAsync() {
+    private fun rebuildChildrenAsync() {
         val futures: MutableList<Future<*>> = mutableListOf()
-        futures.add(threadPool.submit { topLeft!!.updateObjectsAndRebuild() })
-        futures.add(threadPool.submit { topRight!!.updateObjectsAndRebuild() })
-        futures.add(threadPool.submit { botLeft!!.updateObjectsAndRebuild() })
-        futures.add(threadPool.submit { botRight!!.updateObjectsAndRebuild() })
+        futures.add(threadPool.submit { topLeft!!.rebuild() })
+        futures.add(threadPool.submit { topRight!!.rebuild() })
+        futures.add(threadPool.submit { botLeft!!.rebuild() })
+        futures.add(threadPool.submit { botRight!!.rebuild() })
 
         // Wait for all tasks to finish
         waitForAllFutures(futures)

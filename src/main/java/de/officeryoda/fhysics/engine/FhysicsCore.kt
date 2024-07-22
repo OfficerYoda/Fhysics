@@ -15,6 +15,7 @@ object FhysicsCore {
     // Constants
     val BORDER: BoundingBox = BoundingBox(0.0f, 0.0f, 100.0f, 100.0f) // x and y must be 0.0
     const val UPDATES_PER_SECOND: Int = 120
+    const val SUB_STEPS: Int = 4
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
     private const val QTC_START_STEP_SIZE = 10.0
     val RENDER_LOCK = ReentrantLock()
@@ -23,9 +24,9 @@ object FhysicsCore {
     private var quadTree: QuadTree = QuadTree(BORDER, null)
 
     private var objectCount: Int = 0
-    var updateCount = 0
+    var updateCount = 0 // Includes all sub steps
 
-    var dt: Float = 1.0f / UPDATES_PER_SECOND
+    var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
     var running: Boolean = true
     val updateStopwatch = Stopwatch(50)
 
@@ -105,12 +106,17 @@ object FhysicsCore {
         updateStopwatch.start()
 
         quadTree.insertObjects()
-        quadTree.updateObjectsAndRebuild()
-        quadTree.handleCollisions()
+        quadTree.rebuild()
+
+        repeat(SUB_STEPS) {
+            quadTree.updateObjects()
+            quadTree.handleCollisions()
+
+            updateCount++
+        }
 
         if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
-        updateCount++
         updateStopwatch.stop()
     }
 

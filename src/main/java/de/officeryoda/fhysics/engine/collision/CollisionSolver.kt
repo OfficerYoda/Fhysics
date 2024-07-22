@@ -265,17 +265,17 @@ object CollisionSolver {
         var contactPoints: Array<Vector2> = obj.findContactPoints(border)
         contactPoints = removeDuplicates(contactPoints)
 
+        if (contactPoints.isEmpty()) return
+
         // Draw them for debug
         contactPoints.forEach {
             DebugDrawer.addDebugPoint(it, Color.green, 1)
         }
 
         // Solve collision
-        if (contactPoints.isNotEmpty()) {
-            val normalForces: ArrayList<Float> =
-                solveBorderImpulse(border, obj, contactPoints)
-            solveBorderFriction(border, obj, contactPoints, normalForces)
-        }
+        val normalForces: ArrayList<Float> =
+            solveBorderImpulse(border, obj, contactPoints)
+        solveBorderFriction(border, obj, contactPoints, normalForces)
     }
 
     /**
@@ -427,7 +427,7 @@ object CollisionSolver {
      * @return The contact points without duplicates
      */
     private fun removeDuplicates(contactPoints: Array<Vector2>): Array<Vector2> {
-        val uniquePoints: MutableList<Vector2> = mutableListOf<Vector2>()
+        val uniquePoints: MutableList<Vector2> = mutableListOf()
 
         for (point: Vector2 in contactPoints) {
             if (uniquePoints.none { existingPoint -> nearlyEquals(existingPoint, point) }) {

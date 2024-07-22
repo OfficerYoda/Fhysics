@@ -374,7 +374,7 @@ class UIController {
     @FXML
     fun onTimeSpeedTyped() {
         timeSpeed = parseTextField(txtTimeSpeed)
-        FhysicsCore.dt = 1.0f / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
+        FhysicsCore.dt = 1.0f / (FhysicsCore.UPDATES_PER_SECOND * FhysicsCore.SUB_STEPS) * timeSpeed
     }
     /// endregion
 
