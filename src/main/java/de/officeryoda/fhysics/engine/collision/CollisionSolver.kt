@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.CollisionFinder.EPSILON
 import de.officeryoda.fhysics.engine.collision.CollisionFinder.nearlyEquals
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
@@ -37,15 +38,16 @@ object CollisionSolver {
      * Solves the collision between two objects
      *
      * @param info The CollisionInfo object containing information about the collision
-     * @param contactPoints The contact points of the collision
      */
-    fun solveCollision(info: CollisionInfo, contactPoints: Array<Vector2>) {
+    fun solveCollision(info: CollisionInfo) {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
-        // No need to solve collision if both objects are static
-        if (objA.static && objB.static) return
+        // Separate and find contact points
+        separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
+        val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
 
+        // Solve collision
         val normalForces: ArrayList<Float> =
             solveImpulse(objA, objB, contactPoints, info)
         solveFriction(objA, objB, contactPoints, info, normalForces)
@@ -68,6 +70,7 @@ object CollisionSolver {
     ): ArrayList<Float> {
 //        val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution <-- bad approximation
         val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
+
         val impulseList: ArrayList<Vector2> = arrayListOf()
         val normalForces: ArrayList<Float> = arrayListOf() // Used for friction
         val normal: Vector2 = info.normal
@@ -87,7 +90,7 @@ object CollisionSolver {
 
             // Continue if the objects are already moving away from each other
             val contactVelocityMag: Float = relativeVelocity.dot(normal)
-            if (contactVelocityMag > 0) {
+            if (contactVelocityMag > EPSILON) {
                 normalForces.add(0f)
                 continue
             }
@@ -112,14 +115,10 @@ object CollisionSolver {
         for (i: Int in impulseList.indices) {
             val impulse: Vector2 = impulseList[i]
 
-            if (!objA.static) {
-                objA.velocity += -impulse * objA.invMass
-                objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
-            }
-            if (!objB.static) {
-                objB.velocity += impulse * objB.invMass
-                objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
-            }
+            objA.velocity += -impulse * objA.invMass
+            objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
+            objB.velocity += impulse * objB.invMass
+            objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
         }
 
         return normalForces
@@ -164,7 +163,7 @@ object CollisionSolver {
 
             // Get the tangent vector of the normal
             var tangent: Vector2 = relativeVelocity - relativeVelocity.dot(normal) * normal
-            if (tangent.sqrMagnitude() < 0.0001f) continue
+            if (tangent.sqrMagnitude() < EPSILON) continue
             tangent = tangent.normalized()
 
             // Calculate the friction impulse
@@ -193,14 +192,10 @@ object CollisionSolver {
         for (i: Int in frictionList.indices) {
             val frictionImpulse: Vector2 = frictionList[i]
 
-            if (!objA.static) {
-                objA.velocity += -frictionImpulse * objA.invMass
-                objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia
-            }
-            if (!objB.static) {
-                objB.velocity += frictionImpulse * objB.invMass
-                objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia
-            }
+            objA.velocity += -frictionImpulse * objA.invMass
+            objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia
+            objB.velocity += frictionImpulse * objB.invMass
+            objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia
         }
     }
 
@@ -209,7 +204,7 @@ object CollisionSolver {
      *
      * @param info The CollisionInfo object containing information about the collision
      */
-    fun separateOverlappingObjects(info: CollisionInfo) {
+    private fun separateOverlappingObjects(info: CollisionInfo) {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
@@ -325,7 +320,7 @@ object CollisionSolver {
 
             // Continue if the objects are already moving away from each other
             val contactVelocityMag: Float = -totalVelocity.dot(normal)
-            if (contactVelocityMag > 0) {
+            if (contactVelocityMag > EPSILON) {
                 normalForces.add(0f)
                 continue
             }
@@ -388,7 +383,7 @@ object CollisionSolver {
 
             // Get the tangent vector of the normal
             var tangent: Vector2 = relativeVelocity - relativeVelocity.dot(normal) * normal
-            if (tangent.sqrMagnitude() < 0.0001f) continue
+            if (tangent.sqrMagnitude() < EPSILON) continue
             tangent = tangent.normalized()
 
             // Calculate the friction impulse

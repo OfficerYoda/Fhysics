@@ -10,7 +10,7 @@ import kotlin.math.min
 
 object CollisionFinder {
 
-    private const val EPSILON: Float = 0.0001f
+    const val EPSILON: Float = 0.0001f
 
     /// region =====Collision Detection=====
     /**
