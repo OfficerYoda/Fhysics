@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -14,7 +15,7 @@ object FhysicsCore {
 
     // Constants
     val BORDER: BoundingBox = BoundingBox(0.0f, 0.0f, 100.0f, 100.0f) // x and y must be 0.0
-    const val UPDATES_PER_SECOND: Int = 120
+    const val UPDATES_PER_SECOND: Int = 60
     const val SUB_STEPS: Int = 4
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
     private const val QTC_START_STEP_SIZE = 10.0
@@ -51,35 +52,25 @@ object FhysicsCore {
 //            spawn(FhysicsObjectFactory.randomPolygon())
 //        }
 
-        // Two rectangles that act as slides
+        // Three rectangles that act as slides + ground rectangle
 //        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).static = true
 //        spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).static = true
 //        spawn(Rectangle(Vector2(70.0f, 30.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).static = true
 //        spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).static = true
 
-        // Concave poly-circle fail case
-//        val vertices = arrayOf(
-//            Vector2(x = 50.0f, y = 50.0f),
-//            Vector2(x = 55.0f, y = 70.0f),
-//            Vector2(x = 50.0f, y = 60.0f),
-//            Vector2(x = 45.0f, y = 70.0f),
-//        )
-//        spawn(PolygonCreator.createPolygon(vertices)).static = true
-
-        // Spawn five circles in the top right
-//        for (i: Int in 1..5) {
-//            spawn(Circle(Vector2(90f - i * 5, 90f), 1f))
+        // A Big rectangle in the center with an incline of 30 degrees and maximum friction values
+//        spawn(Rectangle(Vector2(50.0f, 50.0f), 100.0f, 10.0f, Math.toRadians(30.0).toFloat())).apply {
+//            static = true
+//            frictionStatic = 1.0f
+//            frictionDynamic = 1.0f
+//            restitution = 0.0f
 //        }
 
-//        val vertices: Array<Vector2> = arrayOf(
-//            Vector2(0f, 0f),
-//            Vector2(5f, 0f),
-//            Vector2(5f, 3f),
-//            Vector2(0f, 2f),
-//            Vector2(-2f, 3.5f)
-//        )
-//        vertices.forEach { it += Vector2(50f, 22.5f) }
-//        spawn(PolygonCreator.createPolygon(vertices))
+        repeat(2000) {
+//            val circle = Circle(Vector2(Math.random().toFloat(), Math.random().toFloat()) * 100.0f, 1.0f)
+            val circle = FhysicsObjectFactory.randomCircle()
+            spawn(circle)
+        }
 
         objectsAtStepSizeIncrease = objectCount
     }
@@ -122,6 +113,7 @@ object FhysicsCore {
 
     fun spawn(obj: FhysicsObject): FhysicsObject {
         QuadTree.toAdd.add(obj)
+        obj.boundingBox.setFromFhysicsObject(obj)
         return obj
     }
 
@@ -176,16 +168,10 @@ object FhysicsCore {
         if (UIController.gravityType == GravityType.DIRECTIONAL) {
             return UIController.gravityDirection
         } else {
-            val minDst = 0.05F
-            val sqrDst: Float = UIController.gravityPoint.sqrDistanceTo(pos)
-            if (sqrDst < minDst * minDst) {
-                // to not fling objects away and to avoid objects getting stuck in the
-                // gravity point causing it to vibrate and hitting other objects away
-                return Vector2.ZERO
-            }
-
             val direction: Vector2 = UIController.gravityPoint - pos
-            return UIController.gravityPointStrength / sqrDst * direction.normalized()
+            val sqrDistance: Float =
+                max(1f, direction.sqrMagnitude()) // Prevent high forces when the object is close to the gravity point
+            return UIController.gravityPointStrength / sqrDistance * direction.normalized()
         }
     }
 
