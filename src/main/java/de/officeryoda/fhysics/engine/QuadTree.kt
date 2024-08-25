@@ -248,18 +248,24 @@ data class QuadTree(
     /// endregion
 
     /// region =====Collision functions=====
-    fun handleCollisions() {
-        if (divided) {
-            handleCollisionsInChildren()
-        } else {
-            val numObjects: Int = objects.size
-
-            for (i: Int in objects.indices) {
-                for (j: Int in i + 1 until numObjects) {
-                    handleCollision(objects[i], objects[j])
+    fun handleCollisions() = if (divided) {
+        handleCollisionsInChildren()
+    } else {
+        // Find collisions in this node
+        val collisions: MutableList<CollisionInfo> = mutableListOf()
+        for (i: Int in objects.indices) {
+            for (j: Int in i + 1 until objects.size) {
+                val objA: FhysicsObject = objects[i]
+                val objB: FhysicsObject = objects[j]
+                val info: CollisionInfo = objA.testCollision(objB)
+                if (info.hasCollision) {
+                    collisions.add(info)
                 }
             }
         }
+
+        // Solve collisions
+        collisions.forEach { CollisionSolver.solveCollision(it) }
     }
 
     private fun handleCollisionsInChildren() {
@@ -272,15 +278,6 @@ data class QuadTree(
             botLeft!!.handleCollisions()
             botRight!!.handleCollisions()
         }
-    }
-
-    private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
-        if (objA.static && objB.static) return
-
-        val info: CollisionInfo = objA.testCollision(objB)
-
-        if (!info.hasCollision) return
-        CollisionSolver.solveCollision(info)
     }
 
     /// endregion
