@@ -42,6 +42,7 @@ object CollisionSolver {
     fun solveCollision(info: CollisionInfo) {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
+        if (objA.static && objB.static) return
 
         // Separate and find contact points
         separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
