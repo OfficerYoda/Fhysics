@@ -111,10 +111,12 @@ object FhysicsCore {
         updateStopwatch.stop()
     }
 
-    fun spawn(obj: FhysicsObject): FhysicsObject {
-        QuadTree.toAdd.add(obj)
-        obj.boundingBox.setFromFhysicsObject(obj)
-        return obj
+    fun spawn(vararg objects: FhysicsObject): Array<out FhysicsObject> {
+        for (o: FhysicsObject in objects) {
+            QuadTree.toAdd.add(o)
+            o.boundingBox.setFromFhysicsObject(o)
+        }
+        return objects
     }
 
     private fun optimizeQuadTreeCapacity() {

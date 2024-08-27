@@ -111,7 +111,7 @@ object CollisionSolver {
             normalForces.add(impulseMag)
         }
 
-        // Apply the impulses
+        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
         for (i: Int in impulseList.indices) {
             val impulse: Vector2 = impulseList[i]
 
@@ -188,7 +188,7 @@ object CollisionSolver {
             frictionList.add(frictionImpulse)
         }
 
-        // Apply the impulses
+        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
         for (i: Int in frictionList.indices) {
             val frictionImpulse: Vector2 = frictionList[i]
 
@@ -274,24 +274,6 @@ object CollisionSolver {
     }
 
     /**
-     * Moves an object inside the border
-     *
-     * @param obj The object to move
-     * @return A set of border edges the object is colliding with
-     */
-    private fun moveInsideBorder(obj: FhysicsObject): MutableSet<BorderEdge> {
-        val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
-        for (border: BorderEdge in borderObjects) {
-            val info: CollisionInfo = border.testCollision(obj)
-            if (!info.hasCollision) continue
-
-            obj.position += -info.normal * info.depth
-            collidingBorders.add(border)
-        }
-        return collidingBorders
-    }
-
-    /**
      * Solves the impulse for a border collision
      *
      * @param border The border the object is colliding with
@@ -339,7 +321,7 @@ object CollisionSolver {
             normalForces.add(impulseMag)
         }
 
-        // Apply the impulses
+        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
         for (i: Int in impulseList.indices) {
             val impulse: Vector2 = impulseList[i]
 
@@ -406,13 +388,31 @@ object CollisionSolver {
             frictionList.add(frictionImpulse)
         }
 
-        // Apply the impulses
+        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
         for (i: Int in frictionList.indices) {
             val frictionImpulse: Vector2 = frictionList[i]
 
             obj.velocity += -frictionImpulse * obj.invMass
             obj.angularVelocity += frictionImpulse.cross(contactPoints[i] - obj.position) * obj.invInertia
         }
+    }
+
+    /**
+     * Moves an object inside the border
+     *
+     * @param obj The object to move
+     * @return A set of border edges the object is colliding with
+     */
+    private fun moveInsideBorder(obj: FhysicsObject): MutableSet<BorderEdge> {
+        val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
+        for (border: BorderEdge in borderObjects) {
+            val info: CollisionInfo = border.testCollision(obj)
+            if (!info.hasCollision) continue
+
+            obj.position += -info.normal * info.depth
+            collidingBorders.add(border)
+        }
+        return collidingBorders
     }
 
     /**

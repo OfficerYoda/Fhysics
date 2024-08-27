@@ -236,36 +236,37 @@ data class QuadTree(
             botLeft!!.updateObjects()
             botRight!!.updateObjects()
         } else {
-            objects.forEach { updateObject(it) }
+            objects.forEach() { it.update() }
         }
     }
 
-    private fun updateObject(it: FhysicsObject) {
-        it.update()
-
-        CollisionSolver.checkBorderCollision(it)
-    }
     /// endregion
 
     /// region =====Collision functions=====
-    fun handleCollisions() = if (divided) {
-        handleCollisionsInChildren()
-    } else {
-        // Find collisions in this node
-        val collisions: MutableList<CollisionInfo> = mutableListOf()
-        for (i: Int in objects.indices) {
-            for (j: Int in i + 1 until objects.size) {
-                val objA: FhysicsObject = objects[i]
-                val objB: FhysicsObject = objects[j]
-                val info: CollisionInfo = objA.testCollision(objB)
-                if (info.hasCollision) {
-                    collisions.add(info)
+    fun handleCollisions() {
+        if (divided) {
+            handleCollisionsInChildren()
+        } else {
+            // Check for border collisions
+            // NOTE: checking for border collisions before object collisions showed better results
+            objects.forEach { CollisionSolver.checkBorderCollision(it) }
+
+            // Find collisions between objects
+            val collisions: MutableList<CollisionInfo> = mutableListOf()
+            for (i: Int in objects.indices) {
+                for (j: Int in i + 1 until objects.size) {
+                    val objA: FhysicsObject = objects[i]
+                    val objB: FhysicsObject = objects[j]
+                    val info: CollisionInfo = objA.testCollision(objB)
+                    if (info.hasCollision) {
+                        collisions.add(info)
+                    }
                 }
             }
-        }
 
-        // Solve collisions
-        collisions.forEach { CollisionSolver.solveCollision(it) }
+            // Solve collisions between objects
+            collisions.forEach { CollisionSolver.solveCollision(it) }
+        }
     }
 
     private fun handleCollisionsInChildren() {
