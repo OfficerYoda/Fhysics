@@ -104,6 +104,8 @@ abstract class FhysicsObject protected constructor(
         // Update rotation
         angularVelocity *= (1 - damping)
         angle += angularVelocity * dt
+        // Normalize angle
+        angle %= TWO_PI
 
         // Update bounding box
         boundingBox.setFromFhysicsObject(this)
@@ -162,5 +164,9 @@ abstract class FhysicsObject protected constructor(
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    companion object {
+        private const val TWO_PI: Float = Math.PI.toFloat() * 2
     }
 }
