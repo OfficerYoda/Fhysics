@@ -301,7 +301,7 @@ object SceneListener {
             KeyCode.J -> QuadTree.capacity -= 5
             KeyCode.K -> QuadTree.capacity += 5
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
-            KeyCode.Q -> println(QuadTree.root)
+            KeyCode.Q -> println(QuadTree.root.objects.forEach { println(it) })
             KeyCode.S -> println(selectedObject)
             else -> {}
         }

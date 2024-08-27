@@ -122,6 +122,9 @@ object CollisionSolver {
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
         }
 
+        if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
+        if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
+
         return normalForces
     }
 
@@ -146,6 +149,7 @@ object CollisionSolver {
 
         val frictionList: ArrayList<Vector2> = arrayListOf()
         val normal: Vector2 = info.normal
+        val frictionType: ArrayList<Color> = arrayListOf() // TODO: Remove this
 
         // Calculate the friction for each contact point
         for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
@@ -157,6 +161,10 @@ object CollisionSolver {
             val raPerp = Vector2(-ra.y, ra.x)
             val rbPerp = Vector2(-rb.y, rb.x)
 
+            // Draw debug vectors
+            DebugDrawer.addDebugVector(contactPoint, raPerp, Color.orange, 1)
+            DebugDrawer.addDebugVector(contactPoint, rbPerp, Color.orange, 1)
+
             val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
             val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
 
@@ -164,7 +172,7 @@ object CollisionSolver {
 
             // Get the tangent vector of the normal
             var tangent: Vector2 = relativeVelocity - relativeVelocity.dot(normal) * normal
-            if (tangent.sqrMagnitude() < EPSILON) continue
+            if (tangent.sqrMagnitude() < EPSILON) continue // Continue if there is no tangential velocity
             tangent = tangent.normalized()
 
             // Calculate the friction impulse
@@ -179,14 +187,31 @@ object CollisionSolver {
 
             // Apply Coulomb's law
             val normalForce: Float = normalForces[i]
+
             val frictionImpulse: Vector2 =
                 if (abs(frictionMag) <= normalForce * sf) {
-                    frictionMag * tangent
+                    frictionMag * tangent // Static friction
                 } else {
-                    -normalForce * df * tangent
+                    -normalForce * df * tangent // Dynamic friction
                 }
 
             frictionList.add(frictionImpulse)
+            if (abs(frictionMag) <= normalForce * sf) {
+                frictionType.add(Color.red)
+            } else {
+                frictionType.add(Color.blue)
+            }
+        }
+
+        // This is used so that the rectangle doesn't get a slight tilt when sliding down a slope
+        // It is still sliding down the slope, but my current hypothesis is that it's caused by the rectangle slightly clipping into the slope,
+        // which pushes it out but due to the current implementation the rectangle ends up in a slightly lower position
+        // TODO: Do this better or find a better solution
+        var multi = 1f
+        if (frictionList.size > 1) {
+            val v1: Vector2 = frictionList[0] - frictionList[1]
+            val v2: Vector2 = (frictionList[0] + frictionList[1]) / 2f
+            if (abs(v1.cross(v2)) < EPSILON) multi = 0f
         }
 
         // Apply impulses in separate loop to avoid affecting the calculation of following contact points
@@ -194,10 +219,16 @@ object CollisionSolver {
             val frictionImpulse: Vector2 = frictionList[i]
 
             objA.velocity += -frictionImpulse * objA.invMass
-            objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia
+            objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia * multi
             objB.velocity += frictionImpulse * objB.invMass
-            objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia
+            objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia * multi
+
+            // Draw debug vectors
+            DebugDrawer.addDebugVector(contactPoints[i], frictionImpulse * 12f, frictionType[i], 1)
         }
+
+        if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
+        if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
     }
 
     /**
@@ -366,7 +397,7 @@ object CollisionSolver {
 
             // Get the tangent vector of the normal
             var tangent: Vector2 = relativeVelocity - relativeVelocity.dot(normal) * normal
-            if (tangent.sqrMagnitude() < EPSILON) continue
+            if (tangent.sqrMagnitude() < EPSILON) continue // Continue if there is no tangential velocity
             tangent = tangent.normalized()
 
             // Calculate the friction impulse
