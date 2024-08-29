@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.collision.ContactFinder
 import kotlin.math.abs
 
 // primary constructor is used to sync position and velocity from sub-polygons with the main polygon
@@ -121,17 +122,17 @@ abstract class Polygon(
     }
 
     override fun findContactPoints(other: BorderEdge): Array<Vector2> {
-        return CollisionFinder.findContactPoints(other, this)
+        return ContactFinder.findContactPoints(other, this)
     }
 
     abstract override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
 
     override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(other, info)
+        return ContactFinder.findContactPoints(other, info)
     }
 
     override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, other)
+        return ContactFinder.findContactPoints(this, other)
     }
 
     override fun toString(): String {

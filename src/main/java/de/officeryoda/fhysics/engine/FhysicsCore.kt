@@ -20,6 +20,7 @@ object FhysicsCore {
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
     private const val QTC_START_STEP_SIZE = 10.0
     val RENDER_LOCK = ReentrantLock()
+    const val EPSILON: Float = 1E-4f
 
     // Variables
     private var quadTree: QuadTree = QuadTree(BORDER, null)

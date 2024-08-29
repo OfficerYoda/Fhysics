@@ -1,9 +1,8 @@
 package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
+import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.collision.CollisionFinder.EPSILON
-import de.officeryoda.fhysics.engine.collision.CollisionFinder.nearlyEquals
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.DebugDrawer
@@ -161,10 +160,6 @@ object CollisionSolver {
             val raPerp = Vector2(-ra.y, ra.x)
             val rbPerp = Vector2(-rb.y, rb.x)
 
-            // Draw debug vectors
-            DebugDrawer.addDebugVector(contactPoint, raPerp, Color.orange, 1)
-            DebugDrawer.addDebugVector(contactPoint, rbPerp, Color.orange, 1)
-
             val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
             val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
 
@@ -222,9 +217,6 @@ object CollisionSolver {
             objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia * multi
             objB.velocity += frictionImpulse * objB.invMass
             objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia * multi
-
-            // Draw debug vectors
-            DebugDrawer.addDebugVector(contactPoints[i], frictionImpulse * 12f, frictionType[i], 1)
         }
 
         if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
@@ -457,7 +449,7 @@ object CollisionSolver {
         val uniquePoints: MutableList<Vector2> = mutableListOf()
 
         for (point: Vector2 in contactPoints) {
-            if (uniquePoints.none { existingPoint -> nearlyEquals(existingPoint, point) }) {
+            if (uniquePoints.none { existingPoint -> ContactFinder.nearlyEquals(existingPoint, point) }) {
                 uniquePoints.add(point)
             }
         }
