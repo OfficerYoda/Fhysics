@@ -117,6 +117,12 @@ data class QuadTree(
 
     /// region =====Rebuild and update functions=====
     fun rebuild() {
+        // If the capacity was changed, divideNextUpdate will be true and the root should try to divide
+        if (divideNextUpdate && isRoot) {
+            divideNextUpdate = false
+            tryDivide()
+        }
+
         if (divided) {
             // Rebuild the children first
             rebuildChildren()
@@ -404,6 +410,9 @@ data class QuadTree(
             set(value) {
                 field = value.coerceAtLeast(1)
             }
+
+        // Used to prevent concurrent modification exceptions
+        var divideNextUpdate: Boolean = false
 
         // List of objects to add and remove
         // This is used to prevent concurrent modification exceptions
