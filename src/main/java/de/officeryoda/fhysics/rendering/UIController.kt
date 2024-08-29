@@ -242,7 +242,7 @@ class UIController {
 
     @FXML
     fun onPropertyMassTyped() {
-        selectedObject!!.mass = parseTextField(txtPropertyMass, 1.0f)
+        selectedObject!!.mass = parseTextField(txtPropertyMass, 1.0f).coerceAtLeast(0.01f)
     }
 
     @FXML
