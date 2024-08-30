@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -41,15 +42,15 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        for (i in 1..30) {
-//            spawn(FhysicsObjectFactory.randomCircle())
-//        }
-//
-//        for (i in 1..20) {
-//            spawn(FhysicsObjectFactory.randomRectangle())
-//        }
-//
-//        for (i in 1..10) {
+        repeat(30) {
+            spawn(FhysicsObjectFactory.randomCircle())
+        }
+
+        repeat(20) {
+            spawn(FhysicsObjectFactory.randomRectangle())
+        }
+
+//        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomPolygon())
 //        }
 
@@ -66,19 +67,24 @@ object FhysicsCore {
             frictionDynamic = 1.0f
             restitution = 0.0f
         }
-        // A small rectangle on top of the big rectangle
-        spawn(Rectangle(Vector2(50.0f, 57.0f), 1.0f, 1.0f)).first().apply {
-            static = false
-            frictionStatic = 1.0f
-            frictionDynamic = 1.0f
-            restitution = 0.0f
-            angle = Math.toRadians(30.0).toFloat()
-        }
+//        // A small rectangle on top of the big rectangle
+//        spawn(Rectangle(Vector2(50.0f, 57.0f), 1.0f, 1.0f)).first().apply {
+//            static = false
+//            frictionStatic = 1.0f
+//            frictionDynamic = 1.0f
+//            restitution = 0.0f
+//            angle = Math.toRadians(30.0).toFloat()
+//        }
 
 //        repeat(2000) {
 //            val circle = FhysicsObjectFactory.randomCircle()
 //            spawn(circle)
 //        }
+
+        val rect1 = Rectangle(Vector2(50f, 0.5f), 1f, 1f)
+        spawn(rect1)
+//        val rect2 = Rectangle(Vector2(55f, 4f), 12f, 5f)
+//        spawn(rect1, rect2)
 
         objectsAtStepSizeIncrease = objectCount
     }

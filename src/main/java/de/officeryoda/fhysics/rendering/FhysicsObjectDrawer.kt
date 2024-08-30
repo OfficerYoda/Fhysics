@@ -111,6 +111,13 @@ class FhysicsObjectDrawer : Application() {
         scene.setOnMouseMoved { SceneListener.onMouseMoved(it) }
         scene.setOnMouseDragged { SceneListener.onMouseDragged(it) }
         scene.setOnKeyPressed { SceneListener.onKeyPressed(it) }
+
+        scene.setOnScroll { BetterSceneListener.onMouseWheel(it) }
+        scene.setOnMousePressed { BetterSceneListener.onMousePressed(it) }
+        scene.setOnMouseReleased { BetterSceneListener.onMouseReleased(it) }
+        scene.setOnMouseMoved { BetterSceneListener.onMouseMoved(it) }
+        scene.setOnMouseDragged { BetterSceneListener.onMouseDragged(it) }
+        scene.setOnKeyPressed { BetterSceneListener.onKeyPressed(it) }
     }
 
     private fun startAnimationTimer() {
@@ -226,11 +233,6 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygon(poly: Polygon) {
-        DebugDrawer.addDebugPoint(poly.position, Color.YELLOW, 1)
-        if (poly is SubPolygon) {
-            DebugDrawer.addDebugPoint(poly.parent.position, Color.YELLOW, 1)
-        }
-
         if (UIController.drawSubPolygons && poly is ConcavePolygon) {
             for (subPoly: SubPolygon in poly.subPolygons) {
                 setFillColor(subPoly.color)
