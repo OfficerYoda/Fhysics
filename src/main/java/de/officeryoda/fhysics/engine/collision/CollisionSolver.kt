@@ -47,6 +47,11 @@ object CollisionSolver {
         separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
         val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
 
+        // Draw them for debug
+        contactPoints.forEach {
+            DebugDrawer.addDebugPoint(it, Color.red, 1)
+        }
+
         // Solve collision
         val normalForces: ArrayList<Float> =
             solveImpulse(objA, objB, contactPoints, info)
@@ -121,6 +126,7 @@ object CollisionSolver {
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
         }
 
+        // Set angular velocity to 0 if it's very small
         if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
         if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
 
@@ -202,9 +208,12 @@ object CollisionSolver {
         // It is still sliding down the slope, but my current hypothesis is that it's caused by the rectangle slightly clipping into the slope,
         // which pushes it out but due to the current implementation the rectangle ends up in a slightly lower position
         // TODO: Do this better or find a better solution
+        // How it works: If the vector from one contact point to the other is parallel to the average friction vector, the friction vector is set to 0
+        // This should happen when the object is sliding down a slope
+        // Somehow this doesn't affect other instances (noticeable) where those conditions are met as well (e.g. when a rect is hitting another stationary rect)
         var multi = 1f
         if (frictionList.size > 1) {
-            val v1: Vector2 = frictionList[0] - frictionList[1]
+            val v1: Vector2 = contactPoints[0] - contactPoints[1]
             val v2: Vector2 = (frictionList[0] + frictionList[1]) / 2f
             if (abs(v1.cross(v2)) < EPSILON) multi = 0f
         }
@@ -219,6 +228,7 @@ object CollisionSolver {
             objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia * multi
         }
 
+        // Set angular velocity to 0 if it's very small
         if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
         if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
     }
@@ -436,6 +446,7 @@ object CollisionSolver {
             obj.position += -info.normal * info.depth
             collidingBorders.add(border)
         }
+
         return collidingBorders
     }
 
