@@ -11,34 +11,42 @@ import javafx.scene.input.ScrollEvent
 object BetterSceneListener {
 
     /**
-     * The minimum distance the mouse has to be moved in world space to be registered as a drag
+     * The minimum distance the mouse has to be moved in screen space to be registered as a drag
      */
-    private const val MIN_DRAG_DISTANCE: Float = 2.0F
+    private const val MIN_DRAG_DISTANCE_SQR: Float = 4f // 2px
 
     /**
      * The position of the mouse in world space
      */
-    val mouseWorldPos: Vector2 = Vector2.ZERO
+    private val mousePosScreen: Vector2 = Vector2.ZERO
+    private val mousePosWorld: Vector2 = Vector2.ZERO
 
     // The state of the mouse buttons
     private var leftPressed: Boolean = false
     private var rightPressed: Boolean = false
 
-    /// region =====Custom event handlers=====
-    private fun onLeftClick() {
+    // The position where the left mouse button was pressed (in world space)
+    private val leftPressedPosScreen: Vector2 = Vector2.ZERO
+    private val leftPressedPosWorld: Vector2 = Vector2.ZERO
+    private val rightPressedPosScreen: Vector2 = Vector2.ZERO
+    private val rightPressedPosWorld: Vector2 = Vector2.ZERO
 
+    /// region =====Custom event handlers=====
+    // TODO: Add parameter: mouse pos, etc.
+    private fun onLeftClick() {
+        println("Left click")
     }
 
     private fun onRightClick() {
-
+        println("Right click")
     }
 
     private fun onLeftDrag() {
-
+        println("Left drag")
     }
 
     private fun onRightDrag() {
-
+        println("Right drag")
     }
 
     /// endregion
@@ -49,19 +57,55 @@ object BetterSceneListener {
     }
 
     fun onMousePressed(e: MouseEvent) {
+        // Set the pressed position if the specific button was pressed
+        if (!leftPressed && e.isPrimaryButtonDown) {
+            leftPressedPosScreen.set(getMouseScreenPos(e))
+            leftPressedPosWorld.set(mousePosWorld)
+        }
+        if (!rightPressed && e.isSecondaryButtonDown) {
+            rightPressedPosScreen.set(getMouseScreenPos(e))
+            rightPressedPosWorld.set(mousePosWorld)
+        }
+
         updateMouseButtonState(e)
     }
 
     fun onMouseReleased(e: MouseEvent) {
+        if (leftPressed && !e.isPrimaryButtonDown) {
+            // If the mouse wasn't moved too much, it's a click
+            if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
+                onLeftClick()
+            }
+        }
+        if (rightPressed && !e.isSecondaryButtonDown) {
+            // If the mouse wasn't moved too much, it's a click
+            if ((mousePosScreen - rightPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
+                onRightClick()
+            }
+        }
+
         updateMouseButtonState(e)
     }
 
     fun onMouseMoved(e: MouseEvent) {
-        updateMouseWorldPos(e)
+        updateMousePos(e)
     }
 
     fun onMouseDragged(e: MouseEvent) {
-        updateMouseWorldPos(e)
+        if (leftPressed) {
+            // If the mouse was moved enough, it's a drag
+            if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() > MIN_DRAG_DISTANCE_SQR) {
+                onLeftDrag()
+            }
+        }
+        if (rightPressed) {
+            // If the mouse was moved enough, it's a drag
+            if ((mousePosScreen - rightPressedPosScreen).sqrMagnitude() > MIN_DRAG_DISTANCE_SQR) {
+                onRightDrag()
+            }
+        }
+
+        updateMousePos(e)
     }
 
     /**
@@ -92,20 +136,32 @@ object BetterSceneListener {
         }
     }
 
-
     /**
      * Sets the mouse position in world space
      * @param e the mouse event
      * @return the mouse position in world space
      */
-    private fun updateMouseWorldPos(e: MouseEvent) {
-        mouseWorldPos.x = RenderUtil.screenToWorldX(e.x.toFloat()).toFloat()
-        mouseWorldPos.y = RenderUtil.screenToWorldY(e.y.toFloat()).toFloat()
+    private fun updateMousePos(e: MouseEvent) {
+        mousePosScreen.set(getMouseScreenPos(e))
+        mousePosWorld.set(RenderUtil.screenToWorld(mousePosScreen))
     }
 
+    /**
+     * Updates the state of the mouse buttons
+     * @param e the mouse event
+     */
     private fun updateMouseButtonState(e: MouseEvent) {
         leftPressed = e.isPrimaryButtonDown
         rightPressed = e.isSecondaryButtonDown
+    }
+
+    /**
+     * Gets the mouse position in screen space
+     * @param e the mouse event
+     * @return the mouse position in screen space
+     */
+    private fun getMouseScreenPos(e: MouseEvent): Vector2 {
+        return Vector2(e.x.toFloat(), e.y.toFloat())
     }
 
     /// endregion
