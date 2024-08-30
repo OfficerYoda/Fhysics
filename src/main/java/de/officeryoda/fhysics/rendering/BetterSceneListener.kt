@@ -3,10 +3,16 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.objects.Rectangle
+import de.officeryoda.fhysics.rendering.RenderUtil.drawer
+import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
+import java.awt.Color
+import kotlin.math.max
+import kotlin.math.min
 
 object BetterSceneListener {
 
@@ -33,20 +39,51 @@ object BetterSceneListener {
 
     /// region =====Custom event handlers=====
     // TODO: Add parameter: mouse pos, etc.
-    private fun onLeftClick() {
+    private fun onLeftClick(posWorld: Vector2) {
         println("Left click")
     }
 
-    private fun onRightClick() {
+    private fun onRightClick(posWorld: Vector2) {
         println("Right click")
     }
 
     private fun onLeftDrag() {
         println("Left drag")
+
+        // Don't create a drag preview if the spawn object type is not a rectangle
+        if (UIController.spawnObjectType != SpawnObjectType.RECTANGLE) return
+
+        // Calculate the corners of the rectangle
+        val minX: Float = min(leftPressedPosWorld.x, mousePosWorld.x)
+        val maxX: Float = max(leftPressedPosWorld.x, mousePosWorld.x)
+        val minY: Float = min(leftPressedPosWorld.y, mousePosWorld.y)
+        val maxY: Float = max(leftPressedPosWorld.y, mousePosWorld.y)
+
+        // Create the preview rectangle
+        val size = Vector2(maxX - minX, maxY - minY)
+        val pos: Vector2 = Vector2(minX, minY) + size / 2f
+
+        val rect = Rectangle(pos, size.x, size.y)
+        rect.color = Color(rect.color.red, rect.color.green, rect.color.blue, 128)
+
+        spawnPreview = rect
+    }
+
+    private fun onLeftDragRelease() {
+        // TODO: Implement spawning the dragged rectangle
     }
 
     private fun onRightDrag() {
         println("Right drag")
+
+        // Move the camera by the amount the mouse is away from the position where the right mouse button was pressed
+        val deltaMousePos: Vector2 = rightPressedPosWorld - mousePosWorld
+        drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos
+        drawer.zoomCenter = drawer.targetZoomCenter
+    }
+
+    private fun onRightDragRelease() {
+
     }
 
     /// endregion
@@ -60,11 +97,11 @@ object BetterSceneListener {
         // Set the pressed position if the specific button was pressed
         if (!leftPressed && e.isPrimaryButtonDown) {
             leftPressedPosScreen.set(getMouseScreenPos(e))
-            leftPressedPosWorld.set(mousePosWorld)
+            leftPressedPosWorld.set(mousePosWorld.copy())
         }
         if (!rightPressed && e.isSecondaryButtonDown) {
             rightPressedPosScreen.set(getMouseScreenPos(e))
-            rightPressedPosWorld.set(mousePosWorld)
+            rightPressedPosWorld.set(mousePosWorld.copy())
         }
 
         updateMouseButtonState(e)
@@ -74,13 +111,17 @@ object BetterSceneListener {
         if (leftPressed && !e.isPrimaryButtonDown) {
             // If the mouse wasn't moved too much, it's a click
             if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
-                onLeftClick()
+                onLeftClick(mousePosWorld)
+            } else {
+                onLeftDragRelease()
             }
         }
         if (rightPressed && !e.isSecondaryButtonDown) {
             // If the mouse wasn't moved too much, it's a click
             if ((mousePosScreen - rightPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
-                onRightClick()
+                onRightClick(mousePosWorld)
+            } else {
+                onRightDragRelease()
             }
         }
 
