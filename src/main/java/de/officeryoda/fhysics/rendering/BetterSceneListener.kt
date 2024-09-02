@@ -60,8 +60,7 @@ object BetterSceneListener {
     var polyVertices: MutableList<Vector2> = ArrayList()
 
     /// region =====Custom event handlers=====
-    // TODO: Add parameter: mouse pos, etc.
-    private fun onLeftClick(posWorld: Vector2) {
+    private fun onLeftClick() {
         when (selectedSpawnObjectType) {
             SpawnObjectType.CIRCLE, SpawnObjectType.RECTANGLE -> spawnPreview()
             SpawnObjectType.POLYGON -> handlePolygonCreation()
@@ -69,7 +68,7 @@ object BetterSceneListener {
         }
     }
 
-    private fun onRightClick(posWorld: Vector2) {
+    private fun onRightClick() {
         if (selectedSpawnObjectType == SpawnObjectType.POLYGON) {
             polyVertices.clear()
         }
@@ -106,7 +105,6 @@ object BetterSceneListener {
             SpawnObjectType.POLYGON -> handlePolygonCreation()
             else -> {}
         }
-        updateSpawnPreview()
     }
 
     private fun onRightDrag() {
@@ -126,7 +124,6 @@ object BetterSceneListener {
     /// endregion
 
     /// region =====Helper methods=====
-
     /**
      * Spawns the preview object at the mouse position
      */
@@ -142,7 +139,7 @@ object BetterSceneListener {
 
         if (!validParams) return
 
-        FhysicsCore.spawn(spawnPreview!!.clone().apply { color = asOpaqueColor(color) })
+        FhysicsCore.spawn(spawnPreview!!.apply { color = asOpaqueColor(spawnPreview!!.color) })
         updateSpawnPreview()
     }
 
@@ -179,9 +176,9 @@ object BetterSceneListener {
         }
 
         val obj: FhysicsObject = when (UIController.spawnObjectType) {
-            SpawnObjectType.CIRCLE -> Circle(mousePosWorld, UIController.spawnRadius)
+            SpawnObjectType.CIRCLE -> Circle(mousePosWorld.copy(), UIController.spawnRadius)
             SpawnObjectType.RECTANGLE -> Rectangle(
-                mousePosWorld,
+                mousePosWorld.copy(),
                 UIController.spawnWidth,
                 UIController.spawnHeight
             )
@@ -207,7 +204,18 @@ object BetterSceneListener {
 
     /// region =====Vanilla event handlers=====
     fun onMouseWheel(e: ScrollEvent) {
-//        TODO("Not yet implemented")
+        // Zoom in or out based on the scroll direction
+        val zoomFactor: Float = if (e.deltaY > 0) 1.1f else 1 / 1.1f
+        drawer.targetZoom *= zoomFactor
+
+        // Clamp the zoom level
+        drawer.targetZoom = drawer.targetZoom.coerceIn(1.0, 200.0)
+
+        // Calculate the difference between the mouse position and the current zoom center
+        val deltaMousePos: Vector2 = mousePosWorld - drawer.targetZoomCenter
+
+        // Adjust the target zoom center to zoom towards the mouse position
+        drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
     }
 
     fun onMousePressed(e: MouseEvent) {
@@ -228,7 +236,7 @@ object BetterSceneListener {
         if (leftPressed && !e.isPrimaryButtonDown) {
             // If the mouse wasn't moved too much, it's a click
             if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
-                onLeftClick(mousePosWorld)
+                onLeftClick()
             } else {
                 onLeftDragRelease()
             }
@@ -236,7 +244,7 @@ object BetterSceneListener {
         if (rightPressed && !e.isSecondaryButtonDown) {
             // If the mouse wasn't moved too much, it's a click
             if ((mousePosScreen - rightPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
-                onRightClick(mousePosWorld)
+                onRightClick()
             } else {
                 onRightDragRelease()
             }
@@ -303,8 +311,8 @@ object BetterSceneListener {
         mousePosWorld.set(RenderUtil.screenToWorld(mousePosScreen))
 
         // Update the spawn preview position if it's not set due to dragging a rectangle
-        if (!leftDragging) {
-            spawnPreview?.position!!.set(mousePosWorld)
+        if (!(leftDragging && selectedSpawnObjectType == SpawnObjectType.RECTANGLE)) {
+            spawnPreview?.position?.set(mousePosWorld)
         }
     }
 
