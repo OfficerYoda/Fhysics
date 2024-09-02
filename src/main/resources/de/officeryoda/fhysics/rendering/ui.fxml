@@ -5,584 +5,584 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<fx:root prefHeight="360.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21"
-         xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
+<fx:root prefHeight="360.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
     <panes>
         <TitledPane focusTraversable="false" text="Spawn Object">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                     <children>
-                  <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <children>
-                              <ToggleButtonGroup selectionType="SINGLE">
-                                  <toggles>
-                                      <ToggleButton onMouseClicked="#onSpawnNothingClicked" selected="true" text="Nothing" textAlignment="CENTER">
-                                 <tooltip>
-                                    <Tooltip text="Select to not spawn anything when clicking" />
-                                 </tooltip></ToggleButton>
-                                      <ToggleButton onMouseClicked="#onSpawnCircleClicked" text="Circle" textAlignment="CENTER">
-                                 <tooltip>
-                                    <Tooltip text="Select to spawn a circle" />
-                                 </tooltip></ToggleButton>
-                                      <ToggleButton onMouseClicked="#onSpawnRectangleClicked" text="Rectangle" textAlignment="CENTER">
-                                 <tooltip>
-                                    <Tooltip text="Select to spawn a rectangle" />
-                                 </tooltip></ToggleButton>
-                              <ToggleButton onMouseClicked="#onSpawnPolygonClicked" text="Polygon" textAlignment="CENTER">
-                                 <tooltip>
-                                    <Tooltip text="Click on screen to create" />
-                                 </tooltip>
-                              </ToggleButton>
-                                  </toggles>
-                                  <opaqueInsets>
-                                      <Insets />
-                                  </opaqueInsets>
-                              </ToggleButtonGroup>
-                        <CheckBox fx:id="cbSpawnPreview" mnemonicParsing="false" onMouseClicked="#onSpawnPreviewClicked" prefHeight="17.0" prefWidth="253.0" text="Show Preview">
-                           <tooltip>
-                              <Tooltip text="Shows a preview of the object to be spawned" />
-                           </tooltip>
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
-                        </CheckBox>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Radius" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtSpawnRadius" onKeyTyped="#onSpawnRadiusTyped" prefHeight="26.0" prefWidth="247.0" promptText="radius">
-                                 <tooltip>
-                                    <Tooltip text="The radius of the circle" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Width" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtSpawnWidth" onKeyTyped="#onSpawnWidthTyped" prefHeight="26.0" prefWidth="247.0" promptText="width">
-                                 <tooltip>
-                                    <Tooltip text="The width of the spawned circle" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Height" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtSpawnHeight" onKeyTyped="#onSpawnHeightTyped" prefHeight="26.0" prefWidth="247.0" promptText="height">
-                                 <tooltip>
-                                    <Tooltip text="The height of the spawned circle" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                        </HBox>
-                     </children>
-                  </VBox>
+                        <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <ToggleButtonGroup selectionType="SINGLE">
+                                    <toggles>
+                                        <ToggleButton onMouseClicked="#onSpawnNothingClicked" selected="true" text="Nothing" textAlignment="CENTER">
+                                            <tooltip>
+                                                <Tooltip text="Select to not spawn anything when clicking" />
+                                            </tooltip></ToggleButton>
+                                        <ToggleButton onMouseClicked="#onSpawnCircleClicked" text="Circle" textAlignment="CENTER">
+                                            <tooltip>
+                                                <Tooltip text="Select to spawn a circle" />
+                                            </tooltip></ToggleButton>
+                                        <ToggleButton onMouseClicked="#onSpawnRectangleClicked" text="Rectangle" textAlignment="CENTER">
+                                            <tooltip>
+                                                <Tooltip text="Select to spawn a rectangle" />
+                                            </tooltip></ToggleButton>
+                                        <ToggleButton onMouseClicked="#onSpawnPolygonClicked" text="Polygon" textAlignment="CENTER">
+                                            <tooltip>
+                                                <Tooltip text="Click on screen to create" />
+                                            </tooltip>
+                                        </ToggleButton>
+                                    </toggles>
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                </ToggleButtonGroup>
+                                <CheckBox fx:id="cbSpawnPreview" mnemonicParsing="false" onMouseClicked="#onSpawnPreviewClicked" prefHeight="17.0" prefWidth="253.0" text="Show Preview">
+                                    <tooltip>
+                                        <Tooltip text="Shows a preview of the object to be spawned" />
+                                    </tooltip>
+                                    <padding>
+                                        <Insets top="5.0" />
+                                    </padding>
+                                </CheckBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Radius" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtSpawnRadius" onKeyTyped="#onSpawnRadiusTyped" prefHeight="26.0" prefWidth="247.0" promptText="radius">
+                                            <tooltip>
+                                                <Tooltip text="The radius of the circle" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Width" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtSpawnWidth" onKeyTyped="#onSpawnWidthTyped" prefHeight="26.0" prefWidth="247.0" promptText="width">
+                                            <tooltip>
+                                                <Tooltip text="The width of the spawned circle" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Height" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtSpawnHeight" onKeyTyped="#onSpawnHeightTyped" prefHeight="26.0" prefWidth="247.0" promptText="height">
+                                            <tooltip>
+                                                <Tooltip text="The height of the spawned circle" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <CheckBox fx:id="cbCustomColor" mnemonicParsing="false" onMouseClicked="#onCustomColorClicked" prefHeight="17.0" prefWidth="253.0" text="Custom Color">
+                                    <tooltip>
+                                        <Tooltip text="Applies the color to all spawning objects" />
+                                    </tooltip>
+                                    <padding>
+                                        <Insets top="5.0" />
+                                    </padding>
+                                </CheckBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Color" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <ColorPicker fx:id="clrSpawnColor" disable="true" onAction="#onSpawnColorAction" prefHeight="25.0" prefWidth="247.0">
+                                            <tooltip>
+                                                <Tooltip text="The color of the object" />
+                                            </tooltip>
+                                        </ColorPicker>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="5.0" />
+                                    </padding>
+                                </HBox>
+                            </children>
+                        </VBox>
                     </children>
                 </AnchorPane>
             </content>
         </TitledPane>
-      <TitledPane fx:id="tpProperties" focusTraversable="false" text="Object Properties">
-         <content>
-            <AnchorPane fx:id="apProperties" disable="true" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <children>
-                        <CheckBox fx:id="cbPropertyStatic" mnemonicParsing="false" onMouseClicked="#onPropertyStaticClicked" prefHeight="17.0" prefWidth="253.0" text="Static">
-                           <tooltip>
-                              <Tooltip text="Whether the object can move or not" />
-                           </tooltip>
-                           <padding>
-                              <Insets bottom="5.0" />
-                           </padding>
-                           <VBox.margin>
-                               <Insets/>
-                           </VBox.margin>
-                        </CheckBox>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                               <Text accessibleText="The Radius of the spawned circle"
-                                     boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0"
-                                     text="Color" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
-                                 <HBox.margin>
-                                     <Insets/>
-                                 </HBox.margin>
-                                 <font>
-                                     <Font name="System Bold" size="12.0"/>
-                                 </font>
-                              </Text>
-                               <ColorPicker fx:id="clrPropertyColor" onAction="#onPropertyColorAction" prefHeight="25.0"
-                                            prefWidth="247.0">
-                                 <tooltip>
-                                     <Tooltip text="The color of the object"/>
-                                 </tooltip>
-                              </ColorPicker>
-                           </children>
-                           <VBox.margin>
-                               <Insets/>
-                           </VBox.margin>
-                           <padding>
-                               <Insets bottom="5.0"/>
-                           </padding>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                               <Text accessibleText="The Radius of the spawned circle"
-                                     boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0"
-                                     text="Mass" textOrigin="BOTTOM" wrappingWidth="100.0">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtPropertyMass" onKeyTyped="#onPropertyMassTyped" prefHeight="26.0" prefWidth="247.0" promptText="mass">
-                                 <tooltip>
-                                    <Tooltip text="The mass of the object" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                               <Text accessibleText="The Radius of the spawned circle"
-                                     boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0"
-                                     text="Rotation" textOrigin="BOTTOM" wrappingWidth="100.0">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtPropertyRotation" onKeyTyped="#onPropertyRotationTyped" prefHeight="26.0" prefWidth="247.0" promptText="rotation">
-                                 <tooltip>
-                                    <Tooltip text="The rotation of the object" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                           <VBox.margin>
-                              <Insets />
-                           </VBox.margin>
-                           <padding>
-                              <Insets bottom="5.0" />
-                           </padding>
-                        </HBox>
-                         <HBox>
-                           <children>
-                               <Text accessibleText="The Radius of the spawned circle"
-                                     boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0"
-                                     text="Restitution" textOrigin="BOTTOM" wrappingWidth="100.0">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                               <Slider fx:id="sldPropertyRestitution" blockIncrement="0.05" majorTickUnit="0.1"
-                                       max="1.0" minorTickCount="1" onMouseDragged="#onPropertyRestitutionChanged"
-                                       prefHeight="17.0" prefWidth="108.0" value="1.0">
-                                 <tooltip>
-                                     <Tooltip text="How bouncy the object is&#10;0 = No bounce, 1 = Perfect bounce"/>
-                                 </tooltip>
-                               </Slider>
-                               <Label fx:id="lblPropertyRestitution" prefHeight="17.0" prefWidth="39.0" text="1.00">
-                                   <padding>
-                                       <Insets left="2.0"/>
-                                   </padding>
-                                   <tooltip>
-                                       <Tooltip text="How bouncy the object is&#10;0 = No bounce, 1 = Perfect bounce"/>
-                                   </tooltip>
-                               </Label>
-                           </children>
-                        </HBox>
-                         <HBox>
-                           <children>
-                               <Text accessibleText="The Radius of the spawned circle"
-                                     boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0"
-                                     text="Static Friction" textOrigin="BOTTOM" wrappingWidth="100.0">
-                                 <HBox.margin>
-                                     <Insets/>
-                                 </HBox.margin>
-                                 <font>
-                                     <Font name="System Bold" size="12.0"/>
-                                 </font>
-                              </Text>
-                               <Slider fx:id="sldPropertyFrictionStatic" blockIncrement="0.05" majorTickUnit="0.1"
-                                       max="1.0" minorTickCount="1" onMouseDragged="#onPropertyFrictionStaticChanged"
-                                       prefHeight="17.0" prefWidth="108.0" value="1.0">
-                                 <tooltip>
-                                     <Tooltip
-                                             text="Resistance before movement&#10;0 = Smooth surface, 1 = Rough surface"/>
-                                 </tooltip>
-                               </Slider>
-                               <Label fx:id="lblPropertyFrictionStatic" prefHeight="17.0" prefWidth="39.0" text="1.00">
-                                   <padding>
-                                       <Insets left="2.0"/>
-                                   </padding>
-                                   <tooltip>
-                                       <Tooltip
-                                               text="Resistance before movement&#10;0 = Smooth surface, 1 = Rough surface"/>
-                                   </tooltip>
-                               </Label>
-                           </children>
-                        </HBox>
-                         <HBox>
-                           <children>
-                               <Text accessibleText="The Radius of the spawned circle"
-                                     boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0"
-                                     text="Dynamic Friction" textOrigin="BOTTOM" wrappingWidth="100.0">
-                                 <HBox.margin>
-                                     <Insets/>
-                                 </HBox.margin>
-                                 <font>
-                                     <Font name="System Bold" size="12.0"/>
-                                 </font>
-                              </Text>
-                               <Slider fx:id="sldPropertyFrictionDynamic" blockIncrement="0.05" majorTickUnit="0.1"
-                                       max="1.0" minorTickCount="1" onMouseDragged="#onPropertyFrictionDynamicChanged"
-                                       prefHeight="17.0" prefWidth="108.0" value="1.0">
-                                 <tooltip>
-                                     <Tooltip
-                                             text="Resistance during movement&#10;0 = Smooth surface, 1 = Rough surface"/>
-                                 </tooltip>
-                               </Slider>
-                               <Label fx:id="lblPropertyFrictionDynamic" prefHeight="17.0" prefWidth="39.0" text="1.00">
-                                   <padding>
-                                       <Insets left="2.0"/>
-                                   </padding>
-                                   <tooltip>
-                                       <Tooltip
-                                               text="Resistance during movement&#10;0 = Smooth surface, 1 = Rough surface"/>
-                                   </tooltip>
-                               </Label>
-                           </children>
-                        </HBox>
-                        <Button fx:id="btnPropertyRemove" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" onMouseClicked="#onPropertyRemoveClicked" text="REMOVE" textFill="#d92114">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                           <tooltip>
-                               <Tooltip text="Delete the object"/>
-                           </tooltip>
-                        </Button>
-                     </children>
-                  </VBox>
-               </children>
-            </AnchorPane>
-         </content>
-      </TitledPane>
+        <TitledPane fx:id="tpProperties" focusTraversable="false" text="Object Properties">
+            <content>
+                <AnchorPane fx:id="apProperties" disable="true" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                    <children>
+                        <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <CheckBox fx:id="cbPropertyStatic" mnemonicParsing="false" onMouseClicked="#onPropertyStaticClicked" prefHeight="17.0" prefWidth="253.0" text="Static">
+                                    <tooltip>
+                                        <Tooltip text="Whether the object can move or not" />
+                                    </tooltip>
+                                    <padding>
+                                        <Insets bottom="5.0" />
+                                    </padding>
+                                    <VBox.margin>
+                                        <Insets />
+                                    </VBox.margin>
+                                </CheckBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Color" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <ColorPicker fx:id="clrPropertyColor" onAction="#onPropertyColorAction" prefHeight="25.0" prefWidth="247.0">
+                                            <tooltip>
+                                                <Tooltip text="The color of the object" />
+                                            </tooltip>
+                                        </ColorPicker>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets />
+                                    </VBox.margin>
+                                    <padding>
+                                        <Insets bottom="5.0" />
+                                    </padding>
+                                </HBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Mass" textOrigin="BOTTOM" wrappingWidth="100.0">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtPropertyMass" onKeyTyped="#onPropertyMassTyped" prefHeight="26.0" prefWidth="247.0" promptText="mass">
+                                            <tooltip>
+                                                <Tooltip text="The mass of the object" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Rotation" textOrigin="BOTTOM" wrappingWidth="100.0">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtPropertyRotation" onKeyTyped="#onPropertyRotationTyped" prefHeight="26.0" prefWidth="247.0" promptText="rotation">
+                                            <tooltip>
+                                                <Tooltip text="The rotation of the object" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets />
+                                    </VBox.margin>
+                                    <padding>
+                                        <Insets bottom="5.0" />
+                                    </padding>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Restitution" textOrigin="BOTTOM" wrappingWidth="100.0">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <Slider fx:id="sldPropertyRestitution" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onPropertyRestitutionChanged" prefHeight="17.0" prefWidth="108.0" value="1.0">
+                                            <tooltip>
+                                                <Tooltip text="How bouncy the object is&#10;0 = No bounce, 1 = Perfect bounce" />
+                                            </tooltip>
+                                        </Slider>
+                                        <Label fx:id="lblPropertyRestitution" prefHeight="17.0" prefWidth="39.0" text="1.00">
+                                            <padding>
+                                                <Insets left="2.0" />
+                                            </padding>
+                                            <tooltip>
+                                                <Tooltip text="How bouncy the object is&#10;0 = No bounce, 1 = Perfect bounce" />
+                                            </tooltip>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Static Friction" textOrigin="BOTTOM" wrappingWidth="100.0">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <Slider fx:id="sldPropertyFrictionStatic" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onPropertyFrictionStaticChanged" prefHeight="17.0" prefWidth="108.0" value="1.0">
+                                            <tooltip>
+                                                <Tooltip text="Resistance before movement&#10;0 = Smooth surface, 1 = Rough surface" />
+                                            </tooltip>
+                                        </Slider>
+                                        <Label fx:id="lblPropertyFrictionStatic" prefHeight="17.0" prefWidth="39.0" text="1.00">
+                                            <padding>
+                                                <Insets left="2.0" />
+                                            </padding>
+                                            <tooltip>
+                                                <Tooltip text="Resistance before movement&#10;0 = Smooth surface, 1 = Rough surface" />
+                                            </tooltip>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Dynamic Friction" textOrigin="BOTTOM" wrappingWidth="100.0">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <Slider fx:id="sldPropertyFrictionDynamic" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onPropertyFrictionDynamicChanged" prefHeight="17.0" prefWidth="108.0" value="1.0">
+                                            <tooltip>
+                                                <Tooltip text="Resistance during movement&#10;0 = Smooth surface, 1 = Rough surface" />
+                                            </tooltip>
+                                        </Slider>
+                                        <Label fx:id="lblPropertyFrictionDynamic" prefHeight="17.0" prefWidth="39.0" text="1.00">
+                                            <padding>
+                                                <Insets left="2.0" />
+                                            </padding>
+                                            <tooltip>
+                                                <Tooltip text="Resistance during movement&#10;0 = Smooth surface, 1 = Rough surface" />
+                                            </tooltip>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <Button fx:id="btnPropertyRemove" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" onMouseClicked="#onPropertyRemoveClicked" text="REMOVE" textFill="#d92114">
+                                    <VBox.margin>
+                                        <Insets top="5.0" />
+                                    </VBox.margin>
+                                    <font>
+                                        <Font name="System Bold" size="12.0" />
+                                    </font>
+                                    <tooltip>
+                                        <Tooltip text="Delete the object" />
+                                    </tooltip>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </children>
+                </AnchorPane>
+            </content>
+        </TitledPane>
         <TitledPane focusTraversable="false" text="Gravity">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <children>
-                        <ToggleButtonGroup selectionType="SINGLE">
-                           <toggles>
-                              <ToggleButton onMouseClicked="#onGravityDirectionClicked" selected="true" text="Direction" textAlignment="CENTER">
-                                 <tooltip>
-                                    <Tooltip text="Toggle between a directional gravity or gravity towards a point" />
-                                 </tooltip>
-                              </ToggleButton>
-                              <ToggleButton onMouseClicked="#onGravityPointClicked" text="Point" textAlignment="CENTER">
-                                 <tooltip>
-                                    <Tooltip text="Toggle between a directional gravity or gravity towards a certain point" />
-                                 </tooltip>
-                              </ToggleButton>
-                           </toggles>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </ToggleButtonGroup>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Direction" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtGravityDirectionX" onKeyTyped="#onGravityDirectionXTyped" promptText="x">
-                                 <tooltip>
-                                    <Tooltip text="The strength in x-direction" />
-                                 </tooltip>
-                              </TextField>
-                              <TextField fx:id="txtGravityDirectionY" onKeyTyped="#onGravityDirectionYTyped" promptText="y">
-                                 <tooltip>
-                                    <Tooltip text="The strength in y-direction" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Point" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtGravityPointX" disable="true" onKeyTyped="#onGravityPointXTyped" promptText="x">
-                                 <tooltip>
-                                    <Tooltip text="The x-coordinate" />
-                                 </tooltip>
-                              </TextField>
-                              <TextField fx:id="txtGravityPointY" disable="true" layoutX="77.0" layoutY="10.0" onKeyTyped="#onGravityPointYTyped" promptText="y">
-                                 <tooltip>
-                                    <Tooltip text="The y-coordinate" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Strength" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtGravityPointStrength" disable="true" onKeyTyped="#onGravityStrengthTyped" prefHeight="26.0" prefWidth="167.0" promptText="strength">
-                                 <tooltip>
-                                    <Tooltip text="The strength towards the point" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                        </HBox>
-                     </children>
-                  </VBox>
-               </children></AnchorPane>
+                    <children>
+                        <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <ToggleButtonGroup selectionType="SINGLE">
+                                    <toggles>
+                                        <ToggleButton onMouseClicked="#onGravityDirectionClicked" selected="true" text="Direction" textAlignment="CENTER">
+                                            <tooltip>
+                                                <Tooltip text="Toggle between a directional gravity or gravity towards a point" />
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <ToggleButton onMouseClicked="#onGravityPointClicked" text="Point" textAlignment="CENTER">
+                                            <tooltip>
+                                                <Tooltip text="Toggle between a directional gravity or gravity towards a certain point" />
+                                            </tooltip>
+                                        </ToggleButton>
+                                    </toggles>
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                </ToggleButtonGroup>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Direction" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtGravityDirectionX" onKeyTyped="#onGravityDirectionXTyped" promptText="x">
+                                            <tooltip>
+                                                <Tooltip text="The strength in x-direction" />
+                                            </tooltip>
+                                        </TextField>
+                                        <TextField fx:id="txtGravityDirectionY" onKeyTyped="#onGravityDirectionYTyped" promptText="y">
+                                            <tooltip>
+                                                <Tooltip text="The strength in y-direction" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Point" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtGravityPointX" disable="true" onKeyTyped="#onGravityPointXTyped" promptText="x">
+                                            <tooltip>
+                                                <Tooltip text="The x-coordinate" />
+                                            </tooltip>
+                                        </TextField>
+                                        <TextField fx:id="txtGravityPointY" disable="true" layoutX="77.0" layoutY="10.0" onKeyTyped="#onGravityPointYTyped" promptText="y">
+                                            <tooltip>
+                                                <Tooltip text="The y-coordinate" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Strength" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtGravityPointStrength" disable="true" onKeyTyped="#onGravityStrengthTyped" prefHeight="26.0" prefWidth="167.0" promptText="strength">
+                                            <tooltip>
+                                                <Tooltip text="The strength towards the point" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children></AnchorPane>
             </content>
         </TitledPane>
         <TitledPane focusTraversable="false" text="Time Control">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <children>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                              <ToggleButton fx:id="btnTimePause" mnemonicParsing="false" onMouseClicked="#onTimePauseClicked" text="Pause">
-                                 <tooltip>
-                                    <Tooltip text="Pausees the Simulation (Schortcut: P)" />
-                                 </tooltip>
-                              </ToggleButton>
-                              <Button fx:id="btnTimeStep" mnemonicParsing="false" onMouseClicked="#onTimeStepClicked" text="Step">
-                                 <tooltip>
-                                    <Tooltip text="Do one simulation step (Schortcut: ENTER/SPACE)" />
-                                 </tooltip>
-                              </Button>
-                           </children>
-                        </HBox>
-                        <HBox alignment="BASELINE_LEFT">
-                           <children>
-                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Speed" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtTimeSpeed" onKeyTyped="#onTimeSpeedTyped" prefHeight="26.0" prefWidth="167.0" promptText="speed">
-                                 <tooltip>
-                                    <Tooltip text="Time step scaling factor (may influence accuracy)" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                        </HBox>
-                     </children>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </VBox>
-               </children></AnchorPane>
+                    <children>
+                        <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <ToggleButton fx:id="btnTimePause" mnemonicParsing="false" onMouseClicked="#onTimePauseClicked" text="Pause">
+                                            <tooltip>
+                                                <Tooltip text="Pausees the Simulation (Schortcut: P)" />
+                                            </tooltip>
+                                        </ToggleButton>
+                                        <Button fx:id="btnTimeStep" mnemonicParsing="false" onMouseClicked="#onTimeStepClicked" text="Step">
+                                            <tooltip>
+                                                <Tooltip text="Do one simulation step (Schortcut: ENTER/SPACE)" />
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Speed" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtTimeSpeed" onKeyTyped="#onTimeSpeedTyped" prefHeight="26.0" prefWidth="167.0" promptText="speed">
+                                            <tooltip>
+                                                <Tooltip text="Time step scaling factor (may influence accuracy)" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                            </children>
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets>
+                        </VBox>
+                    </children></AnchorPane>
             </content>
         </TitledPane>
-      <TitledPane focusTraversable="false" text="QuadTree">
-         <content>
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
-               <children>
-                  <VBox layoutX="20.0" prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <children>
-                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Visuals" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
-                           <font>
-                              <Font name="System Italic" size="12.0" />
-                           </font>
-                        </Text>
-                        <CheckBox fx:id="cbQuadTree" mnemonicParsing="false" onMouseClicked="#onQuadTreeClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree">
-                           <tooltip>
-                              <Tooltip text="Show the QuadTree subdivisions" />
-                           </tooltip>
-                        </CheckBox>
-                        <CheckBox fx:id="cbQTNodeUtilization" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onQTNodeUtilizationClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
-                           <tooltip>
-                              <Tooltip text="The amount of objects that are in a QT-node" />
-                           </tooltip>
-                           <padding>
-                              <Insets bottom="5.0" />
-                           </padding>
-                        </CheckBox>
-                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Capacity" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
-                           <font>
-                              <Font name="System Italic" size="12.0" />
-                           </font>
-                        </Text>
-                        <CheckBox fx:id="cbOptimizeQTCapacity" mnemonicParsing="false" onMouseClicked="#onOptimizeQTCapacityClicked" prefHeight="17.0" prefWidth="228.0" text="Optimize QuadTree capacity">
-                           <tooltip>
-                              <Tooltip text="Tries to find an optimal QuadTree capacity" />
-                           </tooltip>
-                        </CheckBox>
-                        <HBox alignment="CENTER_LEFT">
-                           <children>
-                              <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="QuadTree capacity" textOrigin="BOTTOM" wrappingWidth="111.72525787353517">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Text>
-                              <TextField fx:id="txtQuadTreeCapacity" onKeyTyped="#onQuadTreeCapacityTyped" prefHeight="20.0" prefWidth="116.0" promptText="capacity">
-                                 <tooltip>
-                                    <Tooltip text="The capacity of the QuadTree" />
-                                 </tooltip>
-                              </TextField>
-                           </children>
-                        </HBox>
-                     </children>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </VBox>
-               </children>
-            </AnchorPane>
-         </content>
-      </TitledPane>
+        <TitledPane focusTraversable="false" text="QuadTree">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
+                    <children>
+                        <VBox layoutX="20.0" prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Visuals" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0" />
+                                    </font>
+                                </Text>
+                                <CheckBox fx:id="cbQuadTree" mnemonicParsing="false" onMouseClicked="#onQuadTreeClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree">
+                                    <tooltip>
+                                        <Tooltip text="Show the QuadTree subdivisions" />
+                                    </tooltip>
+                                </CheckBox>
+                                <CheckBox fx:id="cbQTNodeUtilization" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onQTNodeUtilizationClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree node utilization">
+                                    <tooltip>
+                                        <Tooltip text="The amount of objects that are in a QT-node" />
+                                    </tooltip>
+                                    <padding>
+                                        <Insets bottom="5.0" />
+                                    </padding>
+                                </CheckBox>
+                                <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Capacity" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0" />
+                                    </font>
+                                </Text>
+                                <CheckBox fx:id="cbOptimizeQTCapacity" mnemonicParsing="false" onMouseClicked="#onOptimizeQTCapacityClicked" prefHeight="17.0" prefWidth="228.0" text="Optimize QuadTree capacity">
+                                    <tooltip>
+                                        <Tooltip text="Tries to find an optimal QuadTree capacity" />
+                                    </tooltip>
+                                </CheckBox>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="QuadTree capacity" textOrigin="BOTTOM" wrappingWidth="111.72525787353517">
+                                            <HBox.margin>
+                                                <Insets />
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtQuadTreeCapacity" onKeyTyped="#onQuadTreeCapacityTyped" prefHeight="20.0" prefWidth="116.0" promptText="capacity">
+                                            <tooltip>
+                                                <Tooltip text="The capacity of the QuadTree" />
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                            </children>
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets>
+                        </VBox>
+                    </children>
+                </AnchorPane>
+            </content>
+        </TitledPane>
         <TitledPane focusTraversable="false" prefHeight="270.0" prefWidth="250.0" text="Debug">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
-               <children>
-                  <VBox layoutX="20.0" prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <children>
-                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Visuals" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
-                           <font>
-                              <Font name="System Italic" size="12.0" />
-                           </font>
-                        </Text>
-                        <CheckBox fx:id="cbBoundingBoxes" mnemonicParsing="false" onMouseClicked="#onBoundingBoxesClicked" prefHeight="17.0" prefWidth="253.0" text="Bounding Boxes">
-                           <tooltip>
-                              <Tooltip text="Shows the bounding boxes of objects" />
-                           </tooltip>
-                        </CheckBox>
-                         <CheckBox fx:id="cbSubPolygons" mnemonicParsing="false" onMouseClicked="#onSubPolygonsClicked"
-                                   prefHeight="17.0" prefWidth="253.0" text="Sub-Polygons">
-                             <tooltip>
-                                 <Tooltip text="Show the concave polygons forming a convex polygon"/>
-                           </tooltip>
-                        </CheckBox>
-                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Stats" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
-                           <font>
-                              <Font name="System Italic" size="12.0" />
-                           </font>
-                        </Text>
-                        <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
-                           <tooltip>
-                              <Tooltip text="The amount of objects that one QT node can hold" />
-                           </tooltip>
-                        </CheckBox>
-                        <CheckBox fx:id="cbMSPU" layoutX="10.0" layoutY="27.0" mnemonicParsing="false" onMouseClicked="#onMSPUClicked" prefHeight="17.0" prefWidth="253.0" text="MSPU">
-                           <tooltip>
-                              <Tooltip text="Milliseconds per update" />
-                           </tooltip>
-                        </CheckBox>
-                        <CheckBox fx:id="cbUPS" layoutX="10.0" layoutY="44.0" mnemonicParsing="false" onMouseClicked="#onUPSClicked" prefHeight="17.0" prefWidth="253.0" text="UPS">
-                           <tooltip>
-                               <Tooltip text="Updates per second (based on MSPU and max UPS)"/>
-                           </tooltip>
-                        </CheckBox>
-                        <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="228.0" text="Object count">
-                           <tooltip>
-                              <Tooltip text="The amount of objects in the scene" />
-                           </tooltip>
-                        </CheckBox>
-                         <CheckBox fx:id="cbRenderTime" mnemonicParsing="false" onMouseClicked="#onRenderTimeClicked"
-                                   prefHeight="17.0" prefWidth="253.0" text="Render time">
-                           <tooltip>
-                               <Tooltip text="The average time it takes to render a frame in ms"/>
-                           </tooltip>
-                        </CheckBox>
-                        <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Other" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
-                           <font>
-                              <Font name="System Italic" size="12.0" />
-                           </font>
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </Text>
-                        <HBox>
-                           <children>
-                              <Label prefHeight="17.0" prefWidth="105.0" text="Border restitution ">
-                                 <tooltip>
-                                     <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce"/>
-                                 </tooltip>
-                              </Label>
-                               <Slider fx:id="sldWallRestitution" blockIncrement="0.05" majorTickUnit="0.1" max="1.0"
-                                       minorTickCount="1" onMouseDragged="#onWallRestitutionChanged" prefHeight="17.0"
-                                       prefWidth="108.0" value="1.0">
-                                 <tooltip>
-                                     <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce"/>
-                                 </tooltip>
-                              </Slider>
-                               <Label fx:id="lblWallResitution" prefHeight="17.0" prefWidth="39.0" text="1.00">
-                                 <padding>
-                                    <Insets left="2.0" />
-                                 </padding>
-                                 <tooltip>
-                                     <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce"/>
-                                 </tooltip>
-                              </Label>
-                           </children>
-                        </HBox>
-                     </children>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </VBox>
-               </children></AnchorPane>
+                    <children>
+                        <VBox layoutX="20.0" prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Visuals" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0" />
+                                    </font>
+                                </Text>
+                                <CheckBox fx:id="cbBoundingBoxes" mnemonicParsing="false" onMouseClicked="#onBoundingBoxesClicked" prefHeight="17.0" prefWidth="253.0" text="Bounding Boxes">
+                                    <tooltip>
+                                        <Tooltip text="Shows the bounding boxes of objects" />
+                                    </tooltip>
+                                </CheckBox>
+                                <CheckBox fx:id="cbSubPolygons" mnemonicParsing="false" onMouseClicked="#onSubPolygonsClicked" prefHeight="17.0" prefWidth="253.0" text="Sub-Polygons">
+                                    <tooltip>
+                                        <Tooltip text="Show the concave polygons forming a convex polygon" />
+                                    </tooltip>
+                                </CheckBox>
+                                <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Stats" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0" />
+                                    </font>
+                                </Text>
+                                <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
+                                    <tooltip>
+                                        <Tooltip text="The amount of objects that one QT node can hold" />
+                                    </tooltip>
+                                </CheckBox>
+                                <CheckBox fx:id="cbMSPU" layoutX="10.0" layoutY="27.0" mnemonicParsing="false" onMouseClicked="#onMSPUClicked" prefHeight="17.0" prefWidth="253.0" text="MSPU">
+                                    <tooltip>
+                                        <Tooltip text="Milliseconds per update" />
+                                    </tooltip>
+                                </CheckBox>
+                                <CheckBox fx:id="cbUPS" layoutX="10.0" layoutY="44.0" mnemonicParsing="false" onMouseClicked="#onUPSClicked" prefHeight="17.0" prefWidth="253.0" text="UPS">
+                                    <tooltip>
+                                        <Tooltip text="Updates per second (based on MSPU and max UPS)" />
+                                    </tooltip>
+                                </CheckBox>
+                                <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="228.0" text="Object count">
+                                    <tooltip>
+                                        <Tooltip text="The amount of objects in the scene" />
+                                    </tooltip>
+                                </CheckBox>
+                                <CheckBox fx:id="cbRenderTime" mnemonicParsing="false" onMouseClicked="#onRenderTimeClicked" prefHeight="17.0" prefWidth="253.0" text="Render time">
+                                    <tooltip>
+                                        <Tooltip text="The average time it takes to render a frame in ms" />
+                                    </tooltip>
+                                </CheckBox>
+                                <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Other" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets top="5.0" />
+                                    </VBox.margin>
+                                </Text>
+                                <HBox>
+                                    <children>
+                                        <Label prefHeight="17.0" prefWidth="105.0" text="Border restitution ">
+                                            <tooltip>
+                                                <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce" />
+                                            </tooltip>
+                                        </Label>
+                                        <Slider fx:id="sldWallRestitution" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onWallRestitutionChanged" prefHeight="17.0" prefWidth="108.0" value="1.0">
+                                            <tooltip>
+                                                <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce" />
+                                            </tooltip>
+                                        </Slider>
+                                        <Label fx:id="lblWallResitution" prefHeight="17.0" prefWidth="39.0" text="1.00">
+                                            <padding>
+                                                <Insets left="2.0" />
+                                            </padding>
+                                            <tooltip>
+                                                <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce" />
+                                            </tooltip>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                            </children>
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets>
+                        </VBox>
+                    </children></AnchorPane>
             </content>
         </TitledPane>
     </panes>

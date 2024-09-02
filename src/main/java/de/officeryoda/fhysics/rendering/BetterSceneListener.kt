@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
+import de.officeryoda.fhysics.rendering.UIController.Companion.spawnColor
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
@@ -105,6 +106,8 @@ object BetterSceneListener {
             SpawnObjectType.POLYGON -> handlePolygonCreation()
             else -> {}
         }
+
+        updateSpawnPreview()
     }
 
     private fun onRightDrag() {
@@ -192,7 +195,8 @@ object BetterSceneListener {
             else -> throw IllegalArgumentException("Invalid spawn object type")
         }
 
-        obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
+        val color: Color = if (UIController.customColor) spawnColor else obj.color
+        obj.color = Color(color.red, color.green, color.blue, 128)
         spawnPreview = obj
     }
 

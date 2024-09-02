@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -74,10 +75,10 @@ object FhysicsCore {
 //            angle = Math.toRadians(30.0).toFloat()
 //        }
 
-//        repeat(2000) {
-//            val circle = FhysicsObjectFactory.randomCircle()
-//            spawn(circle)
-//        }
+        repeat(2000) {
+            val circle = FhysicsObjectFactory.randomCircle()
+            spawn(circle)
+        }
 
 //        val rect1 = Rectangle(Vector2(50f, 0.5f), 1f, 1f)
 //        spawn(rect1)

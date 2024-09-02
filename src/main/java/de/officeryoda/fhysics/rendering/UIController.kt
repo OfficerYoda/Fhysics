@@ -9,11 +9,13 @@ import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
+import de.officeryoda.fhysics.rendering.BetterSceneListener.spawnPreview
 import de.officeryoda.fhysics.rendering.BetterSceneListener.updateSpawnPreview
 import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
+import java.awt.Color
 import java.util.*
 
 class UIController {
@@ -30,6 +32,12 @@ class UIController {
 
     @FXML
     private lateinit var txtSpawnHeight: TextField
+
+    @FXML
+    private lateinit var cbCustomColor: CheckBox
+
+    @FXML
+    private lateinit var clrSpawnColor: ColorPicker
     /// endregion
 
     /// region =====Fields: Object Properties=====
@@ -199,6 +207,22 @@ class UIController {
     fun onSpawnHeightTyped() {
         spawnHeight = parseTextField(txtSpawnHeight)
         updateSpawnPreview()
+    }
+
+    @FXML
+    fun onCustomColorClicked() {
+        customColor = cbCustomColor.isSelected
+        clrSpawnColor.isDisable = !cbCustomColor.isSelected
+
+        if (cbCustomColor.isSelected) {
+            spawnPreview?.color = spawnColor
+        }
+    }
+
+    @FXML
+    fun onSpawnColorAction() {
+        spawnColor = RenderUtil.paintToColor(clrSpawnColor.value)
+        spawnPreview?.color = spawnColor
     }
     /// endregion
 
@@ -577,6 +601,10 @@ class UIController {
         var spawnWidth: Float = 1.0f
             private set
         var spawnHeight: Float = 1.0f
+            private set
+        var customColor: Boolean = false
+            private set
+        var spawnColor: Color = Color(255, 255, 255)
             private set
         /// endregion
 
