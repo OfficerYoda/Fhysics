@@ -77,7 +77,8 @@ object BetterSceneListener {
         val pos: Vector2 = Vector2(minX, minY) + size / 2f
 
         val rect = Rectangle(pos, size.x, size.y)
-        rect.color = Color(rect.color.red, rect.color.green, rect.color.blue, 128)
+        val color: Color = if (spawnPreview is Rectangle) spawnPreview!!.color else rect.color
+        rect.color = Color(color.red, color.green, color.blue, 128)
 
         spawnPreview = rect
     }
@@ -120,7 +121,11 @@ object BetterSceneListener {
 
         if (!validParams) return
 
-        FhysicsCore.spawn(spawnPreview!!.clone())
+        FhysicsCore.spawn(spawnPreview!!.clone().apply { color = asOpaqueColor(color) })
+    }
+
+    private fun asOpaqueColor(color: Color): Color {
+        return Color(color.red, color.green, color.blue)
     }
 
     /// region =====Vanilla event handlers=====
