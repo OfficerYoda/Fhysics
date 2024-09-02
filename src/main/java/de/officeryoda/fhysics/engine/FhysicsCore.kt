@@ -1,8 +1,6 @@
 package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
-import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -42,13 +40,13 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        repeat(30) {
-            spawn(FhysicsObjectFactory.randomCircle())
-        }
-
-        repeat(20) {
-            spawn(FhysicsObjectFactory.randomRectangle())
-        }
+//        repeat(30) {
+//            spawn(FhysicsObjectFactory.randomCircle())
+//        }
+//
+//        repeat(20) {
+//            spawn(FhysicsObjectFactory.randomRectangle())
+//        }
 
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomPolygon())
@@ -61,12 +59,12 @@ object FhysicsCore {
 //        spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).static = true
 
         // A Big rectangle in the center with an incline of 30 degrees and maximum friction values
-        spawn(Rectangle(Vector2(50.0f, 50.0f), 100.0f, 10.0f, Math.toRadians(30.0).toFloat())).first().apply {
-            static = true
-            frictionStatic = 1.0f
-            frictionDynamic = 1.0f
-            restitution = 0.0f
-        }
+//        spawn(Rectangle(Vector2(50.0f, 50.0f), 100.0f, 10.0f, Math.toRadians(30.0).toFloat())).first().apply {
+//            static = true
+//            frictionStatic = 1.0f
+//            frictionDynamic = 1.0f
+//            restitution = 0.0f
+//        }
 //        // A small rectangle on top of the big rectangle
 //        spawn(Rectangle(Vector2(50.0f, 57.0f), 1.0f, 1.0f)).first().apply {
 //            static = false
@@ -81,8 +79,8 @@ object FhysicsCore {
 //            spawn(circle)
 //        }
 
-        val rect1 = Rectangle(Vector2(50f, 0.5f), 1f, 1f)
-        spawn(rect1)
+//        val rect1 = Rectangle(Vector2(50f, 0.5f), 1f, 1f)
+//        spawn(rect1)
 //        val rect2 = Rectangle(Vector2(55f, 4f), 12f, 5f)
 //        spawn(rect1, rect2)
 

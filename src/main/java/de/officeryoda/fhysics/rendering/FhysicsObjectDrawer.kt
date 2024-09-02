@@ -265,7 +265,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygonPreview() {
-        val vertices: List<Vector2> = BetterSceneListener.polyVertices
+        val vertices: List<Vector2> = BetterSceneListener.polyVertices.plus(BetterSceneListener.mousePosWorld)
         if (vertices.isEmpty()) return
 
         gc.beginPath()
@@ -282,7 +282,7 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(transparentC)
 
         gc.stroke()
-        if (!BetterSceneListener.validPolygon) {
+        if (!PolygonCreator.isPolygonValid(vertices)) {
             setFillColor(Color(255, 0, 0, 128))
         }
         gc.fill()

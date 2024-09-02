@@ -59,11 +59,6 @@ object BetterSceneListener {
      */
     var polyVertices: MutableList<Vector2> = ArrayList()
 
-    /**
-     * Whether the polygon is valid
-     */
-    var validPolygon = true
-
     /// region =====Custom event handlers=====
     // TODO: Add parameter: mouse pos, etc.
     private fun onLeftClick(posWorld: Vector2) {
@@ -77,7 +72,6 @@ object BetterSceneListener {
     private fun onRightClick(posWorld: Vector2) {
         if (selectedSpawnObjectType == SpawnObjectType.POLYGON) {
             polyVertices.clear()
-            validPolygon = false
         }
     }
 
@@ -154,7 +148,7 @@ object BetterSceneListener {
 
     private fun handlePolygonCreation() {
         // Create the polygon if the polygon is complete
-        if (polyVertices.size > 2 && validPolygon) {
+        if (polyVertices.size > 2 && PolygonCreator.isPolygonValid(polyVertices)) {
             val startPos: Vector2 = polyVertices.first()
             if (mousePosWorld.sqrDistanceTo(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                 createAndSpawnPolygon()
@@ -164,7 +158,6 @@ object BetterSceneListener {
 
         // Add the vertex to the polygon
         polyVertices.add(mousePosWorld.copy())
-        validPolygon = PolygonCreator.isPolygonValid(polyVertices)
     }
 
     private fun createAndSpawnPolygon() {

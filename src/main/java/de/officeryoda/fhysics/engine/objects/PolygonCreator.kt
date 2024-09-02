@@ -192,7 +192,7 @@ object PolygonCreator {
      *
      * @return true if the polygon is valid
      */
-    fun isPolygonValid(vertices: MutableList<Vector2>): Boolean {
+    fun isPolygonValid(vertices: List<Vector2>): Boolean {
         val size: Int = vertices.size
         if (size < 3) return false
 
@@ -204,7 +204,7 @@ object PolygonCreator {
      *
      * @return true if the lines are intersecting
      */
-    private fun areEdgesIntersecting(vertices: MutableList<Vector2>): Boolean {
+    private fun areEdgesIntersecting(vertices: List<Vector2>): Boolean {
         val size: Int = vertices.size
         for (i: Int in 0 until size) {
             for (j: Int in i + 1 until size) {
