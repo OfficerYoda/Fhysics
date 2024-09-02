@@ -10,8 +10,9 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Rectangle
+import de.officeryoda.fhysics.rendering.BetterSceneListener.mousePosWorld
+import de.officeryoda.fhysics.rendering.BetterSceneListener.spawnPreview
 import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
-import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
@@ -181,10 +182,10 @@ class UIController {
         }
 
         val obj: FhysicsObject = when (spawnObjectType) {
-            SpawnObjectType.CIRCLE -> Circle(SceneListener.mouseWorldPos.copy(), spawnRadius)
-            SpawnObjectType.RECTANGLE -> Rectangle(SceneListener.mouseWorldPos.copy(), spawnWidth, spawnHeight)
+            SpawnObjectType.CIRCLE -> Circle(mousePosWorld, spawnRadius)
+            SpawnObjectType.RECTANGLE -> Rectangle(mousePosWorld, spawnWidth, spawnHeight)
             SpawnObjectType.POLYGON -> {
-                val circle = Circle(SceneListener.mouseWorldPos.copy(), spawnRadius)
+                val circle = Circle(mousePosWorld, spawnRadius)
                 circle.color = Color.PINK
                 circle
             }

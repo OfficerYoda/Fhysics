@@ -3,9 +3,9 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
-import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
@@ -16,6 +16,7 @@ import kotlin.math.min
 
 object BetterSceneListener {
 
+    /// =====Vanilla event handler fields=====
     /**
      * The minimum distance the mouse has to be moved in screen space to be registered as a drag
      */
@@ -25,7 +26,7 @@ object BetterSceneListener {
      * The position of the mouse in world space
      */
     private val mousePosScreen: Vector2 = Vector2.ZERO
-    private val mousePosWorld: Vector2 = Vector2.ZERO
+    val mousePosWorld: Vector2 = Vector2.ZERO
 
     // The state of the mouse buttons
     private var leftPressed: Boolean = false
@@ -37,10 +38,21 @@ object BetterSceneListener {
     private val rightPressedPosScreen: Vector2 = Vector2.ZERO
     private val rightPressedPosWorld: Vector2 = Vector2.ZERO
 
+    /// =====Custom event handler fields=====
+    // The state of the mouse dragging
+    private var leftDragging: Boolean = false
+    private var rightDragging: Boolean = false
+
+    /**
+     * The preview object to spawn
+     */
+    var spawnPreview: FhysicsObject? = null
+
     /// region =====Custom event handlers=====
     // TODO: Add parameter: mouse pos, etc.
     private fun onLeftClick(posWorld: Vector2) {
         println("Left click")
+        spawnPreview()
     }
 
     private fun onRightClick(posWorld: Vector2) {
@@ -48,6 +60,7 @@ object BetterSceneListener {
     }
 
     private fun onLeftDrag() {
+        leftDragging = true
         println("Left drag")
 
         // Don't create a drag preview if the spawn object type is not a rectangle
@@ -70,10 +83,14 @@ object BetterSceneListener {
     }
 
     private fun onLeftDragRelease() {
-        // TODO: Implement spawning the dragged rectangle
+        leftDragging = false
+
+        spawnPreview()
+        UIController.instance.updateSpawnPreview()
     }
 
     private fun onRightDrag() {
+        rightDragging = true
         println("Right drag")
 
         // Move the camera by the amount the mouse is away from the position where the right mouse button was pressed
@@ -83,10 +100,28 @@ object BetterSceneListener {
     }
 
     private fun onRightDragRelease() {
-
+        rightDragging = false
     }
 
     /// endregion
+
+    /**
+     * Spawns the preview object at the mouse position
+     */
+    private fun spawnPreview() {
+        // Check if spawn pos is outside the border
+        if (!FhysicsCore.BORDER.contains(mousePosWorld)) return
+
+        val validParams: Boolean = when (UIController.spawnObjectType) {
+            SpawnObjectType.CIRCLE -> UIController.spawnRadius > 0.0F
+            SpawnObjectType.RECTANGLE -> UIController.spawnWidth > 0.0F && UIController.spawnHeight > 0.0F
+            else -> false
+        }
+
+        if (!validParams) return
+
+        FhysicsCore.spawn(spawnPreview!!.clone())
+    }
 
     /// region =====Vanilla event handlers=====
     fun onMouseWheel(e: ScrollEvent) {
@@ -178,13 +213,17 @@ object BetterSceneListener {
     }
 
     /**
-     * Sets the mouse position in world space
+     * Sets the mouse position in world space and updates the spawn preview position
      * @param e the mouse event
-     * @return the mouse position in world space
      */
     private fun updateMousePos(e: MouseEvent) {
         mousePosScreen.set(getMouseScreenPos(e))
         mousePosWorld.set(RenderUtil.screenToWorld(mousePosScreen))
+
+        // Update the spawn preview position if it's not set due to dragging a rectangle
+        if (!leftDragging) {
+            spawnPreview?.position!!.set(mousePosWorld)
+        }
     }
 
     /**

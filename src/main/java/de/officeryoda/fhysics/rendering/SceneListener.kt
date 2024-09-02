@@ -85,7 +85,7 @@ object SceneListener {
     /**
      * The preview object to spawn
      */
-    var spawnPreview: FhysicsObject? = null
+    private var spawnPreview: FhysicsObject? = null
 
     /**
      * The object that is currently hovered by the mouse

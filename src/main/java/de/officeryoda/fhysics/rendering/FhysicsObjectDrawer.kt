@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.*
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.rendering.BetterSceneListener.spawnPreview
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.darkenColor
 import de.officeryoda.fhysics.rendering.RenderUtil.lerp
@@ -14,7 +15,6 @@ import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenX
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenY
 import de.officeryoda.fhysics.rendering.SceneListener.hoveredObject
 import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
-import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
 import javafx.animation.AnimationTimer
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
