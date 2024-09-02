@@ -49,7 +49,16 @@ object BetterSceneListener {
      */
     var spawnPreview: FhysicsObject? = null
 
-    /// Polygon creation fields
+    /**
+     * The object that is currently selected
+     */
+    var selectedObject: FhysicsObject? = null
+
+    /**
+     * The object that is currently hovered
+     */
+    var hoveredObject: FhysicsObject? = null
+
     /**
      * The radius around the first polygon vertex where the polygon closes when clicked inside
      */
@@ -62,6 +71,16 @@ object BetterSceneListener {
 
     /// region =====Custom event handlers=====
     private fun onLeftClick() {
+        // Select object if hovered, otherwise spawn object
+        if (hoveredObject != null) {
+            selectedObject = hoveredObject
+            UIController.instance.expandObjectPropertiesPane()
+            return
+        } else {
+            selectedObject = null
+        }
+
+        // Handle spawning
         when (selectedSpawnObjectType) {
             SpawnObjectType.CIRCLE, SpawnObjectType.RECTANGLE -> spawnPreview()
             SpawnObjectType.POLYGON -> handlePolygonCreation()
@@ -106,13 +125,10 @@ object BetterSceneListener {
             SpawnObjectType.POLYGON -> handlePolygonCreation()
             else -> {}
         }
-
-        updateSpawnPreview()
     }
 
     private fun onRightDrag() {
         rightDragging = true
-        println("Right drag")
 
         // Move the camera by the amount the mouse is away from the position where the right mouse button was pressed
         val deltaMousePos: Vector2 = rightPressedPosWorld - mousePosWorld
@@ -304,7 +320,7 @@ object BetterSceneListener {
             KeyCode.K -> QuadTree.capacity += 5
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
             KeyCode.Q -> println(QuadTree.root.objects.forEach { println(it) })
-            KeyCode.S -> println(SceneListener.selectedObject)
+            KeyCode.S -> println(selectedObject)
             else -> {}
         }
     }

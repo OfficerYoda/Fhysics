@@ -9,9 +9,9 @@ import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
+import de.officeryoda.fhysics.rendering.BetterSceneListener.selectedObject
 import de.officeryoda.fhysics.rendering.BetterSceneListener.spawnPreview
 import de.officeryoda.fhysics.rendering.BetterSceneListener.updateSpawnPreview
-import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
@@ -294,6 +294,7 @@ class UIController {
      */
     fun expandObjectPropertiesPane() {
         tpProperties.isExpanded = true
+        updateObjectPropertiesValues()
     }
 
     /**
@@ -302,7 +303,7 @@ class UIController {
      * If no object is selected, the fields are disabled.
      * If an object is selected, the fields are enabled and filled with the object's values.
      */
-    fun updateObjectPropertiesValues() {
+    private fun updateObjectPropertiesValues() {
         apProperties.isDisable = selectedObject == null
         if (selectedObject == null) return
 

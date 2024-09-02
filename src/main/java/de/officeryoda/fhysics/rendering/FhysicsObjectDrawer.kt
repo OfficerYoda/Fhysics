@@ -4,6 +4,9 @@ import de.officeryoda.fhysics.engine.*
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.BetterSceneListener.POLYGON_CLOSE_RADIUS
+import de.officeryoda.fhysics.rendering.BetterSceneListener.hoveredObject
+import de.officeryoda.fhysics.rendering.BetterSceneListener.mousePosWorld
+import de.officeryoda.fhysics.rendering.BetterSceneListener.selectedObject
 import de.officeryoda.fhysics.rendering.BetterSceneListener.spawnPreview
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.darkenColor
@@ -14,10 +17,9 @@ import de.officeryoda.fhysics.rendering.RenderUtil.setStrokeColor
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreen
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenX
 import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenY
-import de.officeryoda.fhysics.rendering.SceneListener.hoveredObject
-import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
 import javafx.animation.AnimationTimer
 import javafx.application.Application
+import javafx.event.EventHandler
 import javafx.fxml.FXMLLoader
 import javafx.scene.Group
 import javafx.scene.Scene
@@ -30,6 +32,7 @@ import java.lang.Math.toDegrees
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.system.exitProcess
 
 // Can't be converted to object because it is a JavaFX Application
 class FhysicsObjectDrawer : Application() {
@@ -93,6 +96,9 @@ class FhysicsObjectDrawer : Application() {
 
         startAnimationTimer()
 
+        // Set the onCloseRequest event handler to exit the application
+        stage.onCloseRequest = EventHandler { exitProcess(0) }
+
         stage.show()
     }
 
@@ -106,13 +112,6 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun addListeners(scene: Scene) {
-        scene.setOnScroll { SceneListener.onMouseWheel(it) }
-        scene.setOnMousePressed { SceneListener.onMousePressed(it) }
-        scene.setOnMouseReleased { SceneListener.onMouseReleased(it) }
-        scene.setOnMouseMoved { SceneListener.onMouseMoved(it) }
-        scene.setOnMouseDragged { SceneListener.onMouseDragged(it) }
-        scene.setOnKeyPressed { SceneListener.onKeyPressed(it) }
-
         scene.setOnScroll { BetterSceneListener.onMouseWheel(it) }
         scene.setOnMousePressed { BetterSceneListener.onMousePressed(it) }
         scene.setOnMouseReleased { BetterSceneListener.onMouseReleased(it) }
@@ -151,7 +150,7 @@ class FhysicsObjectDrawer : Application() {
 
         if (hoveredObject != null) drawObjectPulsing(hoveredObject!!)
         if (selectedObject != null && selectedObject !== hoveredObject) drawObjectPulsing(selectedObject!!)
-        if (UIController.drawSpawnPreview && hoveredObject == null) drawSpawnPreview()
+        if (UIController.drawSpawnPreview) drawSpawnPreview()
 
         drawBorder()
         DebugDrawer.drawDebug()
@@ -353,11 +352,10 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun checkForHoveredObject(): FhysicsObject? {
-
         // Check if the mouse is still hovering over the object
         val obj: FhysicsObject? =
-            hoveredObject?.takeIf { it.contains(SceneListener.mouseWorldPos) && !QuadTree.removeQueue.contains(it) }
-                ?: QuadTree.root.query(SceneListener.mouseWorldPos)
+            hoveredObject?.takeIf { it.contains(mousePosWorld) && !QuadTree.removeQueue.contains(it) }
+                ?: QuadTree.root.query(mousePosWorld)
 
         // If the object is in the remove queue, don't return it
         return obj.takeUnless { QuadTree.removeQueue.contains(it) }

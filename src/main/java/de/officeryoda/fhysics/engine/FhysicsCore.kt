@@ -41,13 +41,13 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        repeat(30) {
-//            spawn(FhysicsObjectFactory.randomCircle())
-//        }
-//
-//        repeat(20) {
-//            spawn(FhysicsObjectFactory.randomRectangle())
-//        }
+        repeat(30) {
+            spawn(FhysicsObjectFactory.randomCircle())
+        }
+
+        repeat(20) {
+            spawn(FhysicsObjectFactory.randomRectangle())
+        }
 
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomPolygon())
@@ -75,10 +75,10 @@ object FhysicsCore {
 //            angle = Math.toRadians(30.0).toFloat()
 //        }
 
-        repeat(2000) {
-            val circle = FhysicsObjectFactory.randomCircle()
-            spawn(circle)
-        }
+//        repeat(2000) {
+//            val circle = FhysicsObjectFactory.randomCircle()
+//            spawn(circle)
+//        }
 
 //        val rect1 = Rectangle(Vector2(50f, 0.5f), 1f, 1f)
 //        spawn(rect1)
