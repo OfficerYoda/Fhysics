@@ -116,7 +116,7 @@ object PolygonCreator {
             merged = false
             for (i: Int in polygons.indices) {
                 for (j: Int in i + 1 until polygons.size) {
-                    val sharedEdge: Pair<Int, Int> = shareEdge(polygons[i], polygons[j]) ?: continue
+                    val sharedEdge: Pair<Int, Int> = sharedEdge(polygons[i], polygons[j]) ?: continue
                     val mergedPolygon: Array<Vector2> =
                         mergePolygons(polygons[i], polygons[j], sharedEdge)
 
@@ -171,7 +171,7 @@ object PolygonCreator {
      * @param polyB the second polygon
      * @return the indices of the shared edge in the polygons or null if no edge is shared
      */
-    private fun shareEdge(polyA: Array<Vector2>, polyB: Array<Vector2>): Pair<Int, Int>? {
+    private fun sharedEdge(polyA: Array<Vector2>, polyB: Array<Vector2>): Pair<Int, Int>? {
         for (i: Int in polyA.indices) {
             val p1: Vector2 = polyA[i]
             val p2: Vector2 = polyA[(i + 1) % polyA.size]
@@ -192,7 +192,7 @@ object PolygonCreator {
      *
      * @return true if the polygon is valid
      */
-    fun validatePolyVertices(vertices: MutableList<Vector2>): Boolean {
+    fun isPolygonValid(vertices: MutableList<Vector2>): Boolean {
         val size: Int = vertices.size
         if (size < 3) return false
 
@@ -210,7 +210,7 @@ object PolygonCreator {
             for (j: Int in i + 1 until size) {
                 val line1: Pair<Vector2, Vector2> = Pair(vertices[i], vertices[(i + 1) % size])
                 val line2: Pair<Vector2, Vector2> = Pair(vertices[j], vertices[(j + 1) % size])
-                if (doLinesIntersect(line1, line2)) {
+                if (areLinesIntersecting(line1, line2)) {
                     return true
                 }
             }
@@ -224,7 +224,7 @@ object PolygonCreator {
      * @param lineA the first line
      * @param lineB the second line
      */
-    private fun doLinesIntersect(lineA: Pair<Vector2, Vector2>, lineB: Pair<Vector2, Vector2>): Boolean {
+    private fun areLinesIntersecting(lineA: Pair<Vector2, Vector2>, lineB: Pair<Vector2, Vector2>): Boolean {
         val a: Vector2 = lineA.first
         val b: Vector2 = lineA.second
         val c: Vector2 = lineB.first

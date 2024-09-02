@@ -52,7 +52,7 @@ object FhysicsObjectFactory {
                 vertices.add(Vector2(x, y))
             }
             // Check if the generated polygon is concave
-            val isValid: Boolean = PolygonCreator.validatePolyVertices(vertices)
+            val isValid: Boolean = PolygonCreator.isPolygonValid(vertices)
         } while (!isValid) // Repeat until a valid polygon is generated
 
         val pos: Vector2 = randomPosInsideBounds(5f)

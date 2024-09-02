@@ -6,7 +6,7 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.PolygonCreator
-import de.officeryoda.fhysics.engine.objects.PolygonCreator.validatePolyVertices
+import de.officeryoda.fhysics.engine.objects.PolygonCreator.isPolygonValid
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.RenderUtil.zoomCenter
@@ -75,12 +75,12 @@ object SceneListener {
     /**
      * The vertices of the polygon being created
      */
-    var polyVertices: MutableList<Vector2> = ArrayList()
+    private var polyVertices: MutableList<Vector2> = ArrayList()
 
     /**
      * Whether the polygon is valid
      */
-    var validPolygon = true
+    private var validPolygon = true
 
     /**
      * The preview object to spawn
@@ -131,7 +131,7 @@ object SceneListener {
 
             // Add the vertex to the polygon
             polyVertices.add(pos)
-            validPolygon = validatePolyVertices(polyVertices)
+            validPolygon = isPolygonValid(polyVertices)
 
             return
         }
@@ -185,7 +185,7 @@ object SceneListener {
             hasDraggedMinDistance() -> {
                 if (!canceledDragSpawn) {
                     FhysicsCore.spawn(spawnPreview!!.clone())
-                    UIController.instance.updateSpawnPreview()
+//                    UIController.instance.updateSpawnPreview()
                 }
             }
 
@@ -207,7 +207,7 @@ object SceneListener {
         if (dragStartWorldPos != null) {
             canceledDragSpawn = true
             dragStartWorldPos = null
-            UIController.instance.updateSpawnPreview()
+//            UIController.instance.updateSpawnPreview()
         }
 
         // Clear the polygon vertices for a new polygon

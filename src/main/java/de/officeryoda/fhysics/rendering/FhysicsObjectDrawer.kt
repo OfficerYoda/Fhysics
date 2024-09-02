@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.*
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.rendering.BetterSceneListener.POLYGON_CLOSE_RADIUS
 import de.officeryoda.fhysics.rendering.BetterSceneListener.spawnPreview
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.darkenColor
@@ -264,8 +265,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygonPreview() {
-        val vertices: List<Vector2> = SceneListener.polyVertices
-
+        val vertices: List<Vector2> = BetterSceneListener.polyVertices
         if (vertices.isEmpty()) return
 
         gc.beginPath()
@@ -282,14 +282,15 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(transparentC)
 
         gc.stroke()
-        if (!SceneListener.validPolygon)
+        if (!BetterSceneListener.validPolygon) {
             setFillColor(Color(255, 0, 0, 128))
+        }
         gc.fill()
 
         // Draw a circle at the first vertex for easier closing
         setFillColor(Color(0, 255, 0, 128))
         val firstVertex: Vector2 = worldToScreen(vertices.first())
-        val radius: Double = SceneListener.POLYGON_CLOSE_RADIUS.toDouble() * zoom
+        val radius: Double = POLYGON_CLOSE_RADIUS.toDouble() * zoom
         gc.fillOval(
             firstVertex.x.toDouble() - radius,
             firstVertex.y.toDouble() - radius,

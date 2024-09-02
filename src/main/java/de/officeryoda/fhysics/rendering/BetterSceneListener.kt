@@ -3,8 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
@@ -13,6 +12,7 @@ import javafx.scene.input.ScrollEvent
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
+import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType as selectedSpawnObjectType
 
 object BetterSceneListener {
 
@@ -48,23 +48,44 @@ object BetterSceneListener {
      */
     var spawnPreview: FhysicsObject? = null
 
+    /// Polygon creation fields
+    /**
+     * The radius around the first polygon vertex where the polygon closes when clicked inside
+     */
+    const val POLYGON_CLOSE_RADIUS = 1.0f
+
+    /**
+     * The vertices of the polygon being created
+     */
+    var polyVertices: MutableList<Vector2> = ArrayList()
+
+    /**
+     * Whether the polygon is valid
+     */
+    var validPolygon = true
+
     /// region =====Custom event handlers=====
     // TODO: Add parameter: mouse pos, etc.
     private fun onLeftClick(posWorld: Vector2) {
-        println("Left click")
-        spawnPreview()
+        when (selectedSpawnObjectType) {
+            SpawnObjectType.CIRCLE, SpawnObjectType.RECTANGLE -> spawnPreview()
+            SpawnObjectType.POLYGON -> handlePolygonCreation()
+            else -> {}
+        }
     }
 
     private fun onRightClick(posWorld: Vector2) {
-        println("Right click")
+        if (selectedSpawnObjectType == SpawnObjectType.POLYGON) {
+            polyVertices.clear()
+            validPolygon = false
+        }
     }
 
     private fun onLeftDrag() {
         leftDragging = true
-        println("Left drag")
 
         // Don't create a drag preview if the spawn object type is not a rectangle
-        if (UIController.spawnObjectType != SpawnObjectType.RECTANGLE) return
+        if (selectedSpawnObjectType != SpawnObjectType.RECTANGLE) return
 
         // Calculate the corners of the rectangle
         val minX: Float = min(leftPressedPosWorld.x, mousePosWorld.x)
@@ -86,8 +107,12 @@ object BetterSceneListener {
     private fun onLeftDragRelease() {
         leftDragging = false
 
-        spawnPreview()
-        UIController.instance.updateSpawnPreview()
+        when (selectedSpawnObjectType) {
+            SpawnObjectType.CIRCLE, SpawnObjectType.RECTANGLE -> spawnPreview()
+            SpawnObjectType.POLYGON -> handlePolygonCreation()
+            else -> {}
+        }
+        updateSpawnPreview()
     }
 
     private fun onRightDrag() {
@@ -106,6 +131,8 @@ object BetterSceneListener {
 
     /// endregion
 
+    /// region =====Helper methods=====
+
     /**
      * Spawns the preview object at the mouse position
      */
@@ -113,7 +140,7 @@ object BetterSceneListener {
         // Check if spawn pos is outside the border
         if (!FhysicsCore.BORDER.contains(mousePosWorld)) return
 
-        val validParams: Boolean = when (UIController.spawnObjectType) {
+        val validParams: Boolean = when (selectedSpawnObjectType) {
             SpawnObjectType.CIRCLE -> UIController.spawnRadius > 0.0F
             SpawnObjectType.RECTANGLE -> UIController.spawnWidth > 0.0F && UIController.spawnHeight > 0.0F
             else -> false
@@ -122,11 +149,68 @@ object BetterSceneListener {
         if (!validParams) return
 
         FhysicsCore.spawn(spawnPreview!!.clone().apply { color = asOpaqueColor(color) })
+        updateSpawnPreview()
+    }
+
+    private fun handlePolygonCreation() {
+        // Create the polygon if the polygon is complete
+        if (polyVertices.size > 2 && validPolygon) {
+            val startPos: Vector2 = polyVertices.first()
+            if (mousePosWorld.sqrDistanceTo(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
+                createAndSpawnPolygon()
+                return
+            }
+        }
+
+        // Add the vertex to the polygon
+        polyVertices.add(mousePosWorld.copy())
+        validPolygon = PolygonCreator.isPolygonValid(polyVertices)
+    }
+
+    private fun createAndSpawnPolygon() {
+        // Create and spawn the polygon
+        val polygon: Polygon = PolygonCreator.createPolygon(polyVertices.toTypedArray())
+        FhysicsCore.spawn(polygon)
+
+        // Clear the polygon vertices
+        polyVertices.clear()
+    }
+
+    /**
+     * Updates the spawn preview object based on the current spawn object type and the input fields.
+     */
+    fun updateSpawnPreview() {
+        if (UIController.spawnObjectType == SpawnObjectType.NOTHING) {
+            spawnPreview = null
+            return
+        }
+
+        val obj: FhysicsObject = when (UIController.spawnObjectType) {
+            SpawnObjectType.CIRCLE -> Circle(mousePosWorld, UIController.spawnRadius)
+            SpawnObjectType.RECTANGLE -> Rectangle(
+                mousePosWorld,
+                UIController.spawnWidth,
+                UIController.spawnHeight
+            )
+
+            SpawnObjectType.POLYGON -> {
+                val circle = Circle(mousePosWorld, UIController.spawnRadius)
+                circle.color = Color.PINK
+                circle
+            }
+
+            else -> throw IllegalArgumentException("Invalid spawn object type")
+        }
+
+        obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
+        spawnPreview = obj
     }
 
     private fun asOpaqueColor(color: Color): Color {
         return Color(color.red, color.green, color.blue)
     }
+
+    /// endregion
 
     /// region =====Vanilla event handlers=====
     fun onMouseWheel(e: ScrollEvent) {
@@ -207,7 +291,7 @@ object BetterSceneListener {
                 FhysicsCore.update()
             }
 
-            KeyCode.Z -> RenderUtil.drawer.resetZoom()
+            KeyCode.Z -> drawer.resetZoom()
             KeyCode.J -> QuadTree.capacity -= 5
             KeyCode.K -> QuadTree.capacity += 5
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
