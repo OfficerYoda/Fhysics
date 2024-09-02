@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.collision.ContactFinder
 
 class Circle(
     position: Vector2,
@@ -38,7 +39,7 @@ class Circle(
     }
 
     override fun findContactPoints(other: BorderEdge): Array<Vector2> {
-        return CollisionFinder.findContactPoints(other, this)
+        return ContactFinder.findContactPoints(other, this)
     }
 
     override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
@@ -46,11 +47,11 @@ class Circle(
     }
 
     override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, info)
+        return ContactFinder.findContactPoints(this, info)
     }
 
     override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
-        return CollisionFinder.findContactPoints(this, info)
+        return ContactFinder.findContactPoints(this, info)
     }
 
     override fun clone(): FhysicsObject {

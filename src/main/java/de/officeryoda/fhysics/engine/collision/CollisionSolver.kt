@@ -1,11 +1,10 @@
 package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
+import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.collision.CollisionFinder.nearlyEquals
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
 import java.awt.Color
 import kotlin.math.abs
@@ -37,17 +36,17 @@ object CollisionSolver {
      * Solves the collision between two objects
      *
      * @param info The CollisionInfo object containing information about the collision
-     * @param contactPoints The contact points of the collision
      */
-    fun solveCollision(info: CollisionInfo, contactPoints: Array<Vector2>) {
+    fun solveCollision(info: CollisionInfo) {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
-
-        // No need to solve collision if both objects are static
         if (objA.static && objB.static) return
 
-        contactPoints.forEach { DebugDrawer.addDebugPoint(it, Color.red, 1) }
+        // Separate and find contact points
+        separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
+        val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
 
+        // Solve collision
         val normalForces: ArrayList<Float> =
             solveImpulse(objA, objB, contactPoints, info)
         solveFriction(objA, objB, contactPoints, info, normalForces)
@@ -70,6 +69,7 @@ object CollisionSolver {
     ): ArrayList<Float> {
 //        val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution <-- bad approximation
         val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
+
         val impulseList: ArrayList<Vector2> = arrayListOf()
         val normalForces: ArrayList<Float> = arrayListOf() // Used for friction
         val normal: Vector2 = info.normal
@@ -89,7 +89,7 @@ object CollisionSolver {
 
             // Continue if the objects are already moving away from each other
             val contactVelocityMag: Float = relativeVelocity.dot(normal)
-            if (contactVelocityMag > 0) {
+            if (contactVelocityMag > EPSILON) {
                 normalForces.add(0f)
                 continue
             }
@@ -110,19 +110,19 @@ object CollisionSolver {
             normalForces.add(impulseMag)
         }
 
-        // Apply the impulses
+        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
         for (i: Int in impulseList.indices) {
             val impulse: Vector2 = impulseList[i]
 
-            if (!objA.static) {
-                objA.velocity += -impulse * objA.invMass
-                objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
-            }
-            if (!objB.static) {
-                objB.velocity += impulse * objB.invMass
-                objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
-            }
+            objA.velocity += -impulse * objA.invMass
+            objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
+            objB.velocity += impulse * objB.invMass
+            objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
         }
+
+        // Set angular velocity to 0 if it's very small
+        if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
+        if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
 
         return normalForces
     }
@@ -148,6 +148,7 @@ object CollisionSolver {
 
         val frictionList: ArrayList<Vector2> = arrayListOf()
         val normal: Vector2 = info.normal
+        val frictionType: ArrayList<Color> = arrayListOf() // TODO: Remove this
 
         // Calculate the friction for each contact point
         for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
@@ -166,7 +167,7 @@ object CollisionSolver {
 
             // Get the tangent vector of the normal
             var tangent: Vector2 = relativeVelocity - relativeVelocity.dot(normal) * normal
-            if (tangent.sqrMagnitude() < 0.0001f) continue
+            if (tangent.sqrMagnitude() < EPSILON) continue // Continue if there is no tangential velocity
             tangent = tangent.normalized()
 
             // Calculate the friction impulse
@@ -181,29 +182,49 @@ object CollisionSolver {
 
             // Apply Coulomb's law
             val normalForce: Float = normalForces[i]
+
             val frictionImpulse: Vector2 =
                 if (abs(frictionMag) <= normalForce * sf) {
-                    frictionMag * tangent
+                    frictionMag * tangent // Static friction
                 } else {
-                    -normalForce * df * tangent
+                    -normalForce * df * tangent // Dynamic friction
                 }
 
             frictionList.add(frictionImpulse)
+            if (abs(frictionMag) <= normalForce * sf) {
+                frictionType.add(Color.red)
+            } else {
+                frictionType.add(Color.blue)
+            }
         }
 
-        // Apply the impulses
+        // This is used so that the rectangle doesn't get a slight tilt when sliding down a slope
+        // It is still sliding down the slope, but my current hypothesis is that it's caused by the rectangle slightly clipping into the slope,
+        // which pushes it out but due to the current implementation the rectangle ends up in a slightly lower position
+        // TODO: Do this better or find a better solution
+        // How it works: If the vector from one contact point to the other is parallel to the average friction vector, the friction vector is set to 0
+        // This should happen when the object is sliding down a slope
+        // Somehow this doesn't affect other instances (noticeable) where those conditions are met as well (e.g. when a rect is hitting another stationary rect)
+        var multi = 1f
+        if (frictionList.size > 1) {
+            val v1: Vector2 = contactPoints[0] - contactPoints[1]
+            val v2: Vector2 = (frictionList[0] + frictionList[1]) / 2f
+            if (abs(v1.cross(v2)) < EPSILON) multi = 0f
+        }
+
+        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
         for (i: Int in frictionList.indices) {
             val frictionImpulse: Vector2 = frictionList[i]
 
-            if (!objA.static) {
-                objA.velocity += -frictionImpulse * objA.invMass
-                objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia
-            }
-            if (!objB.static) {
-                objB.velocity += frictionImpulse * objB.invMass
-                objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia
-            }
+            objA.velocity += -frictionImpulse * objA.invMass
+            objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia * multi
+            objB.velocity += frictionImpulse * objB.invMass
+            objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia * multi
         }
+
+        // Set angular velocity to 0 if it's very small
+        if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
+        if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
     }
 
     /**
@@ -211,7 +232,7 @@ object CollisionSolver {
      *
      * @param info The CollisionInfo object containing information about the collision
      */
-    fun separateOverlappingObjects(info: CollisionInfo) {
+    private fun separateOverlappingObjects(info: CollisionInfo) {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
@@ -267,34 +288,12 @@ object CollisionSolver {
         var contactPoints: Array<Vector2> = obj.findContactPoints(border)
         contactPoints = removeDuplicates(contactPoints)
 
-        // Draw them for debug
-        contactPoints.forEach {
-            DebugDrawer.addDebugPoint(it, Color.green, 1)
-        }
+        if (contactPoints.isEmpty()) return
 
         // Solve collision
-        if (contactPoints.isNotEmpty()) {
-            val normalForces: ArrayList<Float> = solveBorderImpulse(border, obj, contactPoints)
-            solveBorderFriction(border, obj, contactPoints, normalForces)
-        }
-    }
-
-    /**
-     * Moves an object inside the border
-     *
-     * @param obj The object to move
-     * @return A set of border edges the object is colliding with
-     */
-    private fun moveInsideBorder(obj: FhysicsObject): MutableSet<BorderEdge> {
-        val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
-        for (border: BorderEdge in borderObjects) {
-            val info: CollisionInfo = border.testCollision(obj)
-            if (!info.hasCollision) continue
-
-            obj.position += -info.normal * info.depth
-            collidingBorders.add(border)
-        }
-        return collidingBorders
+        val normalForces: ArrayList<Float> =
+            solveBorderImpulse(border, obj, contactPoints)
+        solveBorderFriction(border, obj, contactPoints, normalForces)
     }
 
     /**
@@ -326,7 +325,7 @@ object CollisionSolver {
 
             // Continue if the objects are already moving away from each other
             val contactVelocityMag: Float = -totalVelocity.dot(normal)
-            if (contactVelocityMag > 0) {
+            if (contactVelocityMag > EPSILON) {
                 normalForces.add(0f)
                 continue
             }
@@ -345,7 +344,7 @@ object CollisionSolver {
             normalForces.add(impulseMag)
         }
 
-        // Apply the impulses
+        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
         for (i: Int in impulseList.indices) {
             val impulse: Vector2 = impulseList[i]
 
@@ -389,7 +388,7 @@ object CollisionSolver {
 
             // Get the tangent vector of the normal
             var tangent: Vector2 = relativeVelocity - relativeVelocity.dot(normal) * normal
-            if (tangent.sqrMagnitude() < 0.0001f) continue
+            if (tangent.sqrMagnitude() < EPSILON) continue // Continue if there is no tangential velocity
             tangent = tangent.normalized()
 
             // Calculate the friction impulse
@@ -412,7 +411,7 @@ object CollisionSolver {
             frictionList.add(frictionImpulse)
         }
 
-        // Apply the impulses
+        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
         for (i: Int in frictionList.indices) {
             val frictionImpulse: Vector2 = frictionList[i]
 
@@ -422,16 +421,35 @@ object CollisionSolver {
     }
 
     /**
+     * Moves an object inside the border
+     *
+     * @param obj The object to move
+     * @return A set of border edges the object is colliding with
+     */
+    private fun moveInsideBorder(obj: FhysicsObject): MutableSet<BorderEdge> {
+        val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
+        for (border: BorderEdge in borderObjects) {
+            val info: CollisionInfo = border.testCollision(obj)
+            if (!info.hasCollision) continue
+
+            obj.position += -info.normal * info.depth
+            collidingBorders.add(border)
+        }
+
+        return collidingBorders
+    }
+
+    /**
      * Removes duplicate contact points
      *
      * @param contactPoints The contact points to remove duplicates from
      * @return The contact points without duplicates
      */
     private fun removeDuplicates(contactPoints: Array<Vector2>): Array<Vector2> {
-        val uniquePoints: MutableList<Vector2> = mutableListOf<Vector2>()
+        val uniquePoints: MutableList<Vector2> = mutableListOf()
 
         for (point: Vector2 in contactPoints) {
-            if (uniquePoints.none { existingPoint -> nearlyEquals(existingPoint, point) }) {
+            if (uniquePoints.none { existingPoint -> ContactFinder.nearlyEquals(existingPoint, point) }) {
                 uniquePoints.add(point)
             }
         }

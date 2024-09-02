@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -14,18 +15,20 @@ object FhysicsCore {
 
     // Constants
     val BORDER: BoundingBox = BoundingBox(0.0f, 0.0f, 100.0f, 100.0f) // x and y must be 0.0
-    const val UPDATES_PER_SECOND: Int = 120
+    const val UPDATES_PER_SECOND: Int = 60 * 4
+    const val SUB_STEPS: Int = 1
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
     private const val QTC_START_STEP_SIZE = 10.0
     val RENDER_LOCK = ReentrantLock()
+    const val EPSILON: Float = 1E-4f
 
     // Variables
     private var quadTree: QuadTree = QuadTree(BORDER, null)
 
     private var objectCount: Int = 0
-    var updateCount = 0
+    var updateCount = 0 // Includes all sub steps
 
-    var dt: Float = 1.0f / UPDATES_PER_SECOND
+    var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
     var running: Boolean = true
     val updateStopwatch = Stopwatch(50)
 
@@ -38,47 +41,49 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        for (i in 1..30) {
-//            spawn(FhysicsObjectFactory.randomCircle())
-//        }
-//
-//        for (i in 1..20) {
-//            spawn(FhysicsObjectFactory.randomRectangle())
-//        }
-//
-//        for (i in 1..10) {
+        repeat(30) {
+            spawn(FhysicsObjectFactory.randomCircle())
+        }
+
+        repeat(20) {
+            spawn(FhysicsObjectFactory.randomRectangle())
+        }
+
+//        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomPolygon())
 //        }
 
-        // Two rectangles that act as slides
+        // Three rectangles that act as slides + ground rectangle
 //        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).static = true
 //        spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).static = true
 //        spawn(Rectangle(Vector2(70.0f, 30.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).static = true
 //        spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).static = true
 
-        // Concave poly-circle fail case
-//        val vertices = arrayOf(
-//            Vector2(x = 50.0f, y = 50.0f),
-//            Vector2(x = 55.0f, y = 70.0f),
-//            Vector2(x = 50.0f, y = 60.0f),
-//            Vector2(x = 45.0f, y = 70.0f),
-//        )
-//        spawn(PolygonCreator.createPolygon(vertices)).static = true
-
-        // Spawn five circles in the top right
-//        for (i: Int in 1..5) {
-//            spawn(Circle(Vector2(90f - i * 5, 90f), 1f))
+        // A Big rectangle in the center with an incline of 30 degrees and maximum friction values
+//        spawn(Rectangle(Vector2(50.0f, 50.0f), 100.0f, 10.0f, Math.toRadians(30.0).toFloat())).first().apply {
+//            static = true
+//            frictionStatic = 1.0f
+//            frictionDynamic = 1.0f
+//            restitution = 0.0f
+//        }
+//        // A small rectangle on top of the big rectangle
+//        spawn(Rectangle(Vector2(50.0f, 57.0f), 1.0f, 1.0f)).first().apply {
+//            static = false
+//            frictionStatic = 1.0f
+//            frictionDynamic = 1.0f
+//            restitution = 0.0f
+//            angle = Math.toRadians(30.0).toFloat()
 //        }
 
-//        val vertices: Array<Vector2> = arrayOf(
-//            Vector2(0f, 0f),
-//            Vector2(5f, 0f),
-//            Vector2(5f, 3f),
-//            Vector2(0f, 2f),
-//            Vector2(-2f, 3.5f)
-//        )
-//        vertices.forEach { it += Vector2(50f, 22.5f) }
-//        spawn(PolygonCreator.createPolygon(vertices))
+//        repeat(2000) {
+//            val circle = FhysicsObjectFactory.randomCircle()
+//            spawn(circle)
+//        }
+
+//        val rect1 = Rectangle(Vector2(50f, 0.5f), 1f, 1f)
+//        spawn(rect1)
+//        val rect2 = Rectangle(Vector2(55f, 4f), 12f, 5f)
+//        spawn(rect1, rect2)
 
         objectsAtStepSizeIncrease = objectCount
     }
@@ -105,20 +110,26 @@ object FhysicsCore {
         updateStopwatch.start()
 
         quadTree.insertObjects()
-        quadTree.updateObjectsAndRebuild()
+        quadTree.rebuild()
 
-//        checkObjectCollision(quadTree)
-        quadTree.handleCollisions()
+        repeat(SUB_STEPS) {
+            quadTree.updateObjects()
+            quadTree.handleCollisions()
+
+            updateCount++
+        }
 
         if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
-        updateCount++
         updateStopwatch.stop()
     }
 
-    fun spawn(obj: FhysicsObject): FhysicsObject {
-        QuadTree.toAdd.add(obj)
-        return obj
+    fun spawn(vararg objects: FhysicsObject): Array<out FhysicsObject> {
+        for (o: FhysicsObject in objects) {
+            QuadTree.toAdd.add(o)
+            o.boundingBox.setFromFhysicsObject(o)
+        }
+        return objects
     }
 
     private fun optimizeQuadTreeCapacity() {
@@ -172,16 +183,10 @@ object FhysicsCore {
         if (UIController.gravityType == GravityType.DIRECTIONAL) {
             return UIController.gravityDirection
         } else {
-            val minDst = 0.05F
-            val sqrDst: Float = UIController.gravityPoint.sqrDistanceTo(pos)
-            if (sqrDst < minDst * minDst) {
-                // to not fling objects away and to avoid objects getting stuck in the
-                // gravity point causing it to vibrate and hitting other objects away
-                return Vector2.ZERO
-            }
-
             val direction: Vector2 = UIController.gravityPoint - pos
-            return UIController.gravityPointStrength / sqrDst * direction.normalized()
+            val sqrDistance: Float =
+                max(1f, direction.sqrMagnitude()) // Prevent high forces when the object is close to the gravity point
+            return UIController.gravityPointStrength / sqrDistance * direction.normalized()
         }
     }
 

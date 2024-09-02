@@ -7,11 +7,11 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Rectangle
-import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
-import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
+import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
+import de.officeryoda.fhysics.rendering.BetterSceneListener.selectedObject
+import de.officeryoda.fhysics.rendering.BetterSceneListener.spawnPreview
+import de.officeryoda.fhysics.rendering.BetterSceneListener.updateSpawnPreview
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
@@ -25,6 +25,9 @@ class UIController {
     private lateinit var cbSpawnPreview: CheckBox
 
     @FXML
+    private lateinit var cbSpawnStatic: CheckBox
+
+    @FXML
     private lateinit var txtSpawnRadius: TextField
 
     @FXML
@@ -32,6 +35,12 @@ class UIController {
 
     @FXML
     private lateinit var txtSpawnHeight: TextField
+
+    @FXML
+    private lateinit var cbCustomColor: CheckBox
+
+    @FXML
+    private lateinit var clrSpawnColor: ColorPicker
     /// endregion
 
     /// region =====Fields: Object Properties=====
@@ -171,29 +180,7 @@ class UIController {
         updateSpawnPreview()
         setSpawnFieldAvailability(radius = false, width = false, height = false)
         // Clear the polygon vertices list for a new polygon
-        SceneListener.polyVertices.clear()
-    }
-
-    fun updateSpawnPreview() {
-        if (spawnObjectType == SpawnObjectType.NOTHING) {
-            spawnPreview = null
-            return
-        }
-
-        val obj: FhysicsObject = when (spawnObjectType) {
-            SpawnObjectType.CIRCLE -> Circle(SceneListener.mouseWorldPos.copy(), spawnRadius)
-            SpawnObjectType.RECTANGLE -> Rectangle(SceneListener.mouseWorldPos.copy(), spawnWidth, spawnHeight)
-            SpawnObjectType.POLYGON -> {
-                val circle = Circle(SceneListener.mouseWorldPos.copy(), spawnRadius)
-                circle.color = Color.PINK
-                circle
-            }
-
-            else -> throw IllegalArgumentException("Invalid spawn object type")
-        }
-
-        obj.color = Color(obj.color.red, obj.color.green, obj.color.blue, 128)
-        spawnPreview = obj
+        polyVertices.clear()
     }
 
     private fun setSpawnFieldAvailability(radius: Boolean, width: Boolean, height: Boolean) {
@@ -205,6 +192,11 @@ class UIController {
     @FXML
     fun onSpawnPreviewClicked() {
         drawSpawnPreview = cbSpawnPreview.isSelected
+    }
+
+    @FXML
+    fun onSpawnStaticClicked() {
+        spawnStatic = cbSpawnStatic.isSelected
     }
 
     @FXML
@@ -224,12 +216,31 @@ class UIController {
         spawnHeight = parseTextField(txtSpawnHeight)
         updateSpawnPreview()
     }
+
+    @FXML
+    fun onCustomColorClicked() {
+        customColor = cbCustomColor.isSelected
+        clrSpawnColor.isDisable = !cbCustomColor.isSelected
+
+        if (cbCustomColor.isSelected) {
+            spawnPreview?.color = spawnColor
+        }
+    }
+
+    @FXML
+    fun onSpawnColorAction() {
+        spawnColor = RenderUtil.paintToColor(clrSpawnColor.value)
+        spawnPreview?.color = spawnColor
+    }
     /// endregion
 
     /// region =====Methods: Object Properties=====
     @FXML
     fun onPropertyStaticClicked() {
         selectedObject!!.static = cbPropertyStatic.isSelected
+
+        // Update the bounding box
+        selectedObject!!.boundingBox.setFromFhysicsObject(selectedObject!!)
     }
 
     @FXML
@@ -239,12 +250,15 @@ class UIController {
 
     @FXML
     fun onPropertyMassTyped() {
-        selectedObject!!.mass = parseTextField(txtPropertyMass, 1.0f)
+        selectedObject!!.mass = parseTextField(txtPropertyMass, 1.0f).coerceAtLeast(0.01f)
     }
 
     @FXML
     fun onPropertyRotationTyped() {
         selectedObject!!.angle = parseTextField(txtPropertyRotation) * DEGREES_TO_RADIANS
+
+        // Update the bounding box
+        selectedObject!!.boundingBox.setFromFhysicsObject(selectedObject!!)
     }
 
     @FXML
@@ -280,6 +294,7 @@ class UIController {
      */
     fun expandObjectPropertiesPane() {
         tpProperties.isExpanded = true
+        updateObjectPropertiesValues()
     }
 
     /**
@@ -288,7 +303,7 @@ class UIController {
      * If no object is selected, the fields are disabled.
      * If an object is selected, the fields are enabled and filled with the object's values.
      */
-    fun updateObjectPropertiesValues() {
+    private fun updateObjectPropertiesValues() {
         apProperties.isDisable = selectedObject == null
         if (selectedObject == null) return
 
@@ -368,7 +383,7 @@ class UIController {
     @FXML
     fun onTimeSpeedTyped() {
         timeSpeed = parseTextField(txtTimeSpeed)
-        FhysicsCore.dt = 1.0f / FhysicsCore.UPDATES_PER_SECOND * timeSpeed
+        FhysicsCore.dt = 1.0f / (FhysicsCore.UPDATES_PER_SECOND * FhysicsCore.SUB_STEPS) * timeSpeed
     }
     /// endregion
 
@@ -400,7 +415,7 @@ class UIController {
         val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
         if (capacity > 0) {
             QuadTree.capacity = capacity
-            QuadTree.root.tryDivide()
+            QuadTree.divideNextUpdate = true
         }
     }
     /// endregion
@@ -464,11 +479,14 @@ class UIController {
 
         /// region =====Spawn Object=====
         cbSpawnPreview.isSelected = drawSpawnPreview
+        cbSpawnStatic.isSelected = spawnStatic
         txtSpawnRadius.text = spawnRadius.toString()
         txtSpawnWidth.text = spawnWidth.toString()
         txtSpawnHeight.text = spawnHeight.toString()
         txtSpawnWidth.isDisable = true
         txtSpawnHeight.isDisable = true
+        cbCustomColor.isSelected = customColor
+        clrSpawnColor.value = RenderUtil.colorToPaint(spawnColor) as javafx.scene.paint.Color
 
         restrictToNumericInput(txtSpawnRadius, false)
         restrictToNumericInput(txtSpawnWidth, false)
@@ -590,11 +608,17 @@ class UIController {
             private set
         var drawSpawnPreview: Boolean = true
             private set
+        var spawnStatic: Boolean = false
+            private set
         var spawnRadius: Float = 1.0f
             private set
         var spawnWidth: Float = 1.0f
             private set
         var spawnHeight: Float = 1.0f
+            private set
+        var customColor: Boolean = false
+            private set
+        var spawnColor: Color = Color(255, 255, 255)
             private set
         /// endregion
 
@@ -606,7 +630,7 @@ class UIController {
         /// region =====Gravity=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
+        val gravityDirection: Vector2 = Vector2(0.0f, -0.0f)
         val gravityPoint: Vector2 = Vector2( // The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
@@ -644,7 +668,7 @@ class UIController {
             private set
         var drawRenderTime: Boolean = false
             private set
-        var borderRestitution: Float = 0.5f
+        var borderRestitution: Float = 1f
             private set
         /// endregion
     }

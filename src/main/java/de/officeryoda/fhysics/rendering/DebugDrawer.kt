@@ -4,7 +4,6 @@ import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
-import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.RenderUtil.zoom
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.text.Font
@@ -166,7 +165,7 @@ object DebugDrawer {
         val lineHeight: Double = font.size
         val borderSpacing = 5.0
 
-        for (i: Int in 0 until stats.size) {
+        for (i: Int in stats.indices) {
             val text: String = stats[i]
 
             if (UIController.drawQuadTree) {
@@ -178,9 +177,7 @@ object DebugDrawer {
         }
     }
 
-    fun drawBoundingBox(obj: FhysicsObject) {
-        val boundingBox: BoundingBox = obj.boundingBox
-
+    fun drawBoundingBox(boundingBox: BoundingBox) {
         RenderUtil.setStrokeColor(Color.RED)
         gc.strokeRect(
             RenderUtil.worldToScreenX(boundingBox.x),
@@ -252,5 +249,10 @@ object DebugDrawer {
         debugVectors.add(DebugVector(support, direction, color, durationFrames))
     }
 
+    fun clearDebug() {
+        debugPoints.clear()
+        debugLines.clear()
+        debugVectors.clear()
+    }
     /// endregion
 }

@@ -5,7 +5,7 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 
 class ConcavePolygon(
     vertices: Array<Vector2>,
-    subPolygonIndices: Array<Array<Int>>, // the indices of the vertices that form the convex sub-polygons
+    subPolygonIndices: Array<Array<Int>>, // The indices of the vertices that form the convex sub-polygons
     angle: Float = 0f,
 ) : Polygon(vertices, angle) {
 
@@ -16,6 +16,15 @@ class ConcavePolygon(
             val subVertices: Array<Vector2> = indices.map { vertices[it] + position }.toTypedArray()
             val center: Vector2 = calculatePolygonCenter(subVertices)
             subPolygons.add(SubPolygon(position, center, velocity, subVertices, angularVelocity, this))
+        }
+    }
+
+    override fun update() {
+        super.update()
+
+        // Update the bounding boxes of the sub-polygons
+        subPolygons.forEach {
+            it.boundingBox.setFromFhysicsObject(it)
         }
     }
 

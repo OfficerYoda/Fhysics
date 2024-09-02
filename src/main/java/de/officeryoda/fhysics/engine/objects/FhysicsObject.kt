@@ -20,30 +20,23 @@ abstract class FhysicsObject protected constructor(
     val id: Int = FhysicsCore.nextId()
     var color: Color = colorFromId()
     val boundingBox: BoundingBox = BoundingBox()
-        get() {
-            // only update the bounding box if it hasn't been updated this update cycle
-            if (lastBBoxUpdate != FhysicsCore.updateCount) {
-                lastBBoxUpdate = FhysicsCore.updateCount
-                boundingBox.setFromFhysicsObject(this)
-            }
-            return field
-        }
 
     val acceleration: Vector2 = Vector2.ZERO
     open var static: Boolean = false
         set(value) {
             field = value
             if (value) {
-                // Stop any movement if the object is set to static
-                acceleration.set(Vector2.ZERO)
-                velocity.set(Vector2.ZERO)
-                angularVelocity = 0f
                 invMass = 0f
                 invInertia = 0f
             } else {
                 invMass = 1f / mass
                 invInertia = 1f / inertia
             }
+
+            // Stop any movement if the object is set to static
+            acceleration.set(Vector2.ZERO)
+            velocity.set(Vector2.ZERO)
+            angularVelocity = 0f
         }
 
     var mass: Float = mass
@@ -57,7 +50,6 @@ abstract class FhysicsObject protected constructor(
         protected set
 
     private var lastUpdate = -1
-    private var lastBBoxUpdate = -1
 
     var inertia: Float = -1f
         get() {
@@ -81,18 +73,20 @@ abstract class FhysicsObject protected constructor(
             field = Math.clamp(value, 0f, 1f)
         }
 
-    var frictionStatic: Float = 0.5f
+    var frictionStatic: Float = 1f
+        //0.5f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~1.0)
             field = Math.clamp(value, 0f, 1f)
         }
-    var frictionDynamic: Float = 0.35f
+    var frictionDynamic: Float = 1f
+        //0.45f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~0.8)
             field = Math.clamp(value, 0f, 1f)
         }
 
-    open fun updatePosition() {
+    open fun update() {
         // Static objects don't move
         if (static) return
         // Needed because multiple quadtree nodes can contain the same object
@@ -112,6 +106,11 @@ abstract class FhysicsObject protected constructor(
         // Update rotation
         angularVelocity *= (1 - damping)
         angle += angularVelocity * dt
+        // Normalize angle
+        angle %= TWO_PI
+
+        // Update bounding box
+        boundingBox.setFromFhysicsObject(this)
     }
 
     abstract fun project(axis: Vector2): Projection
@@ -167,5 +166,9 @@ abstract class FhysicsObject protected constructor(
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    companion object {
+        private const val TWO_PI: Float = Math.PI.toFloat() * 2
     }
 }

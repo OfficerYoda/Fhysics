@@ -39,6 +39,13 @@ data class QuadTree(
         }
     }
 
+    fun shutdownThreadPool() {
+        if (isRoot) {
+            println("Shutting down thread pool")
+            threadPool.shutdownNow()
+        }
+    }
+
     /// region =====Basic functions=====
     private fun insert(obj: FhysicsObject) {
         if (!boundary.overlaps(obj.boundingBox)) return
@@ -109,10 +116,16 @@ data class QuadTree(
     /// endregion
 
     /// region =====Rebuild and update functions=====
-    fun updateObjectsAndRebuild() {
+    fun rebuild() {
+        // If the capacity was changed, divideNextUpdate will be true and the root should try to divide
+        if (divideNextUpdate && isRoot) {
+            divideNextUpdate = false
+            tryDivide()
+        }
+
         if (divided) {
             // Rebuild the children first
-            updateChildren()
+            rebuildChildren()
             // Insert any objects that need to be rebuilt
             insertRebuildObjects()
             // Collapse the node if possible
@@ -121,8 +134,6 @@ data class QuadTree(
             if (isRoot) {
                 // Remove objects that are queued for removal
                 objects.removeAll(removeQueue)
-                // Update the remaining objects
-                objects.forEach { updateObject(it) }
             } else {
                 handleNonRootNode()
             }
@@ -134,15 +145,15 @@ data class QuadTree(
         }
     }
 
-    private fun updateChildren() {
+    private fun rebuildChildren() {
         if (isRoot) {
             // Update root children async
-            updateObjectsAndRebuildChildrenAsync()
+            rebuildChildrenAsync()
         } else {
-            topLeft!!.updateObjectsAndRebuild()
-            topRight!!.updateObjectsAndRebuild()
-            botLeft!!.updateObjectsAndRebuild()
-            botRight!!.updateObjectsAndRebuild()
+            topLeft!!.rebuild()
+            topRight!!.rebuild()
+            botLeft!!.rebuild()
+            botRight!!.rebuild()
         }
     }
 
@@ -154,8 +165,7 @@ data class QuadTree(
                 toRemove.add(obj)
                 continue
             }
-            // Update each object
-            updateObject(obj)
+
             // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
             if (!boundary.contains(obj.boundingBox)) {
                 parent!!.addRebuildObject(obj)
@@ -188,12 +198,6 @@ data class QuadTree(
             insert(obj)
         }
         rebuildObjects.clear()
-    }
-
-    private fun updateObject(it: FhysicsObject) {
-        it.updatePosition()
-
-        CollisionSolver.checkBorderCollision(it)
     }
 
     private fun tryCollapse() {
@@ -231,6 +235,17 @@ data class QuadTree(
         }
     }
 
+    fun updateObjects() {
+        if (divided) {
+            topLeft!!.updateObjects()
+            topRight!!.updateObjects()
+            botLeft!!.updateObjects()
+            botRight!!.updateObjects()
+        } else {
+            objects.forEach() { it.update() }
+        }
+    }
+
     /// endregion
 
     /// region =====Collision functions=====
@@ -238,13 +253,25 @@ data class QuadTree(
         if (divided) {
             handleCollisionsInChildren()
         } else {
-            val numObjects: Int = objects.size
+            // Check for border collisions
+            // NOTE: checking for border collisions before object collisions showed better results
+            objects.forEach { CollisionSolver.checkBorderCollision(it) }
 
+            // Find collisions between objects
+            val collisions: MutableList<CollisionInfo> = mutableListOf()
             for (i: Int in objects.indices) {
-                for (j: Int in i + 1 until numObjects) {
-                    handleCollision(objects[i], objects[j])
+                for (j: Int in i + 1 until objects.size) {
+                    val objA: FhysicsObject = objects[i]
+                    val objB: FhysicsObject = objects[j]
+                    val info: CollisionInfo = objA.testCollision(objB)
+                    if (info.hasCollision) {
+                        collisions.add(info)
+                    }
                 }
             }
+
+            // Solve collisions between objects
+            collisions.forEach { CollisionSolver.solveCollision(it) }
         }
     }
 
@@ -258,17 +285,6 @@ data class QuadTree(
             botLeft!!.handleCollisions()
             botRight!!.handleCollisions()
         }
-    }
-
-    private fun handleCollision(objA: FhysicsObject, objB: FhysicsObject) {
-        if (objA.static && objB.static) return
-
-        val info: CollisionInfo = objA.testCollision(objB)
-
-        if (!info.hasCollision) return
-        CollisionSolver.separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
-        val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
-        CollisionSolver.solveCollision(info, contactPoints)
     }
 
     /// endregion
@@ -285,7 +301,8 @@ data class QuadTree(
 
             UIController.drawBoundingBoxes -> objects.forEach {
                 drawer.drawObject(it)
-                DebugDrawer.drawBoundingBox(it)
+                it.boundingBox.setFromFhysicsObject(it) // Bounding boxes are only updated on the start of fhysics updates
+                DebugDrawer.drawBoundingBox(it.boundingBox)
             }
 
             else -> objects.forEach { drawer.drawObject(it) }
@@ -306,12 +323,12 @@ data class QuadTree(
     /// endregion
 
     /// region =====Async functions=====
-    private fun updateObjectsAndRebuildChildrenAsync() {
+    private fun rebuildChildrenAsync() {
         val futures: MutableList<Future<*>> = mutableListOf()
-        futures.add(threadPool.submit { topLeft!!.updateObjectsAndRebuild() })
-        futures.add(threadPool.submit { topRight!!.updateObjectsAndRebuild() })
-        futures.add(threadPool.submit { botLeft!!.updateObjectsAndRebuild() })
-        futures.add(threadPool.submit { botRight!!.updateObjectsAndRebuild() })
+        futures.add(threadPool.submit { topLeft!!.rebuild() })
+        futures.add(threadPool.submit { topRight!!.rebuild() })
+        futures.add(threadPool.submit { botLeft!!.rebuild() })
+        futures.add(threadPool.submit { botRight!!.rebuild() })
 
         // Wait for all tasks to finish
         waitForAllFutures(futures)
@@ -393,6 +410,9 @@ data class QuadTree(
             set(value) {
                 field = value.coerceAtLeast(1)
             }
+
+        // Used to prevent concurrent modification exceptions
+        var divideNextUpdate: Boolean = false
 
         // List of objects to add and remove
         // This is used to prevent concurrent modification exceptions

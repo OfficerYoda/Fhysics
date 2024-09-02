@@ -14,7 +14,7 @@ data class Projection(val min: Float, val max: Float) {
      * @return Whether the projections overlap
      */
     fun overlaps(other: Projection): Boolean {
-        return min <= other.max && max >= other.min
+        return min <= other.max && other.min <= max
     }
 }
 
