@@ -45,6 +45,13 @@
                                         <Insets top="5.0" />
                                     </padding>
                                 </CheckBox>
+                                <CheckBox fx:id="cbSpawnStatic" mnemonicParsing="false"
+                                          onMouseClicked="#onSpawnStaticClicked" prefHeight="17.0" prefWidth="253.0"
+                                          text="Static">
+                                    <tooltip>
+                                        <Tooltip text="Static = Immovable Object"/>
+                                    </tooltip>
+                                </CheckBox>
                                 <HBox alignment="BASELINE_LEFT">
                                     <children>
                                         <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Radius" textOrigin="BOTTOM" wrappingWidth="66.72525787353517">

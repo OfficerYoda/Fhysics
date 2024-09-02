@@ -142,7 +142,10 @@ object BetterSceneListener {
 
         if (!validParams) return
 
-        FhysicsCore.spawn(spawnPreview!!.apply { color = asOpaqueColor(spawnPreview!!.color) })
+        FhysicsCore.spawn(spawnPreview!!.apply {
+            color = asOpaqueColor(spawnPreview!!.color)
+            static = UIController.spawnStatic
+        })
         updateSpawnPreview()
     }
 

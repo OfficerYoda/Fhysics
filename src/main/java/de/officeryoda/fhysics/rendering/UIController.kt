@@ -25,6 +25,9 @@ class UIController {
     private lateinit var cbSpawnPreview: CheckBox
 
     @FXML
+    private lateinit var cbSpawnStatic: CheckBox
+
+    @FXML
     private lateinit var txtSpawnRadius: TextField
 
     @FXML
@@ -189,6 +192,11 @@ class UIController {
     @FXML
     fun onSpawnPreviewClicked() {
         drawSpawnPreview = cbSpawnPreview.isSelected
+    }
+
+    @FXML
+    fun onSpawnStaticClicked() {
+        spawnStatic = cbSpawnStatic.isSelected
     }
 
     @FXML
@@ -470,11 +478,14 @@ class UIController {
 
         /// region =====Spawn Object=====
         cbSpawnPreview.isSelected = drawSpawnPreview
+        cbSpawnStatic.isSelected = spawnStatic
         txtSpawnRadius.text = spawnRadius.toString()
         txtSpawnWidth.text = spawnWidth.toString()
         txtSpawnHeight.text = spawnHeight.toString()
         txtSpawnWidth.isDisable = true
         txtSpawnHeight.isDisable = true
+        cbCustomColor.isSelected = customColor
+        clrSpawnColor.value = RenderUtil.colorToPaint(spawnColor) as javafx.scene.paint.Color
 
         restrictToNumericInput(txtSpawnRadius, false)
         restrictToNumericInput(txtSpawnWidth, false)
@@ -595,6 +606,8 @@ class UIController {
         var spawnObjectType: SpawnObjectType = SpawnObjectType.RECTANGLE
             private set
         var drawSpawnPreview: Boolean = true
+            private set
+        var spawnStatic: Boolean = false
             private set
         var spawnRadius: Float = 1.0f
             private set
