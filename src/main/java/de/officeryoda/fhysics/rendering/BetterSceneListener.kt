@@ -42,7 +42,6 @@ object BetterSceneListener {
     /// =====Custom event handler fields=====
     // The state of the mouse dragging
     private var leftDragging: Boolean = false
-    private var rightDragging: Boolean = false
 
     /**
      * The preview object to spawn
@@ -69,6 +68,10 @@ object BetterSceneListener {
      */
     var polyVertices: MutableList<Vector2> = ArrayList()
 
+    var pullObject: FhysicsObject? = null
+    var pullRelativePos: Vector2 = Vector2.ZERO
+    var pullAtAngle = 0.0f
+
     /// region =====Custom event handlers=====
     private fun onLeftClick() {
         // Select object if hovered, otherwise spawn object
@@ -94,9 +97,20 @@ object BetterSceneListener {
         }
     }
 
-    private fun onLeftDrag() {
-        leftDragging = true
+    private fun onLeftDragStart() {
+        // Only pull when no spawn type is selected
+        if (selectedSpawnObjectType != SpawnObjectType.NOTHING) return
 
+        // Find the object under the mouse
+        pullObject = QuadTree.root.query(mousePosWorld) ?: return
+        if (pullObject!!.static) return
+
+        // Save the relative position and angle of the object
+        pullRelativePos = mousePosWorld - pullObject!!.position
+        pullAtAngle = pullObject!!.angle
+    }
+
+    private fun onLeftDrag() {
         // Don't create a drag preview if the spawn object type is not a rectangle
         if (selectedSpawnObjectType != SpawnObjectType.RECTANGLE) return
 
@@ -117,32 +131,26 @@ object BetterSceneListener {
         spawnPreview = rect
     }
 
-    private fun onLeftDragRelease() {
-        leftDragging = false
-
+    private fun onLeftDragEnd() {
         when (selectedSpawnObjectType) {
             SpawnObjectType.CIRCLE, SpawnObjectType.RECTANGLE -> spawnPreview()
             SpawnObjectType.POLYGON -> handlePolygonCreation()
             else -> {}
         }
+
+        pullObject = null
     }
 
     private fun onRightDrag() {
-        rightDragging = true
-
         // Move the camera by the amount the mouse is away from the position where the right mouse button was pressed
         val deltaMousePos: Vector2 = rightPressedPosWorld - mousePosWorld
         drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos
         drawer.zoomCenter = drawer.targetZoomCenter
     }
 
-    private fun onRightDragRelease() {
-        rightDragging = false
-    }
-
     /// endregion
 
-    /// region =====Helper methods=====
+    /// region =====Other methods=====
     /**
      * Spawns the preview object at the mouse position
      */
@@ -223,6 +231,20 @@ object BetterSceneListener {
         return Color(color.red, color.green, color.blue)
     }
 
+    fun pullObject() {
+        val obj: FhysicsObject = pullObject ?: return
+
+        // Calculate the pull force
+        val pullPoint: Vector2 = obj.position + pullRelativePos.rotated(obj.angle - pullAtAngle)
+        val pullForce: Vector2 = mousePosWorld - pullPoint
+        pullForce *= obj.mass
+        pullForce /= 50f
+
+        // Apply the pull force
+        obj.velocity += pullForce * obj.invMass
+        obj.angularVelocity += pullForce.cross(obj.position - pullPoint) * obj.invInertia
+    }
+
     /// endregion
 
     /// region =====Vanilla event handlers=====
@@ -261,15 +283,14 @@ object BetterSceneListener {
             if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
                 onLeftClick()
             } else {
-                onLeftDragRelease()
+                onLeftDragEnd()
+                leftDragging = false
             }
         }
         if (rightPressed && !e.isSecondaryButtonDown) {
             // If the mouse wasn't moved too much, it's a click
             if ((mousePosScreen - rightPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
                 onRightClick()
-            } else {
-                onRightDragRelease()
             }
         }
 
@@ -284,6 +305,11 @@ object BetterSceneListener {
         if (leftPressed) {
             // If the mouse was moved enough, it's a drag
             if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() > MIN_DRAG_DISTANCE_SQR) {
+                if (!leftDragging) {
+                    onLeftDragStart()
+                }
+
+                leftDragging = true
                 onLeftDrag()
             }
         }

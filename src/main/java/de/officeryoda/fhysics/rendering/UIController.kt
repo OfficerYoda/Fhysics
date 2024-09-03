@@ -604,7 +604,7 @@ class UIController {
         /// endregion
 
         /// region =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.RECTANGLE
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.NOTHING
             private set
         var drawSpawnPreview: Boolean = true
             private set

@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.engine
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.BetterSceneListener
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
@@ -115,6 +116,8 @@ object FhysicsCore {
         repeat(SUB_STEPS) {
             quadTree.updateObjects()
             quadTree.handleCollisions()
+
+            BetterSceneListener.pullObject()
 
             updateCount++
         }
