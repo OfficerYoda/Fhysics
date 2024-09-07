@@ -19,7 +19,7 @@ class SubPolygon(
 
     override var angle: Float
         get() = parent.angle
-        set(value) = throw Exception("This should never happen: SubPolygon.angle is read-only")
+        set(value) = throw Exception("Cannot set angle of SubPolygon, use parent.angle instead")
 
     override var static: Boolean
         get() = parent.static

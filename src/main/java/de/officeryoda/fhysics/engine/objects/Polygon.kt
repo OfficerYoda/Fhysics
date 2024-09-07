@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.Matrix2x2
+import de.officeryoda.fhysics.engine.Matrix2x3
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.BorderEdge
@@ -111,15 +111,17 @@ abstract class Polygon(
      * @return The transformed vertices
      */
     open fun getTransformedVertices(): Array<Vector2> {
-        // Create the rotation matrix
+        // Create the transformation matrix
         val cos: Float = cos(angle)
         val sin: Float = sin(angle)
-        val rotationMatrix = Matrix2x2(
-            cos, -sin,
-            sin, cos
+
+        val transformationMatrix = Matrix2x3(
+            cos, -sin, super.position.x,
+            sin, cos, super.position.y
         )
 
-        return vertices.map { rotationMatrix * it + super.position }.toTypedArray()
+        // Transform the vertices
+        return vertices.map { transformationMatrix * it }.toTypedArray()
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo
