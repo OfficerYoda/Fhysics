@@ -1,7 +1,6 @@
 package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.BetterSceneListener
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -42,13 +41,13 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        repeat(30) {
-            spawn(FhysicsObjectFactory.randomCircle())
-        }
-
-        repeat(20) {
-            spawn(FhysicsObjectFactory.randomRectangle())
-        }
+//        repeat(30) {
+//            spawn(FhysicsObjectFactory.randomCircle())
+//        }
+//
+//        repeat(20) {
+//            spawn(FhysicsObjectFactory.randomRectangle())
+//        }
 
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomPolygon())

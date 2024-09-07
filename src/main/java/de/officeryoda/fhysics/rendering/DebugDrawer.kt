@@ -237,15 +237,15 @@ object DebugDrawer {
     /// endregion
 
     /// region =====Debug add-functions=====
-    fun addDebugPoint(position: Vector2, color: Color = Color.RED, durationFrames: Int = 240) {
+    fun addDebugPoint(position: Vector2, color: Color = Color.RED, durationFrames: Int = 1) {
         debugPoints.add(DebugPoint(position, color, durationFrames))
     }
 
-    fun addDebugLine(start: Vector2, end: Vector2, color: Color = Color.GREEN, durationFrames: Int = 240) {
+    fun addDebugLine(start: Vector2, end: Vector2, color: Color = Color.GREEN, durationFrames: Int = 1) {
         debugLines.add(DebugLine(start, end, color, durationFrames))
     }
 
-    fun addDebugVector(support: Vector2, direction: Vector2, color: Color = Color.BLUE, durationFrames: Int = 240) {
+    fun addDebugVector(support: Vector2, direction: Vector2, color: Color = Color.BLUE, durationFrames: Int = 1) {
         debugVectors.add(DebugVector(support, direction, color, durationFrames))
     }
 

@@ -6,6 +6,7 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
+import java.awt.Color
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -220,7 +221,7 @@ data class QuadTree(
         }
     }
 
-    fun tryDivide() {
+    private fun tryDivide() {
         when {
             divided -> {
                 topLeft!!.tryDivide()
@@ -242,7 +243,10 @@ data class QuadTree(
             botLeft!!.updateObjects()
             botRight!!.updateObjects()
         } else {
-            objects.forEach() { it.update() }
+            objects.forEach {
+                it.update()
+                DebugDrawer.addDebugVector(it.position, it.velocity, Color.green)
+            }
         }
     }
 

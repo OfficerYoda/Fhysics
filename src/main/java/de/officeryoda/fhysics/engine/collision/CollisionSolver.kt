@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
 import java.awt.Color
 import kotlin.math.abs
@@ -45,6 +46,11 @@ object CollisionSolver {
         // Separate and find contact points
         separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
         val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
+
+        // Draw debug points
+        for (point: Vector2 in contactPoints) {
+            DebugDrawer.addDebugPoint(point, Color.red)
+        }
 
         // Solve collision
         val normalForces: ArrayList<Float> =
@@ -120,7 +126,7 @@ object CollisionSolver {
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
         }
 
-        // Set angular velocity to 0 if it's very small
+        // Set angular velocity to 0 if it's very small (this improves stability)
         if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
         if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
 
@@ -236,9 +242,8 @@ object CollisionSolver {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
-        if (objA.static && objB.static) return
-
         val overlap: Vector2 = info.depth * info.normal
+        val totalInvMass: Float = objA.invMass + objB.invMass
 
         if (!objA.static) objA.position -= if (!objB.static) 0.5f * overlap else overlap
         if (!objB.static) objB.position += if (!objA.static) 0.5f * overlap else overlap
@@ -324,8 +329,8 @@ object CollisionSolver {
             val totalVelocity: Vector2 = obj.velocity + rPerp * obj.angularVelocity
 
             // Continue if the objects are already moving away from each other
-            val contactVelocityMag: Float = -totalVelocity.dot(normal)
-            if (contactVelocityMag > EPSILON) {
+            val velAlongNormal: Float = -totalVelocity.dot(normal)
+            if (velAlongNormal > EPSILON) {
                 normalForces.add(0f)
                 continue
             }
@@ -333,7 +338,7 @@ object CollisionSolver {
             // Calculate the impulse
             val rPerpDotNormal: Float = rPerp.dot(normal)
 
-            var impulseMag: Float = -(1f + e) * contactVelocityMag
+            var impulseMag: Float = -(1f + e) * velAlongNormal
             impulseMag /= obj.invMass +
                     (rPerpDotNormal * rPerpDotNormal) * obj.invInertia
             impulseMag /= contactPoints.size // Distribute the impulse over all contact points
@@ -351,6 +356,9 @@ object CollisionSolver {
             obj.velocity += -impulse * obj.invMass
             obj.angularVelocity += impulse.cross(contactPoints[i] - obj.position) * obj.invInertia
         }
+
+        // Set angular velocity to 0 if it's very small (this improves stability)
+        if (abs(obj.angularVelocity) < EPSILON) obj.angularVelocity = 0f
 
         return normalForces
     }
