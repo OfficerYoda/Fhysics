@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.engine.objects
 
+import de.officeryoda.fhysics.engine.Matrix2x2
 import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.BorderEdge
@@ -7,6 +8,8 @@ import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.ContactFinder
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 // primary constructor is used to sync position and velocity from sub-polygons with the main polygon
 abstract class Polygon(
@@ -108,7 +111,15 @@ abstract class Polygon(
      * @return The transformed vertices
      */
     open fun getTransformedVertices(): Array<Vector2> {
-        return vertices.map { it.rotatedAround(Vector2.ZERO, angle) + super.position }.toTypedArray()
+        // Create the rotation matrix
+        val cos: Float = cos(angle)
+        val sin: Float = sin(angle)
+        val rotationMatrix = Matrix2x2(
+            cos, -sin,
+            sin, cos
+        )
+
+        return vertices.map { rotationMatrix * it + super.position }.toTypedArray()
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo

@@ -38,11 +38,11 @@ data class Vector2
      * @return The rotated Vector2.
      */
     fun rotatedAround(center: Vector2, angle: Float): Vector2 {
-        val cosAngle: Float = cos(angle)
-        val sinAngle: Float = sin(angle)
-
         val translatedX: Float = this.x - center.x
         val translatedY: Float = this.y - center.y
+
+        val cosAngle: Float = cos(angle)
+        val sinAngle: Float = sin(angle)
 
         val rotatedX: Float = translatedX * cosAngle - translatedY * sinAngle
         val rotatedY: Float = translatedX * sinAngle + translatedY * cosAngle

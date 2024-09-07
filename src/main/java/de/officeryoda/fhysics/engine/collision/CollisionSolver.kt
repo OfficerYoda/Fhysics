@@ -14,19 +14,19 @@ import kotlin.math.sqrt
 object CollisionSolver {
 
     private val borderObjects: List<BorderEdge> = listOf(
-        BorderEdge(
+        BorderEdge( // Right edge
             Vector2(1f, 0f), BORDER.x + BORDER.width,
             Vector2(BORDER.x + BORDER.width, BORDER.y)
         ),
-        BorderEdge(
+        BorderEdge( // Left edge
             Vector2(-1f, 0f), BORDER.x,
             Vector2(BORDER.x, BORDER.y + BORDER.height)
         ),
-        BorderEdge(
+        BorderEdge( // Top edge
             Vector2(0f, 1f), BORDER.y + BORDER.height,
             Vector2(BORDER.x + BORDER.width, BORDER.y + BORDER.height)
         ),
-        BorderEdge(
+        BorderEdge( // Bottom edge
             Vector2(0f, -1f), BORDER.y,
             Vector2(BORDER.x, BORDER.y)
         )
