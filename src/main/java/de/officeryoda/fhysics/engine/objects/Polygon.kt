@@ -148,6 +148,10 @@ abstract class Polygon(
         return ContactFinder.findContactPoints(this, other)
     }
 
+    override fun updateBoundingBox() {
+        boundingBox.setFromPolygon(this)
+    }
+
     override fun toString(): String {
         return "Polygon(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, vertices=$vertices)"
     }

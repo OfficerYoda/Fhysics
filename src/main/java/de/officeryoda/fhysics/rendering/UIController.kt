@@ -240,7 +240,7 @@ class UIController {
         selectedObject!!.static = cbPropertyStatic.isSelected
 
         // Update the bounding box
-        selectedObject!!.boundingBox.setFromFhysicsObject(selectedObject!!)
+        selectedObject!!.updateBoundingBox()
     }
 
     @FXML
@@ -258,7 +258,7 @@ class UIController {
         selectedObject!!.angle = parseTextField(txtPropertyRotation) * DEGREES_TO_RADIANS
 
         // Update the bounding box
-        selectedObject!!.boundingBox.setFromFhysicsObject(selectedObject!!)
+        selectedObject!!.updateBoundingBox()
     }
 
     @FXML

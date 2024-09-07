@@ -302,7 +302,6 @@ data class QuadTree(
 
             UIController.drawBoundingBoxes -> objects.forEach {
                 drawer.drawObject(it)
-                it.boundingBox.setFromFhysicsObject(it) // Bounding boxes are only updated on the start of fhysics updates
                 DebugDrawer.drawBoundingBox(it.boundingBox)
             }
 

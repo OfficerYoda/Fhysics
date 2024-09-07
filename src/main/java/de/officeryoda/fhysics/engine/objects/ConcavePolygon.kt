@@ -19,15 +19,6 @@ class ConcavePolygon(
         }
     }
 
-    override fun update() {
-        super.update()
-
-        // Update the bounding boxes of the sub-polygons
-        subPolygons.forEach {
-            it.boundingBox.setFromFhysicsObject(it)
-        }
-    }
-
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)
     }
@@ -40,6 +31,11 @@ class ConcavePolygon(
         val clone: ConcavePolygon =
             PolygonCreator.createPolygon(vertices.map { it + position }.toTypedArray(), angle) as ConcavePolygon
         return clone
+    }
+
+    override fun updateBoundingBox() {
+        boundingBox.setFromPolygon(this)
+        subPolygons.forEach { it.updateBoundingBox() }
     }
 
     override fun toString(): String {

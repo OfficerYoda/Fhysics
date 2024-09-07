@@ -50,6 +50,10 @@ object CollisionSolver {
         val normalForces: ArrayList<Float> =
             solveImpulse(objA, objB, contactPoints, info)
         solveFriction(objA, objB, contactPoints, info, normalForces)
+
+        // Update bounding boxes
+        objA.updateBoundingBox()
+        objB.updateBoundingBox()
     }
 
     /**
@@ -237,7 +241,6 @@ object CollisionSolver {
         val objB: FhysicsObject = info.objB!!
 
         val overlap: Vector2 = info.depth * info.normal
-        val totalInvMass: Float = objA.invMass + objB.invMass
 
         if (!objA.static) objA.position -= if (!objB.static) 0.5f * overlap else overlap
         if (!objB.static) objB.position += if (!objA.static) 0.5f * overlap else overlap
@@ -272,7 +275,7 @@ object CollisionSolver {
             solveBorderCollision(obj, border)
         }
 
-        obj.boundingBox.setFromFhysicsObject(obj)
+        obj.updateBoundingBox()
     }
 
     /**

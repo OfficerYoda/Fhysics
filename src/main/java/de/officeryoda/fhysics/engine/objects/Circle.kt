@@ -58,6 +58,10 @@ class Circle(
         return Circle(position.copy(), radius)
     }
 
+    override fun updateBoundingBox() {
+        boundingBox.setFromCircle(this)
+    }
+
     override fun toString(): String {
         return "Circle(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, radius=$radius)"
     }

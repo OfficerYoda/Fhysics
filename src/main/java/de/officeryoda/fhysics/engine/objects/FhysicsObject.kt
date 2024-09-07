@@ -109,7 +109,7 @@ abstract class FhysicsObject protected constructor(
         angle %= TWO_PI
 
         // Update bounding box
-        boundingBox.setFromFhysicsObject(this)
+        updateBoundingBox()
     }
 
     abstract fun project(axis: Vector2): Projection
@@ -137,6 +137,8 @@ abstract class FhysicsObject protected constructor(
     abstract fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2>
 
     abstract fun clone(): FhysicsObject
+
+    abstract fun updateBoundingBox()
 
     private fun colorFromId(): Color {
         val colors: List<Color> =

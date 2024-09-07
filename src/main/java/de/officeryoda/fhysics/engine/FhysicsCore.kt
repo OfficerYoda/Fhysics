@@ -129,7 +129,7 @@ object FhysicsCore {
     fun spawn(vararg objects: FhysicsObject): Array<out FhysicsObject> {
         for (o: FhysicsObject in objects) {
             QuadTree.toAdd.add(o)
-            o.boundingBox.setFromFhysicsObject(o)
+            o.updateBoundingBox()
         }
         return objects
     }
