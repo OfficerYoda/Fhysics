@@ -604,7 +604,7 @@ class UIController {
         /// endregion
 
         /// region =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.RECTANGLE
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
             private set
         var drawSpawnPreview: Boolean = true
             private set
@@ -628,7 +628,7 @@ class UIController {
         /// endregion
 
         /// region =====Gravity=====
-        var gravityType: GravityType = GravityType.DIRECTIONAL
+        var gravityType: GravityType = GravityType.TOWARDS_POINT
             private set
         val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
         val gravityPoint: Vector2 = Vector2( // The center of the world

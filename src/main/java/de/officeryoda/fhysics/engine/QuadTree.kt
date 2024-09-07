@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
-import java.awt.Color
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -49,7 +48,7 @@ data class QuadTree(
 
     /// region =====Basic functions=====
     private fun insert(obj: FhysicsObject) {
-        if (!boundary.overlaps(obj.boundingBox)) return
+        if (!(boundary.overlaps(obj.boundingBox) || isRoot)) return
         if (objects.contains(obj)) return
 
         if (!divided && (objects.size < capacity || isMinWidth)) {
@@ -57,6 +56,7 @@ data class QuadTree(
             return
         }
 
+        // Check is necessary because the node could be min width
         if (!divided) {
             divide()
         }
@@ -140,7 +140,7 @@ data class QuadTree(
             }
         }
 
-        // All objects that are queued for removal are removed
+        // All objects that are queued for removal will be removed at this point
         if (isRoot) {
             removeQueue.clear()
         }
@@ -180,7 +180,7 @@ data class QuadTree(
     private fun addRebuildObject(obj: FhysicsObject) {
         // If the object is still fully in the boundary, or it is the root, add it to the rebuild list
         if (boundary.contains(obj.boundingBox) || isRoot) {
-            // Only need to execute it async if it is the root
+            // Only need to execute it synchronized if it's adding to the root
             if (isRoot) {
                 synchronized(rebuildObjects) {
                     rebuildObjects.add(obj)
@@ -243,10 +243,7 @@ data class QuadTree(
             botLeft!!.updateObjects()
             botRight!!.updateObjects()
         } else {
-            objects.forEach {
-                it.update()
-                DebugDrawer.addDebugVector(it.position, it.velocity, Color.green)
-            }
+            objects.forEach { it.update() }
         }
     }
 

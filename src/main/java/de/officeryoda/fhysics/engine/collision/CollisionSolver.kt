@@ -5,7 +5,6 @@ import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
 import java.awt.Color
 import kotlin.math.abs
@@ -46,11 +45,6 @@ object CollisionSolver {
         // Separate and find contact points
         separateOverlappingObjects(info) // Separate before finding contact points or contact points might be inside objects
         val contactPoints: Array<Vector2> = objA.findContactPoints(objB, info)
-
-        // Draw debug points
-        for (point: Vector2 in contactPoints) {
-            DebugDrawer.addDebugPoint(point, Color.red)
-        }
 
         // Solve collision
         val normalForces: ArrayList<Float> =
@@ -277,6 +271,8 @@ object CollisionSolver {
         collidingBorders.forEach { border: BorderEdge ->
             solveBorderCollision(obj, border)
         }
+
+        obj.boundingBox.setFromFhysicsObject(obj)
     }
 
     /**
