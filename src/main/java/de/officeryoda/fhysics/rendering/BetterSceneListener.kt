@@ -68,19 +68,21 @@ object BetterSceneListener {
      */
     var polyVertices: MutableList<Vector2> = ArrayList()
 
-    var pullObject: FhysicsObject? = null
-    var pullRelativePos: Vector2 = Vector2.ZERO
-    var pullAtAngle = 0.0f
+    private var pullObject: FhysicsObject? = null // The objects that is being pulled
+    private var pulledRelativePos: Vector2 =
+        Vector2.ZERO // The relative position of the object to the mouse when pulling started
+    private var pulledAtAngle = 0.0f // The angle of the object when pulling started
 
     /// region =====Custom event handlers=====
     private fun onLeftClick() {
-        // Select object if hovered, otherwise spawn object
-        if (hoveredObject != null) {
+        // Don't select object if a polygon is being created
+        if (polyVertices.isEmpty()) {
+            // Select object if hovered, otherwise spawn object
             selectedObject = hoveredObject
-            UIController.instance.expandObjectPropertiesPane()
-            return
-        } else {
-            selectedObject = null
+            if (selectedObject != null) {
+                UIController.instance.expandObjectPropertiesPane()
+                return
+            }
         }
 
         // Handle spawning
@@ -106,8 +108,8 @@ object BetterSceneListener {
         if (pullObject!!.static) return
 
         // Save the relative position and angle of the object
-        pullRelativePos = mousePosWorld - pullObject!!.position
-        pullAtAngle = pullObject!!.angle
+        pulledRelativePos = mousePosWorld - pullObject!!.position
+        pulledAtAngle = pullObject!!.angle
     }
 
     private fun onLeftDrag() {
@@ -235,7 +237,7 @@ object BetterSceneListener {
         val obj: FhysicsObject = pullObject ?: return
 
         // Calculate the pull force
-        val pullPoint: Vector2 = obj.position + pullRelativePos.rotated(obj.angle - pullAtAngle)
+        val pullPoint: Vector2 = obj.position + pulledRelativePos.rotated(obj.angle - pulledAtAngle)
         val pullForce: Vector2 = mousePosWorld - pullPoint
         pullForce *= obj.mass
         pullForce /= 50f
