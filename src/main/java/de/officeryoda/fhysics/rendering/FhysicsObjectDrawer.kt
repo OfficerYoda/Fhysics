@@ -131,7 +131,6 @@ class FhysicsObjectDrawer : Application() {
             }
         }.start()
     }
-
     /// endregion
 
     /// region =====Draw functions=====
@@ -302,7 +301,6 @@ class FhysicsObjectDrawer : Application() {
         setStrokeColor(Color.GRAY)
         gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
     }
-
     /// endregion
 
     /// region =====Window size functions=====
@@ -338,7 +336,6 @@ class FhysicsObjectDrawer : Application() {
 
         return windowHeight / borderHeight
     }
-
     /// endregion
 
     /// region =====Utility functions=====
@@ -367,7 +364,6 @@ class FhysicsObjectDrawer : Application() {
         targetZoomCenter = Vector2((BORDER.width / 2), (BORDER.height / 2))
         zoomCenter = targetZoomCenter
     }
-
     /// endregion
 
     companion object {

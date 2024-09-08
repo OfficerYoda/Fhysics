@@ -233,7 +233,6 @@ object DebugDrawer {
 
         gc.fillText(text, centerX, centerY)
     }
-
     /// endregion
 
     /// region =====Debug add-functions=====

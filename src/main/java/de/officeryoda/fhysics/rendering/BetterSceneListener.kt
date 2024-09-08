@@ -149,7 +149,6 @@ object BetterSceneListener {
         drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos
         drawer.zoomCenter = drawer.targetZoomCenter
     }
-
     /// endregion
 
     /// region =====Other methods=====
@@ -246,7 +245,6 @@ object BetterSceneListener {
         obj.velocity += pullForce * obj.invMass
         obj.angularVelocity += pullForce.cross(obj.position - pullPoint) * obj.invInertia
     }
-
     /// endregion
 
     /// region =====Vanilla event handlers=====
@@ -384,6 +382,5 @@ object BetterSceneListener {
     private fun getMouseScreenPos(e: MouseEvent): Vector2 {
         return Vector2(e.x.toFloat(), e.y.toFloat())
     }
-
     /// endregion
 }

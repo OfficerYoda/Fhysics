@@ -337,7 +337,6 @@ class UIController {
         setSliderAndLabel(sldPropertyFrictionStatic, lblPropertyFrictionStatic, obj.frictionStatic)
         setSliderAndLabel(sldPropertyFrictionDynamic, lblPropertyFrictionDynamic, obj.frictionDynamic)
     }
-
     /// endregion
 
     /// region =====Methods: Gravity=====
@@ -525,7 +524,6 @@ class UIController {
         /// region =====Singleton=====
         instance = this
         drawer = RenderUtil.drawer
-
         /// endregion
 
         /// region =====Object Properties=====

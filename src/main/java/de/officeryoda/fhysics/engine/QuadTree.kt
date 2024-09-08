@@ -113,7 +113,6 @@ data class QuadTree(
         toAdd.forEach { insert(it) }
         toAdd.clear()
     }
-
     /// endregion
 
     /// region =====Rebuild and update functions=====
@@ -246,7 +245,6 @@ data class QuadTree(
             objects.forEach { it.update() }
         }
     }
-
     /// endregion
 
     /// region =====Collision functions=====
@@ -287,7 +285,6 @@ data class QuadTree(
             botRight!!.handleCollisions()
         }
     }
-
     /// endregion
 
     /// region =====Drawing functions=====
@@ -319,7 +316,6 @@ data class QuadTree(
             botRight!!.drawNode(drawer)
         }
     }
-
     /// endregion
 
     /// region =====Async functions=====
@@ -350,7 +346,6 @@ data class QuadTree(
             future.get()
         }
     }
-
     /// endregion
 
     /// region =====Utility functions=====
@@ -399,7 +394,6 @@ data class QuadTree(
             "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, isMinWidth=$isMinWidth)"
         }
     }
-
     /// endregion
 
     companion object {

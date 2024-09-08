@@ -199,7 +199,6 @@ object ContactFinder {
     /// endregion
 
     /// region =====Helper Methods=====
-
     /**
      * Checks if a contact point is near any existing contact points
      *
