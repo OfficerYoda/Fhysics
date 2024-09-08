@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
+import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
@@ -39,6 +40,9 @@ object CollisionSolver {
                 Vector2(BORDER.x, BORDER.y)
             )
         )
+
+        // Update the node sizes of the quad tree nodes
+        QuadTree.root.updateNodeSize(-1)
     }
 
 
@@ -444,7 +448,8 @@ object CollisionSolver {
      * @param obj The object to move
      * @return A set of border edges the object is colliding with
      */
-    private fun moveInsideBorder(obj: FhysicsObject): MutableSet<BorderEdge> {
+    fun moveInsideBorder(obj: FhysicsObject): MutableSet<BorderEdge> {
+        // Check for collision with the border
         val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
         for (border: BorderEdge in borderObjects) {
             val info: CollisionInfo = border.testCollision(obj)

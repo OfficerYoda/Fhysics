@@ -22,6 +22,8 @@ import kotlin.math.max
 
 class UIController {
 
+    /// region ========Fields========
+
     /// region =====Fields: Spawn Object=====
     @FXML
     private lateinit var cbSpawnPreview: CheckBox
@@ -171,6 +173,10 @@ class UIController {
     @FXML
     private lateinit var cbRenderTime: CheckBox
     /// endregion
+
+    /// endregion
+
+    /// region ========Methods========
 
     /// region =====Methods: Spawn Object=====
     @FXML
@@ -584,8 +590,8 @@ class UIController {
         btnTimePause.isSelected = !FhysicsCore.running
         btnTimeStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
-        txtBorderWidth.text = toRoundedString(FhysicsCore.BORDER.width)
-        txtBorderHeight.text = toRoundedString(FhysicsCore.BORDER.height)
+        txtBorderWidth.text = FhysicsCore.BORDER.width.toString()
+        txtBorderHeight.text = FhysicsCore.BORDER.height.toString()
         setSliderAndLabel(sldBorderRestitution, lblBorderRestitution, borderRestitution)
         setSliderAndLabel(sldBorderFrictionStatic, lblBorderFrictionStatic, borderFrictionStatic)
         setSliderAndLabel(sldBorderFrictionDynamic, lblBorderFrictionDynamic, borderFrictionDynamic)
@@ -662,6 +668,8 @@ class UIController {
     private fun parseTextField(textField: TextField, default: Float = 0.0f): Float {
         return textField.text.toFloatOrNull() ?: default
     }
+    /// endregion
+
     /// endregion
 
     companion object {
