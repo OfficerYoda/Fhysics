@@ -5,7 +5,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<fx:root prefHeight="360.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
+<fx:root prefHeight="375.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21"
+         xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
     <panes>
         <TitledPane focusTraversable="false" text="Spawn Object">
             <content>
@@ -303,7 +304,33 @@
                                         <Font name="System Bold" size="12.0" />
                                     </font>
                                     <tooltip>
-                                        <Tooltip text="Delete the object" />
+                                        <Tooltip text="Removes the object"/>
+                                    </tooltip>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </children>
+                </AnchorPane>
+            </content>
+        </TitledPane>
+        <TitledPane focusTraversable="false" prefHeight="270.0" prefWidth="250.0" text="Scene">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
+                    <children>
+                        <VBox layoutX="20.0" prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0"
+                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                            <children>
+                                <Button fx:id="btnSceneClear" alignment="CENTER_RIGHT" contentDisplay="CENTER"
+                                        mnemonicParsing="false" onMouseClicked="#onSceneClearClicked" text="CLEAR"
+                                        textFill="#d92114">
+                                    <font>
+                                        <Font name="System Bold" size="12.0"/>
+                                    </font>
+                                    <tooltip>
+                                        <Tooltip text="Removes every object"/>
                                     </tooltip>
                                 </Button>
                             </children>
@@ -594,7 +621,8 @@
                                 <Insets />
                             </opaqueInsets>
                         </VBox>
-                    </children></AnchorPane>
+                    </children>
+                </AnchorPane>
             </content>
         </TitledPane>
         <TitledPane focusTraversable="false" text="QuadTree">
@@ -657,7 +685,7 @@
                 </AnchorPane>
             </content>
         </TitledPane>
-        <TitledPane focusTraversable="false" prefHeight="270.0" prefWidth="250.0" text="Debug">
+        <TitledPane focusTraversable="false" prefHeight="250.0" prefWidth="250.0" text="Debug">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
                     <children>

@@ -339,6 +339,13 @@ class UIController {
     }
     /// endregion
 
+    /// region =====Methods: Scene=====
+    @FXML
+    fun onSceneClearClicked() {
+        FhysicsCore.clear()
+    }
+    /// endregion
+
     /// region =====Methods: Gravity=====
     @FXML
     fun onGravityDirectionClicked() {
@@ -688,7 +695,7 @@ class UIController {
         /// endregion
 
         /// region =====Gravity=====
-        var gravityType: GravityType = GravityType.TOWARDS_POINT
+        var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
         val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
         val gravityPoint: Vector2 = Vector2( // The center of the world

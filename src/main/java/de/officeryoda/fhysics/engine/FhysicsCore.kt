@@ -134,6 +134,11 @@ object FhysicsCore {
         return objects
     }
 
+    fun clear() {
+        objectCount = 0
+        quadTree = QuadTree(BORDER, null)
+    }
+
     private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++
         if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame where the rebuild takes place which takes longer

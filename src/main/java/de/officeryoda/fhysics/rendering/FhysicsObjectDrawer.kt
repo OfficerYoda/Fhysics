@@ -263,7 +263,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygonPreview() {
-        val vertices: List<Vector2> = BetterSceneListener.polyVertices.plus(BetterSceneListener.mousePosWorld)
+        val vertices: List<Vector2> = BetterSceneListener.polyVertices.plus(mousePosWorld)
         if (vertices.isEmpty()) return
 
         gc.beginPath()
