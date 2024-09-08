@@ -149,6 +149,25 @@ object BetterSceneListener {
         drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos
         drawer.zoomCenter = drawer.targetZoomCenter
     }
+
+    private fun onScroll(direction: Double) {
+        // Zoom in or out based on the scroll direction
+        val zoomFactor: Float = if (direction > 0) 1.1f else 1 / 1.1f
+        drawer.targetZoom *= zoomFactor
+
+        val minZoom: Double = 200.0 / max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height)
+        val maxZoom: Double = max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height) * 2.0
+
+        // Clamp the zoom level
+        drawer.targetZoom = drawer.targetZoom.coerceIn(minZoom, maxZoom)
+
+        // Calculate the difference between the mouse position and the current zoom center
+        val deltaMousePos: Vector2 = mousePosWorld - drawer.targetZoomCenter
+
+        // Adjust the target zoom center to zoom towards the mouse position
+        drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
+    }
+
     /// endregion
 
     /// region =====Other methods=====
@@ -174,6 +193,9 @@ object BetterSceneListener {
         updateSpawnPreview()
     }
 
+    /**
+     * Handles the placement of the polygon vertices and creates the polygon if it's complete
+     */
     private fun handlePolygonCreation() {
         // Create the polygon if the polygon is complete
         if (polyVertices.size > 2 && PolygonCreator.isPolygonValid(polyVertices)) {
@@ -228,10 +250,19 @@ object BetterSceneListener {
         spawnPreview = obj
     }
 
+    /**
+     * Converts a color to an opaque color
+     *
+     * @param color the color to convert
+     * @return the opaque color
+     */
     private fun asOpaqueColor(color: Color): Color {
         return Color(color.red, color.green, color.blue)
     }
 
+    /**
+     * Pulls the object that is being pulled by the mouse
+     */
     fun pullObject() {
         val obj: FhysicsObject = pullObject ?: return
 
@@ -245,24 +276,32 @@ object BetterSceneListener {
         obj.velocity += pullForce * obj.invMass
         obj.angularVelocity += pullForce.cross(obj.position - pullPoint) * obj.invInertia
     }
+
+    /**
+     * Sets the mouse position in world space and updates the spawn preview position
+     * @param e the mouse event
+     */
+    private fun updateMousePos(e: MouseEvent) {
+        mousePosScreen.set(getMouseScreenPos(e))
+        mousePosWorld.set(RenderUtil.screenToWorld(mousePosScreen))
+
+        // Update the spawn preview position if it's not set due to dragging a rectangle
+        if (!(leftDragging && selectedSpawnObjectType == SpawnObjectType.RECTANGLE)) {
+            spawnPreview?.position?.set(mousePosWorld)
+        }
+    }
+
+    /**
+     * Updates the state of the mouse buttons
+     * @param e the mouse event
+     */
+    private fun updateMouseButtonState(e: MouseEvent) {
+        leftPressed = e.isPrimaryButtonDown
+        rightPressed = e.isSecondaryButtonDown
+    }
     /// endregion
 
     /// region =====Vanilla event handlers=====
-    fun onMouseWheel(e: ScrollEvent) {
-        // Zoom in or out based on the scroll direction
-        val zoomFactor: Float = if (e.deltaY > 0) 1.1f else 1 / 1.1f
-        drawer.targetZoom *= zoomFactor
-
-        // Clamp the zoom level
-        drawer.targetZoom = drawer.targetZoom.coerceIn(1.0, 200.0)
-
-        // Calculate the difference between the mouse position and the current zoom center
-        val deltaMousePos: Vector2 = mousePosWorld - drawer.targetZoomCenter
-
-        // Adjust the target zoom center to zoom towards the mouse position
-        drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
-    }
-
     fun onMousePressed(e: MouseEvent) {
         // Set the pressed position if the specific button was pressed
         if (!leftPressed && e.isPrimaryButtonDown) {
@@ -323,11 +362,10 @@ object BetterSceneListener {
         updateMousePos(e)
     }
 
-    /**
-     * Handles key pressed events
-     *
-     * @param event the key event
-     */
+    fun onMouseWheel(e: ScrollEvent) {
+        onScroll(e.deltaY)
+    }
+
     fun onKeyPressed(event: KeyEvent) {
         when (event.code) {
             KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
@@ -349,29 +387,6 @@ object BetterSceneListener {
             KeyCode.S -> println(selectedObject)
             else -> {}
         }
-    }
-
-    /**
-     * Sets the mouse position in world space and updates the spawn preview position
-     * @param e the mouse event
-     */
-    private fun updateMousePos(e: MouseEvent) {
-        mousePosScreen.set(getMouseScreenPos(e))
-        mousePosWorld.set(RenderUtil.screenToWorld(mousePosScreen))
-
-        // Update the spawn preview position if it's not set due to dragging a rectangle
-        if (!(leftDragging && selectedSpawnObjectType == SpawnObjectType.RECTANGLE)) {
-            spawnPreview?.position?.set(mousePosWorld)
-        }
-    }
-
-    /**
-     * Updates the state of the mouse buttons
-     * @param e the mouse event
-     */
-    private fun updateMouseButtonState(e: MouseEvent) {
-        leftPressed = e.isPrimaryButtonDown
-        rightPressed = e.isSecondaryButtonDown
     }
 
     /**
