@@ -7,6 +7,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
 import de.officeryoda.fhysics.rendering.BetterSceneListener.selectedObject
@@ -17,6 +18,7 @@ import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
 import java.awt.Color
 import java.util.*
+import kotlin.math.max
 
 class UIController {
 
@@ -98,7 +100,7 @@ class UIController {
     private lateinit var txtGravityPointStrength: TextField
     /// endregion
 
-    /// region =====Fields: Time=====
+    /// region =====Fields: Miscellaneous=====
     @FXML
     private lateinit var btnTimePause: ToggleButton
 
@@ -107,6 +109,30 @@ class UIController {
 
     @FXML
     private lateinit var txtTimeSpeed: TextField
+
+    @FXML
+    private lateinit var txtBorderWidth: TextField
+
+    @FXML
+    private lateinit var txtBorderHeight: TextField
+
+    @FXML
+    private lateinit var sldBorderRestitution: Slider
+
+    @FXML
+    private lateinit var lblBorderRestitution: Label
+
+    @FXML
+    private lateinit var sldBorderFrictionStatic: Slider
+
+    @FXML
+    private lateinit var lblBorderFrictionStatic: Label
+
+    @FXML
+    private lateinit var sldBorderFrictionDynamic: Slider
+
+    @FXML
+    private lateinit var lblBorderFrictionDynamic: Label
     /// endregion
 
     /// region =====Fields: QuadTree=====
@@ -144,12 +170,6 @@ class UIController {
 
     @FXML
     private lateinit var cbRenderTime: CheckBox
-
-    @FXML
-    private lateinit var sldWallRestitution: Slider
-
-    @FXML
-    private lateinit var lblWallResitution: Label
     /// endregion
 
     /// region =====Methods: Spawn Object=====
@@ -368,7 +388,7 @@ class UIController {
     }
     /// endregion
 
-    /// region =====Methods: Time=====
+    /// region =====Methods: Miscellaneous=====
     @FXML
     fun onTimePauseClicked() {
         FhysicsCore.running = !btnTimePause.isSelected
@@ -384,6 +404,48 @@ class UIController {
     fun onTimeSpeedTyped() {
         timeSpeed = parseTextField(txtTimeSpeed)
         FhysicsCore.dt = 1.0f / (FhysicsCore.UPDATES_PER_SECOND * FhysicsCore.SUB_STEPS) * timeSpeed
+    }
+
+    @FXML
+    fun onBorderWidthTyped() {
+        val width: Float = parseTextField(txtBorderWidth, 1f)
+        FhysicsCore.BORDER.width = max(width, 1f) // Minimum border size of 1x1
+        CollisionSolver.updateBorderObjects()
+
+        // Make sure the text field matches the actual border width
+        if (width < 1f) {
+            txtBorderWidth.text = "1.0"
+        }
+    }
+
+    @FXML
+    fun onBorderHeightTyped() {
+        val height: Float = parseTextField(txtBorderHeight, 1f)
+        FhysicsCore.BORDER.height = max(height, 1f) // Minimum border size of 1x1
+        CollisionSolver.updateBorderObjects()
+
+        // Make sure the text field matches the actual border height
+        if (height < 1f) {
+            txtBorderHeight.text = "1.0"
+        }
+    }
+
+    @FXML
+    fun onBorderRestitutionChanged() {
+        borderRestitution = sldBorderRestitution.value.toFloat()
+        lblBorderRestitution.text = toRoundedString(borderRestitution)
+    }
+
+    @FXML
+    fun onBorderFrictionStaticChanged() {
+        borderFrictionStatic = sldBorderFrictionStatic.value.toFloat()
+        lblBorderFrictionStatic.text = toRoundedString(borderFrictionStatic)
+    }
+
+    @FXML
+    fun onBorderFrictionDynamicChanged() {
+        borderFrictionDynamic = sldBorderFrictionDynamic.value.toFloat()
+        lblBorderFrictionDynamic.text = toRoundedString(borderFrictionDynamic)
     }
     /// endregion
 
@@ -455,12 +517,6 @@ class UIController {
     fun onRenderTimeClicked() {
         drawRenderTime = cbRenderTime.isSelected
     }
-
-    @FXML
-    fun onWallRestitutionChanged() {
-        borderRestitution = sldWallRestitution.value.toFloat()
-        lblWallResitution.text = toRoundedString(borderRestitution)
-    }
     /// endregion
 
     /// region =====Initialization and helper=====
@@ -519,12 +575,19 @@ class UIController {
         restrictToNumericInput(txtGravityPointStrength)
         /// endregion
 
-        /// region =====Time=====
+        /// region =====Miscellaneous=====
         btnTimePause.isSelected = !FhysicsCore.running
         btnTimeStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
+        txtBorderWidth.text = toRoundedString(FhysicsCore.BORDER.width)
+        txtBorderHeight.text = toRoundedString(FhysicsCore.BORDER.height)
+        setSliderAndLabel(sldBorderRestitution, lblBorderRestitution, borderRestitution)
+        setSliderAndLabel(sldBorderFrictionStatic, lblBorderFrictionStatic, borderFrictionStatic)
+        setSliderAndLabel(sldBorderFrictionDynamic, lblBorderFrictionDynamic, borderFrictionDynamic)
 
         restrictToNumericInput(txtTimeSpeed, false)
+        restrictToNumericInput(txtBorderWidth, false)
+        restrictToNumericInput(txtBorderHeight, false)
         /// endregion
 
         /// region =====QuadTree=====
@@ -543,7 +606,6 @@ class UIController {
         cbObjectCount.isSelected = drawObjectCount
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
-        setSliderAndLabel(sldWallRestitution, lblWallResitution, borderRestitution)
         /// endregion
     }
 
@@ -639,8 +701,14 @@ class UIController {
             private set
         /// endregion
 
-        /// region =====Time=====
+        /// region =====Miscellaneous=====
         var timeSpeed: Float = 1.0f
+            private set
+        var borderRestitution: Float = 0.5f
+            private set
+        var borderFrictionStatic: Float = 0f
+            private set
+        var borderFrictionDynamic: Float = 0f
             private set
         /// endregion
 
@@ -667,8 +735,6 @@ class UIController {
         var drawObjectCount: Boolean = false
             private set
         var drawRenderTime: Boolean = false
-            private set
-        var borderRestitution: Float = 0f
             private set
         /// endregion
     }

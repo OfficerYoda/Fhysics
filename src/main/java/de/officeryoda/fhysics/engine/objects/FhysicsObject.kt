@@ -49,6 +49,7 @@ abstract class FhysicsObject protected constructor(
     var invMass: Float = 1f / mass
         protected set
 
+    // Used to avoid multiple updates in the same frame due to multiple quadtree nodes
     private var lastUpdate = -1
 
     var inertia: Float = -1f
@@ -105,7 +106,7 @@ abstract class FhysicsObject protected constructor(
         // Update rotation
         angularVelocity *= (1 - damping)
         angle += angularVelocity * dt
-        // Normalize angle
+        // Normalize angle for better precision
         angle %= TWO_PI
 
         // Update bounding box

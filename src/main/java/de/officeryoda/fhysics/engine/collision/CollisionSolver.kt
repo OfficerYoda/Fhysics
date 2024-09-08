@@ -5,6 +5,8 @@ import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionDynamic
+import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionStatic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
 import java.awt.Color
 import kotlin.math.abs
@@ -12,24 +14,33 @@ import kotlin.math.sqrt
 
 object CollisionSolver {
 
-    private val borderObjects: List<BorderEdge> = listOf(
-        BorderEdge( // Right edge
-            Vector2(1f, 0f), BORDER.x + BORDER.width,
-            Vector2(BORDER.x + BORDER.width, BORDER.y)
-        ),
-        BorderEdge( // Left edge
-            Vector2(-1f, 0f), BORDER.x,
-            Vector2(BORDER.x, BORDER.y + BORDER.height)
-        ),
-        BorderEdge( // Top edge
-            Vector2(0f, 1f), BORDER.y + BORDER.height,
-            Vector2(BORDER.x + BORDER.width, BORDER.y + BORDER.height)
-        ),
-        BorderEdge( // Bottom edge
-            Vector2(0f, -1f), BORDER.y,
-            Vector2(BORDER.x, BORDER.y)
+    private var borderObjects: Array<BorderEdge> = arrayOf()
+
+    init {
+        updateBorderObjects()
+    }
+
+    fun updateBorderObjects() {
+        borderObjects = arrayOf(
+            BorderEdge( // Right edge
+                Vector2(1f, 0f), BORDER.x + BORDER.width,
+                Vector2(BORDER.x + BORDER.width, BORDER.y)
+            ),
+            BorderEdge( // Left edge
+                Vector2(-1f, 0f), BORDER.x,
+                Vector2(BORDER.x, BORDER.y + BORDER.height)
+            ),
+            BorderEdge( // Top edge
+                Vector2(0f, 1f), BORDER.y + BORDER.height,
+                Vector2(BORDER.x + BORDER.width, BORDER.y + BORDER.height)
+            ),
+            BorderEdge( // Bottom edge
+                Vector2(0f, -1f), BORDER.y,
+                Vector2(BORDER.x, BORDER.y)
+            )
         )
-    )
+    }
+
 
     /// region =====Object Collision=====
     /**
@@ -376,8 +387,8 @@ object CollisionSolver {
         contactPoints: Array<Vector2>,
         normalForces: ArrayList<Float>,
     ) {
-        val sf: Float = obj.frictionStatic // Coefficient of static friction
-        val df: Float = obj.frictionDynamic // Coefficient of dynamic friction
+        val sf: Float = (borderFrictionStatic + obj.frictionStatic) / 2 // Coefficient of static friction
+        val df: Float = (borderFrictionDynamic + obj.frictionDynamic) / 2// Coefficient of dynamic friction
 
         val frictionList: ArrayList<Vector2> = arrayListOf()
         val normal: Vector2 = border.normal
