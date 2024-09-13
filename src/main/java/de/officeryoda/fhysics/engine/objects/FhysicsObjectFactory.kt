@@ -62,6 +62,59 @@ object FhysicsObjectFactory {
         return poly
     }
 
+    fun randomConcavePolygon(): Polygon {
+        // Generate 15 random Points
+        val points: MutableList<Vector2> = mutableListOf()
+        for (i: Int in 0 until 15) {
+            points.add(randomVector2(-5f, 5f))
+        }
+
+        // Generate Vertices with gift wrapping algorithm
+        val vertices: List<Vector2> = giftWrap(points)
+
+        val pos: Vector2 = randomPosInsideBounds(5f)
+        val poly: Polygon = PolygonCreator.createPolygon(vertices.map { it + pos }.toTypedArray())
+
+        return poly
+    }
+
+    private fun giftWrap(points: List<Vector2>): List<Vector2> {
+        if (points.size < 3) return points
+
+        val hull = mutableListOf<Vector2>()
+
+        // Find the leftmost point
+        var leftmost = points[0]
+        for (point in points) {
+            if (point.x < leftmost.x) {
+                leftmost = point
+            }
+        }
+
+        var current = leftmost
+        do {
+            hull.add(current)
+            var next = points[0]
+            for (point in points) {
+                if (next == current || orientation(current, next, point) == 2) {
+                    next = point
+                }
+            }
+            current = next
+        } while (current != leftmost)
+
+        return hull
+    }
+
+    private fun orientation(p: Vector2, q: Vector2, r: Vector2): Int {
+        val value = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y)
+        return when {
+            value == 0f -> 0 // collinear
+            value > 0f -> 1 // clockwise
+            else -> 2 // counterclockwise
+        }
+    }
+
     private fun randomPosInsideBounds(buffer: Float): Vector2 {
         val border: BoundingBox = FhysicsCore.BORDER
         val minX: Float = buffer

@@ -50,9 +50,13 @@ object FhysicsCore {
 //        repeat(20) {
 //            spawn(FhysicsObjectFactory.randomRectangle())
 //        }
-
+//
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomPolygon())
+//        }
+//
+//        repeat(10) {
+//            spawn(FhysicsObjectFactory.randomConcavePolygon())
 //        }
 
         // Three rectangles that act as slides + ground rectangle
@@ -87,8 +91,28 @@ object FhysicsCore {
 //        val rect2 = Rectangle(Vector2(55f, 4f), 12f, 5f)
 //        spawn(rect1, rect2)
 
+        // Create two circles
+        // Create two rectangles
+//        val rectA: Rectangle = Rectangle(Vector2(50f, 50f), 40f, 20f).apply {
+//            velocity.set(Vector2(0f, 0f))
+//            angle = 45f
+//            angularVelocity = -1f
+//            mass = 2f
+//        }
+//
+//        val rectB: Rectangle = Rectangle(Vector2(65f, 35f), 10f, 10f).apply {
+//            velocity.set(Vector2(0f, 0f))
+//            mass = 2f
+//        }
+
+        // Adjust properties for perfectly elastic collision
+//        setRestitution(1f, rectA, rectB)
+//
+//        spawn(rectA, rectB)
+
         objectsAtStepSizeIncrease = objectCount
     }
+
 
     fun startEverything() {
         Thread { FhysicsObjectDrawer().launch() }.start()

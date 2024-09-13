@@ -200,7 +200,7 @@ object BetterSceneListener {
         // Create the polygon if the polygon is complete
         if (polyVertices.size > 2 && PolygonCreator.isPolygonValid(polyVertices)) {
             val startPos: Vector2 = polyVertices.first()
-            if (mousePosWorld.sqrDistanceTo(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
+            if (mousePosWorld.distanceToSqr(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                 createAndSpawnPolygon()
                 return
             }

@@ -6,6 +6,7 @@ import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionDynamic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionStatic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
@@ -97,6 +98,7 @@ object CollisionSolver {
         var totalB = 0f
 
         for (contactPoint: Vector2 in contactPoints) {
+            DebugDrawer.addDebugPoint(contactPoint, Color.red)
             val ra: Vector2 = contactPoint - objA.position
             val rb: Vector2 = contactPoint - objB.position
 
@@ -111,7 +113,12 @@ object CollisionSolver {
             totalB += rbPerpDotNormal
         }
 
+        // If multi is 0, the collision will not have effect on the angular velocity
         val multi: Float = if (abs(totalA) < EPSILON || abs(totalB) < EPSILON) 0f else 1f
+
+        println("Total A: $totalA")
+        println("Total B: $totalB")
+        println("Multi: $multi")
 
         // Calculate the impulses for each contact point
         for (contactPoint: Vector2 in contactPoints) {
@@ -324,8 +331,11 @@ object CollisionSolver {
         border: BorderEdge,
     ) {
         // Find contact points
-        var contactPoints: Array<Vector2> = obj.findContactPoints(border)
-        contactPoints = removeDuplicates(contactPoints)
+        val contactPoints: Array<Vector2> = obj.findContactPoints(border)
+
+        contactPoints.forEach {
+            DebugDrawer.addDebugPoint(it, Color.green)
+        }
 
         if (contactPoints.isEmpty()) return
 
@@ -480,24 +490,6 @@ object CollisionSolver {
         }
 
         return collidingBorders
-    }
-
-    /**
-     * Removes duplicate contact points
-     *
-     * @param contactPoints The contact points to remove duplicates from
-     * @return The contact points without duplicates
-     */
-    private fun removeDuplicates(contactPoints: Array<Vector2>): Array<Vector2> {
-        val uniquePoints: MutableList<Vector2> = mutableListOf()
-
-        for (point: Vector2 in contactPoints) {
-            if (uniquePoints.none { existingPoint -> ContactFinder.nearlyEquals(existingPoint, point) }) {
-                uniquePoints.add(point)
-            }
-        }
-
-        return uniquePoints.toTypedArray()
     }
     /// endregion
 }

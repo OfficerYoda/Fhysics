@@ -18,7 +18,7 @@ object CollisionFinder {
      */
     fun testCollision(circleA: Circle, circleB: Circle): CollisionInfo {
         // Calculate squared distance between circle centers
-        val sqrDst: Float = circleA.position.sqrDistanceTo(circleB.position)
+        val sqrDst: Float = circleA.position.distanceToSqr(circleB.position)
 
         val radii: Float = circleA.radius + circleB.radius
 
@@ -211,7 +211,7 @@ object CollisionFinder {
 
             // Get the closest point on the current edge to the external point
             val closestPointOnEdge: Vector2 = getClosestPointOnEdge(start, end, point)
-            val distance: Float = closestPointOnEdge.sqrDistanceTo(point)
+            val distance: Float = closestPointOnEdge.distanceToSqr(point)
 
             if (distance < minDistance) {
                 closestPoint = closestPointOnEdge

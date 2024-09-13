@@ -111,7 +111,7 @@ data class Vector2
      * @return The distance between the two Vector2 instances.
      */
     fun distanceTo(other: Vector2): Float {
-        return sqrt(sqrDistanceTo(other))
+        return sqrt(distanceToSqr(other))
     }
 
     /**
@@ -120,7 +120,7 @@ data class Vector2
      * @param other The other Vector2.
      * @return The squared distance between the two Vector2 instances.
      */
-    fun sqrDistanceTo(other: Vector2): Float {
+    fun distanceToSqr(other: Vector2): Float {
         val dx: Float = this.x - other.x
         val dy: Float = this.y - other.y
         return dx * dx + dy * dy
