@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -14,6 +15,10 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
+/**
+ * Some tests are taken from wikipedia for elastic collisions.
+ * https://en.wikipedia.org/wiki/Elastic_collision
+ */
 class ElasticCollisionTest {
 
 
@@ -70,10 +75,157 @@ class ElasticCollisionTest {
         handleCollision(rectA, rectB, "testPerfectlyElasticCollisionRectangle")
 
         // Check the velocities after collision
-        assertEquals(Vector2(-10f, 0f), rectA.velocity)
-        assertEquals(Vector2(10f, 0f), rectB.velocity)
+        assertAlmostEquals(Vector2(-10f, 0f), rectA.velocity)
+        assertAlmostEquals(Vector2(10f, 0f), rectB.velocity)
         assertEquals(0f, rectA.angularVelocity)
         assertEquals(0f, rectB.angularVelocity)
+    }
+
+    @Test
+    fun testPerfectlyElasticCollisionWithDifferentMasses() {
+        // Create two circles
+        val circleA: Circle = Circle(Vector2(60.5f, 50f), 5f).apply {
+            velocity.set(Vector2(10f, 0f))
+            mass = 4f
+        }
+
+        val circleB: Circle = Circle(Vector2(70f, 50f), 5f).apply {
+            velocity.set(Vector2(-10f, 0f))
+            mass = 2f
+        }
+
+        // Adjust properties for perfectly elastic collision
+        setRestitution(1f, circleA, circleB)
+        setZeroFriction(circleA, circleB)
+
+        // Simulate the collision
+        handleCollision(circleA, circleB, "testPerfectlyElasticCollisionWithDifferentMasses")
+
+        // Check the velocities after collision
+        assertAlmostEquals(Vector2(-10f, 0f) * 1f / 3f, circleA.velocity)
+        assertAlmostEquals(Vector2(10f, 0f) * 5f / 3f, circleB.velocity)
+        assertEquals(0f, circleA.angularVelocity)
+        assertEquals(0f, circleB.angularVelocity)
+    }
+
+    @Test
+    fun testPerfectlyElasticCollisionWithStationaryObject() {
+        // Create a circle and a stationary rectangle
+        val circle: Circle = Circle(Vector2(60.5f, 50f), 5f).apply {
+            velocity.set(Vector2(10f, 0f))
+            mass = 2f
+        }
+
+        val rect: Rectangle = Rectangle(Vector2(70f, 50f), 10f, 5f).apply {
+            velocity.set(Vector2(0f, 0f))
+            mass = 2f
+        }
+
+        // Adjust properties for perfectly elastic collision
+        setRestitution(1f, circle, rect)
+        setZeroFriction(circle, rect)
+
+        // Simulate the collision
+        handleCollision(circle, rect, "testPerfectlyElasticCollisionWithStationaryObject")
+
+        // Check the velocities after collision
+        assertAlmostEquals(Vector2(0f, 0f), circle.velocity)
+        assertAlmostEquals(Vector2(10f, 0f), rect.velocity)
+        assertEquals(0f, circle.angularVelocity)
+        assertEquals(0f, rect.angularVelocity)
+    }
+
+    @Test
+    fun testPerfectlyElasticCollisionWithDifferentVelocity() {
+        // Create two circles
+        val circleA: Circle = Circle(Vector2(60.5f, 50f), 5f).apply {
+            velocity.set(Vector2(10f, 0f))
+            mass = 2f
+        }
+
+        val circleB: Circle = Circle(Vector2(70f, 50f), 5f).apply {
+            velocity.set(Vector2(-5f, 0f))
+            mass = 2f
+        }
+
+        // Adjust properties for perfectly elastic collision
+        setRestitution(1f, circleA, circleB)
+        setZeroFriction(circleA, circleB)
+
+        // Simulate the collision
+        handleCollision(circleA, circleB, "testPerfectlyElasticCollisionWithDifferentVelocity")
+
+        // Check the velocities after collision
+        assertAlmostEquals(Vector2(-5f, 0f), circleA.velocity)
+        assertAlmostEquals(Vector2(10f, 0f), circleB.velocity)
+        assertEquals(0f, circleA.angularVelocity)
+        assertEquals(0f, circleB.angularVelocity)
+    }
+
+    @Test
+    fun testPerfectlyElasticCollisionMovingInTheSameDirection() {
+        // Create two circles
+        val circleA: Circle = Circle(Vector2(60.5f, 50f), 5f).apply {
+            velocity.set(Vector2(10f, 0f))
+            mass = 2f
+        }
+
+        val circleB: Circle = Circle(Vector2(70f, 50f), 5f).apply {
+            velocity.set(Vector2(5f, 0f))
+            mass = 2f
+        }
+
+        // Adjust properties for perfectly elastic collision
+        setRestitution(1f, circleA, circleB)
+        setZeroFriction(circleA, circleB)
+
+        // Simulate the collision
+        handleCollision(circleA, circleB, "testPerfectlyElasticCollisionMovingInTheSameDirection")
+
+        // Check the velocities after collision
+        assertAlmostEquals(Vector2(5f, 0f), circleA.velocity)
+        assertAlmostEquals(Vector2(10f, 0f), circleB.velocity)
+        assertEquals(0f, circleA.angularVelocity)
+        assertEquals(0f, circleB.angularVelocity)
+    }
+
+    @Test
+    fun testPerfectlyElasticCollisionWithStaticObject() {
+        // Create a circle and a stationary rectangle
+        val circle: Circle = Circle(Vector2(60.5f, 50f), 5f).apply {
+            velocity.set(Vector2(10f, 0f))
+            mass = 2f
+        }
+
+        val rect: Rectangle = Rectangle(Vector2(70f, 50f), 10f, 5f).apply {
+            velocity.set(Vector2(0f, 0f))
+            mass = 2f
+        }
+
+        // Adjust properties for perfectly elastic collision
+        setRestitution(1f, circle, rect)
+        setZeroFriction(circle, rect)
+
+        // Simulate the collision
+        handleCollision(circle, rect, "testPerfectlyElasticCollisionWithStaticObject")
+
+        // Check the velocities after collision
+        assertAlmostEquals(Vector2(0f, 0f), circle.velocity)
+        assertAlmostEquals(Vector2(10f, 0f), rect.velocity)
+        assertEquals(0f, circle.angularVelocity)
+        assertEquals(0f, rect.angularVelocity)
+    }
+
+    /**
+     * Asserts that the components of the two vectors are almost equal.
+     * The difference between the components must be less than [EPSILON].
+     *
+     * @param expected The expected vector.
+     * @param actual The actual vector.
+     */
+    private fun assertAlmostEquals(expected: Vector2, actual: Vector2) {
+        assertEquals(expected.x, actual.x, EPSILON, "X components are not equal")
+        assertEquals(expected.y, actual.y, EPSILON, "Y components are not equal")
     }
 
     /**
