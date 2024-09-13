@@ -93,6 +93,26 @@ object CollisionSolver {
         val normalForces: ArrayList<Float> = arrayListOf() // Used for friction
         val normal: Vector2 = info.normal
 
+        var totalA = 0f
+        var totalB = 0f
+
+        for (contactPoint: Vector2 in contactPoints) {
+            val ra: Vector2 = contactPoint - objA.position
+            val rb: Vector2 = contactPoint - objB.position
+
+            val raPerp = Vector2(-ra.y, ra.x)
+            val rbPerp = Vector2(-rb.y, rb.x)
+
+            // Calculate the impulse
+            val raPerpDotNormal: Float = raPerp.dot(normal)
+            val rbPerpDotNormal: Float = rbPerp.dot(normal)
+
+            totalA += raPerpDotNormal
+            totalB += rbPerpDotNormal
+        }
+
+        val multi: Float = if (abs(totalA) < EPSILON || abs(totalB) < EPSILON) 0f else 1f
+
         // Calculate the impulses for each contact point
         for (contactPoint: Vector2 in contactPoints) {
             val ra: Vector2 = contactPoint - objA.position
@@ -119,8 +139,8 @@ object CollisionSolver {
 
             var impulseMag: Float = -(1f + e) * contactVelocityMag
             impulseMag /= objA.invMass + objB.invMass +
-                    (raPerpDotNormal * raPerpDotNormal) * objA.invInertia +
-                    (rbPerpDotNormal * rbPerpDotNormal) * objB.invInertia
+                    multi * ((raPerpDotNormal * raPerpDotNormal) * objA.invInertia
+                    + (rbPerpDotNormal * rbPerpDotNormal) * objB.invInertia)
             impulseMag /= contactPoints.size // Distribute the impulse over all contact points
 
             val impulse: Vector2 = impulseMag * normal
