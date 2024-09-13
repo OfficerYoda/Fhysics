@@ -7,6 +7,7 @@ import de.officeryoda.fhysics.engine.Projection
 import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.rendering.UIController.Companion.damping
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
@@ -91,9 +92,6 @@ abstract class FhysicsObject protected constructor(
         // Needed because multiple quadtree nodes can contain the same object
         if (lastUpdate == FhysicsCore.updateCount) return
         lastUpdate = FhysicsCore.updateCount
-
-        val damping = 0.001f
-//        val damping = 0.0f
 
         // Update Position
         acceleration += FhysicsCore.gravityAt(position)

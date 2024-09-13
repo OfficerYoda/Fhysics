@@ -85,7 +85,7 @@ class UIController {
     lateinit var lblPropertyFrictionDynamic: Label
     /// endregion
 
-    /// region =====Fields: Gravity=====
+    /// region =====Fields: Forces=====
     @FXML
     private lateinit var txtGravityDirectionX: TextField
 
@@ -100,6 +100,12 @@ class UIController {
 
     @FXML
     private lateinit var txtGravityPointStrength: TextField
+
+    @FXML
+    private lateinit var sldDamping: Slider
+
+    @FXML
+    private lateinit var lblDamping: Label
     /// endregion
 
     /// region =====Fields: Miscellaneous=====
@@ -183,36 +189,36 @@ class UIController {
     fun onSpawnNothingClicked() {
         spawnObjectType = SpawnObjectType.NOTHING
         updateSpawnPreview()
-        setSpawnFieldAvailability(radius = false, width = false, height = false)
+        updateSpawnFieldsAvailability()
     }
 
     @FXML
     fun onSpawnCircleClicked() {
         spawnObjectType = SpawnObjectType.CIRCLE
         updateSpawnPreview()
-        setSpawnFieldAvailability(radius = true, width = false, height = false)
+        updateSpawnFieldsAvailability()
     }
 
     @FXML
     fun onSpawnRectangleClicked() {
         spawnObjectType = SpawnObjectType.RECTANGLE
         updateSpawnPreview()
-        setSpawnFieldAvailability(radius = false, width = true, height = true)
+        updateSpawnFieldsAvailability()
     }
 
     @FXML
     fun onSpawnPolygonClicked() {
         spawnObjectType = SpawnObjectType.POLYGON
         updateSpawnPreview()
-        setSpawnFieldAvailability(radius = false, width = false, height = false)
+        updateSpawnFieldsAvailability()
         // Clear the polygon vertices list for a new polygon
         polyVertices.clear()
     }
 
-    private fun setSpawnFieldAvailability(radius: Boolean, width: Boolean, height: Boolean) {
-        txtSpawnRadius.isDisable = !radius
-        txtSpawnWidth.isDisable = !width
-        txtSpawnHeight.isDisable = !height
+    private fun updateSpawnFieldsAvailability() {
+        txtSpawnRadius.isDisable = spawnObjectType != SpawnObjectType.CIRCLE
+        txtSpawnWidth.isDisable = spawnObjectType != SpawnObjectType.RECTANGLE
+        txtSpawnHeight.isDisable = spawnObjectType != SpawnObjectType.RECTANGLE
     }
 
     @FXML
@@ -352,17 +358,17 @@ class UIController {
     }
     /// endregion
 
-    /// region =====Methods: Gravity=====
+    /// region =====Methods: Forces=====
     @FXML
     fun onGravityDirectionClicked() {
         gravityType = GravityType.DIRECTIONAL
-        setGravityFieldsAvailability(direction = true, point = false)
+        updateGravityFieldsAvailability()
     }
 
     @FXML
     fun onGravityPointClicked() {
         gravityType = GravityType.TOWARDS_POINT
-        setGravityFieldsAvailability(direction = false, point = true)
+        updateGravityFieldsAvailability()
     }
 
     @FXML
@@ -390,13 +396,19 @@ class UIController {
         gravityPointStrength = parseTextField(txtGravityPointStrength)
     }
 
-    private fun setGravityFieldsAvailability(direction: Boolean, point: Boolean) {
-        txtGravityDirectionX.isDisable = !direction
-        txtGravityDirectionY.isDisable = !direction
+    private fun updateGravityFieldsAvailability() {
+        txtGravityDirectionX.isDisable = gravityType != GravityType.DIRECTIONAL
+        txtGravityDirectionY.isDisable = gravityType != GravityType.DIRECTIONAL
 
-        txtGravityPointX.isDisable = !point
-        txtGravityPointY.isDisable = !point
-        txtGravityPointStrength.isDisable = !point
+        txtGravityPointX.isDisable = gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
+    }
+
+    @FXML
+    fun onDampingChanged() {
+        damping = sldDamping.value.toFloat()
+        lblDamping.text = toRoundedString(damping, 4)
     }
     /// endregion
 
@@ -531,7 +543,7 @@ class UIController {
     }
     /// endregion
 
-    /// region =====Initialization and helper=====
+    /// region =====Initialization and Helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
         /// region =====Singleton=====
@@ -567,7 +579,7 @@ class UIController {
         }
         /// endregion
 
-        /// region =====Gravity=====
+        /// region =====Forces=====
         txtGravityDirectionX.text = gravityDirection.x.toString()
         txtGravityDirectionY.text = gravityDirection.y.toString()
         txtGravityPointX.text = gravityPoint.x.toString()
@@ -578,6 +590,7 @@ class UIController {
         txtGravityPointX.isDisable = gravityType != GravityType.TOWARDS_POINT
         txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
         txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
+        setSliderAndLabel(sldDamping, lblDamping, damping, 4)
 
         restrictToNumericInput(txtGravityDirectionX)
         restrictToNumericInput(txtGravityDirectionY)
@@ -626,8 +639,8 @@ class UIController {
      * @param value The float value to convert.
      * @return The string representation of the float value with two decimal places.
      */
-    private fun toRoundedString(value: Float): String {
-        return String.format(Locale.US, "%.2f", value)
+    private fun toRoundedString(value: Float, decimalPlaces: Int = 2): String {
+        return String.format(Locale.US, "%.${decimalPlaces}f", value)
     }
 
     /**
@@ -637,9 +650,9 @@ class UIController {
      * @param label The label to set the text of.
      * @param value The value to set the slider and label to.
      */
-    private fun setSliderAndLabel(slider: Slider, label: Label, value: Float) {
+    private fun setSliderAndLabel(slider: Slider, label: Label, value: Float, lblDecimalPlaces: Int = 2) {
         slider.value = value.toDouble()
-        label.text = toRoundedString(value)
+        label.text = toRoundedString(value, lblDecimalPlaces)
     }
 
     /**
@@ -702,15 +715,17 @@ class UIController {
         private const val RADIANS_TO_DEGREES: Float = 57.29578f
         /// endregion
 
-        /// region =====Gravity=====
+        /// region =====Forces=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
         val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
-        val gravityPoint: Vector2 = Vector2( // The center of the world
+        val gravityPoint: Vector2 = Vector2( // Default: The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
         var gravityPointStrength: Float = 100.0f
+            private set
+        var damping: Float = 0.001f
             private set
         /// endregion
 
