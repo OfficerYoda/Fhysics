@@ -5,7 +5,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<fx:root prefHeight="360.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
+<fx:root prefHeight="375.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21"
+         xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
     <panes>
         <TitledPane focusTraversable="false" text="Spawn Object">
             <content>
@@ -241,6 +242,9 @@
                                             </tooltip>
                                         </Label>
                                     </children>
+                                    <VBox.margin>
+                                        <Insets/>
+                                    </VBox.margin>
                                 </HBox>
                                 <HBox>
                                     <children>
@@ -300,7 +304,7 @@
                                         <Font name="System Bold" size="12.0" />
                                     </font>
                                     <tooltip>
-                                        <Tooltip text="Delete the object" />
+                                        <Tooltip text="Removes the object"/>
                                     </tooltip>
                                 </Button>
                             </children>
@@ -309,12 +313,46 @@
                 </AnchorPane>
             </content>
         </TitledPane>
-        <TitledPane focusTraversable="false" text="Gravity">
+        <TitledPane focusTraversable="false" prefHeight="270.0" prefWidth="250.0" text="Scene">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
+                    <children>
+                        <VBox layoutX="20.0" prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0"
+                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                            <children>
+                                <Button fx:id="btnSceneClear" alignment="CENTER_RIGHT" contentDisplay="CENTER"
+                                        mnemonicParsing="false" onMouseClicked="#onSceneClearClicked" text="CLEAR"
+                                        textFill="#d92114">
+                                    <font>
+                                        <Font name="System Bold" size="12.0"/>
+                                    </font>
+                                    <tooltip>
+                                        <Tooltip text="Removes every object"/>
+                                    </tooltip>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </children>
+                </AnchorPane>
+            </content>
+        </TitledPane>
+        <TitledPane focusTraversable="false" text="Forces">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                     <children>
                         <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <children>
+                                <Text accessibleText="The Radius of the spawned circle"
+                                      boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE"
+                                      strokeWidth="0.0" text="Gravity" textOrigin="BOTTOM"
+                                      wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0"/>
+                                    </font>
+                                </Text>
                                 <ToggleButtonGroup selectionType="SINGLE">
                                     <toggles>
                                         <ToggleButton onMouseClicked="#onGravityDirectionClicked" selected="true" text="Direction" textAlignment="CENTER">
@@ -393,17 +431,65 @@
                                         </TextField>
                                     </children>
                                 </HBox>
+                                <Text accessibleText="The Radius of the spawned circle"
+                                      boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE"
+                                      strokeWidth="0.0" text="Damping" textOrigin="BOTTOM"
+                                      wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0"/>
+                                    </font>
+                                </Text>
+                                <HBox>
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle"
+                                              boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE"
+                                              strokeWidth="0.0" text="Damping" textOrigin="BOTTOM"
+                                              wrappingWidth="100.0">
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0"/>
+                                            </font>
+                                        </Text>
+                                        <Slider fx:id="sldDamping" blockIncrement="0.0" majorTickUnit="0.1" max="0.05"
+                                                minorTickCount="1" onMouseDragged="#onDampingChanged" prefHeight="17.0"
+                                                prefWidth="108.0">
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Cheap drag impementation&#10;Higher = faster slowdown&#10;veloctiy *= (1-damping)"/>
+                                            </tooltip>
+                                        </Slider>
+                                        <Label fx:id="lblDamping" prefHeight="17.0" prefWidth="54.0" text="0.000">
+                                            <padding>
+                                                <Insets left="2.0"/>
+                                            </padding>
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Cheap drag impementation&#10;Higher = faster slowdown&#10;veloctiy *= (1-damping)"/>
+                                            </tooltip>
+                                        </Label>
+                                    </children>
+                                </HBox>
                             </children>
                         </VBox>
                     </children></AnchorPane>
             </content>
         </TitledPane>
-        <TitledPane focusTraversable="false" text="Time Control">
+        <TitledPane focusTraversable="false" text="Miscellaneous">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                     <children>
                         <VBox prefHeight="180.0" prefWidth="248.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <children>
+                                <Text accessibleText="The Radius of the spawned circle"
+                                      boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE"
+                                      strokeWidth="0.0" text="Time" textOrigin="BOTTOM"
+                                      wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0"/>
+                                    </font>
+                                </Text>
                                 <HBox alignment="BASELINE_LEFT">
                                     <children>
                                         <ToggleButton fx:id="btnTimePause" mnemonicParsing="false" onMouseClicked="#onTimePauseClicked" text="Pause">
@@ -435,12 +521,156 @@
                                         </TextField>
                                     </children>
                                 </HBox>
+                                <Text accessibleText="The Radius of the spawned circle"
+                                      boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE"
+                                      strokeWidth="0.0" text="Border" textOrigin="BOTTOM"
+                                      wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0"/>
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets top="5.0"/>
+                                    </VBox.margin>
+                                </Text>
+                                <HBox alignment="BASELINE_LEFT">
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle"
+                                              boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE"
+                                              strokeWidth="0.0" text="Size" textOrigin="BOTTOM"
+                                              wrappingWidth="66.72525787353517">
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0"/>
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtBorderWidth" onKeyTyped="#onBorderWidthTyped"
+                                                   promptText="x">
+                                            <tooltip>
+                                                <Tooltip text="The width of the border"/>
+                                            </tooltip>
+                                        </TextField>
+                                        <TextField fx:id="txtBorderHeight" onKeyTyped="#onBorderHeightTyped"
+                                                   promptText="y">
+                                            <tooltip>
+                                                <Tooltip text="The height of the border"/>
+                                            </tooltip>
+                                        </TextField>
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle"
+                                              boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE"
+                                              strokeWidth="0.0" text="Restitution" textOrigin="BOTTOM"
+                                              wrappingWidth="100.0">
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0"/>
+                                            </font>
+                                        </Text>
+                                        <Slider fx:id="sldBorderRestitution" blockIncrement="0.05" majorTickUnit="0.1"
+                                                max="1.0" minorTickCount="1"
+                                                onMouseDragged="#onBorderRestitutionChanged" prefHeight="17.0"
+                                                prefWidth="108.0" value="1.0">
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce"/>
+                                            </tooltip>
+                                        </Slider>
+                                        <Label fx:id="lblBorderRestitution" prefHeight="17.0" prefWidth="39.0"
+                                               text="1.00">
+                                            <padding>
+                                                <Insets left="2.0"/>
+                                            </padding>
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce"/>
+                                            </tooltip>
+                                        </Label>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets top="2.0"/>
+                                    </VBox.margin>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle"
+                                              boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE"
+                                              strokeWidth="0.0" text="Static Friction" textOrigin="BOTTOM"
+                                              wrappingWidth="100.0">
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0"/>
+                                            </font>
+                                        </Text>
+                                        <Slider fx:id="sldBorderFrictionStatic" blockIncrement="0.05"
+                                                majorTickUnit="0.1" max="1.0" minorTickCount="1"
+                                                onMouseDragged="#onBorderFrictionStaticChanged" prefHeight="17.0"
+                                                prefWidth="108.0" value="1.0">
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Resistance before movement&#10;0 = Smooth surface, 1 = Rough surface"/>
+                                            </tooltip>
+                                        </Slider>
+                                        <Label fx:id="lblBorderFrictionStatic" prefHeight="17.0" prefWidth="39.0"
+                                               text="1.00">
+                                            <padding>
+                                                <Insets left="2.0"/>
+                                            </padding>
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Resistance before movement&#10;0 = Smooth surface, 1 = Rough surface"/>
+                                            </tooltip>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Text accessibleText="The Radius of the spawned circle"
+                                              boundsType="LOGICAL_VERTICAL_CENTER" strokeType="OUTSIDE"
+                                              strokeWidth="0.0" text="Dynamic Friction" textOrigin="BOTTOM"
+                                              wrappingWidth="100.0">
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="12.0"/>
+                                            </font>
+                                        </Text>
+                                        <Slider fx:id="sldBorderFrictionDynamic" blockIncrement="0.05"
+                                                majorTickUnit="0.1" max="1.0" minorTickCount="1"
+                                                onMouseDragged="#onBorderFrictionDynamicChanged" prefHeight="17.0"
+                                                prefWidth="108.0" value="1.0">
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Resistance during movement&#10;0 = Smooth surface, 1 = Rough surface"/>
+                                            </tooltip>
+                                        </Slider>
+                                        <Label fx:id="lblBorderFrictionDynamic" prefHeight="17.0" prefWidth="39.0"
+                                               text="1.00">
+                                            <padding>
+                                                <Insets left="2.0"/>
+                                            </padding>
+                                            <tooltip>
+                                                <Tooltip
+                                                        text="Resistance during movement&#10;0 = Smooth surface, 1 = Rough surface"/>
+                                            </tooltip>
+                                        </Label>
+                                    </children>
+                                </HBox>
                             </children>
                             <opaqueInsets>
                                 <Insets />
                             </opaqueInsets>
                         </VBox>
-                    </children></AnchorPane>
+                    </children>
+                </AnchorPane>
             </content>
         </TitledPane>
         <TitledPane focusTraversable="false" text="QuadTree">
@@ -503,7 +733,7 @@
                 </AnchorPane>
             </content>
         </TitledPane>
-        <TitledPane focusTraversable="false" prefHeight="270.0" prefWidth="250.0" text="Debug">
+        <TitledPane focusTraversable="false" prefHeight="250.0" prefWidth="250.0" text="Debug">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="248.0">
                     <children>
@@ -554,36 +784,6 @@
                                         <Tooltip text="The average time it takes to render a frame in ms" />
                                     </tooltip>
                                 </CheckBox>
-                                <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Other" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
-                                    <font>
-                                        <Font name="System Italic" size="12.0" />
-                                    </font>
-                                    <VBox.margin>
-                                        <Insets top="5.0" />
-                                    </VBox.margin>
-                                </Text>
-                                <HBox>
-                                    <children>
-                                        <Label prefHeight="17.0" prefWidth="105.0" text="Border restitution ">
-                                            <tooltip>
-                                                <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce" />
-                                            </tooltip>
-                                        </Label>
-                                        <Slider fx:id="sldWallRestitution" blockIncrement="0.05" majorTickUnit="0.1" max="1.0" minorTickCount="1" onMouseDragged="#onWallRestitutionChanged" prefHeight="17.0" prefWidth="108.0" value="1.0">
-                                            <tooltip>
-                                                <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce" />
-                                            </tooltip>
-                                        </Slider>
-                                        <Label fx:id="lblWallResitution" prefHeight="17.0" prefWidth="39.0" text="1.00">
-                                            <padding>
-                                                <Insets left="2.0" />
-                                            </padding>
-                                            <tooltip>
-                                                <Tooltip text="How bouncy the border is&#10;0 = No bounce, 1 = Perfect bounce" />
-                                            </tooltip>
-                                        </Label>
-                                    </children>
-                                </HBox>
                             </children>
                             <opaqueInsets>
                                 <Insets />

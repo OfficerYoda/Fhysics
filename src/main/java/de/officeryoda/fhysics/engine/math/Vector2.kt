@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.engine
+package de.officeryoda.fhysics.engine.math
 
 import kotlin.math.cos
 import kotlin.math.sin
@@ -38,11 +38,11 @@ data class Vector2
      * @return The rotated Vector2.
      */
     fun rotatedAround(center: Vector2, angle: Float): Vector2 {
-        val cosAngle: Float = cos(angle)
-        val sinAngle: Float = sin(angle)
-
         val translatedX: Float = this.x - center.x
         val translatedY: Float = this.y - center.y
+
+        val cosAngle: Float = cos(angle)
+        val sinAngle: Float = sin(angle)
 
         val rotatedX: Float = translatedX * cosAngle - translatedY * sinAngle
         val rotatedY: Float = translatedX * sinAngle + translatedY * cosAngle
@@ -183,6 +183,22 @@ data class Vector2
      */
     operator fun times(scalar: Float): Vector2 {
         return Vector2(this.x * scalar, this.y * scalar)
+    }
+
+    /**
+     * Multiplies the Matrix2x3 by this Vector2.
+     *
+     * Assuming that the third row of the matrix is always [0, 0, 1] and
+     * the Vector2 is treated as a 3x1 matrix [x, y, 1].
+     *
+     * @param matrix The Matrix2x3 to multiply with.
+     * @return The result of the multiplication.
+     */
+    operator fun times(matrix: Matrix2x3): Vector2 {
+        return Vector2(
+            this.x * matrix.m00 + this.y * matrix.m01 + matrix.m02,
+            this.x * matrix.m10 + this.y * matrix.m11 + matrix.m12
+        )
     }
 
     /**

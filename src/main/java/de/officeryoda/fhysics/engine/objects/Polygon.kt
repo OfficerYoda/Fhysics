@@ -1,12 +1,15 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.Projection
-import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.ContactFinder
+import de.officeryoda.fhysics.engine.math.Matrix2x3
+import de.officeryoda.fhysics.engine.math.Projection
+import de.officeryoda.fhysics.engine.math.Vector2
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 // primary constructor is used to sync position and velocity from sub-polygons with the main polygon
 abstract class Polygon(
@@ -108,7 +111,17 @@ abstract class Polygon(
      * @return The transformed vertices
      */
     open fun getTransformedVertices(): Array<Vector2> {
-        return vertices.map { it.rotatedAround(Vector2.ZERO, angle) + super.position }.toTypedArray()
+        // Create the transformation matrix
+        val cos: Float = cos(angle)
+        val sin: Float = sin(angle)
+
+        val transformationMatrix = Matrix2x3(
+            cos, -sin, super.position.x,
+            sin, cos, super.position.y
+        )
+
+        // Transform the vertices
+        return vertices.map { transformationMatrix * it }.toTypedArray()
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo
@@ -133,6 +146,10 @@ abstract class Polygon(
 
     override fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2> {
         return ContactFinder.findContactPoints(this, other)
+    }
+
+    override fun updateBoundingBox() {
+        boundingBox.setFromPolygon(this)
     }
 
     override fun toString(): String {

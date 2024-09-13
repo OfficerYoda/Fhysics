@@ -1,7 +1,11 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.*
+import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
+import de.officeryoda.fhysics.engine.QuadTree
+import de.officeryoda.fhysics.engine.Stopwatch
+import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.BetterSceneListener.POLYGON_CLOSE_RADIUS
 import de.officeryoda.fhysics.rendering.BetterSceneListener.hoveredObject
@@ -131,7 +135,6 @@ class FhysicsObjectDrawer : Application() {
             }
         }.start()
     }
-
     /// endregion
 
     /// region =====Draw functions=====
@@ -264,7 +267,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygonPreview() {
-        val vertices: List<Vector2> = BetterSceneListener.polyVertices.plus(BetterSceneListener.mousePosWorld)
+        val vertices: List<Vector2> = BetterSceneListener.polyVertices.plus(mousePosWorld)
         if (vertices.isEmpty()) return
 
         gc.beginPath()
@@ -302,7 +305,6 @@ class FhysicsObjectDrawer : Application() {
         setStrokeColor(Color.GRAY)
         gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
     }
-
     /// endregion
 
     /// region =====Window size functions=====
@@ -338,7 +340,6 @@ class FhysicsObjectDrawer : Application() {
 
         return windowHeight / borderHeight
     }
-
     /// endregion
 
     /// region =====Utility functions=====
@@ -367,7 +368,6 @@ class FhysicsObjectDrawer : Application() {
         targetZoomCenter = Vector2((BORDER.width / 2), (BORDER.height / 2))
         zoomCenter = targetZoomCenter
     }
-
     /// endregion
 
     companion object {

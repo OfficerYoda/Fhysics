@@ -1,12 +1,13 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.dt
-import de.officeryoda.fhysics.engine.Projection
-import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.math.Projection
+import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.rendering.UIController.Companion.damping
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
@@ -49,6 +50,7 @@ abstract class FhysicsObject protected constructor(
     var invMass: Float = 1f / mass
         protected set
 
+    // Used to avoid multiple updates in the same frame due to multiple quadtree nodes
     private var lastUpdate = -1
 
     var inertia: Float = -1f
@@ -73,14 +75,12 @@ abstract class FhysicsObject protected constructor(
             field = Math.clamp(value, 0f, 1f)
         }
 
-    var frictionStatic: Float = 1f
-        //0.5f
+    var frictionStatic: Float = 0.5f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~1.0)
             field = Math.clamp(value, 0f, 1f)
         }
-    var frictionDynamic: Float = 1f
-        //0.45f
+    var frictionDynamic: Float = 0.45f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~0.8)
             field = Math.clamp(value, 0f, 1f)
@@ -93,8 +93,6 @@ abstract class FhysicsObject protected constructor(
         if (lastUpdate == FhysicsCore.updateCount) return
         lastUpdate = FhysicsCore.updateCount
 
-        val damping = 0.0f
-
         // Update Position
         acceleration += FhysicsCore.gravityAt(position)
         // Update velocity before position (semi-implicit Euler)
@@ -106,11 +104,11 @@ abstract class FhysicsObject protected constructor(
         // Update rotation
         angularVelocity *= (1 - damping)
         angle += angularVelocity * dt
-        // Normalize angle
+        // Normalize angle for better precision
         angle %= TWO_PI
 
         // Update bounding box
-        boundingBox.setFromFhysicsObject(this)
+        updateBoundingBox()
     }
 
     abstract fun project(axis: Vector2): Projection
@@ -138,6 +136,8 @@ abstract class FhysicsObject protected constructor(
     abstract fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2>
 
     abstract fun clone(): FhysicsObject
+
+    abstract fun updateBoundingBox()
 
     private fun colorFromId(): Color {
         val colors: List<Color> =

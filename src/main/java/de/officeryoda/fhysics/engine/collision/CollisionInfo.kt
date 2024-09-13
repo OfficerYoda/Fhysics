@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.engine.collision
 
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 
 /**

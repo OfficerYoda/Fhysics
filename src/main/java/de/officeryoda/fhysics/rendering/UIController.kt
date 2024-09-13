@@ -6,7 +6,8 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.collision.CollisionSolver
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
 import de.officeryoda.fhysics.rendering.BetterSceneListener.selectedObject
@@ -17,8 +18,16 @@ import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
 import java.awt.Color
 import java.util.*
+import kotlin.math.max
 
+/**
+ * Controller class for the UI.
+ *
+ * Doubles as a data holder for the settings made through the UI.
+ */
 class UIController {
+
+    /// region ========Fields========
 
     /// region =====Fields: Spawn Object=====
     @FXML
@@ -81,7 +90,7 @@ class UIController {
     lateinit var lblPropertyFrictionDynamic: Label
     /// endregion
 
-    /// region =====Fields: Gravity=====
+    /// region =====Fields: Forces=====
     @FXML
     private lateinit var txtGravityDirectionX: TextField
 
@@ -96,9 +105,15 @@ class UIController {
 
     @FXML
     private lateinit var txtGravityPointStrength: TextField
+
+    @FXML
+    private lateinit var sldDamping: Slider
+
+    @FXML
+    private lateinit var lblDamping: Label
     /// endregion
 
-    /// region =====Fields: Time=====
+    /// region =====Fields: Miscellaneous=====
     @FXML
     private lateinit var btnTimePause: ToggleButton
 
@@ -107,6 +122,30 @@ class UIController {
 
     @FXML
     private lateinit var txtTimeSpeed: TextField
+
+    @FXML
+    private lateinit var txtBorderWidth: TextField
+
+    @FXML
+    private lateinit var txtBorderHeight: TextField
+
+    @FXML
+    private lateinit var sldBorderRestitution: Slider
+
+    @FXML
+    private lateinit var lblBorderRestitution: Label
+
+    @FXML
+    private lateinit var sldBorderFrictionStatic: Slider
+
+    @FXML
+    private lateinit var lblBorderFrictionStatic: Label
+
+    @FXML
+    private lateinit var sldBorderFrictionDynamic: Slider
+
+    @FXML
+    private lateinit var lblBorderFrictionDynamic: Label
     /// endregion
 
     /// region =====Fields: QuadTree=====
@@ -144,49 +183,47 @@ class UIController {
 
     @FXML
     private lateinit var cbRenderTime: CheckBox
-
-    @FXML
-    private lateinit var sldWallRestitution: Slider
-
-    @FXML
-    private lateinit var lblWallResitution: Label
     /// endregion
+
+    /// endregion
+
+    /// region ========Methods========
 
     /// region =====Methods: Spawn Object=====
     @FXML
     fun onSpawnNothingClicked() {
         spawnObjectType = SpawnObjectType.NOTHING
         updateSpawnPreview()
-        setSpawnFieldAvailability(radius = false, width = false, height = false)
+        updateSpawnFieldsAvailability()
     }
 
     @FXML
     fun onSpawnCircleClicked() {
         spawnObjectType = SpawnObjectType.CIRCLE
         updateSpawnPreview()
-        setSpawnFieldAvailability(radius = true, width = false, height = false)
+        updateSpawnFieldsAvailability()
     }
 
     @FXML
     fun onSpawnRectangleClicked() {
         spawnObjectType = SpawnObjectType.RECTANGLE
         updateSpawnPreview()
-        setSpawnFieldAvailability(radius = false, width = true, height = true)
+        updateSpawnFieldsAvailability()
     }
 
     @FXML
     fun onSpawnPolygonClicked() {
         spawnObjectType = SpawnObjectType.POLYGON
         updateSpawnPreview()
-        setSpawnFieldAvailability(radius = false, width = false, height = false)
+        updateSpawnFieldsAvailability()
         // Clear the polygon vertices list for a new polygon
         polyVertices.clear()
     }
 
-    private fun setSpawnFieldAvailability(radius: Boolean, width: Boolean, height: Boolean) {
-        txtSpawnRadius.isDisable = !radius
-        txtSpawnWidth.isDisable = !width
-        txtSpawnHeight.isDisable = !height
+    private fun updateSpawnFieldsAvailability() {
+        txtSpawnRadius.isDisable = spawnObjectType != SpawnObjectType.CIRCLE
+        txtSpawnWidth.isDisable = spawnObjectType != SpawnObjectType.RECTANGLE
+        txtSpawnHeight.isDisable = spawnObjectType != SpawnObjectType.RECTANGLE
     }
 
     @FXML
@@ -240,7 +277,7 @@ class UIController {
         selectedObject!!.static = cbPropertyStatic.isSelected
 
         // Update the bounding box
-        selectedObject!!.boundingBox.setFromFhysicsObject(selectedObject!!)
+        selectedObject!!.updateBoundingBox()
     }
 
     @FXML
@@ -258,7 +295,7 @@ class UIController {
         selectedObject!!.angle = parseTextField(txtPropertyRotation) * DEGREES_TO_RADIANS
 
         // Update the bounding box
-        selectedObject!!.boundingBox.setFromFhysicsObject(selectedObject!!)
+        selectedObject!!.updateBoundingBox()
     }
 
     @FXML
@@ -317,20 +354,26 @@ class UIController {
         setSliderAndLabel(sldPropertyFrictionStatic, lblPropertyFrictionStatic, obj.frictionStatic)
         setSliderAndLabel(sldPropertyFrictionDynamic, lblPropertyFrictionDynamic, obj.frictionDynamic)
     }
-
     /// endregion
 
-    /// region =====Methods: Gravity=====
+    /// region =====Methods: Scene=====
+    @FXML
+    fun onSceneClearClicked() {
+        FhysicsCore.clear()
+    }
+    /// endregion
+
+    /// region =====Methods: Forces=====
     @FXML
     fun onGravityDirectionClicked() {
         gravityType = GravityType.DIRECTIONAL
-        setGravityFieldsAvailability(direction = true, point = false)
+        updateGravityFieldsAvailability()
     }
 
     @FXML
     fun onGravityPointClicked() {
         gravityType = GravityType.TOWARDS_POINT
-        setGravityFieldsAvailability(direction = false, point = true)
+        updateGravityFieldsAvailability()
     }
 
     @FXML
@@ -358,17 +401,23 @@ class UIController {
         gravityPointStrength = parseTextField(txtGravityPointStrength)
     }
 
-    private fun setGravityFieldsAvailability(direction: Boolean, point: Boolean) {
-        txtGravityDirectionX.isDisable = !direction
-        txtGravityDirectionY.isDisable = !direction
+    private fun updateGravityFieldsAvailability() {
+        txtGravityDirectionX.isDisable = gravityType != GravityType.DIRECTIONAL
+        txtGravityDirectionY.isDisable = gravityType != GravityType.DIRECTIONAL
 
-        txtGravityPointX.isDisable = !point
-        txtGravityPointY.isDisable = !point
-        txtGravityPointStrength.isDisable = !point
+        txtGravityPointX.isDisable = gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
+    }
+
+    @FXML
+    fun onDampingChanged() {
+        damping = sldDamping.value.toFloat()
+        lblDamping.text = toRoundedString(damping, 4)
     }
     /// endregion
 
-    /// region =====Methods: Time=====
+    /// region =====Methods: Miscellaneous=====
     @FXML
     fun onTimePauseClicked() {
         FhysicsCore.running = !btnTimePause.isSelected
@@ -384,6 +433,48 @@ class UIController {
     fun onTimeSpeedTyped() {
         timeSpeed = parseTextField(txtTimeSpeed)
         FhysicsCore.dt = 1.0f / (FhysicsCore.UPDATES_PER_SECOND * FhysicsCore.SUB_STEPS) * timeSpeed
+    }
+
+    @FXML
+    fun onBorderWidthTyped() {
+        val width: Float = parseTextField(txtBorderWidth, 1f)
+        FhysicsCore.BORDER.width = max(width, 1f) // Minimum border size of 1x1
+        CollisionSolver.updateBorderObjects()
+
+        // Make sure the text field matches the actual border width
+        if (width < 1f) {
+            txtBorderWidth.text = "1.0"
+        }
+    }
+
+    @FXML
+    fun onBorderHeightTyped() {
+        val height: Float = parseTextField(txtBorderHeight, 1f)
+        FhysicsCore.BORDER.height = max(height, 1f) // Minimum border size of 1x1
+        CollisionSolver.updateBorderObjects()
+
+        // Make sure the text field matches the actual border height
+        if (height < 1f) {
+            txtBorderHeight.text = "1.0"
+        }
+    }
+
+    @FXML
+    fun onBorderRestitutionChanged() {
+        borderRestitution = sldBorderRestitution.value.toFloat()
+        lblBorderRestitution.text = toRoundedString(borderRestitution)
+    }
+
+    @FXML
+    fun onBorderFrictionStaticChanged() {
+        borderFrictionStatic = sldBorderFrictionStatic.value.toFloat()
+        lblBorderFrictionStatic.text = toRoundedString(borderFrictionStatic)
+    }
+
+    @FXML
+    fun onBorderFrictionDynamicChanged() {
+        borderFrictionDynamic = sldBorderFrictionDynamic.value.toFloat()
+        lblBorderFrictionDynamic.text = toRoundedString(borderFrictionDynamic)
     }
     /// endregion
 
@@ -455,21 +546,14 @@ class UIController {
     fun onRenderTimeClicked() {
         drawRenderTime = cbRenderTime.isSelected
     }
-
-    @FXML
-    fun onWallRestitutionChanged() {
-        borderRestitution = sldWallRestitution.value.toFloat()
-        lblWallResitution.text = toRoundedString(borderRestitution)
-    }
     /// endregion
 
-    /// region =====Initialization and helper=====
+    /// region =====Initialization and Helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
         /// region =====Singleton=====
         instance = this
         drawer = RenderUtil.drawer
-
         /// endregion
 
         /// region =====Object Properties=====
@@ -500,7 +584,7 @@ class UIController {
         }
         /// endregion
 
-        /// region =====Gravity=====
+        /// region =====Forces=====
         txtGravityDirectionX.text = gravityDirection.x.toString()
         txtGravityDirectionY.text = gravityDirection.y.toString()
         txtGravityPointX.text = gravityPoint.x.toString()
@@ -511,6 +595,7 @@ class UIController {
         txtGravityPointX.isDisable = gravityType != GravityType.TOWARDS_POINT
         txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
         txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
+        setSliderAndLabel(sldDamping, lblDamping, damping, 4)
 
         restrictToNumericInput(txtGravityDirectionX)
         restrictToNumericInput(txtGravityDirectionY)
@@ -519,12 +604,19 @@ class UIController {
         restrictToNumericInput(txtGravityPointStrength)
         /// endregion
 
-        /// region =====Time=====
+        /// region =====Miscellaneous=====
         btnTimePause.isSelected = !FhysicsCore.running
         btnTimeStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = timeSpeed.toString()
+        txtBorderWidth.text = FhysicsCore.BORDER.width.toString()
+        txtBorderHeight.text = FhysicsCore.BORDER.height.toString()
+        setSliderAndLabel(sldBorderRestitution, lblBorderRestitution, borderRestitution)
+        setSliderAndLabel(sldBorderFrictionStatic, lblBorderFrictionStatic, borderFrictionStatic)
+        setSliderAndLabel(sldBorderFrictionDynamic, lblBorderFrictionDynamic, borderFrictionDynamic)
 
         restrictToNumericInput(txtTimeSpeed, false)
+        restrictToNumericInput(txtBorderWidth, false)
+        restrictToNumericInput(txtBorderHeight, false)
         /// endregion
 
         /// region =====QuadTree=====
@@ -543,7 +635,6 @@ class UIController {
         cbObjectCount.isSelected = drawObjectCount
         cbMSPU.isSelected = drawMSPU
         cbUPS.isSelected = drawUPS
-        setSliderAndLabel(sldWallRestitution, lblWallResitution, borderRestitution)
         /// endregion
     }
 
@@ -553,8 +644,8 @@ class UIController {
      * @param value The float value to convert.
      * @return The string representation of the float value with two decimal places.
      */
-    private fun toRoundedString(value: Float): String {
-        return String.format(Locale.US, "%.2f", value)
+    private fun toRoundedString(value: Float, decimalPlaces: Int = 2): String {
+        return String.format(Locale.US, "%.${decimalPlaces}f", value)
     }
 
     /**
@@ -564,9 +655,9 @@ class UIController {
      * @param label The label to set the text of.
      * @param value The value to set the slider and label to.
      */
-    private fun setSliderAndLabel(slider: Slider, label: Label, value: Float) {
+    private fun setSliderAndLabel(slider: Slider, label: Label, value: Float, lblDecimalPlaces: Int = 2) {
         slider.value = value.toDouble()
-        label.text = toRoundedString(value)
+        label.text = toRoundedString(value, lblDecimalPlaces)
     }
 
     /**
@@ -597,6 +688,8 @@ class UIController {
     }
     /// endregion
 
+    /// endregion
+
     companion object {
         /// region =====Singleton=====
         lateinit var instance: UIController
@@ -604,7 +697,7 @@ class UIController {
         /// endregion
 
         /// region =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.RECTANGLE
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
             private set
         var drawSpawnPreview: Boolean = true
             private set
@@ -627,20 +720,28 @@ class UIController {
         private const val RADIANS_TO_DEGREES: Float = 57.29578f
         /// endregion
 
-        /// region =====Gravity=====
+        /// region =====Forces=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0f, -0.0f)
-        val gravityPoint: Vector2 = Vector2( // The center of the world
+        val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
+        val gravityPoint: Vector2 = Vector2( // Default: The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
         var gravityPointStrength: Float = 100.0f
             private set
+        var damping: Float = 0.001f
+            private set
         /// endregion
 
-        /// region =====Time=====
+        /// region =====Miscellaneous=====
         var timeSpeed: Float = 1.0f
+            private set
+        var borderRestitution: Float = 0.5f
+            private set
+        var borderFrictionStatic: Float = 0f
+            private set
+        var borderFrictionDynamic: Float = 0f
             private set
         /// endregion
 
@@ -667,8 +768,6 @@ class UIController {
         var drawObjectCount: Boolean = false
             private set
         var drawRenderTime: Boolean = false
-            private set
-        var borderRestitution: Float = 1f
             private set
         /// endregion
     }

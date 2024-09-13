@@ -1,8 +1,10 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.BetterSceneListener
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController
@@ -41,13 +43,13 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        repeat(30) {
-            spawn(FhysicsObjectFactory.randomCircle())
-        }
-
-        repeat(20) {
-            spawn(FhysicsObjectFactory.randomRectangle())
-        }
+//        repeat(30) {
+//            spawn(FhysicsObjectFactory.randomCircle())
+//        }
+//
+//        repeat(20) {
+//            spawn(FhysicsObjectFactory.randomRectangle())
+//        }
 
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomPolygon())
@@ -116,6 +118,8 @@ object FhysicsCore {
             quadTree.updateObjects()
             quadTree.handleCollisions()
 
+            BetterSceneListener.pullObject()
+
             updateCount++
         }
 
@@ -127,9 +131,14 @@ object FhysicsCore {
     fun spawn(vararg objects: FhysicsObject): Array<out FhysicsObject> {
         for (o: FhysicsObject in objects) {
             QuadTree.toAdd.add(o)
-            o.boundingBox.setFromFhysicsObject(o)
+            o.updateBoundingBox()
         }
         return objects
+    }
+
+    fun clear() {
+        objectCount = 0
+        quadTree = QuadTree(BORDER, null)
     }
 
     private fun optimizeQuadTreeCapacity() {

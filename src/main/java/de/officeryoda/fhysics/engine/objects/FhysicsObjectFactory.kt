@@ -1,8 +1,8 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.math.Vector2
 import java.util.*
 import kotlin.math.PI
 import kotlin.math.cos

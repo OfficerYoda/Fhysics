@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnColor
@@ -42,7 +42,6 @@ object BetterSceneListener {
     /// =====Custom event handler fields=====
     // The state of the mouse dragging
     private var leftDragging: Boolean = false
-    private var rightDragging: Boolean = false
 
     /**
      * The preview object to spawn
@@ -69,15 +68,21 @@ object BetterSceneListener {
      */
     var polyVertices: MutableList<Vector2> = ArrayList()
 
+    private var pullObject: FhysicsObject? = null // The objects that is being pulled
+    private var pulledRelativePos: Vector2 =
+        Vector2.ZERO // The relative position of the object to the mouse when pulling started
+    private var pulledAtAngle = 0.0f // The angle of the object when pulling started
+
     /// region =====Custom event handlers=====
     private fun onLeftClick() {
-        // Select object if hovered, otherwise spawn object
-        if (hoveredObject != null) {
+        // Don't select object if a polygon is being created
+        if (polyVertices.isEmpty()) {
+            // Select object if hovered, otherwise spawn object
             selectedObject = hoveredObject
-            UIController.instance.expandObjectPropertiesPane()
-            return
-        } else {
-            selectedObject = null
+            if (selectedObject != null) {
+                UIController.instance.expandObjectPropertiesPane()
+                return
+            }
         }
 
         // Handle spawning
@@ -94,9 +99,20 @@ object BetterSceneListener {
         }
     }
 
-    private fun onLeftDrag() {
-        leftDragging = true
+    private fun onLeftDragStart() {
+        // Only pull when no spawn type is selected
+        if (selectedSpawnObjectType != SpawnObjectType.NOTHING) return
 
+        // Find the object under the mouse
+        pullObject = QuadTree.root.query(mousePosWorld) ?: return
+        if (pullObject!!.static) return
+
+        // Save the relative position and angle of the object
+        pulledRelativePos = mousePosWorld - pullObject!!.position
+        pulledAtAngle = pullObject!!.angle
+    }
+
+    private fun onLeftDrag() {
         // Don't create a drag preview if the spawn object type is not a rectangle
         if (selectedSpawnObjectType != SpawnObjectType.RECTANGLE) return
 
@@ -117,32 +133,44 @@ object BetterSceneListener {
         spawnPreview = rect
     }
 
-    private fun onLeftDragRelease() {
-        leftDragging = false
-
+    private fun onLeftDragEnd() {
         when (selectedSpawnObjectType) {
             SpawnObjectType.CIRCLE, SpawnObjectType.RECTANGLE -> spawnPreview()
             SpawnObjectType.POLYGON -> handlePolygonCreation()
             else -> {}
         }
+
+        pullObject = null
     }
 
     private fun onRightDrag() {
-        rightDragging = true
-
         // Move the camera by the amount the mouse is away from the position where the right mouse button was pressed
         val deltaMousePos: Vector2 = rightPressedPosWorld - mousePosWorld
         drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos
         drawer.zoomCenter = drawer.targetZoomCenter
     }
 
-    private fun onRightDragRelease() {
-        rightDragging = false
+    private fun onScroll(direction: Double) {
+        // Zoom in or out based on the scroll direction
+        val zoomFactor: Float = if (direction > 0) 1.1f else 1 / 1.1f
+        drawer.targetZoom *= zoomFactor
+
+        val minZoom: Double = 200.0 / max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height)
+        val maxZoom: Double = max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height) * 2.0
+
+        // Clamp the zoom level
+        drawer.targetZoom = drawer.targetZoom.coerceIn(minZoom, maxZoom)
+
+        // Calculate the difference between the mouse position and the current zoom center
+        val deltaMousePos: Vector2 = mousePosWorld - drawer.targetZoomCenter
+
+        // Adjust the target zoom center to zoom towards the mouse position
+        drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
     }
 
     /// endregion
 
-    /// region =====Helper methods=====
+    /// region =====Other methods=====
     /**
      * Spawns the preview object at the mouse position
      */
@@ -165,6 +193,9 @@ object BetterSceneListener {
         updateSpawnPreview()
     }
 
+    /**
+     * Handles the placement of the polygon vertices and creates the polygon if it's complete
+     */
     private fun handlePolygonCreation() {
         // Create the polygon if the polygon is complete
         if (polyVertices.size > 2 && PolygonCreator.isPolygonValid(polyVertices)) {
@@ -219,110 +250,31 @@ object BetterSceneListener {
         spawnPreview = obj
     }
 
+    /**
+     * Converts a color to an opaque color
+     *
+     * @param color the color to convert
+     * @return the opaque color
+     */
     private fun asOpaqueColor(color: Color): Color {
         return Color(color.red, color.green, color.blue)
     }
 
-    /// endregion
-
-    /// region =====Vanilla event handlers=====
-    fun onMouseWheel(e: ScrollEvent) {
-        // Zoom in or out based on the scroll direction
-        val zoomFactor: Float = if (e.deltaY > 0) 1.1f else 1 / 1.1f
-        drawer.targetZoom *= zoomFactor
-
-        // Clamp the zoom level
-        drawer.targetZoom = drawer.targetZoom.coerceIn(1.0, 200.0)
-
-        // Calculate the difference between the mouse position and the current zoom center
-        val deltaMousePos: Vector2 = mousePosWorld - drawer.targetZoomCenter
-
-        // Adjust the target zoom center to zoom towards the mouse position
-        drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
-    }
-
-    fun onMousePressed(e: MouseEvent) {
-        // Set the pressed position if the specific button was pressed
-        if (!leftPressed && e.isPrimaryButtonDown) {
-            leftPressedPosScreen.set(getMouseScreenPos(e))
-            leftPressedPosWorld.set(mousePosWorld.copy())
-        }
-        if (!rightPressed && e.isSecondaryButtonDown) {
-            rightPressedPosScreen.set(getMouseScreenPos(e))
-            rightPressedPosWorld.set(mousePosWorld.copy())
-        }
-
-        updateMouseButtonState(e)
-    }
-
-    fun onMouseReleased(e: MouseEvent) {
-        if (leftPressed && !e.isPrimaryButtonDown) {
-            // If the mouse wasn't moved too much, it's a click
-            if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
-                onLeftClick()
-            } else {
-                onLeftDragRelease()
-            }
-        }
-        if (rightPressed && !e.isSecondaryButtonDown) {
-            // If the mouse wasn't moved too much, it's a click
-            if ((mousePosScreen - rightPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
-                onRightClick()
-            } else {
-                onRightDragRelease()
-            }
-        }
-
-        updateMouseButtonState(e)
-    }
-
-    fun onMouseMoved(e: MouseEvent) {
-        updateMousePos(e)
-    }
-
-    fun onMouseDragged(e: MouseEvent) {
-        if (leftPressed) {
-            // If the mouse was moved enough, it's a drag
-            if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() > MIN_DRAG_DISTANCE_SQR) {
-                onLeftDrag()
-            }
-        }
-        if (rightPressed) {
-            // If the mouse was moved enough, it's a drag
-            if ((mousePosScreen - rightPressedPosScreen).sqrMagnitude() > MIN_DRAG_DISTANCE_SQR) {
-                onRightDrag()
-            }
-        }
-
-        updateMousePos(e)
-    }
-
     /**
-     * Handles key pressed events
-     *
-     * @param event the key event
+     * Pulls the object that is being pulled by the mouse
      */
-    fun onKeyPressed(event: KeyEvent) {
-        when (event.code) {
-            KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
-            KeyCode.SPACE -> {
-                DebugDrawer.clearDebug()
-                FhysicsCore.update()
-            }
+    fun pullObject() {
+        val obj: FhysicsObject = pullObject ?: return
 
-            KeyCode.ENTER -> {
-                DebugDrawer.clearDebug()
-                FhysicsCore.update()
-            }
+        // Calculate the pull force
+        val pullPoint: Vector2 = obj.position + pulledRelativePos.rotated(obj.angle - pulledAtAngle)
+        val pullForce: Vector2 = mousePosWorld - pullPoint
+        pullForce *= obj.mass
+        pullForce /= 50f
 
-            KeyCode.Z -> drawer.resetZoom()
-            KeyCode.J -> QuadTree.capacity -= 5
-            KeyCode.K -> QuadTree.capacity += 5
-            KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
-            KeyCode.Q -> println(QuadTree.root.objects.forEach { println(it) })
-            KeyCode.S -> println(selectedObject)
-            else -> {}
-        }
+        // Apply the pull force
+        obj.velocity += pullForce * obj.invMass
+        obj.angularVelocity += pullForce.cross(obj.position - pullPoint) * obj.invInertia
     }
 
     /**
@@ -347,6 +299,95 @@ object BetterSceneListener {
         leftPressed = e.isPrimaryButtonDown
         rightPressed = e.isSecondaryButtonDown
     }
+    /// endregion
+
+    /// region =====Vanilla event handlers=====
+    fun onMousePressed(e: MouseEvent) {
+        // Set the pressed position if the specific button was pressed
+        if (!leftPressed && e.isPrimaryButtonDown) {
+            leftPressedPosScreen.set(getMouseScreenPos(e))
+            leftPressedPosWorld.set(mousePosWorld.copy())
+        }
+        if (!rightPressed && e.isSecondaryButtonDown) {
+            rightPressedPosScreen.set(getMouseScreenPos(e))
+            rightPressedPosWorld.set(mousePosWorld.copy())
+        }
+
+        updateMouseButtonState(e)
+    }
+
+    fun onMouseReleased(e: MouseEvent) {
+        if (leftPressed && !e.isPrimaryButtonDown) {
+            // If the mouse wasn't moved too much, it's a click
+            if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
+                onLeftClick()
+            } else {
+                onLeftDragEnd()
+                leftDragging = false
+            }
+        }
+        if (rightPressed && !e.isSecondaryButtonDown) {
+            // If the mouse wasn't moved too much, it's a click
+            if ((mousePosScreen - rightPressedPosScreen).sqrMagnitude() <= MIN_DRAG_DISTANCE_SQR) {
+                onRightClick()
+            }
+        }
+
+        updateMouseButtonState(e)
+    }
+
+    fun onMouseMoved(e: MouseEvent) {
+        updateMousePos(e)
+    }
+
+    fun onMouseDragged(e: MouseEvent) {
+        if (leftPressed) {
+            // If the mouse was moved enough, it's a drag
+            if ((mousePosScreen - leftPressedPosScreen).sqrMagnitude() > MIN_DRAG_DISTANCE_SQR) {
+                if (!leftDragging) {
+                    onLeftDragStart()
+                }
+
+                leftDragging = true
+                onLeftDrag()
+            }
+        }
+        if (rightPressed) {
+            // If the mouse was moved enough, it's a drag
+            if ((mousePosScreen - rightPressedPosScreen).sqrMagnitude() > MIN_DRAG_DISTANCE_SQR) {
+                onRightDrag()
+            }
+        }
+
+        updateMousePos(e)
+    }
+
+    fun onMouseWheel(e: ScrollEvent) {
+        onScroll(e.deltaY)
+    }
+
+    fun onKeyPressed(event: KeyEvent) {
+        when (event.code) {
+            KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
+            KeyCode.SPACE -> {
+                DebugDrawer.clearDebug()
+                FhysicsCore.update()
+            }
+
+            KeyCode.ENTER -> {
+                DebugDrawer.clearDebug()
+                FhysicsCore.update()
+            }
+
+            KeyCode.Z -> drawer.resetZoom()
+            KeyCode.J -> QuadTree.capacity -= 5
+            KeyCode.K -> QuadTree.capacity += 5
+            KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
+            KeyCode.Q -> println(QuadTree.root.objects.forEach { println(it) })
+            KeyCode.S -> println(selectedObject)
+            else -> {}
+        }
+    }
 
     /**
      * Gets the mouse position in screen space
@@ -356,6 +397,5 @@ object BetterSceneListener {
     private fun getMouseScreenPos(e: MouseEvent): Vector2 {
         return Vector2(e.x.toFloat(), e.y.toFloat())
     }
-
     /// endregion
 }

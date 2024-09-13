@@ -2,9 +2,12 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.QuadTree
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionDynamic
+import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionStatic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
 import java.awt.Color
 import kotlin.math.abs
@@ -12,24 +15,36 @@ import kotlin.math.sqrt
 
 object CollisionSolver {
 
-    private val borderObjects: List<BorderEdge> = listOf(
-        BorderEdge(
-            Vector2(1f, 0f), BORDER.x + BORDER.width,
-            Vector2(BORDER.x + BORDER.width, BORDER.y)
-        ),
-        BorderEdge(
-            Vector2(-1f, 0f), BORDER.x,
-            Vector2(BORDER.x, BORDER.y + BORDER.height)
-        ),
-        BorderEdge(
-            Vector2(0f, 1f), BORDER.y + BORDER.height,
-            Vector2(BORDER.x + BORDER.width, BORDER.y + BORDER.height)
-        ),
-        BorderEdge(
-            Vector2(0f, -1f), BORDER.y,
-            Vector2(BORDER.x, BORDER.y)
+    private var borderObjects: Array<BorderEdge> = arrayOf()
+
+    init {
+        updateBorderObjects()
+    }
+
+    fun updateBorderObjects() {
+        borderObjects = arrayOf(
+            BorderEdge( // Right edge
+                Vector2(1f, 0f), BORDER.x + BORDER.width,
+                Vector2(BORDER.x + BORDER.width, BORDER.y)
+            ),
+            BorderEdge( // Left edge
+                Vector2(-1f, 0f), BORDER.x,
+                Vector2(BORDER.x, BORDER.y + BORDER.height)
+            ),
+            BorderEdge( // Top edge
+                Vector2(0f, 1f), BORDER.y + BORDER.height,
+                Vector2(BORDER.x + BORDER.width, BORDER.y + BORDER.height)
+            ),
+            BorderEdge( // Bottom edge
+                Vector2(0f, -1f), BORDER.y,
+                Vector2(BORDER.x, BORDER.y)
+            )
         )
-    )
+
+        // Update the node sizes of the quad tree nodes
+        QuadTree.root.updateNodeSize(-1)
+    }
+
 
     /// region =====Object Collision=====
     /**
@@ -50,6 +65,10 @@ object CollisionSolver {
         val normalForces: ArrayList<Float> =
             solveImpulse(objA, objB, contactPoints, info)
         solveFriction(objA, objB, contactPoints, info, normalForces)
+
+        // Update bounding boxes
+        objA.updateBoundingBox()
+        objB.updateBoundingBox()
     }
 
     /**
@@ -120,7 +139,7 @@ object CollisionSolver {
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
         }
 
-        // Set angular velocity to 0 if it's very small
+        // Set angular velocity to 0 if it's very small (this improves stability)
         if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
         if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
 
@@ -236,8 +255,6 @@ object CollisionSolver {
         val objA: FhysicsObject = info.objA!!
         val objB: FhysicsObject = info.objB!!
 
-        if (objA.static && objB.static) return
-
         val overlap: Vector2 = info.depth * info.normal
 
         if (!objA.static) objA.position -= if (!objB.static) 0.5f * overlap else overlap
@@ -272,6 +289,8 @@ object CollisionSolver {
         collidingBorders.forEach { border: BorderEdge ->
             solveBorderCollision(obj, border)
         }
+
+        obj.updateBoundingBox()
     }
 
     /**
@@ -324,8 +343,8 @@ object CollisionSolver {
             val totalVelocity: Vector2 = obj.velocity + rPerp * obj.angularVelocity
 
             // Continue if the objects are already moving away from each other
-            val contactVelocityMag: Float = -totalVelocity.dot(normal)
-            if (contactVelocityMag > EPSILON) {
+            val velAlongNormal: Float = -totalVelocity.dot(normal)
+            if (velAlongNormal > EPSILON) {
                 normalForces.add(0f)
                 continue
             }
@@ -333,7 +352,7 @@ object CollisionSolver {
             // Calculate the impulse
             val rPerpDotNormal: Float = rPerp.dot(normal)
 
-            var impulseMag: Float = -(1f + e) * contactVelocityMag
+            var impulseMag: Float = -(1f + e) * velAlongNormal
             impulseMag /= obj.invMass +
                     (rPerpDotNormal * rPerpDotNormal) * obj.invInertia
             impulseMag /= contactPoints.size // Distribute the impulse over all contact points
@@ -352,6 +371,9 @@ object CollisionSolver {
             obj.angularVelocity += impulse.cross(contactPoints[i] - obj.position) * obj.invInertia
         }
 
+        // Set angular velocity to 0 if it's very small (this improves stability)
+        if (abs(obj.angularVelocity) < EPSILON) obj.angularVelocity = 0f
+
         return normalForces
     }
 
@@ -369,8 +391,8 @@ object CollisionSolver {
         contactPoints: Array<Vector2>,
         normalForces: ArrayList<Float>,
     ) {
-        val sf: Float = obj.frictionStatic // Coefficient of static friction
-        val df: Float = obj.frictionDynamic // Coefficient of dynamic friction
+        val sf: Float = (borderFrictionStatic + obj.frictionStatic) / 2 // Coefficient of static friction
+        val df: Float = (borderFrictionDynamic + obj.frictionDynamic) / 2// Coefficient of dynamic friction
 
         val frictionList: ArrayList<Vector2> = arrayListOf()
         val normal: Vector2 = border.normal
@@ -426,7 +448,8 @@ object CollisionSolver {
      * @param obj The object to move
      * @return A set of border edges the object is colliding with
      */
-    private fun moveInsideBorder(obj: FhysicsObject): MutableSet<BorderEdge> {
+    fun moveInsideBorder(obj: FhysicsObject): MutableSet<BorderEdge> {
+        // Check for collision with the border
         val collidingBorders: MutableSet<BorderEdge> = mutableSetOf()
         for (border: BorderEdge in borderObjects) {
             val info: CollisionInfo = border.testCollision(obj)

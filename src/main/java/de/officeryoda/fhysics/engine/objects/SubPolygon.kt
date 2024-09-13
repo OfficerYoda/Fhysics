@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.math.Vector2
 
 class SubPolygon(
     position: Vector2,
@@ -19,7 +19,7 @@ class SubPolygon(
 
     override var angle: Float
         get() = parent.angle
-        set(value) = throw Exception("This should never happen: SubPolygon.angle is read-only")
+        set(value) = throw Exception("Cannot set angle of SubPolygon, use parent.angle instead")
 
     override var static: Boolean
         get() = parent.static

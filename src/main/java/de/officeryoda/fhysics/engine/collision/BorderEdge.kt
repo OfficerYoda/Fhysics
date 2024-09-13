@@ -1,13 +1,23 @@
 package de.officeryoda.fhysics.engine.collision
 
-import de.officeryoda.fhysics.engine.Projection
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.math.Projection
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 
 data class BorderEdge(
+    /**
+     * The normal vector of the border edge
+     * Points from the inside to the outside of the border
+     */
     val normal: Vector2,
+    /**
+     * The distance to move from the origin in direction of the normal to reach the border
+     */
     val borderPosition: Float,
-    val edgeCorner: Vector2, // The corner of the border from where the tangent of the normal points towards the center of the edge
+    /**
+     * The corner of the border from where the left perpendicular vector of the normal points towards the center of the edge
+     */
+    val edgeCorner: Vector2,
 ) {
 
     /**

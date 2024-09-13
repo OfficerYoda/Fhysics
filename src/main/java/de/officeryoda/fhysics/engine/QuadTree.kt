@@ -2,6 +2,8 @@ package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
+import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -47,20 +49,22 @@ data class QuadTree(
     }
 
     /// region =====Basic functions=====
-    private fun insert(obj: FhysicsObject) {
-        if (!boundary.overlaps(obj.boundingBox)) return
-        if (objects.contains(obj)) return
+    private fun insert(obj: FhysicsObject): Boolean {
+        if (!(boundary.overlaps(obj.boundingBox) || isRoot)) return false
+        if (objects.contains(obj)) return false
 
         if (!divided && (objects.size < capacity || isMinWidth)) {
             objects.add(obj)
-            return
+            return true
         }
 
+        // Check is necessary because the node could be min width
         if (!divided) {
             divide()
         }
 
         insertInChildren(obj)
+        return true
     }
 
     fun query(pos: Vector2): FhysicsObject? {
@@ -77,10 +81,19 @@ data class QuadTree(
     // Probably should have chosen another name
     private fun insertInChildren(obj: FhysicsObject) {
         // Need to check every Child due to border Objects
-        topLeft!!.insert(obj)
-        topRight!!.insert(obj)
-        botLeft!!.insert(obj)
-        botRight!!.insert(obj)
+        val successfullyInserted: Boolean =
+            topLeft!!.insert(obj) ||
+                    topRight!!.insert(obj)
+                    || botLeft!!.insert(obj)
+                    || botRight!!.insert(obj)
+
+        // If the object was not inserted in any child, move it inside the border and try again
+        // This should only be called if everything else fails
+        if (!successfullyInserted) {
+            CollisionSolver.moveInsideBorder(obj)
+            obj.updateBoundingBox() // Update bounding box since it's used to check if the object is in the boundary
+            insertInChildren(obj)
+        }
     }
 
     private fun divide() {
@@ -112,7 +125,6 @@ data class QuadTree(
         toAdd.forEach { insert(it) }
         toAdd.clear()
     }
-
     /// endregion
 
     /// region =====Rebuild and update functions=====
@@ -139,7 +151,7 @@ data class QuadTree(
             }
         }
 
-        // All objects that are queued for removal are removed
+        // All objects that are queued for removal will be removed at this point
         if (isRoot) {
             removeQueue.clear()
         }
@@ -179,7 +191,7 @@ data class QuadTree(
     private fun addRebuildObject(obj: FhysicsObject) {
         // If the object is still fully in the boundary, or it is the root, add it to the rebuild list
         if (boundary.contains(obj.boundingBox) || isRoot) {
-            // Only need to execute it async if it is the root
+            // Only need to execute it synchronized if it's adding to the root
             if (isRoot) {
                 synchronized(rebuildObjects) {
                     rebuildObjects.add(obj)
@@ -220,7 +232,7 @@ data class QuadTree(
         }
     }
 
-    fun tryDivide() {
+    private fun tryDivide() {
         when {
             divided -> {
                 topLeft!!.tryDivide()
@@ -242,10 +254,9 @@ data class QuadTree(
             botLeft!!.updateObjects()
             botRight!!.updateObjects()
         } else {
-            objects.forEach() { it.update() }
+            objects.forEach { it.update() }
         }
     }
-
     /// endregion
 
     /// region =====Collision functions=====
@@ -286,7 +297,6 @@ data class QuadTree(
             botRight!!.handleCollisions()
         }
     }
-
     /// endregion
 
     /// region =====Drawing functions=====
@@ -301,7 +311,6 @@ data class QuadTree(
 
             UIController.drawBoundingBoxes -> objects.forEach {
                 drawer.drawObject(it)
-                it.boundingBox.setFromFhysicsObject(it) // Bounding boxes are only updated on the start of fhysics updates
                 DebugDrawer.drawBoundingBox(it.boundingBox)
             }
 
@@ -319,7 +328,6 @@ data class QuadTree(
             botRight!!.drawNode(drawer)
         }
     }
-
     /// endregion
 
     /// region =====Async functions=====
@@ -350,7 +358,6 @@ data class QuadTree(
             future.get()
         }
     }
-
     /// endregion
 
     /// region =====Utility functions=====
@@ -391,6 +398,47 @@ data class QuadTree(
         return objectSet.size
     }
 
+    /**
+     * Updates the size of the nodes in the QuadTree
+     * This function is used to update the size of the nodes after the border size has changed
+     * This function should only be called on the root node
+     *
+     * @param nodePos The position of the node relative to its parent
+     * 0: Bottom left, 1: Bottom right, 2: Top left, 3: Top right
+     */
+    fun updateNodeSize(nodePos: Int) {
+        if (isRoot) {
+            updateChildNodeSize()
+            return
+        }
+
+        val parentBounds: BoundingBox = parent!!.boundary
+
+        // Calculate the new size of the node
+        val halfWidth: Float = parentBounds.width / 2f
+        val halfHeight: Float = parentBounds.height / 2f
+
+        val xOffset: Float = (nodePos and 1) * halfWidth
+        val yOffset: Float = ((nodePos and 2) shr 1) * halfHeight
+
+        // Update the boundary of the node
+        boundary.x = parentBounds.x + xOffset
+        boundary.y = parentBounds.y + yOffset
+        boundary.width = halfWidth
+        boundary.height = halfHeight
+
+        updateChildNodeSize()
+    }
+
+    private fun updateChildNodeSize() {
+        if (divided) {
+            botLeft!!.updateNodeSize(0)
+            botRight!!.updateNodeSize(1)
+            topLeft!!.updateNodeSize(2)
+            topRight!!.updateNodeSize(3)
+        }
+    }
+
     override fun toString(): String {
         return if (divided) {
             "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, " +
@@ -399,7 +447,6 @@ data class QuadTree(
             "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, isMinWidth=$isMinWidth)"
         }
     }
-
     /// endregion
 
     companion object {
