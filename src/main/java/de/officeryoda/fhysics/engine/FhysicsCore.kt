@@ -96,7 +96,7 @@ object FhysicsCore {
     }
 
     private fun startUpdateLoop() {
-        val updateIntervalMillis: Int = (1f / UPDATES_PER_SECOND * 1000).toInt()
+        val updateIntervalMillis: Long = (1f / UPDATES_PER_SECOND * 1000).toLong()
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 if (running) {
@@ -105,7 +105,7 @@ object FhysicsCore {
                     RENDER_LOCK.unlock()
                 }
             }
-        }, 0, updateIntervalMillis.toLong())
+        }, 0, updateIntervalMillis)
     }
 
     fun update() {
