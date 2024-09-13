@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.extensions
 
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.math.Vector2
 
 /**
  * Extension functions for Float class related to Vector2 operations.

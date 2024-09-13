@@ -1,12 +1,12 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.dt
-import de.officeryoda.fhysics.engine.Projection
-import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.math.Projection
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.UIController.Companion.damping
 import java.awt.Color
 

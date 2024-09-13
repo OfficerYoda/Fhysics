@@ -1,7 +1,11 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.*
+import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
+import de.officeryoda.fhysics.engine.QuadTree
+import de.officeryoda.fhysics.engine.Stopwatch
+import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.BetterSceneListener.POLYGON_CLOSE_RADIUS
 import de.officeryoda.fhysics.rendering.BetterSceneListener.hoveredObject

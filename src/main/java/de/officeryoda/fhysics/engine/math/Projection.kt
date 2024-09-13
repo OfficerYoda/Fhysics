@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.engine
+package de.officeryoda.fhysics.engine.math
 
 /**
  * Represents a projection of a shape onto an axis

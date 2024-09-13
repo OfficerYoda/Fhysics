@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.engine
+package de.officeryoda.fhysics.engine.math
 
 import kotlin.math.min
 

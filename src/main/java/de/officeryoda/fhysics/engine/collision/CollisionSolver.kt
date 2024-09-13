@@ -3,7 +3,7 @@ package de.officeryoda.fhysics.engine.collision
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.QuadTree
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionDynamic

@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.math.Vector2
 
 class ConcavePolygon(
     vertices: Array<Vector2>,

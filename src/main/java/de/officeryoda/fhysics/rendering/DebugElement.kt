@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.math.Vector2
 import java.awt.Color
 
 abstract class DebugElement(val color: Color, var durationFrames: Int = 240)

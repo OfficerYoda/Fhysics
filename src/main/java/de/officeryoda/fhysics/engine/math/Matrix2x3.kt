@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.engine
+package de.officeryoda.fhysics.engine.math
 
 /**
  * This class is used for the transformation of Vector2 objects.

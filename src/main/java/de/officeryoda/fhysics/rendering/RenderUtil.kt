@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.math.Vector2
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.paint.Paint
 import java.awt.Color

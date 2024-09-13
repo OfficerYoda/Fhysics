@@ -6,8 +6,8 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
-import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
 import de.officeryoda.fhysics.rendering.BetterSceneListener.selectedObject
@@ -20,6 +20,11 @@ import java.awt.Color
 import java.util.*
 import kotlin.math.max
 
+/**
+ * Controller class for the UI.
+ *
+ * Doubles as a data holder for the settings made through the UI.
+ */
 class UIController {
 
     /// region ========Fields========

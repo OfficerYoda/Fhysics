@@ -1,9 +1,9 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.BoundingBox
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.QuadTree
-import de.officeryoda.fhysics.engine.Vector2
+import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.RenderUtil.zoom
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.text.Font

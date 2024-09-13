@@ -1,11 +1,11 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.Projection
-import de.officeryoda.fhysics.engine.Vector2
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.ContactFinder
+import de.officeryoda.fhysics.engine.math.Projection
+import de.officeryoda.fhysics.engine.math.Vector2
 
 class Circle(
     position: Vector2,
