@@ -5,8 +5,8 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
+import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
@@ -319,7 +319,7 @@ class UIController {
     @FXML
     fun onPropertyRemoveClicked() {
         selectedObject?.let {
-            QuadTree.removeQueue.add(it)
+            OldQuadTree.pendingRemovals.add(it)
             selectedObject = null
         }
 
@@ -498,15 +498,15 @@ class UIController {
 
         // Disable manual capacity input if the capacity is being optimized
         txtQuadTreeCapacity.isDisable = optimizeQTCapacity
-        txtQuadTreeCapacity.text = QuadTree.capacity.toString()
+        txtQuadTreeCapacity.text = OldQuadTree.capacity.toString()
     }
 
     @FXML
     fun onQuadTreeCapacityTyped() {
         val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
         if (capacity > 0) {
-            QuadTree.capacity = capacity
-            QuadTree.divideNextUpdate = true
+            OldQuadTree.capacity = capacity
+            OldQuadTree.divideNextUpdate = true
         }
     }
     /// endregion
@@ -624,7 +624,7 @@ class UIController {
         cbQTNodeUtilization.isDisable = !drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
         cbOptimizeQTCapacity.isSelected = optimizeQTCapacity
-        txtQuadTreeCapacity.text = QuadTree.capacity.toString()
+        txtQuadTreeCapacity.text = OldQuadTree.capacity.toString()
 
         restrictToNumericInput(txtQuadTreeCapacity, false)
         /// endregion

@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
@@ -25,7 +26,7 @@ object FhysicsCore {
     const val EPSILON: Float = 1E-4f
 
     // Variables
-    private var quadTree: QuadTree = QuadTree(BORDER, null)
+    private var quadTree: OldQuadTree = OldQuadTree(BORDER, null)
 
     private var objectCount: Int = 0
     var updateCount = 0 // Includes all sub steps
@@ -39,7 +40,7 @@ object FhysicsCore {
     private var framesAtCapacity: Int = 0
     private var stepSize: Double = QTC_START_STEP_SIZE
     private var lastSample: Double = 0.0
-    private var lastCapacity: Int = QuadTree.capacity
+    private var lastCapacity: Int = OldQuadTree.capacity
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
@@ -135,7 +136,7 @@ object FhysicsCore {
     fun update() {
         updateStopwatch.start()
 
-        quadTree.insertObjects()
+        quadTree.insertPendingAdditions()
         quadTree.rebuild()
 
         repeat(SUB_STEPS) {
@@ -154,7 +155,7 @@ object FhysicsCore {
 
     fun spawn(vararg objects: FhysicsObject): Array<out FhysicsObject> {
         for (o: FhysicsObject in objects) {
-            QuadTree.toAdd.add(o)
+            OldQuadTree.pendingAdditions.add(o)
             o.updateBoundingBox()
         }
         return objects
@@ -162,7 +163,7 @@ object FhysicsCore {
 
     fun clear() {
         objectCount = 0
-        quadTree = QuadTree(BORDER, null)
+        quadTree = OldQuadTree(BORDER, null)
     }
 
     private fun optimizeQuadTreeCapacity() {
@@ -170,11 +171,11 @@ object FhysicsCore {
         if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame where the rebuild takes place which takes longer
             val average: Double = updateStopwatch.average()
 
-            qtCapacity[QuadTree.capacity] = average
+            qtCapacity[OldQuadTree.capacity] = average
             val newCapacity: Int = calculateNextQTCapacity()
 
-            lastCapacity = QuadTree.capacity
-            QuadTree.capacity = newCapacity
+            lastCapacity = OldQuadTree.capacity
+            OldQuadTree.capacity = newCapacity
             lastSample = average
             framesAtCapacity = 0
         }
@@ -183,18 +184,18 @@ object FhysicsCore {
     private fun calculateNextQTCapacity(): Int {
         // two samples are needed to calculate the next capacity
         if (qtCapacity.size < 2)
-            return QuadTree.capacity + 5
+            return OldQuadTree.capacity + 5
 
-        val crntSample: Double = qtCapacity[QuadTree.capacity]!!
+        val crntSample: Double = qtCapacity[OldQuadTree.capacity]!!
         // if the capacity is increasing or decreasing
         val valueDir: Int = -(crntSample - lastSample).sign.toInt()
         // if the mspu is increasing or decreasing
-        val capacityDir: Int = (QuadTree.capacity - lastCapacity).sign
+        val capacityDir: Int = (OldQuadTree.capacity - lastCapacity).sign
         // the direction the capacity should change to get closer to the optimal capacity
         val totalDir: Int = valueDir * capacityDir
 
         // calculate the new capacity
-        val newCapacity: Int = QuadTree.capacity + stepSize.toInt() * totalDir
+        val newCapacity: Int = OldQuadTree.capacity + stepSize.toInt() * totalDir
 
         // if a lot of objects got spawned since the last time the stepSize was increased then increase the stepSize again
         if (objectCount - objectsAtStepSizeIncrease > 100) {

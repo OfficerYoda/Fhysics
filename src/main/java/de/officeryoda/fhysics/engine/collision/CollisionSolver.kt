@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
-import de.officeryoda.fhysics.engine.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
@@ -43,7 +43,7 @@ object CollisionSolver {
         )
 
         // Update the node sizes of the quad tree nodes
-        QuadTree.root.updateNodeSize(-1)
+        OldQuadTree.root.updateNodeSize(-1)
     }
 
 
@@ -268,7 +268,7 @@ object CollisionSolver {
             objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia * multi
         }
 
-        // Set angular velocity to 0 if it's very small
+        // Remove small angular velocities (this improves stability)
         if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
         if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
     }
@@ -316,8 +316,6 @@ object CollisionSolver {
         collidingBorders.forEach { border: BorderEdge ->
             solveBorderCollision(obj, border)
         }
-
-        obj.updateBoundingBox()
     }
 
     /**
@@ -489,6 +487,7 @@ object CollisionSolver {
             collidingBorders.add(border)
         }
 
+        obj.updateBoundingBox()
         return collidingBorders
     }
     /// endregion

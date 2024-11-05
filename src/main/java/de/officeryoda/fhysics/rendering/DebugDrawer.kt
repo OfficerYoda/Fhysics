@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.RenderUtil.zoom
@@ -34,7 +34,7 @@ object DebugDrawer {
 
     /// region =====Draw functions=====
     fun drawDebug() {
-        if (UIController.drawQuadTree) QuadTree.root.drawNode(drawer)
+        if (UIController.drawQuadTree) OldQuadTree.root.drawNode(drawer)
         drawDebugPoints()
         drawDebugLines()
         drawDebugVectors()
@@ -132,7 +132,7 @@ object DebugDrawer {
         val stats: MutableList<String> = mutableListOf()
 
         if (UIController.drawQTCapacity)
-            stats.add("QuadTree Capacity: ${QuadTree.capacity}")
+            stats.add("QuadTree Capacity: ${OldQuadTree.capacity}")
 
         if (UIController.drawMSPU) {
             stats.add("MSPU: ${FhysicsCore.updateStopwatch.roundedString()}")
@@ -146,7 +146,7 @@ object DebugDrawer {
         }
 
         if (UIController.drawObjectCount)
-            stats.add("Objects: ${QuadTree.root.countUnique()}")
+            stats.add("Objects: ${OldQuadTree.root.countUnique()}")
 
         if (UIController.drawRenderTime)
             stats.add("Render Time: ${drawer.drawStopwatch.roundedString()}")
@@ -201,7 +201,7 @@ object DebugDrawer {
         if (!UIController.drawQTNodeUtilization) return
 
         // Draw transparent fill
-        val quadTreeCapacity: Int = QuadTree.capacity
+        val quadTreeCapacity: Int = OldQuadTree.capacity
         RenderUtil.setFillColor(
             Color(
                 66,

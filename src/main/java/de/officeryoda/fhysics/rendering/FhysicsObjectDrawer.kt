@@ -2,8 +2,8 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
-import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.Stopwatch
+import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
@@ -149,7 +149,7 @@ class FhysicsObjectDrawer : Application() {
         hoveredObject = checkForHoveredObject()
 
         // Draw the objects
-        QuadTree.root.drawObjects(this)
+        OldQuadTree.root.drawObjects(this)
 
         if (hoveredObject != null) drawObjectPulsing(hoveredObject!!)
         if (selectedObject != null && selectedObject !== hoveredObject) drawObjectPulsing(selectedObject!!)
@@ -355,11 +355,11 @@ class FhysicsObjectDrawer : Application() {
     private fun checkForHoveredObject(): FhysicsObject? {
         // Check if the mouse is still hovering over the object
         val obj: FhysicsObject? =
-            hoveredObject?.takeIf { it.contains(mousePosWorld) && !QuadTree.removeQueue.contains(it) }
-                ?: QuadTree.root.query(mousePosWorld)
+            hoveredObject?.takeIf { it.contains(mousePosWorld) && !OldQuadTree.pendingRemovals.contains(it) }
+                ?: OldQuadTree.root.query(mousePosWorld)
 
         // If the object is in the remove queue, don't return it
-        return obj.takeUnless { QuadTree.removeQueue.contains(it) }
+        return obj.takeUnless { OldQuadTree.pendingRemovals.contains(it) }
     }
 
     fun resetZoom() {
