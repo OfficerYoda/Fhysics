@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.engine.datastructures
 
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.OldQuadTree.Companion.capacity
 import de.officeryoda.fhysics.engine.datastructures.OldQuadTree.Companion.pendingRemovals
@@ -227,4 +228,51 @@ data class QuadTreeNode(
         }
     }
     /// endregion
+
+    /// region =====FhysicsObject related functions=====
+    fun updateFhysicsObjects() {
+        if (divided) {
+            children.forEach { it!!.updateFhysicsObjects() }
+        } else {
+            objects.forEach { it.update() }
+        }
+    }
+
+    fun handleCollisions() {
+        if (divided) {
+            handleCollisionsInChildren()
+            return
+        }
+
+        // Check for border collisions
+        // NOTE: checking for border collisions before object collisions showed better results
+        objects.forEach { CollisionSolver.checkBorderCollision(it) }
+
+        // Find collisions between objects
+        val collisions: MutableList<CollisionInfo> = mutableListOf()
+        for (i: Int in objects.indices) {
+            for (j: Int in i + 1 until objects.size) {
+                val objA: FhysicsObject = objects[i]
+                val objB: FhysicsObject = objects[j]
+
+                val info: CollisionInfo = objA.testCollision(objB)
+                if (info.hasCollision) collisions.add(info)
+            }
+        }
+
+        // Solve collisions between objects
+        collisions.forEach { CollisionSolver.solveCollision(it) }
+    }
+
+    private fun handleCollisionsInChildren() {
+//        if (isRoot) { // TODO: implement async collision handling
+//            // Update root children async
+//            handleCollisionsInChildrenAsync()
+//        } else {
+        children.forEach { it!!.handleCollisions() }
+//        }
+    }
+    /// endregion
+
+
 }

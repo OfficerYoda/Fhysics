@@ -110,7 +110,7 @@ abstract class Polygon(
      *
      * @return The transformed vertices
      */
-    open fun getTransformedVertices(): Array<Vector2> {
+    fun getTransformedVertices(): Array<Vector2> {
         // Create the transformation matrix
         val cos: Float = cos(angle)
         val sin: Float = sin(angle)

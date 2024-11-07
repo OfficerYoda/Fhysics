@@ -33,6 +33,14 @@ class QuadTree {
         root.rebuild()
     }
 
+    fun updateFhysicsObjects() {
+        root.updateFhysicsObjects()
+    }
+
+    fun handleCollisions() {
+        root.handleCollisions()
+    }
+
     companion object {
         val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
 

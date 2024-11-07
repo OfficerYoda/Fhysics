@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.datastructures
 
 import java.util.*
 
-class ObjectPool<T>() {
+class ObjectPool<T> {
 
     private val pool: Stack<T> = Stack()
 

@@ -86,7 +86,7 @@ abstract class FhysicsObject protected constructor(
             field = Math.clamp(value, 0f, 1f)
         }
 
-    open fun update() {
+    fun update() {
         // Static objects don't move
         if (static) return
         // Needed because multiple quadtree nodes can contain the same object
