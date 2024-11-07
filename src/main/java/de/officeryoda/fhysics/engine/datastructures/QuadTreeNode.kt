@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.OldQuadTree.Companion.capacity
+import de.officeryoda.fhysics.engine.datastructures.OldQuadTree.Companion.pendingRemovals
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
@@ -20,6 +21,8 @@ data class QuadTreeNode(
     // Child nodes
     private val children: Array<QuadTreeNode?> = arrayOfNulls(4)
 
+    private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
+
     /// region =====Basic functions=====
     fun query(pos: Vector2): FhysicsObject? {
         if (!boundary.contains(pos)) return null
@@ -33,24 +36,28 @@ data class QuadTreeNode(
     }
 
     fun insert(obj: FhysicsObject): Boolean {
-        if (!(boundary.overlaps(obj.boundingBox) || isRoot)) return false
-        if (objects.contains(obj)) return false
+        when {
+            // Insert if the object is in the boundary or if it's the root node
+            !(boundary.overlaps(obj.boundingBox) || isRoot) -> return false
 
-        if (!divided && (objects.size < capacity || isMinWidth)) {
-            objects.add(obj)
-            return true
-        }
+            // Check if the object is already in the node
+            objects.contains(obj) -> return false
 
-        // Check is necessary because the node could be min width // TODO: ??
-        if (!divided) {
-            divide()
+            !divided && (objects.size < capacity || isMinWidth) -> {
+                objects.add(obj)
+                return true
+            }
+
+            !divided -> {
+                divide()
+            }
         }
 
         insertInChildren(obj)
         return true
     }
 
-    // Probably should have chosen another name
+    // Probably should've chosen another name
     private fun insertInChildren(obj: FhysicsObject) {
         // Need to check every Child due to border Objects
         val successfullyInserted: Boolean = children.any { it?.insert(obj) == true }
@@ -101,4 +108,123 @@ data class QuadTreeNode(
             this.parent = this@QuadTreeNode
         }
     }
+    /// endregion
+
+    /// region =====Rebuild functions=====
+    fun rebuild() {
+        if (divided) {
+            // Rebuild the children first
+            rebuildChildren()
+            // Insert any objects that need to be reinserted
+            handleRebuildObjects()
+            // Collapse the node if possible
+            tryCollapse()
+        } else {
+            if (isRoot) {
+                // Remove objects that are queued for removal
+                objects.removeAll(pendingRemovals)
+            } else {
+                removeInvalidObjects()
+            }
+        }
+
+        // All objects that are queued for removal will be removed at this point
+        if (isRoot) {
+            pendingRemovals.clear()
+        }
+    }
+
+    private fun rebuildChildren() {
+//        if (isRoot) { // TODO: implement async rebuild
+//            // Update root children async
+//            rebuildChildrenAsync()
+//        } else {
+        // Update children synchronously
+        children.forEach { it!!.rebuild() }
+//        }
+    }
+
+    private fun handleRebuildObjects() {
+        for (obj: FhysicsObject in rebuildObjects) {
+            // If the object is still fully in the boundary, or it is the root, insert it
+            if (boundary.contains(obj.boundingBox) || isRoot) {
+                insert(obj)
+            } else {
+                addRebuildObjectToParent(obj)
+            }
+        }
+        rebuildObjects.clear()
+    }
+
+    private fun addRebuildObjectToParent(obj: FhysicsObject) {
+        if (parent!!.isRoot) {
+            // root children are rebuild async
+            synchronized(parent!!.rebuildObjects) {
+                parent!!.rebuildObjects.add(obj)
+            }
+        } else {
+            parent!!.rebuildObjects.add(obj)
+        }
+    }
+
+    private fun removeInvalidObjects() {
+        val toRemove = mutableListOf<FhysicsObject>()
+
+        for (obj: FhysicsObject in objects) {
+            if (pendingRemovals.contains(obj)) {
+                toRemove.add(obj)
+                continue
+            }
+
+            // If an object is not within the boundary, add the object to the parent's rebuild list and the removal list
+            if (!boundary.contains(obj.boundingBox)) {
+                parent!!.addRebuildObject(obj)
+                toRemove.add(obj)
+            }
+        }
+
+        objects.removeAll(toRemove)
+    }
+
+    private fun addRebuildObject(obj: FhysicsObject) {
+        // If the object is still fully in the boundary, or it is the root, add it to the rebuild list
+        if (boundary.contains(obj.boundingBox) || isRoot) {
+            // Only need to execute it synchronized if it's adding to the root
+            if (isRoot) {
+                synchronized(rebuildObjects) {
+                    rebuildObjects.add(obj)
+                }
+            } else {
+                rebuildObjects.add(obj)
+            }
+        } else {
+            // If the object is not within the boundary, add the object to the parent's rebuild list
+            parent!!.addRebuildObject(obj)
+        }
+    }
+
+    fun tryDivide() {
+        when {
+            divided -> children.forEach { it!!.tryDivide() }
+            objects.size > capacity -> divide()
+        }
+    }
+
+    private fun tryCollapse() {
+        if (!divided) return
+
+        // This doesn't take object on the edges into account, but it should be fine
+        val objectsInChildren: Int = children.sumOf { it!!.objects.size }
+        if (objectsInChildren <= capacity) {
+            divided = false
+            // Add every child object to the parent
+            // Use a Set to prevent duplicates due to objects on edges being in multiple children
+            val objectsSet: HashSet<FhysicsObject> = HashSet()
+            objectsSet.addAll(rebuildObjects)
+            children.forEach { objectsSet.addAll(it!!.objects) }
+
+            objects.addAll(objectsSet)
+        }
+    }
+    /// endregion
 }
