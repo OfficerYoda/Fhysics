@@ -1,22 +1,48 @@
 package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.datastructures.OldQuadTree.Companion.divideNextUpdate
+import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import java.util.concurrent.Executors
 
-class QuadTree {
+object QuadTree {
 
-    private val root: QuadTreeNode = QuadTreeNode(FhysicsCore.BORDER, null)
+    // Capacity of the tree
+    var capacity: Int = 32
+        set(value) {
+            field = value.coerceAtLeast(1)
+        }
+
+    // Pool of nodes to prevent excessive object creation
+    private val nodePool: ObjectPool<QuadTreeNode> = ObjectPool()
+
+    // Thread pool for parallelizing the tree processes
+    private val threadPool = Executors.newFixedThreadPool(4)
+
+    // List of objects to add, used to queue up insertions and prevent concurrent modification
+    private val pendingAdditions: MutableList<FhysicsObject> = ArrayList()
+
+    // Set of objects to remove, used to mark objects for deletion safely
+    private val pendingRemovals: MutableSet<FhysicsObject> = HashSet()
+
+    // Used to prevent concurrent modification exceptions
+    var divideNextUpdate: Boolean = false
+
+    // The root node of the tree
+    private var root: QuadTreeNode = QuadTreeNode(FhysicsCore.BORDER, null)
 
     fun query(pos: Vector2): FhysicsObject? {
         return root.query(pos)
     }
 
     fun insert(obj: FhysicsObject) {
-        root.insert(obj)
+        pendingAdditions.add(obj)
+    }
+
+    fun remove(obj: FhysicsObject) {
+        pendingRemovals.add(obj)
     }
 
     fun insertPendingAdditions() {
@@ -32,6 +58,10 @@ class QuadTree {
         }
 
         root.rebuild()
+    }
+
+    fun clear() {
+        root = QuadTreeNode(FhysicsCore.BORDER, null)
     }
 
     fun updateFhysicsObjects() {
@@ -54,16 +84,31 @@ class QuadTree {
         root.updateNodeSizes(isTop = true, isLeft = true)
     }
 
-    companion object {
-        val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+    fun getNodeFromPool(): QuadTreeNode {
+        // TODO: Check if the node pool is working correctly
+        // Try to get a node from the pool, if it's null, create a new one
+        return nodePool.borrowObject() ?: QuadTreeNode(BoundingBox(0f, 0f, 0f, 0f), null)
+    }
 
-        // Pool of nodes to prevent excessive object creation
-        val nodePool: ObjectPool<QuadTreeNode> = ObjectPool()
+    fun addNodeToPool(node: QuadTreeNode) {
+        node.clear()
+        nodePool.returnObject(node)
+    }
 
-        // List of objects to add, used to queue up insertions and prevent concurrent modification
-        val pendingAdditions: MutableList<FhysicsObject> = ArrayList()
+    fun getObjectCount(): Int {
+        return root.countUnique()
+    }
 
-        // Set of objects to remove, used to mark objects for deletion safely
-        val pendingRemovals: MutableSet<FhysicsObject> = HashSet()
+    fun getPendingRemovals(): MutableSet<FhysicsObject> {
+        return pendingRemovals
+    }
+
+    fun shutdownThreadPool() {
+        println("Shutting down thread pool")
+        threadPool.shutdownNow()
+    }
+
+    override fun toString(): String {
+        return root.toString()
     }
 }

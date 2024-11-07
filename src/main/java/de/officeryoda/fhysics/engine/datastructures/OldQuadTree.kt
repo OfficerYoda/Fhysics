@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
-data class OldQuadTree(
+private data class OldQuadTree(
     private val boundary: BoundingBox,
     private val parent: OldQuadTree?,
 ) {
@@ -81,6 +81,7 @@ data class OldQuadTree(
     // Probably should have chosen another name
     private fun insertInChildren(obj: FhysicsObject) {
         // Need to check every Child due to border Objects
+        // This has a bug where the object isn't inserted in multiple children if it's on the border
         val successfullyInserted: Boolean =
             topLeft!!.insert(obj)
                     || topRight!!.insert(obj)
@@ -468,6 +469,5 @@ data class OldQuadTree(
 
         // Set of objects to remove, used to mark objects for deletion safely
         val pendingRemovals: MutableSet<FhysicsObject> = HashSet()
-
     }
 }

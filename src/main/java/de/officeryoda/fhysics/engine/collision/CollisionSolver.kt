@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
-import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
@@ -43,7 +43,7 @@ object CollisionSolver {
         )
 
         // Update the node sizes of the quad tree nodes
-        OldQuadTree.root.updateNodeSize(-1)
+        QuadTree.updateNodeSizes()
     }
 
 
@@ -115,10 +115,6 @@ object CollisionSolver {
 
         // If multi is 0, the collision will not have effect on the angular velocity
         val multi: Float = if (abs(totalA) < EPSILON || abs(totalB) < EPSILON) 0f else 1f
-
-        println("Total A: $totalA")
-        println("Total B: $totalB")
-        println("Multi: $multi")
 
         // Calculate the impulses for each contact point
         for (contactPoint: Vector2 in contactPoints) {

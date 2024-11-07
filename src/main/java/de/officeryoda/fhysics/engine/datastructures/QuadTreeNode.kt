@@ -2,8 +2,8 @@ package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
-import de.officeryoda.fhysics.engine.datastructures.OldQuadTree.Companion.capacity
-import de.officeryoda.fhysics.engine.datastructures.OldQuadTree.Companion.pendingRemovals
+import de.officeryoda.fhysics.engine.datastructures.QuadTree.capacity
+import de.officeryoda.fhysics.engine.datastructures.QuadTree.getPendingRemovals
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
@@ -15,17 +15,21 @@ data class QuadTreeNode(
     private var boundary: BoundingBox,
     private var parent: QuadTreeNode?,
 ) {
-
     // Objects in this node
     val objects: MutableList<FhysicsObject> = ArrayList()
-    private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite division
-    private val isRoot: Boolean = parent == null
-    private var divided: Boolean = true
+
+    // Objects that need to be reinserted after the node has been rebuilt
+    private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
 
     // Child nodes
     private val children: Array<QuadTreeNode?> = arrayOfNulls(4)
 
-    private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
+    private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite division
+    private var isRoot: Boolean = parent == null
+    private var divided: Boolean = false
+
+    private val pendingRemovals: MutableSet<FhysicsObject>
+        get() = getPendingRemovals()
 
     /// region =====Basic functions=====
     fun query(pos: Vector2): FhysicsObject? {
@@ -59,6 +63,7 @@ data class QuadTreeNode(
     // Probably should've chosen another name
     private fun insertInChildren(obj: FhysicsObject) {
         // Need to check every Child due to border Objects
+        // TODO: Check if this has a bug where objects on edges aren't inserted into multiple children
         val successfullyInserted: Boolean = children.any { it!!.insert(obj) }
 
         // If the object was not inserted in any child, move it inside the border and try again
@@ -68,7 +73,8 @@ data class QuadTreeNode(
             System.err.println("Object could not be inserted in any child node")
             CollisionSolver.moveInsideBorder(obj)
             obj.updateBoundingBox() // Update bounding box since it's used to check if the object is in the boundary
-            insertInChildren(obj)
+            val parent: QuadTreeNode = if (isRoot) this else parent!!
+            parent.insertInChildren(obj)
         }
     }
 
@@ -98,16 +104,12 @@ data class QuadTreeNode(
     }
 
     private fun getNewNode(boundary: BoundingBox): QuadTreeNode {
-        // TODO: Check if the node pool is working correctly
-        // Try to get a node from the pool, if it's null, create a new one
-        return QuadTree.nodePool.getObject()?.apply {
-            this.boundary = boundary
-            this.parent = this@QuadTreeNode
-        } ?: QuadTreeNode(boundary, this).apply {
-            this.boundary = boundary
-            this.parent = this@QuadTreeNode
-        }
+        val node: QuadTreeNode = QuadTree.getNodeFromPool()
+        // Assign new boundary and parent
+        node.initialize(boundary, this)
+        return node
     }
+
     /// endregion
 
     /// region =====Rebuild functions=====
@@ -168,7 +170,7 @@ data class QuadTreeNode(
     }
 
     private fun removeInvalidObjects() {
-        val toRemove = mutableListOf<FhysicsObject>()
+        val toRemove: MutableList<FhysicsObject> = mutableListOf()
 
         for (obj: FhysicsObject in objects) {
             if (pendingRemovals.contains(obj)) {
@@ -215,16 +217,21 @@ data class QuadTreeNode(
 
         // This doesn't take object on the edges into account, but it should be fine
         val objectsInChildren: Int = children.sumOf { it!!.objects.size }
-        if (objectsInChildren <= capacity) {
-            divided = false
-            // Add every child object to the parent
-            // Use a Set to prevent duplicates due to objects on edges being in multiple children
-            val objectsSet: HashSet<FhysicsObject> = HashSet()
-            objectsSet.addAll(rebuildObjects)
-            children.forEach { objectsSet.addAll(it!!.objects) }
+        if (objectsInChildren > capacity) return
 
-            objects.addAll(objectsSet)
-        }
+        // Collapse the children
+        divided = false
+        // Add every child object to the parent
+        // Use a Set to prevent duplicates due to objects on edges being in multiple children
+        val objectsSet: HashSet<FhysicsObject> = HashSet()
+        objectsSet.addAll(rebuildObjects)
+        children.forEach { objectsSet.addAll(it!!.objects) }
+
+        // Add the children's objects to the parent
+        objects.addAll(objectsSet)
+
+        // Add the unused children to the pool
+        children.forEach { QuadTree.addNodeToPool(it!!) }
     }
     /// endregion
 
@@ -297,6 +304,20 @@ data class QuadTreeNode(
     /// endregion
 
     /// region =====Utility functions=====
+    // Called when the object is retrieved from the pool
+    private fun initialize(boundary: BoundingBox, parent: QuadTreeNode?) {
+        this.boundary = boundary
+        this.parent = parent
+        this.isRoot = parent == null
+        this.divided = false
+    }
+
+    // Called when the node is pooled
+    fun clear() {
+        objects.clear()
+        rebuildObjects.clear()
+    }
+
     /**
      * Counts the objects in this QuadTree node and its children
      *
@@ -372,6 +393,15 @@ data class QuadTreeNode(
         children[1]!!.updateNodeSizes(isTop = true, isLeft = false) // Top right
         children[2]!!.updateNodeSizes(isTop = false, isLeft = true)  // Bottom left
         children[3]!!.updateNodeSizes(isTop = false, isLeft = false) // Bottom right
+    }
+
+    override fun toString(): String {
+        return if (divided) {
+            "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, " +
+                    "divided=true, isMinWidth=$isMinWidth, \n\ttopLeft=${children[0]}, \n\ttopRight=${children[1]}, \n\tbotLeft=${children[2]}, \n\tbotRight=${children[3]})"
+        } else {
+            "QuadTree(boundary=$boundary, capacity=$capacity, objects.size=${objects.size}, divided=false, isMinWidth=$isMinWidth)"
+        }
     }
     /// endregion
 }

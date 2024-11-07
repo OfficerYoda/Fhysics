@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import javafx.animation.AnimationTimer
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartPanel
@@ -35,7 +35,7 @@ class CapacityDiagram(private val map: MutableMap<Int, Double>) : JFrame("Map Vi
         val dataset = createDataset()
 
         val chart = ChartFactory.createLineChart(
-            "Current Capacity: ${OldQuadTree.capacity}",
+            "Current Capacity: ${QuadTree.capacity}",
             "Capacity",
             "Average MSPU",
             dataset

@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 
 // needs to be run with special VM options
 // see https://www.youtube.com/watch?v=hS_6ek9rTco&ab_channel=BoostMyTool
@@ -13,7 +13,7 @@ fun main() {
     // Better safe than sorry
     Runtime.getRuntime().addShutdownHook(Thread {
         try {
-            OldQuadTree.root.shutdownThreadPool()
+            QuadTree.shutdownThreadPool()
         } catch (_: Exception) {
         }
     })

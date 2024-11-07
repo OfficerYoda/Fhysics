@@ -6,7 +6,7 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
-import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
@@ -319,7 +319,7 @@ class UIController {
     @FXML
     fun onPropertyRemoveClicked() {
         selectedObject?.let {
-            OldQuadTree.pendingRemovals.add(it)
+            QuadTree.remove(it)
             selectedObject = null
         }
 
@@ -498,15 +498,15 @@ class UIController {
 
         // Disable manual capacity input if the capacity is being optimized
         txtQuadTreeCapacity.isDisable = optimizeQTCapacity
-        txtQuadTreeCapacity.text = OldQuadTree.capacity.toString()
+        txtQuadTreeCapacity.text = QuadTree.capacity.toString()
     }
 
     @FXML
     fun onQuadTreeCapacityTyped() {
         val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
         if (capacity > 0) {
-            OldQuadTree.capacity = capacity
-            OldQuadTree.divideNextUpdate = true
+            QuadTree.capacity = capacity
+            QuadTree.divideNextUpdate = true
         }
     }
     /// endregion
@@ -624,7 +624,7 @@ class UIController {
         cbQTNodeUtilization.isDisable = !drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
         cbOptimizeQTCapacity.isSelected = optimizeQTCapacity
-        txtQuadTreeCapacity.text = OldQuadTree.capacity.toString()
+        txtQuadTreeCapacity.text = QuadTree.capacity.toString()
 
         restrictToNumericInput(txtQuadTreeCapacity, false)
         /// endregion
@@ -721,9 +721,9 @@ class UIController {
         /// endregion
 
         /// region =====Forces=====
-        var gravityType: GravityType = GravityType.DIRECTIONAL
+        var gravityType: GravityType = GravityType.TOWARDS_POINT
             private set
-        val gravityDirection: Vector2 = Vector2(0.0f, -0.0f)
+        val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
         val gravityPoint: Vector2 = Vector2( // Default: The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
@@ -746,7 +746,7 @@ class UIController {
         /// endregion
 
         /// region =====QuadTree=====
-        var drawQuadTree: Boolean = false
+        var drawQuadTree: Boolean = true
             private set
         var drawQTNodeUtilization: Boolean = true
             private set
@@ -755,17 +755,17 @@ class UIController {
         /// endregion
 
         /// region =====Debug=====
-        var drawBoundingBoxes: Boolean = false
+        var drawBoundingBoxes: Boolean = true
             private set
         var drawSubPolygons: Boolean = true
             private set
-        var drawQTCapacity: Boolean = false
+        var drawQTCapacity: Boolean = true
             private set
         var drawMSPU: Boolean = true
             private set
         var drawUPS: Boolean = false
             private set
-        var drawObjectCount: Boolean = false
+        var drawObjectCount: Boolean = true
             private set
         var drawRenderTime: Boolean = false
             private set

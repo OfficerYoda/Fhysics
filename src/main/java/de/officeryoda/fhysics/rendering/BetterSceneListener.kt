@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.datastructures.OldQuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
@@ -104,7 +104,7 @@ object BetterSceneListener {
         if (selectedSpawnObjectType != SpawnObjectType.NOTHING) return
 
         // Find the object under the mouse
-        pullObject = OldQuadTree.root.query(mousePosWorld) ?: return
+        pullObject = QuadTree.query(mousePosWorld) ?: return
         if (pullObject!!.static) return
 
         // Save the relative position and angle of the object
@@ -379,11 +379,13 @@ object BetterSceneListener {
                 FhysicsCore.update()
             }
 
+            KeyCode.Q -> println(QuadTree.toString())
             KeyCode.Z -> drawer.resetZoom()
-            KeyCode.J -> OldQuadTree.capacity -= 5
-            KeyCode.K -> OldQuadTree.capacity += 5
+            KeyCode.H -> QuadTree.capacity -= 5
+            KeyCode.J -> QuadTree.capacity -= 1
+            KeyCode.K -> QuadTree.capacity += 1
+            KeyCode.L -> QuadTree.capacity += 5
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
-            KeyCode.Q -> println(OldQuadTree.root.objects.forEach { println(it) })
             KeyCode.S -> println(selectedObject)
             else -> {}
         }
