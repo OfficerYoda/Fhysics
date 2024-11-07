@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.datastructures.OldQuadTree.Companion.divideNextUpdate
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import java.util.concurrent.Executors
 
 class QuadTree {
@@ -39,6 +40,18 @@ class QuadTree {
 
     fun handleCollisions() {
         root.handleCollisions()
+    }
+
+    fun drawObjects(drawer: FhysicsObjectDrawer) {
+        root.drawObjects(drawer)
+    }
+
+    fun drawNodes(drawer: FhysicsObjectDrawer) {
+        root.drawNode(drawer)
+    }
+
+    fun updateNodeSizes() {
+        root.updateNodeSizes(isTop = true, isLeft = true)
     }
 
     companion object {

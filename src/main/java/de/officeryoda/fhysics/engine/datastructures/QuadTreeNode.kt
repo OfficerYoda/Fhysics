@@ -7,6 +7,9 @@ import de.officeryoda.fhysics.engine.datastructures.OldQuadTree.Companion.pendin
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.rendering.DebugDrawer
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import de.officeryoda.fhysics.rendering.UIController
 
 data class QuadTreeNode(
     private var boundary: BoundingBox,
@@ -26,14 +29,11 @@ data class QuadTreeNode(
 
     /// region =====Basic functions=====
     fun query(pos: Vector2): FhysicsObject? {
-        if (!boundary.contains(pos)) return null
-
-        if (divided) {
-            return children.firstNotNullOfOrNull { it?.query(pos) }
+        return when {
+            !boundary.contains(pos) -> null
+            divided -> children.firstNotNullOfOrNull { it!!.query(pos) }
+            else -> objects.firstOrNull { it.contains(pos) }
         }
-
-        // Check if any object in the node contains the position
-        return objects.firstOrNull { it.contains(pos) }
     }
 
     fun insert(obj: FhysicsObject): Boolean {
@@ -49,9 +49,7 @@ data class QuadTreeNode(
                 return true
             }
 
-            !divided -> {
-                divide()
-            }
+            !divided -> divide()
         }
 
         insertInChildren(obj)
@@ -61,7 +59,7 @@ data class QuadTreeNode(
     // Probably should've chosen another name
     private fun insertInChildren(obj: FhysicsObject) {
         // Need to check every Child due to border Objects
-        val successfullyInserted: Boolean = children.any { it?.insert(obj) == true }
+        val successfullyInserted: Boolean = children.any { it!!.insert(obj) }
 
         // If the object was not inserted in any child, move it inside the border and try again
         // This should only be called if everything else fails
@@ -101,7 +99,8 @@ data class QuadTreeNode(
 
     private fun getNewNode(boundary: BoundingBox): QuadTreeNode {
         // TODO: Check if the node pool is working correctly
-        return QuadTree.nodePool.getInstance()?.apply {
+        // Try to get a node from the pool, if it's null, create a new one
+        return QuadTree.nodePool.getObject()?.apply {
             this.boundary = boundary
             this.parent = this@QuadTreeNode
         } ?: QuadTreeNode(boundary, this).apply {
@@ -275,4 +274,104 @@ data class QuadTreeNode(
     /// endregion
 
 
+    /// region =====Drawing functions=====
+    fun drawObjects(drawer: FhysicsObjectDrawer) {
+        when {
+            divided -> children.forEach { it!!.drawObjects(drawer) }
+            UIController.drawBoundingBoxes -> objects.forEach {
+                drawer.drawObject(it)
+                DebugDrawer.drawBoundingBox(it.boundingBox)
+            }
+
+            else -> objects.forEach { drawer.drawObject(it) }
+        }
+    }
+
+    fun drawNode(drawer: FhysicsObjectDrawer) {
+        if (divided) {
+            children.forEach { it!!.drawNode(drawer) }
+        } else {
+            DebugDrawer.transformAndDrawQuadTreeNode(boundary, objects.size)
+        }
+    }
+    /// endregion
+
+    /// region =====Utility functions=====
+    /**
+     * Counts the objects in this QuadTree node and its children
+     *
+     * This function will count the same object multiple times if it is in multiple nodes
+     * For counting unique objects, use [countUnique]
+     *
+     * @return The amount of objects in the QuadTree
+     */
+    private fun count(): Int {
+        return if (divided) {
+            children.sumOf { it!!.count() }
+        } else {
+            objects.size
+        }
+    }
+
+    /**
+     * Counts the unique objects in this QuadTree node and its children
+     *
+     * Unlike the [count] function, this function will not count the same object multiple times
+     *
+     * @param objectSet The set which is used for counting
+     * @return The amount of unique objects in the QuadTree
+     */
+    fun countUnique(objectSet: MutableSet<FhysicsObject> = HashSet()): Int {
+        if (divided) {
+            children.forEach { it!!.countUnique(objectSet) }
+        } else {
+            objectSet.addAll(objects)
+        }
+
+        return objectSet.size
+    }
+
+    /**
+     * Updates the size of the nodes in the QuadTree
+     *
+     * This function is used to update the size of the nodes after the border size has changed
+     * This function should only be called on the root node
+     *
+     * @param isTop If the node is at the top
+     * @param isLeft If the node is at the left
+     */
+    fun updateNodeSizes(isTop: Boolean, isLeft: Boolean) {
+        if (isRoot) {
+            // root scales automatically with the border
+            updateChildrenNodeSizes()
+            return
+        }
+
+        val parentBounds: BoundingBox = parent!!.boundary
+
+        // Calculate the new size of the node
+        val halfWidth: Float = parentBounds.width / 2f
+        val halfHeight: Float = parentBounds.height / 2f
+
+        val xOffset: Float = if (isLeft) 0f else halfWidth
+        val yOffset: Float = if (isTop) halfHeight else 0f
+
+        // Update the boundary of the node
+        boundary.x = parentBounds.x + xOffset
+        boundary.y = parentBounds.y + yOffset
+        boundary.width = halfWidth
+        boundary.height = halfHeight
+
+        updateChildrenNodeSizes()
+    }
+
+    private fun updateChildrenNodeSizes() {
+        if (!divided) return
+
+        children[0]!!.updateNodeSizes(isTop = true, isLeft = true) // Top left
+        children[1]!!.updateNodeSizes(isTop = true, isLeft = false) // Top right
+        children[2]!!.updateNodeSizes(isTop = false, isLeft = true)  // Bottom left
+        children[3]!!.updateNodeSizes(isTop = false, isLeft = false) // Bottom right
+    }
+    /// endregion
 }
