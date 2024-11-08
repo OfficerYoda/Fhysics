@@ -4,13 +4,18 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import java.util.*
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
+import kotlin.random.Random.Default as KtRandom
 
 object FhysicsObjectFactory {
+
     private val RANDOM: Random = Random()
 
+    /**
+     * Generates a random circle with a random position, radius, and velocity.
+     *
+     * @return A random circle.
+     */
     fun randomCircle(): Circle {
         val radius: Float = RANDOM.nextFloat(0.2f, 0.4f)
         val pos: Vector2 = randomPosInsideBounds(buffer = radius)
@@ -21,6 +26,11 @@ object FhysicsObjectFactory {
         return circle
     }
 
+    /**
+     * Generates a random rectangle with a random position, width, height, rotation, and velocity.
+     *
+     * @return A random rectangle.
+     */
     fun randomRectangle(): Rectangle {
         val width: Float = RANDOM.nextFloat(1.0f, 10.0f)
         val height: Float = RANDOM.nextFloat(1.0f, 10.0f)
@@ -33,88 +43,140 @@ object FhysicsObjectFactory {
         return rect
     }
 
+    /**
+     * Generates a random polygon with a random position and velocity.
+     *
+     * @return A random polygon.
+     */
     fun randomPolygon(): Polygon {
-        var vertices: MutableList<Vector2>
-        val numVertices: Int = RANDOM.nextInt(4, 6)
+        val center: Vector2 = randomPosInsideBounds(0.0f)
+        val avgRadius: Float = RANDOM.nextFloat(1.0f, 5.0f)
+        val irregularity: Float = RANDOM.nextFloat(0.0f, 1.0f)
+        val spikiness: Float = RANDOM.nextFloat(0.0f, 1.0f)
+        val numVertices: Int = RANDOM.nextInt(3, 10)
 
-        do {
-            vertices = mutableListOf()
+        val points: Array<Vector2> =
+            generatePolygon(center, avgRadius, irregularity, spikiness, numVertices).toTypedArray()
+        // Creating the polygon can hang the application, TODO: use a timeout
+        val polygon: Polygon = PolygonCreator.createPolygon(points)
 
-            // Generate random angles
-            val angles: List<Float> = List(numVertices) { RANDOM.nextFloat(2 * PI.toFloat()) }
-            // Sort the angles in ascending order
-            val sortedAngles: List<Float> = angles.sorted()
+        polygon.position.set(randomPosInsideBounds(avgRadius + avgRadius * spikiness))
+        polygon.velocity += randomVector2(-10.0f, 10.0f)
 
-            // Generate vertices using the sorted angles
-            for (angle: Float in sortedAngles) {
-                val x: Float = cos(angle) * RANDOM.nextFloat(-10f, 10f)
-                val y: Float = sin(angle) * RANDOM.nextFloat(-10f, 10f)
-                vertices.add(Vector2(x, y))
-            }
-            // Check if the generated polygon is concave
-            val isValid: Boolean = PolygonCreator.isPolygonValid(vertices)
-        } while (!isValid) // Repeat until a valid polygon is generated
-
-        val pos: Vector2 = randomPosInsideBounds(5f)
-        val poly: Polygon = PolygonCreator.createPolygon(vertices.map { it + pos }.toTypedArray())
-        poly.velocity.set(randomVector2(-10.0f, 10.0f))
-
-        return poly
+        return polygon
     }
 
-    fun randomConcavePolygon(): Polygon {
-        // Generate 15 random Points
+    /**
+     * Generates a polygon by sampling points on a circle around a center.
+     * Random noise is added by varying the angular spacing between sequential points,
+     * and by varying the radial distance of each point from the center.
+     *
+     * @param center The center of the circumference used to generate the polygon.
+     * @param avgRadius The average radius (distance of each generated vertex to the center of the circumference).
+     * @param irregularity Variance of the spacing of the angles between consecutive vertices.
+     * @param spikiness Variance of the distance of each vertex to the center of the circumference.
+     * @param numVertices The number of vertices of the polygon.
+     * @return A list of vertices in counter-clockwise (CCW) order.
+     * @throws IllegalArgumentException If the irregularity or spikiness values are outside the valid range [0, 1].
+     *
+     * @author <a href="https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon">StackOverflow</a>
+     */
+    private fun generatePolygon(
+        center: Vector2,
+        avgRadius: Float,
+        irregularity: Float,
+        spikiness: Float,
+        numVertices: Int,
+    ): List<Vector2> {
+        // Parameter check
+        if (irregularity < 0 || irregularity > 1) {
+            throw IllegalArgumentException("Irregularity must be between 0 and 1.")
+        }
+        if (spikiness < 0 || spikiness > 1) {
+            throw IllegalArgumentException("Spikiness must be between 0 and 1.")
+        }
+
+        val adjustedIrregularity: Double = irregularity * 2 * Math.PI / numVertices
+        val adjustedSpikiness: Float = spikiness * avgRadius
+        val angleSteps: List<Double> = randomAngleSteps(numVertices, adjustedIrregularity)
+
         val points: MutableList<Vector2> = mutableListOf()
-        for (i: Int in 0 until 15) {
-            points.add(randomVector2(-5f, 5f))
+        var angle: Double = KtRandom.nextDouble(0.0, 2 * Math.PI)
+
+        for (i: Int in 0 until numVertices) {
+            val radius: Float = clip(nextGaussian(avgRadius, adjustedSpikiness), 0f, 2 * avgRadius)
+            val point = Vector2(
+                center.x + radius * cos(angle).toFloat(),
+                center.y + radius * sin(angle).toFloat()
+            )
+            points.add(point)
+            angle += angleSteps[i]
         }
 
-        // Generate Vertices with gift wrapping algorithm
-        val vertices: List<Vector2> = giftWrap(points)
-
-        val pos: Vector2 = randomPosInsideBounds(5f)
-        val poly: Polygon = PolygonCreator.createPolygon(vertices.map { it + pos }.toTypedArray())
-
-        return poly
+        return points
     }
 
-    private fun giftWrap(points: List<Vector2>): List<Vector2> {
-        if (points.size < 3) return points
+    /**
+     * Generates the division of a circumference into random angles.
+     *
+     * @param steps The number of angles to generate.
+     * @param irregularity Variance of the spacing of the angles between consecutive vertices.
+     * @return A list of random angle steps.
+     */
+    private fun randomAngleSteps(steps: Int, irregularity: Double): List<Double> {
+        val angles: MutableList<Double> = mutableListOf()
+        val lower: Double = (2 * Math.PI / steps) - irregularity
+        val upper: Double = (2 * Math.PI / steps) + irregularity
+        var angleSum = 0.0
 
-        val hull = mutableListOf<Vector2>()
-
-        // Find the leftmost point
-        var leftmost = points[0]
-        for (point in points) {
-            if (point.x < leftmost.x) {
-                leftmost = point
-            }
+        for (i: Int in 0 until steps) {
+            val angle: Double = KtRandom.nextDouble(lower, upper)
+            angles.add(angle)
+            angleSum += angle
         }
 
-        var current = leftmost
-        do {
-            hull.add(current)
-            var next = points[0]
-            for (point in points) {
-                if (next == current || orientation(current, next, point) == 2) {
-                    next = point
-                }
-            }
-            current = next
-        } while (current != leftmost)
-
-        return hull
-    }
-
-    private fun orientation(p: Vector2, q: Vector2, r: Vector2): Int {
-        val value = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y)
-        return when {
-            value == 0f -> 0 // collinear
-            value > 0f -> 1 // clockwise
-            else -> 2 // counterclockwise
+        // Normalize the steps so that point 0 and point n+1 are the same
+        angleSum /= (2 * Math.PI).toFloat()
+        for (i: Int in angles.indices) {
+            angles[i] /= angleSum
         }
+        return angles
     }
 
+    /**
+     * Clips a value to be within the given lower and upper bounds.
+     *
+     * @param value The value to be clipped.
+     * @param lower The lower bound of the interval.
+     * @param upper The upper bound of the interval.
+     * @return The clipped value, within the range [lower, upper].
+     */
+    private fun clip(value: Float, lower: Float, upper: Float): Float {
+        return value.coerceIn(lower, upper)
+    }
+
+    /**
+     * Generates a Gaussian-distributed value with a given mean and standard deviation.
+     * Uses the Box-Muller transform to generate normally distributed random numbers.
+     *
+     * @param mean The mean (center) of the distribution.
+     * @param stdDev The standard deviation (spread) of the distribution.
+     * @return A Gaussian-distributed value.
+     */
+    private fun nextGaussian(mean: Float, stdDev: Float): Float {
+        val u1: Double = KtRandom.nextDouble(0.0, 1.0)
+        val u2: Double = KtRandom.nextDouble(0.0, 1.0)
+        val z0: Double = sqrt(-2.0 * ln(u1)) * cos(2.0 * Math.PI * u2)
+        return (mean + z0 * stdDev).toFloat()
+    }
+
+    /**
+     * Generates a random position inside the border with a buffer around the edges.
+     * The buffer is used to prevent objects from spawning too close to the border.
+     *
+     * @param buffer The buffer around the border edges.
+     * @return A random position inside the border.
+     */
     private fun randomPosInsideBounds(buffer: Float): Vector2 {
         val border: BoundingBox = FhysicsCore.BORDER
         val minX: Float = buffer
@@ -128,6 +190,13 @@ object FhysicsObjectFactory {
         return Vector2(x, y)
     }
 
+    /**
+     * Generates a random 2D vector with components in the range [min, max].
+     *
+     * @param min The minimum value for the components.
+     * @param max The maximum value for the components.
+     * @return A random 2D vector.
+     */
     private fun randomVector2(min: Float, max: Float): Vector2 {
         val x: Float = RANDOM.nextFloat(min, max)
         val y: Float = RANDOM.nextFloat(min, max)
