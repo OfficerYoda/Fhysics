@@ -10,7 +10,7 @@ import java.util.concurrent.Executors
 object QuadTree {
 
     // Capacity of the tree
-    var capacity: Int = 32
+    var capacity: Int = 4
         set(value) {
             field = value.coerceAtLeast(1)
         }

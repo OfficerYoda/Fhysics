@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
@@ -11,6 +12,7 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
 import java.awt.Color
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType as selectedSpawnObjectType
@@ -153,19 +155,29 @@ object BetterSceneListener {
     private fun onScroll(direction: Double) {
         // Zoom in or out based on the scroll direction
         val zoomFactor: Float = if (direction > 0) 1.1f else 1 / 1.1f
-        drawer.targetZoom *= zoomFactor
+        val newTargetZoom: Double = drawer.targetZoom * zoomFactor
 
         val minZoom: Double = 200.0 / max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height)
         val maxZoom: Double = max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height) * 2.0
 
+        // If the zoom is already at min/max return to not change the zoom center
+        if (newTargetZoom !in minZoom..maxZoom // New zoom is not in bounds
+            && (drawer.zoom - minZoom < EPSILON || maxZoom - drawer.zoom < EPSILON)
+        ) // Zoom is already at min/max
+            return
+
         // Clamp the zoom level
-        drawer.targetZoom = drawer.targetZoom.coerceIn(minZoom, maxZoom)
+        drawer.targetZoom = newTargetZoom.coerceIn(minZoom, maxZoom)
 
         // Calculate the difference between the mouse position and the current zoom center
         val deltaMousePos: Vector2 = mousePosWorld - drawer.targetZoomCenter
 
         // Adjust the target zoom center to zoom towards the mouse position
         drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
+    }
+
+    private fun almostEqual(a: Double, b: Double): Boolean {
+        return (a - b).absoluteValue < EPSILON
     }
 
     /// endregion

@@ -24,7 +24,7 @@ data class QuadTreeNode(
     // Child nodes
     private val children: Array<QuadTreeNode?> = arrayOfNulls(4)
 
-    private val isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite division
+    private var isMinWidth: Boolean = boundary.width <= 1 // Minimum width of 1 to prevent infinite division
     private var isRoot: Boolean = parent == null
     private var divided: Boolean = false
 
@@ -42,7 +42,7 @@ data class QuadTreeNode(
 
     fun insert(obj: FhysicsObject): Boolean {
         when {
-            // Insert if the object is in the boundary or if it's the root node
+            // Don't insert if the object is not in the boundary (must insert if it's the root)
             !(boundary.overlaps(obj.boundingBox) || isRoot) -> return false
 
             // Check if the object is already in the node
@@ -63,19 +63,7 @@ data class QuadTreeNode(
     // Probably should've chosen another name
     private fun insertInChildren(obj: FhysicsObject) {
         // Need to check every Child due to border Objects
-        // TODO: Check if this has a bug where objects on edges aren't inserted into multiple children
-        val successfullyInserted: Boolean = children.any { it!!.insert(obj) }
-
-        // If the object was not inserted in any child, move it inside the border and try again
-        // This should only be called if everything else fails
-        if (!successfullyInserted) {
-            // TODO: Make a check before inserting if the object is in the root boundary
-            System.err.println("Object could not be inserted in any child node")
-            CollisionSolver.moveInsideBorder(obj)
-            obj.updateBoundingBox() // Update bounding box since it's used to check if the object is in the boundary
-            val parent: QuadTreeNode = if (isRoot) this else parent!!
-            parent.insertInChildren(obj)
-        }
+        children.forEach { it!!.insert(obj) }
     }
 
     private fun divide() {
@@ -160,6 +148,9 @@ data class QuadTreeNode(
 
     private fun addRebuildObjectToParent(obj: FhysicsObject) {
         if (parent!!.isRoot) {
+            // Make sure the object is inside the border
+            CollisionSolver.moveInsideBorder(obj)
+
             // root children are rebuild async
             synchronized(parent!!.rebuildObjects) {
                 parent!!.rebuildObjects.add(obj)
@@ -216,7 +207,7 @@ data class QuadTreeNode(
         if (!divided) return
 
         // This doesn't take object on the edges into account, but it should be fine
-        val objectsInChildren: Int = children.sumOf { it!!.objects.size }
+        val objectsInChildren: Int = children.sumOf { it!!.count() }
         if (objectsInChildren > capacity) return
 
         // Collapse the children
@@ -310,6 +301,7 @@ data class QuadTreeNode(
         this.parent = parent
         this.isRoot = parent == null
         this.divided = false
+        this.isMinWidth = boundary.width <= 1
     }
 
     // Called when the node is pooled
