@@ -271,7 +271,6 @@ data class QuadTreeNode(
     }
     /// endregion
 
-
     /// region =====Drawing functions=====
     fun drawObjects(drawer: FhysicsObjectDrawer) {
         when {

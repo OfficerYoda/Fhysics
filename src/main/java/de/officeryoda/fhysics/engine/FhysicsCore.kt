@@ -5,9 +5,9 @@ import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.rendering.BetterSceneListener
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
+import de.officeryoda.fhysics.rendering.SceneListener
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -42,15 +42,15 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        repeat(30) {
+//        repeat(100000) {
 //            spawn(FhysicsObjectFactory.randomCircle())
 //        }
 //
-//        repeat(20) {
+//        repeat(1000) {
 //            spawn(FhysicsObjectFactory.randomRectangle())
 //        }
 //
-//        repeat(10) {
+//        repeat(150) {
 //            spawn(FhysicsObjectFactory.randomPolygon())
 //        }
 //
@@ -141,7 +141,7 @@ object FhysicsCore {
             QuadTree.updateFhysicsObjects()
             QuadTree.handleCollisions()
 
-            BetterSceneListener.pullObject()
+            SceneListener.pullObject()
 
             updateCount++
         }

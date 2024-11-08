@@ -9,10 +9,10 @@ import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
-import de.officeryoda.fhysics.rendering.BetterSceneListener.selectedObject
-import de.officeryoda.fhysics.rendering.BetterSceneListener.spawnPreview
-import de.officeryoda.fhysics.rendering.BetterSceneListener.updateSpawnPreview
+import de.officeryoda.fhysics.rendering.SceneListener.polyVertices
+import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
+import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
+import de.officeryoda.fhysics.rendering.SceneListener.updateSpawnPreview
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
@@ -506,7 +506,7 @@ class UIController {
         val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
         if (capacity > 0) {
             QuadTree.capacity = capacity
-            QuadTree.divideNextUpdate = true
+            quadTreeCapacityChanged = true
         }
     }
     /// endregion
@@ -743,23 +743,32 @@ class UIController {
             private set
         var borderFrictionDynamic: Float = 0f
             private set
+
+        fun setBorderProperties(restitution: Float, frictionStatic: Float, frictionDynamic: Float) {
+            borderRestitution = restitution
+            borderFrictionStatic = frictionStatic
+            borderFrictionDynamic = frictionDynamic
+        }
         /// endregion
 
         /// region =====QuadTree=====
-        var drawQuadTree: Boolean = true
+        var drawQuadTree: Boolean = false
             private set
         var drawQTNodeUtilization: Boolean = true
             private set
         var optimizeQTCapacity: Boolean = false
             private set
+
+        // Used to prevent concurrent modification of the quad tree
+        var quadTreeCapacityChanged: Boolean = false
         /// endregion
 
         /// region =====Debug=====
-        var drawBoundingBoxes: Boolean = true
+        var drawBoundingBoxes: Boolean = false
             private set
         var drawSubPolygons: Boolean = true
             private set
-        var drawQTCapacity: Boolean = true
+        var drawQTCapacity: Boolean = false
             private set
         var drawMSPU: Boolean = true
             private set

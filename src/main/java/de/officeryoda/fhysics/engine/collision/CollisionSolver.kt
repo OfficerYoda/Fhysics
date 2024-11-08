@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionDynamic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionStatic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
@@ -98,7 +97,7 @@ object CollisionSolver {
         var totalB = 0f
 
         for (contactPoint: Vector2 in contactPoints) {
-            DebugDrawer.addDebugPoint(contactPoint, Color.red)
+//            DebugDrawer.addDebugPoint(contactPoint, Color.red)
             val ra: Vector2 = contactPoint - objA.position
             val rb: Vector2 = contactPoint - objB.position
 
@@ -327,9 +326,9 @@ object CollisionSolver {
         // Find contact points
         val contactPoints: Array<Vector2> = obj.findContactPoints(border)
 
-        contactPoints.forEach {
-            DebugDrawer.addDebugPoint(it, Color.green)
-        }
+//        contactPoints.forEach {
+//            DebugDrawer.addDebugPoint(it, Color.green)
+//        }
 
         if (contactPoints.isEmpty()) return
 

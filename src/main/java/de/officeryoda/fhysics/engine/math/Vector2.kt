@@ -79,6 +79,9 @@ data class Vector2
     /**
      * Calculates the cross product of this Vector2 with another Vector2.
      *
+     * To my math teacher Mr. Jungblut: I know that cross products are
+     * technically only defined for 3D vectors, but if it works, it works.
+     *
      * @param other The other Vector2.
      * @return The cross product of the two Vector2 instances.
      */

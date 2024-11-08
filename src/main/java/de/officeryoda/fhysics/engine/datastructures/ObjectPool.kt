@@ -15,4 +15,9 @@ class ObjectPool<T> {
     fun returnObject(instance: T) {
         pool.push(instance)
     }
+
+    @Synchronized
+    fun clear() {
+        pool.clear()
+    }
 }

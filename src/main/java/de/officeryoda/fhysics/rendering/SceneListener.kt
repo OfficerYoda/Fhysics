@@ -17,7 +17,7 @@ import kotlin.math.max
 import kotlin.math.min
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType as selectedSpawnObjectType
 
-object BetterSceneListener {
+object SceneListener {
 
     /// =====Vanilla event handler fields=====
     /**

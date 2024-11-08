@@ -5,6 +5,7 @@ import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import de.officeryoda.fhysics.rendering.UIController.Companion.quadTreeCapacityChanged
 import java.util.concurrent.Executors
 
 object QuadTree {
@@ -19,16 +20,13 @@ object QuadTree {
     private val nodePool: ObjectPool<QuadTreeNode> = ObjectPool()
 
     // Thread pool for parallelizing the tree processes
-    private val threadPool = Executors.newFixedThreadPool(4)
+    val threadPool = Executors.newFixedThreadPool(4)
 
     // List of objects to add, used to queue up insertions and prevent concurrent modification
     private val pendingAdditions: MutableList<FhysicsObject> = ArrayList()
 
     // Set of objects to remove, used to mark objects for deletion safely
     private val pendingRemovals: MutableSet<FhysicsObject> = HashSet()
-
-    // Used to prevent concurrent modification exceptions
-    var divideNextUpdate: Boolean = false
 
     // The root node of the tree
     private var root: QuadTreeNode = QuadTreeNode(FhysicsCore.BORDER, null)
@@ -52,9 +50,9 @@ object QuadTree {
 
     fun rebuild() {
         // If the capacity was changed, divideNextUpdate will be true and the root should try to divide
-        if (divideNextUpdate) {
+        if (quadTreeCapacityChanged) {
             root.tryDivide()
-            divideNextUpdate = false
+            quadTreeCapacityChanged = false
         }
 
         root.rebuild()
@@ -62,6 +60,7 @@ object QuadTree {
 
     fun clear() {
         root = QuadTreeNode(FhysicsCore.BORDER, null)
+        nodePool.clear()
     }
 
     fun updateFhysicsObjects() {
@@ -85,14 +84,13 @@ object QuadTree {
     }
 
     fun getNodeFromPool(): QuadTreeNode {
-        // TODO: Check if the node pool is working correctly
         // Try to get a node from the pool, if it's null, create a new one
         return nodePool.borrowObject() ?: QuadTreeNode(BoundingBox(0f, 0f, 0f, 0f), null)
     }
 
-    fun addNodeToPool(node: QuadTreeNode) {
-        node.clear()
-        nodePool.returnObject(node)
+    fun addNodeToPool(qtNode: QuadTreeNode) {
+        qtNode.clear()
+        nodePool.returnObject(qtNode)
     }
 
     fun getObjectCount(): Int {
