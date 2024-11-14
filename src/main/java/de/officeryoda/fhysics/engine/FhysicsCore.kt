@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -42,17 +43,13 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        repeat(100000) {
-//            spawn(FhysicsObjectFactory.randomCircle())
-//        }
-//
-//        repeat(1000) {
-//            spawn(FhysicsObjectFactory.randomRectangle())
-//        }
-//
-//        repeat(150) {
-//            spawn(FhysicsObjectFactory.randomPolygon())
-//        }
+        repeat(1000) {
+            spawn(FhysicsObjectFactory.randomCircle())
+        }
+
+        repeat(100) {
+            spawn(FhysicsObjectFactory.randomRectangle())
+        }
 //
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomConcavePolygon())

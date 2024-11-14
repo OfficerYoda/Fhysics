@@ -4,12 +4,20 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.math.*
 import kotlin.random.Random.Default as KtRandom
 
 object FhysicsObjectFactory {
 
     private val RANDOM: Random = Random()
+
+    // Executor for creating polygons
+    // Cached to not hold unused threads
+    private val executor = Executors.newCachedThreadPool()
 
     /**
      * Generates a random circle with a random position, radius, and velocity.
@@ -46,6 +54,8 @@ object FhysicsObjectFactory {
     /**
      * Generates a random polygon with a random position and velocity.
      *
+     * This only works when called from the main thread.
+     *
      * @return A random polygon.
      */
     fun randomPolygon(): Polygon {
@@ -58,7 +68,17 @@ object FhysicsObjectFactory {
         val points: Array<Vector2> =
             generatePolygon(center, avgRadius, irregularity, spikiness, numVertices).toTypedArray()
         // Creating the polygon can hang the application, TODO: use a timeout
-        val polygon: Polygon = PolygonCreator.createPolygon(points)
+
+        val polygon: Polygon = try {
+            val future: CompletableFuture<Polygon> = CompletableFuture.supplyAsync({
+                PolygonCreator.createPolygon(points)
+            }, executor)
+
+            future.get(50, TimeUnit.MILLISECONDS)
+        } catch (e: TimeoutException) {
+            println("Polygon creation timed out, retrying...")
+            return randomPolygon()
+        }
 
         polygon.position.set(randomPosInsideBounds(avgRadius + avgRadius * spikiness))
         polygon.velocity += randomVector2(-10.0f, 10.0f)
