@@ -80,6 +80,16 @@ object FhysicsObjectFactory {
             return randomPolygon()
         }
 
+        // Check if any of the Vertices are the same
+        for (i: Int in 0 until polygon.vertices.size) {
+            for (j: Int in i + 1 until polygon.vertices.size) {
+                if (polygon.vertices[i] == polygon.vertices[j]) {
+                    println("Polygon vertices are the same, retrying...")
+                    return randomPolygon()
+                }
+            }
+        }
+
         polygon.position.set(randomPosInsideBounds(avgRadius + avgRadius * spikiness))
         polygon.velocity += randomVector2(-10.0f, 10.0f)
 
