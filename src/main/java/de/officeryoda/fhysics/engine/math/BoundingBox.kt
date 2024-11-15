@@ -85,4 +85,28 @@ data class BoundingBox(
                 (this.x + this.width) >= (other.x + other.width) &&
                 (this.y + this.height) >= (other.y + other.height)
     }
+
+    /**
+     * Merges this bounding box with the given bounding box.
+     *
+     * @param other The other bounding box to merge with.
+     * @return The merged bounding box.
+     */
+    fun merge(other: BoundingBox): BoundingBox {
+        val minX: Float = min(this.x, other.x)
+        val minY: Float = min(this.y, other.y)
+        val maxX: Float = max(this.x + width, other.x + other.width)
+        val maxY: Float = max(this.y + height, other.y + other.height)
+
+        return BoundingBox(minX, minY, maxX - minX, maxY - minY)
+    }
+
+    /**
+     * Calculates the area of the bounding box.
+     *
+     * @return The area of the bounding box.
+     */
+    fun area(): Float {
+        return width * height
+    }
 }

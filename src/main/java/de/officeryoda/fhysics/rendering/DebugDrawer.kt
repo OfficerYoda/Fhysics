@@ -215,6 +215,17 @@ object DebugDrawer {
         drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
     }
 
+    fun transformAndDrawBVHNode(bounds: BoundingBox) {
+        val x: Double = RenderUtil.worldToScreenX(bounds.x)
+        val y: Double = RenderUtil.worldToScreenY(bounds.y + bounds.height)
+        val width: Double = bounds.width * zoom
+        val height: Double = bounds.height * zoom
+
+        // Draw Border
+        RenderUtil.setStrokeColor(Color.WHITE)
+        gc.strokeRect(x, y, width, height)
+    }
+
     private fun drawCenteredText(text: String, rect: Rectangle2D) {
         val fontSize: Double = (rect.height / 2) // Adjust the divisor for the desired scaling
         val font = Font("Spline Sans", fontSize)
