@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import kotlin.math.max
 import de.officeryoda.fhysics.engine.math.BoundingBox as AABB
 
 /**
@@ -22,8 +23,8 @@ object BVH {
     }
 
     // Insert an object into the BVH
-    fun insert(obj: FhysicsObject, aabb: AABB) {
-        val newLeaf = BVHNode(aabb, obj = obj)
+    fun insert(obj: FhysicsObject) {
+        val newLeaf = BVHNode(obj.boundingBox, obj = obj)
         root = if (root == null) {
             newLeaf
         } else {
@@ -64,11 +65,11 @@ object BVH {
     }
 
     // Update an object in the BVH (reinsert if moved)
-    fun update(obj: FhysicsObject, newAABB: AABB) {
-        // TODO: Optimize this by reusing the existing leaf node
-        remove(obj)
-        insert(obj, newAABB)
-    }
+//    fun update(obj: FhysicsObject, newAABB: AABB) {
+//        // TODO: Optimize this by reusing the existing leaf node
+//        remove(obj)
+//        insert(obj, newAABB)
+//    }
 
     // Remove an object from the BVH
     fun remove(obj: Any) {
@@ -129,10 +130,30 @@ data class BVHNode(
     var right: BVHNode? = null,
     var obj: FhysicsObject? = null // Only non-null for leaf nodes
 ) {
-    fun drawNode() {
-        DebugDrawer.transformAndDrawBVHNode(aabb)
-        left?.drawNode()
-        right?.drawNode()
+
+    // returns the depth of the node in the tree
+    fun drawNode(): Int {
+        val depth: Int = 1 + max(left?.drawNode() ?: 0, right?.drawNode() ?: 0)
+
+        DebugDrawer.transformAndDrawBVHNode(increaseAABBSize(aabb, depth * 0.15f))
+
+        return if (isLeaf) 0 else depth
+    }
+
+    /**
+     * Increase the width and height of an AABB by an amount.
+     *
+     * @param aabb The AABB to scale.
+     * @param amount The factor to scale the AABB by.
+     * @return The scaled AABB.
+     */
+    private fun increaseAABBSize(aabb: AABB, amount: Float): AABB {
+        return AABB(
+            aabb.x - amount,
+            aabb.y - amount,
+            aabb.width + 2 * amount,
+            aabb.height + 2 * amount
+        )
     }
 
     fun drawObjects(drawer: FhysicsObjectDrawer) {

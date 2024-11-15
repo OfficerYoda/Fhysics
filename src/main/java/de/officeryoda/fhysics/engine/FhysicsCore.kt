@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.datastructures.BVH
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -8,7 +9,6 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
-import de.officeryoda.fhysics.rendering.SceneListener
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -109,7 +109,6 @@ object FhysicsCore {
         objectsAtStepSizeIncrease = objectCount
     }
 
-
     fun startEverything() {
         Thread { FhysicsObjectDrawer().launch() }.start()
         startUpdateLoop()
@@ -131,27 +130,38 @@ object FhysicsCore {
     fun update() {
         updateStopwatch.start()
 
-        QuadTree.insertPendingAdditions()
-        QuadTree.rebuild()
 
-        repeat(SUB_STEPS) {
-            QuadTree.updateFhysicsObjects()
-            QuadTree.handleCollisions()
-
-            SceneListener.pullObject()
-
-            updateCount++
+        if (updateCount % 100 == 0) {
+            valid = true
+            spawn(FhysicsObjectFactory.randomCircle())
+            valid = false
         }
 
-        if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
+//        QuadTree.insertPendingAdditions()
+//        QuadTree.rebuild()
+
+//        repeat(SUB_STEPS) {
+//            QuadTree.updateFhysicsObjects()
+//            QuadTree.handleCollisions()
+//
+//            SceneListener.pullObject()
+//
+        updateCount++
+//        }
+
+//        if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
         updateStopwatch.stop()
     }
 
+    var valid = false
+
     fun spawn(vararg objects: FhysicsObject): Array<out FhysicsObject> {
+        if (!valid) return objects
         for (obj: FhysicsObject in objects) {
             obj.updateBoundingBox()
-            QuadTree.insert(obj)
+            BVH.insert(obj)
+//            QuadTree.insert(obj)
         }
         return objects
     }

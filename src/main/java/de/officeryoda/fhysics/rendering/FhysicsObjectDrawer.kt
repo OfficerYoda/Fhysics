@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.rendering
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.Stopwatch
+import de.officeryoda.fhysics.engine.datastructures.BVH
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -149,7 +150,7 @@ class FhysicsObjectDrawer : Application() {
         hoveredObject = checkForHoveredObject()
 
         // Draw the objects
-        QuadTree.drawObjects(this)
+        BVH.drawObjects(this)
 
         if (hoveredObject != null) drawObjectPulsing(hoveredObject!!)
         if (selectedObject != null && selectedObject !== hoveredObject) drawObjectPulsing(selectedObject!!)

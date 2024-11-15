@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.datastructures.BVH
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -34,7 +35,7 @@ object DebugDrawer {
 
     /// region =====Draw functions=====
     fun drawDebug() {
-        if (UIController.drawQuadTree) QuadTree.drawNodes(drawer)
+        if (UIController.drawQuadTree) BVH.drawNodes()
         drawDebugPoints()
         drawDebugLines()
         drawDebugVectors()

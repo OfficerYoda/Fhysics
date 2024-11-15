@@ -697,7 +697,7 @@ class UIController {
         /// endregion
 
         /// region =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.NOTHING
             private set
         var drawSpawnPreview: Boolean = true
             private set
@@ -752,7 +752,7 @@ class UIController {
         /// endregion
 
         /// region =====QuadTree=====
-        var drawQuadTree: Boolean = false
+        var drawQuadTree: Boolean = true
             private set
         var drawQTNodeUtilization: Boolean = true
             private set
