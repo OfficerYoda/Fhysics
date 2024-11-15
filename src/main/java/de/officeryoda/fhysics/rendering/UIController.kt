@@ -5,14 +5,14 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.QuadTree
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.rendering.BetterSceneListener.polyVertices
-import de.officeryoda.fhysics.rendering.BetterSceneListener.selectedObject
-import de.officeryoda.fhysics.rendering.BetterSceneListener.spawnPreview
-import de.officeryoda.fhysics.rendering.BetterSceneListener.updateSpawnPreview
+import de.officeryoda.fhysics.rendering.SceneListener.polyVertices
+import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
+import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
+import de.officeryoda.fhysics.rendering.SceneListener.updateSpawnPreview
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
@@ -319,7 +319,7 @@ class UIController {
     @FXML
     fun onPropertyRemoveClicked() {
         selectedObject?.let {
-            QuadTree.removeQueue.add(it)
+            QuadTree.remove(it)
             selectedObject = null
         }
 
@@ -506,7 +506,7 @@ class UIController {
         val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
         if (capacity > 0) {
             QuadTree.capacity = capacity
-            QuadTree.divideNextUpdate = true
+            quadTreeCapacityChanged = true
         }
     }
     /// endregion
@@ -723,14 +723,14 @@ class UIController {
         /// region =====Forces=====
         var gravityType: GravityType = GravityType.DIRECTIONAL
             private set
-        val gravityDirection: Vector2 = Vector2(0.0f, -10.0f)
+        val gravityDirection: Vector2 = Vector2(0.0f, -0.0f)
         val gravityPoint: Vector2 = Vector2( // Default: The center of the world
             (FhysicsCore.BORDER.width / 2.0).toFloat(),
             (FhysicsCore.BORDER.height / 2.0).toFloat()
         )
         var gravityPointStrength: Float = 100.0f
             private set
-        var damping: Float = 0.001f
+        var damping: Float = 0.000f
             private set
         /// endregion
 
@@ -743,6 +743,12 @@ class UIController {
             private set
         var borderFrictionDynamic: Float = 0f
             private set
+
+        fun setBorderProperties(restitution: Float, frictionStatic: Float, frictionDynamic: Float) {
+            borderRestitution = restitution
+            borderFrictionStatic = frictionStatic
+            borderFrictionDynamic = frictionDynamic
+        }
         /// endregion
 
         /// region =====QuadTree=====
@@ -752,6 +758,9 @@ class UIController {
             private set
         var optimizeQTCapacity: Boolean = false
             private set
+
+        // Used to prevent concurrent modification of the quad tree
+        var quadTreeCapacityChanged: Boolean = false
         /// endregion
 
         /// region =====Debug=====
@@ -765,7 +774,7 @@ class UIController {
             private set
         var drawUPS: Boolean = false
             private set
-        var drawObjectCount: Boolean = false
+        var drawObjectCount: Boolean = true
             private set
         var drawRenderTime: Boolean = false
             private set

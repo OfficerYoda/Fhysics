@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import javafx.animation.AnimationTimer
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartPanel
@@ -8,7 +8,7 @@ import org.jfree.chart.axis.NumberAxis
 import org.jfree.data.category.CategoryDataset
 import org.jfree.data.category.DefaultCategoryDataset
 import java.awt.Dimension
-import java.util.Locale
+import java.util.*
 import javax.swing.JFrame
 import javax.swing.WindowConstants
 

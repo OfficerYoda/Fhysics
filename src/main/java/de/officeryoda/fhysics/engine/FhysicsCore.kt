@@ -1,12 +1,14 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
-import de.officeryoda.fhysics.rendering.BetterSceneListener
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
+import de.officeryoda.fhysics.rendering.SceneListener
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -25,8 +27,6 @@ object FhysicsCore {
     const val EPSILON: Float = 1E-4f
 
     // Variables
-    private var quadTree: QuadTree = QuadTree(BORDER, null)
-
     private var objectCount: Int = 0
     var updateCount = 0 // Includes all sub steps
 
@@ -43,16 +43,16 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        repeat(30) {
-//            spawn(FhysicsObjectFactory.randomCircle())
-//        }
-//
-//        repeat(20) {
-//            spawn(FhysicsObjectFactory.randomRectangle())
-//        }
+        repeat(1000) {
+            spawn(FhysicsObjectFactory.randomCircle())
+        }
 
+        repeat(100) {
+            spawn(FhysicsObjectFactory.randomRectangle())
+        }
+//
 //        repeat(10) {
-//            spawn(FhysicsObjectFactory.randomPolygon())
+//            spawn(FhysicsObjectFactory.randomConcavePolygon())
 //        }
 
         // Three rectangles that act as slides + ground rectangle
@@ -87,8 +87,28 @@ object FhysicsCore {
 //        val rect2 = Rectangle(Vector2(55f, 4f), 12f, 5f)
 //        spawn(rect1, rect2)
 
+        // Create two circles
+        // Create two rectangles
+//        val rectA: Rectangle = Rectangle(Vector2(50f, 50f), 40f, 20f).apply {
+//            velocity.set(Vector2(0f, 0f))
+//            angle = 45f
+//            angularVelocity = -1f
+//            mass = 2f
+//        }
+//
+//        val rectB: Rectangle = Rectangle(Vector2(65f, 35f), 10f, 10f).apply {
+//            velocity.set(Vector2(0f, 0f))
+//            mass = 2f
+//        }
+
+        // Adjust properties for perfectly elastic collision
+//        setRestitution(1f, rectA, rectB)
+//
+//        spawn(rectA, rectB)
+
         objectsAtStepSizeIncrease = objectCount
     }
+
 
     fun startEverything() {
         Thread { FhysicsObjectDrawer().launch() }.start()
@@ -96,7 +116,7 @@ object FhysicsCore {
     }
 
     private fun startUpdateLoop() {
-        val updateIntervalMillis: Int = (1f / UPDATES_PER_SECOND * 1000).toInt()
+        val updateIntervalMillis: Long = (1f / UPDATES_PER_SECOND * 1000).toLong()
         Timer(true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 if (running) {
@@ -105,20 +125,20 @@ object FhysicsCore {
                     RENDER_LOCK.unlock()
                 }
             }
-        }, 0, updateIntervalMillis.toLong())
+        }, 0, updateIntervalMillis)
     }
 
     fun update() {
         updateStopwatch.start()
 
-        quadTree.insertObjects()
-        quadTree.rebuild()
+        QuadTree.insertPendingAdditions()
+        QuadTree.rebuild()
 
         repeat(SUB_STEPS) {
-            quadTree.updateObjects()
-            quadTree.handleCollisions()
+            QuadTree.updateFhysicsObjects()
+            QuadTree.handleCollisions()
 
-            BetterSceneListener.pullObject()
+            SceneListener.pullObject()
 
             updateCount++
         }
@@ -129,16 +149,16 @@ object FhysicsCore {
     }
 
     fun spawn(vararg objects: FhysicsObject): Array<out FhysicsObject> {
-        for (o: FhysicsObject in objects) {
-            QuadTree.toAdd.add(o)
-            o.updateBoundingBox()
+        for (obj: FhysicsObject in objects) {
+            obj.updateBoundingBox()
+            QuadTree.insert(obj)
         }
         return objects
     }
 
     fun clear() {
         objectCount = 0
-        quadTree = QuadTree(BORDER, null)
+        QuadTree.clear()
     }
 
     private fun optimizeQuadTreeCapacity() {

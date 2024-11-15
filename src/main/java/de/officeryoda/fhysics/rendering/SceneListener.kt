@@ -1,7 +1,8 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.QuadTree
+import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
@@ -11,11 +12,12 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
 import java.awt.Color
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType as selectedSpawnObjectType
 
-object BetterSceneListener {
+object SceneListener {
 
     /// =====Vanilla event handler fields=====
     /**
@@ -104,7 +106,7 @@ object BetterSceneListener {
         if (selectedSpawnObjectType != SpawnObjectType.NOTHING) return
 
         // Find the object under the mouse
-        pullObject = QuadTree.root.query(mousePosWorld) ?: return
+        pullObject = QuadTree.query(mousePosWorld) ?: return
         if (pullObject!!.static) return
 
         // Save the relative position and angle of the object
@@ -153,19 +155,29 @@ object BetterSceneListener {
     private fun onScroll(direction: Double) {
         // Zoom in or out based on the scroll direction
         val zoomFactor: Float = if (direction > 0) 1.1f else 1 / 1.1f
-        drawer.targetZoom *= zoomFactor
+        val newTargetZoom: Double = drawer.targetZoom * zoomFactor
 
         val minZoom: Double = 200.0 / max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height)
         val maxZoom: Double = max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height) * 2.0
 
+        // If the zoom is already at min/max return to not change the zoom center
+        if (newTargetZoom !in minZoom..maxZoom // New zoom is not in bounds
+            && (drawer.zoom - minZoom < EPSILON || maxZoom - drawer.zoom < EPSILON)
+        ) // Zoom is already at min/max
+            return
+
         // Clamp the zoom level
-        drawer.targetZoom = drawer.targetZoom.coerceIn(minZoom, maxZoom)
+        drawer.targetZoom = newTargetZoom.coerceIn(minZoom, maxZoom)
 
         // Calculate the difference between the mouse position and the current zoom center
         val deltaMousePos: Vector2 = mousePosWorld - drawer.targetZoomCenter
 
         // Adjust the target zoom center to zoom towards the mouse position
         drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
+    }
+
+    private fun almostEqual(a: Double, b: Double): Boolean {
+        return (a - b).absoluteValue < EPSILON
     }
 
     /// endregion
@@ -200,7 +212,7 @@ object BetterSceneListener {
         // Create the polygon if the polygon is complete
         if (polyVertices.size > 2 && PolygonCreator.isPolygonValid(polyVertices)) {
             val startPos: Vector2 = polyVertices.first()
-            if (mousePosWorld.sqrDistanceTo(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
+            if (mousePosWorld.distanceToSqr(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                 createAndSpawnPolygon()
                 return
             }
@@ -379,11 +391,13 @@ object BetterSceneListener {
                 FhysicsCore.update()
             }
 
+            KeyCode.Q -> println(QuadTree.toString())
             KeyCode.Z -> drawer.resetZoom()
-            KeyCode.J -> QuadTree.capacity -= 5
-            KeyCode.K -> QuadTree.capacity += 5
+            KeyCode.H -> QuadTree.capacity -= 5
+            KeyCode.J -> QuadTree.capacity -= 1
+            KeyCode.K -> QuadTree.capacity += 1
+            KeyCode.L -> QuadTree.capacity += 5
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
-            KeyCode.Q -> println(QuadTree.root.objects.forEach { println(it) })
             KeyCode.S -> println(selectedObject)
             else -> {}
         }

@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
-import de.officeryoda.fhysics.engine.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.times
@@ -42,7 +42,7 @@ object CollisionSolver {
         )
 
         // Update the node sizes of the quad tree nodes
-        QuadTree.root.updateNodeSize(-1)
+        QuadTree.updateNodeSizes()
     }
 
 
@@ -93,6 +93,28 @@ object CollisionSolver {
         val normalForces: ArrayList<Float> = arrayListOf() // Used for friction
         val normal: Vector2 = info.normal
 
+        var totalA = 0f
+        var totalB = 0f
+
+        for (contactPoint: Vector2 in contactPoints) {
+//            DebugDrawer.addDebugPoint(contactPoint, Color.red)
+            val ra: Vector2 = contactPoint - objA.position
+            val rb: Vector2 = contactPoint - objB.position
+
+            val raPerp = Vector2(-ra.y, ra.x)
+            val rbPerp = Vector2(-rb.y, rb.x)
+
+            // Calculate the impulse
+            val raPerpDotNormal: Float = raPerp.dot(normal)
+            val rbPerpDotNormal: Float = rbPerp.dot(normal)
+
+            totalA += raPerpDotNormal
+            totalB += rbPerpDotNormal
+        }
+
+        // If multi is 0, the collision will not have effect on the angular velocity
+        val multi: Float = if (abs(totalA) < EPSILON || abs(totalB) < EPSILON) 0f else 1f
+
         // Calculate the impulses for each contact point
         for (contactPoint: Vector2 in contactPoints) {
             val ra: Vector2 = contactPoint - objA.position
@@ -119,8 +141,8 @@ object CollisionSolver {
 
             var impulseMag: Float = -(1f + e) * contactVelocityMag
             impulseMag /= objA.invMass + objB.invMass +
-                    (raPerpDotNormal * raPerpDotNormal) * objA.invInertia +
-                    (rbPerpDotNormal * rbPerpDotNormal) * objB.invInertia
+                    multi * ((raPerpDotNormal * raPerpDotNormal) * objA.invInertia
+                    + (rbPerpDotNormal * rbPerpDotNormal) * objB.invInertia)
             impulseMag /= contactPoints.size // Distribute the impulse over all contact points
 
             val impulse: Vector2 = impulseMag * normal
@@ -241,7 +263,7 @@ object CollisionSolver {
             objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia * multi
         }
 
-        // Set angular velocity to 0 if it's very small
+        // Remove small angular velocities (this improves stability)
         if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
         if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
     }
@@ -289,8 +311,6 @@ object CollisionSolver {
         collidingBorders.forEach { border: BorderEdge ->
             solveBorderCollision(obj, border)
         }
-
-        obj.updateBoundingBox()
     }
 
     /**
@@ -304,8 +324,11 @@ object CollisionSolver {
         border: BorderEdge,
     ) {
         // Find contact points
-        var contactPoints: Array<Vector2> = obj.findContactPoints(border)
-        contactPoints = removeDuplicates(contactPoints)
+        val contactPoints: Array<Vector2> = obj.findContactPoints(border)
+
+//        contactPoints.forEach {
+//            DebugDrawer.addDebugPoint(it, Color.green)
+//        }
 
         if (contactPoints.isEmpty()) return
 
@@ -459,25 +482,8 @@ object CollisionSolver {
             collidingBorders.add(border)
         }
 
+        obj.updateBoundingBox()
         return collidingBorders
-    }
-
-    /**
-     * Removes duplicate contact points
-     *
-     * @param contactPoints The contact points to remove duplicates from
-     * @return The contact points without duplicates
-     */
-    private fun removeDuplicates(contactPoints: Array<Vector2>): Array<Vector2> {
-        val uniquePoints: MutableList<Vector2> = mutableListOf()
-
-        for (point: Vector2 in contactPoints) {
-            if (uniquePoints.none { existingPoint -> ContactFinder.nearlyEquals(existingPoint, point) }) {
-                uniquePoints.add(point)
-            }
-        }
-
-        return uniquePoints.toTypedArray()
     }
     /// endregion
 }

@@ -79,6 +79,9 @@ data class Vector2
     /**
      * Calculates the cross product of this Vector2 with another Vector2.
      *
+     * To my math teacher Mr. Jungblut: I know that cross products are
+     * technically only defined for 3D vectors, but if it works, it works.
+     *
      * @param other The other Vector2.
      * @return The cross product of the two Vector2 instances.
      */
@@ -111,7 +114,7 @@ data class Vector2
      * @return The distance between the two Vector2 instances.
      */
     fun distanceTo(other: Vector2): Float {
-        return sqrt(sqrDistanceTo(other))
+        return sqrt(distanceToSqr(other))
     }
 
     /**
@@ -120,7 +123,7 @@ data class Vector2
      * @param other The other Vector2.
      * @return The squared distance between the two Vector2 instances.
      */
-    fun sqrDistanceTo(other: Vector2): Float {
+    fun distanceToSqr(other: Vector2): Float {
         val dx: Float = this.x - other.x
         val dy: Float = this.y - other.y
         return dx * dx + dy * dy

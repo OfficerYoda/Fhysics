@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.engine
+package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
@@ -12,9 +12,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
-data class QuadTree(
+private data class OldQuadTree(
     private val boundary: BoundingBox,
-    private val parent: QuadTree?,
+    private val parent: OldQuadTree?,
 ) {
 
     private lateinit var threadPool: ExecutorService
@@ -26,10 +26,10 @@ data class QuadTree(
     private var divided: Boolean = false
 
     // Child nodes
-    private var topLeft: QuadTree? = null
-    private var topRight: QuadTree? = null
-    private var botLeft: QuadTree? = null
-    private var botRight: QuadTree? = null
+    private var topLeft: OldQuadTree? = null
+    private var topRight: OldQuadTree? = null
+    private var botLeft: OldQuadTree? = null
+    private var botRight: OldQuadTree? = null
 
     private val rebuildObjects: HashSet<FhysicsObject> = HashSet()
 
@@ -58,7 +58,7 @@ data class QuadTree(
             return true
         }
 
-        // Check is necessary because the node could be min width
+        // Check is necessary because the node could be min width // TODO: ??
         if (!divided) {
             divide()
         }
@@ -81,15 +81,18 @@ data class QuadTree(
     // Probably should have chosen another name
     private fun insertInChildren(obj: FhysicsObject) {
         // Need to check every Child due to border Objects
+        // This has a bug where the object isn't inserted in multiple children if it's on the border
         val successfullyInserted: Boolean =
-            topLeft!!.insert(obj) ||
-                    topRight!!.insert(obj)
+            topLeft!!.insert(obj)
+                    || topRight!!.insert(obj)
                     || botLeft!!.insert(obj)
                     || botRight!!.insert(obj)
 
         // If the object was not inserted in any child, move it inside the border and try again
         // This should only be called if everything else fails
         if (!successfullyInserted) {
+            // TODO: Make a check before inserting if the object is in the root boundary
+            System.err.println("Object could not be inserted in any child node")
             CollisionSolver.moveInsideBorder(obj)
             obj.updateBoundingBox() // Update bounding box since it's used to check if the object is in the boundary
             insertInChildren(obj)
@@ -104,16 +107,16 @@ data class QuadTree(
 
         // Top left
         val tl = BoundingBox(x, y + hh, hw, hh)
-        topLeft = QuadTree(tl, this)
+        topLeft = OldQuadTree(tl, this)
         // Top right
         val tr = BoundingBox(x + hw, y + hh, hw, hh)
-        topRight = QuadTree(tr, this)
+        topRight = OldQuadTree(tr, this)
         // Bottom left
         val bl = BoundingBox(x, y, hw, hh)
-        botLeft = QuadTree(bl, this)
+        botLeft = OldQuadTree(bl, this)
         // Bottom right
         val br = BoundingBox(x + hw, y, hw, hh)
-        botRight = QuadTree(br, this)
+        botRight = OldQuadTree(br, this)
 
         objects.forEach { insertInChildren(it) }
         objects.clear()
@@ -121,16 +124,16 @@ data class QuadTree(
         divided = true
     }
 
-    fun insertObjects() {
-        toAdd.forEach { insert(it) }
-        toAdd.clear()
+    fun insertPendingAdditions() {
+        pendingAdditions.forEach { insert(it) }
+        pendingAdditions.clear()
     }
     /// endregion
 
     /// region =====Rebuild and update functions=====
     fun rebuild() {
         // If the capacity was changed, divideNextUpdate will be true and the root should try to divide
-        if (divideNextUpdate && isRoot) {
+        if (divideNextUpdate && isRoot) { //TODO: Only call this on the root
             divideNextUpdate = false
             tryDivide()
         }
@@ -138,14 +141,14 @@ data class QuadTree(
         if (divided) {
             // Rebuild the children first
             rebuildChildren()
-            // Insert any objects that need to be rebuilt
+            // Insert any objects that need to be reinserted
             insertRebuildObjects()
             // Collapse the node if possible
             tryCollapse()
         } else {
             if (isRoot) {
                 // Remove objects that are queued for removal
-                objects.removeAll(removeQueue)
+                objects.removeAll(pendingRemovals)
             } else {
                 handleNonRootNode()
             }
@@ -153,27 +156,15 @@ data class QuadTree(
 
         // All objects that are queued for removal will be removed at this point
         if (isRoot) {
-            removeQueue.clear()
-        }
-    }
-
-    private fun rebuildChildren() {
-        if (isRoot) {
-            // Update root children async
-            rebuildChildrenAsync()
-        } else {
-            topLeft!!.rebuild()
-            topRight!!.rebuild()
-            botLeft!!.rebuild()
-            botRight!!.rebuild()
+            pendingRemovals.clear()
         }
     }
 
     private fun handleNonRootNode() {
-        val toRemove = ArrayList<FhysicsObject>()
+        val toRemove = mutableListOf<FhysicsObject>()
 
         for (obj: FhysicsObject in objects) {
-            if (removeQueue.contains(obj)) {
+            if (pendingRemovals.contains(obj)) {
                 toRemove.add(obj)
                 continue
             }
@@ -186,6 +177,18 @@ data class QuadTree(
         }
 
         objects.removeAll(toRemove)
+    }
+
+    private fun rebuildChildren() {
+        if (isRoot) {
+            // Update root children async
+            rebuildChildrenAsync()
+        } else {
+            topLeft!!.rebuild()
+            topRight!!.rebuild()
+            botLeft!!.rebuild()
+            botRight!!.rebuild()
+        }
     }
 
     private fun addRebuildObject(obj: FhysicsObject) {
@@ -403,10 +406,10 @@ data class QuadTree(
      * This function is used to update the size of the nodes after the border size has changed
      * This function should only be called on the root node
      *
-     * @param nodePos The position of the node relative to its parent
-     * 0: Bottom left, 1: Bottom right, 2: Top left, 3: Top right
+     * @param isTop If the node is at the top
+     * @param isLeft If the node is at the left
      */
-    fun updateNodeSize(nodePos: Int) {
+    fun updateNodeSize(isTop: Boolean, isLeft: Boolean) {
         if (isRoot) {
             updateChildNodeSize()
             return
@@ -418,8 +421,8 @@ data class QuadTree(
         val halfWidth: Float = parentBounds.width / 2f
         val halfHeight: Float = parentBounds.height / 2f
 
-        val xOffset: Float = (nodePos and 1) * halfWidth
-        val yOffset: Float = ((nodePos and 2) shr 1) * halfHeight
+        val xOffset: Float = if (isLeft) 0f else halfWidth
+        val yOffset: Float = if (isTop) halfHeight else 0f
 
         // Update the boundary of the node
         boundary.x = parentBounds.x + xOffset
@@ -432,10 +435,10 @@ data class QuadTree(
 
     private fun updateChildNodeSize() {
         if (divided) {
-            botLeft!!.updateNodeSize(0)
-            botRight!!.updateNodeSize(1)
-            topLeft!!.updateNodeSize(2)
-            topRight!!.updateNodeSize(3)
+            topLeft!!.updateNodeSize(isTop = true, isLeft = true)
+            topRight!!.updateNodeSize(isTop = true, isLeft = false)
+            botLeft!!.updateNodeSize(isTop = false, isLeft = true)
+            botRight!!.updateNodeSize(isTop = false, isLeft = false)
         }
     }
 
@@ -450,7 +453,7 @@ data class QuadTree(
     /// endregion
 
     companion object {
-        lateinit var root: QuadTree
+        lateinit var root: OldQuadTree
             private set
 
         var capacity: Int = 32
@@ -461,9 +464,10 @@ data class QuadTree(
         // Used to prevent concurrent modification exceptions
         var divideNextUpdate: Boolean = false
 
-        // List of objects to add and remove
-        // This is used to prevent concurrent modification exceptions
-        val toAdd: MutableList<FhysicsObject> = ArrayList()
-        val removeQueue: MutableSet<FhysicsObject> = HashSet()
+        // List of objects to add, used to queue up insertions and prevent concurrent modification
+        val pendingAdditions: MutableList<FhysicsObject> = ArrayList()
+
+        // Set of objects to remove, used to mark objects for deletion safely
+        val pendingRemovals: MutableSet<FhysicsObject> = HashSet()
     }
 }
