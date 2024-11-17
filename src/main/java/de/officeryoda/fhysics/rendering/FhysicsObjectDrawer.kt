@@ -39,7 +39,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.system.exitProcess
 
-// Can't be converted to object because it is a JavaFX Application
+// Can't be converted to a singleton because JavaFX won't allow it
 class FhysicsObjectDrawer : Application() {
 
     // Rendering properties

@@ -286,24 +286,15 @@ object CollisionSolver {
 
     /// region =====Border Collision=====
     /**
-     * Checks for and solves collisions between an object and the border
+     * Checks and handles the collision between an object and the border
      *
      * @param obj The object to check for collision
      */
-    fun checkBorderCollision(obj: FhysicsObject) {
+    fun handleBorderCollisions(obj: FhysicsObject) {
         if (obj.static) return
         // Return if the object is fully inside the border
         if (BORDER.contains(obj.boundingBox)) return
 
-        handleBorderCollision(obj)
-    }
-
-    /**
-     * Handles the collision between an object and the border
-     *
-     * @param obj The object to check for collision
-     */
-    private fun handleBorderCollision(obj: FhysicsObject) {
         // This is a separate step because the object might be outside two edges at the same time
         val collidingBorders: MutableSet<BorderEdge> = moveInsideBorder(obj)
 

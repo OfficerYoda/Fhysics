@@ -243,7 +243,7 @@ data class QuadTreeNode(
 
         // Check for border collisions
         // NOTE: checking for border collisions before object collisions showed better results
-        objects.forEach { CollisionSolver.checkBorderCollision(it) }
+        objects.forEach { CollisionSolver.handleBorderCollisions(it) }
 
         // Find collisions between objects
         val collisions: MutableList<CollisionInfo> = mutableListOf()

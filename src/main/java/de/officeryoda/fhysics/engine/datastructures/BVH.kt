@@ -1,7 +1,9 @@
 package de.officeryoda.fhysics.engine.datastructures
 
+import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.extensions.sumOf
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import kotlin.math.max
@@ -13,22 +15,73 @@ import de.officeryoda.fhysics.engine.math.BoundingBox as AABB
 object BVH {
     private var root: BVHNode? = null
 
-    // Render the BVH for debugging
-    fun drawNodes() {
-        root?.drawNode()
+    fun build(objects: List<FhysicsObject>) {
+        root = buildRecursive(objects)
     }
 
-    fun drawObjects(drawer: FhysicsObjectDrawer) {
-        root?.drawObjects(drawer)
+    private fun buildRecursive(objects: List<FhysicsObject>): BVHNode {
+        if (objects.size == 1) return BVHNode(objects.first())
+
+        // Split objects into two groups using SAH
+        val (leftObjects: List<FhysicsObject>, rightObjects: List<FhysicsObject>) = splitObjects(objects)
+
+        // Create parent node and recurse
+        val leftNode: BVHNode = buildRecursive(leftObjects)
+        val rightNode: BVHNode = buildRecursive(rightObjects)
+        val parentVolume: BoundingBox = leftNode.aabb.merge(rightNode.aabb)
+        return BVHNode(parentVolume, leftNode, rightNode)
+    }
+
+    // Split objects into two groups based on Surface Area Heuristic (SAH)
+    private fun splitObjects(objects: List<FhysicsObject>): Pair<List<FhysicsObject>, List<FhysicsObject>> {
+        // Sort objects by their x position
+        val sortedObjects: List<FhysicsObject> = objects.sortedBy { it.position.x }
+        // Calculate the total area of all bounding boxes
+        val totalArea: Float = objects.sumOf { it.boundingBox.area() }
+
+        var bestCost: Float = Float.MAX_VALUE
+        var bestSplit = 0
+        // Iterate through possible split points
+        for (i: Int in 1 until objects.size) {
+            // Calculate the area of the left and right groups
+            val leftArea: Float = sortedObjects.subList(0, i).sumOf { it.boundingBox.area() }
+            val rightArea: Float = sortedObjects.subList(i, objects.size).sumOf { it.boundingBox.area() }
+
+            // Calculate the cost of the split
+            val leftFraction: Float = leftArea / totalArea
+            val rightFraction: Float = rightArea / totalArea
+            val cost: Float = leftFraction * leftArea + rightFraction * rightArea
+
+            // Update the best split if the current cost is lower
+            if (cost < bestCost) {
+                bestCost = cost
+                bestSplit = i
+            }
+        }
+
+        // Return the two groups of objects
+        return Pair(sortedObjects.subList(0, bestSplit), sortedObjects.subList(bestSplit, objects.size))
+    }
+
+    fun insert(objects: List<FhysicsObject>) {
+        if (root == null) {
+            // Build the BVH from scratch if it's empty
+            build(objects)
+        } else {
+            // Insert objects into the existing BVH
+            for (obj: FhysicsObject in objects) {
+                insert(obj)
+            }
+        }
     }
 
     // Insert an object into the BVH
-    fun insert(obj: FhysicsObject) {
+    private fun insert(obj: FhysicsObject) {
         val newLeaf = BVHNode(obj.boundingBox, obj = obj)
-        root = if (root == null) {
-            newLeaf
+        if (root == null) {
+            root = newLeaf
         } else {
-            insertNode(root!!, newLeaf)
+            root = insertNode(root!!, newLeaf)
         }
     }
 
@@ -64,15 +117,8 @@ object BVH {
         return combined.area() - aabb1.area()
     }
 
-    // Update an object in the BVH (reinsert if moved)
-//    fun update(obj: FhysicsObject, newAABB: AABB) {
-//        // TODO: Optimize this by reusing the existing leaf node
-//        remove(obj)
-//        insert(obj, newAABB)
-//    }
-
     // Remove an object from the BVH
-    fun remove(obj: Any) {
+    fun remove(obj: FhysicsObject) {
         root = removeNode(root, obj)
     }
 
@@ -83,10 +129,11 @@ object BVH {
      * @param obj The object to remove.
      * @return The new root node of the BVH.
      */
-    private fun removeNode(node: BVHNode?, obj: Any): BVHNode? {
+    private fun removeNode(node: BVHNode?, obj: FhysicsObject): BVHNode? {
         if (node == null) return null
 
         if (node.isLeaf) {
+            // Return no node if the object is the one to remove
             return if (node.obj == obj) null else node
         }
 
@@ -106,54 +153,110 @@ object BVH {
     }
 
     // Query for potential collisions with a given AABB
-    fun query(aabb: AABB, result: MutableList<Any>) {
+    fun query(aabb: AABB, result: MutableList<FhysicsObject>) {
         queryNode(root, aabb, result)
     }
 
-    private fun queryNode(node: BVHNode?, aabb: AABB, result: MutableList<Any>) {
+    /**
+     * Recursively query the BVH for objects that overlap with a given AABB.
+     *
+     * @param node The node to query.
+     * @param aabb The AABB to query with.
+     * @param result The list to store the results in.
+     */
+    private fun queryNode(node: BVHNode?, aabb: AABB, result: MutableList<FhysicsObject>) {
         if (node == null) return
+        if (!node.aabb.overlaps(aabb)) return
 
-        if (node.aabb.overlaps(aabb)) {
-            if (node.isLeaf) {
-                result.add(node.obj!!)
-            } else {
-                queryNode(node.left, aabb, result)
-                queryNode(node.right, aabb, result)
-            }
+        if (node.isLeaf) {
+            result.add(node.obj!!)
+        } else {
+            queryNode(node.left, aabb, result)
+            queryNode(node.right, aabb, result)
         }
+    }
+
+    // Update the BVH for dynamic objects
+    fun rebuild() {
+        root?.updateBoundingVolume()
+    }
+
+    fun clear() {
+        root = null
+    }
+
+    fun updateFhysicsObjects() {
+        root?.updateFhysicsObjects()
+    }
+
+    fun handleCollisions() {
+        root?.handleCollisions()
+    }
+
+    // Render the BVH for debugging
+    fun drawNodes() {
+        root?.drawNodeBoundingVolume()
+    }
+
+    fun drawObjects(drawer: FhysicsObjectDrawer) {
+        root?.drawObjects(drawer)
     }
 }
 
-data class BVHNode(
+private data class BVHNode(
     var aabb: AABB,
     var left: BVHNode? = null,
     var right: BVHNode? = null,
     var obj: FhysicsObject? = null // Only non-null for leaf nodes
 ) {
+    constructor(fhysicsObject: FhysicsObject) : this(fhysicsObject.boundingBox, obj = fhysicsObject)
+
+    // Check if this node is a leaf node
+    val isLeaf: Boolean
+        get() = obj != null
+
+    fun updateBoundingVolume() {
+        if (!isLeaf) {
+            left?.updateBoundingVolume()
+            right?.updateBoundingVolume()
+            aabb = left!!.aabb.merge(right!!.aabb)
+        }
+    }
+
+    fun handleCollisions() {
+        if (isLeaf) {
+            CollisionSolver.handleBorderCollisions(obj!!)
+        } else {
+            left?.handleCollisions()
+            right?.handleCollisions()
+        }
+    }
+
+    fun updateFhysicsObjects() {
+        if (isLeaf) {
+            obj!!.update()
+        } else {
+            left?.updateFhysicsObjects()
+            right?.updateFhysicsObjects()
+        }
+    }
 
     // returns the depth of the node in the tree
-    fun drawNode(): Int {
-        val depth: Int = 1 + max(left?.drawNode() ?: 0, right?.drawNode() ?: 0)
+    fun drawNodeBoundingVolume(): Int {
+        val depth: Int = max(left?.drawNodeBoundingVolume() ?: 0, right?.drawNodeBoundingVolume() ?: 0)
+
+        fun increaseAABBSize(aabb: AABB, amount: Float): AABB {
+            return AABB(
+                aabb.x - amount,
+                aabb.y - amount,
+                aabb.width + 2 * amount,
+                aabb.height + 2 * amount
+            )
+        }
 
         DebugDrawer.transformAndDrawBVHNode(increaseAABBSize(aabb, depth * 0.15f))
 
-        return if (isLeaf) 0 else depth
-    }
-
-    /**
-     * Increase the width and height of an AABB by an amount.
-     *
-     * @param aabb The AABB to scale.
-     * @param amount The factor to scale the AABB by.
-     * @return The scaled AABB.
-     */
-    private fun increaseAABBSize(aabb: AABB, amount: Float): AABB {
-        return AABB(
-            aabb.x - amount,
-            aabb.y - amount,
-            aabb.width + 2 * amount,
-            aabb.height + 2 * amount
-        )
+        return if (isLeaf) 0 else depth + 1
     }
 
     fun drawObjects(drawer: FhysicsObjectDrawer) {
@@ -164,8 +267,4 @@ data class BVHNode(
             right?.drawObjects(drawer)
         }
     }
-
-    // Check if this node is a leaf node
-    val isLeaf: Boolean
-        get() = obj != null
 }

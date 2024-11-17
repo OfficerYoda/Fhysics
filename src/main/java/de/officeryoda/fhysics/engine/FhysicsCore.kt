@@ -43,13 +43,15 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        repeat(1000) {
+        repeat(10) {
             spawn(FhysicsObjectFactory.randomCircle())
         }
 
-        repeat(100) {
-            spawn(FhysicsObjectFactory.randomRectangle())
-        }
+        spawn(List(10) { FhysicsObjectFactory.randomCircle() })
+
+//        repeat(100) {
+//            spawn(FhysicsObjectFactory.randomRectangle())
+//        }
 //
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomConcavePolygon())
@@ -130,19 +132,20 @@ object FhysicsCore {
     fun update() {
         updateStopwatch.start()
 
+//        if (updateCount % 100 == 0) {
+//            spawn(FhysicsObjectFactory.randomCircle())
+//        }
 
-        if (updateCount % 100 == 0) {
-            valid = true
-            spawn(FhysicsObjectFactory.randomCircle())
-            valid = false
-        }
+        BVH.handleCollisions()
+        BVH.updateFhysicsObjects()
+        BVH.rebuild()
 
 //        QuadTree.insertPendingAdditions()
 //        QuadTree.rebuild()
 
 //        repeat(SUB_STEPS) {
-//            QuadTree.updateFhysicsObjects()
 //            QuadTree.handleCollisions()
+//            QuadTree.updateFhysicsObjects()
 //
 //            SceneListener.pullObject()
 //
@@ -154,16 +157,16 @@ object FhysicsCore {
         updateStopwatch.stop()
     }
 
-    var valid = false
+    fun spawn(vararg objects: FhysicsObject) {
+        spawn(objects.toList())
+    }
 
-    fun spawn(vararg objects: FhysicsObject): Array<out FhysicsObject> {
-        if (!valid) return objects
+    private fun spawn(objects: List<FhysicsObject>) {
         for (obj: FhysicsObject in objects) {
             obj.updateBoundingBox()
-            BVH.insert(obj)
-//            QuadTree.insert(obj)
         }
-        return objects
+
+        BVH.insert(objects)
     }
 
     fun clear() {
@@ -224,7 +227,10 @@ object FhysicsCore {
         } else {
             val direction: Vector2 = UIController.gravityPoint - pos
             val sqrDistance: Float =
-                max(1f, direction.sqrMagnitude()) // Prevent high forces when the object is close to the gravity point
+                max(
+                    1f,
+                    direction.sqrMagnitude()
+                ) // Prevent high forces when the object is close to the gravity point
             return UIController.gravityPointStrength / sqrDistance * direction.normalized()
         }
     }
