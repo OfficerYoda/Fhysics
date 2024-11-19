@@ -8,14 +8,17 @@ import de.officeryoda.fhysics.extensions.sumOf
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import kotlin.math.max
+import kotlin.math.min
 import de.officeryoda.fhysics.engine.math.BoundingBox as AABB
 
 /**
  * A bounding volume hierarchy (BVH) is a tree structure on a set of geometric objects.
  */
 object BVH {
+
     private var root: BVHNode? = null
 
+    /// region =====Base functions=====
     fun build(objects: List<FhysicsObject>) {
         root = buildRecursive(objects)
     }
@@ -35,18 +38,27 @@ object BVH {
 
     // Split objects into two groups based on Surface Area Heuristic (SAH)
     private fun splitObjects(objects: List<FhysicsObject>): Pair<List<FhysicsObject>, List<FhysicsObject>> {
-        // Sort objects by their x position
-        val sortedObjects: List<FhysicsObject> = objects.sortedBy { it.position.x }
+        // Create a bounding box that contains all objects
+        val boundingBox: BoundingBox = createBoundingBox(objects)
+
+        // Sort objects by the longest axis
+        val sortedObjects: List<FhysicsObject> =
+            if (boundingBox.width > boundingBox.height) objects.sortedBy { it.position.x }
+            else objects.sortedBy { it.position.y }
+
         // Calculate the total area of all bounding boxes
         val totalArea: Float = objects.sumOf { it.boundingBox.area() }
 
+        // Calculate the best split point
         var bestCost: Float = Float.MAX_VALUE
         var bestSplit = 0
+        var leftArea: Float = objects.first().boundingBox.area()
+        var rightArea: Float = totalArea - leftArea
         // Iterate through possible split points
         for (i: Int in 1 until objects.size) {
-            // Calculate the area of the left and right groups
-            val leftArea: Float = sortedObjects.subList(0, i).sumOf { it.boundingBox.area() }
-            val rightArea: Float = sortedObjects.subList(i, objects.size).sumOf { it.boundingBox.area() }
+            // Update the area of the left and right groups
+            leftArea += sortedObjects[i - 1].boundingBox.area()
+            rightArea -= sortedObjects[i - 1].boundingBox.area()
 
             // Calculate the cost of the split
             val leftFraction: Float = leftArea / totalArea
@@ -62,6 +74,23 @@ object BVH {
 
         // Return the two groups of objects
         return Pair(sortedObjects.subList(0, bestSplit), sortedObjects.subList(bestSplit, objects.size))
+    }
+
+    private fun createBoundingBox(objects: List<FhysicsObject>): BoundingBox {
+        var minX: Float = Float.MAX_VALUE
+        var minY: Float = Float.MAX_VALUE
+        var maxX: Float = Float.MIN_VALUE
+        var maxY: Float = Float.MIN_VALUE
+
+        for (obj: FhysicsObject in objects) {
+            val bbox: BoundingBox = obj.boundingBox
+            minX = min(minX, bbox.x)
+            minY = min(minY, bbox.y)
+            maxX = max(maxX, bbox.x + bbox.width)
+            maxY = max(maxY, bbox.y + bbox.height)
+        }
+
+        return BoundingBox(minX, minY, maxX - minX, maxY - minY)
     }
 
     fun insert(objects: List<FhysicsObject>) {
@@ -153,11 +182,6 @@ object BVH {
         }
     }
 
-    // Query for potential collisions with a given AABB
-    fun query(aabb: AABB, result: MutableList<FhysicsObject>) {
-        queryNode(root, aabb, result)
-    }
-
     /**
      * Recursively query the BVH for objects that overlap with a given AABB.
      *
@@ -185,7 +209,9 @@ object BVH {
     fun clear() {
         root = null
     }
+    /// endregion
 
+    /// region =====Fhysics=====
     fun updateFhysicsObjects() {
         root?.updateFhysicsObjects()
     }
@@ -243,8 +269,9 @@ object BVH {
             }
         }
     }
+    /// endregion
 
-    // Render the BVH for debugging
+    /// region =====Rendering=====
     fun drawNodes() {
         root?.drawNodeBoundingVolume()
     }
@@ -252,6 +279,7 @@ object BVH {
     fun drawObjects(drawer: FhysicsObjectDrawer) {
         root?.drawObjects(drawer)
     }
+    /// endregion
 }
 
 private data class BVHNode(

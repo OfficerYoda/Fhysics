@@ -108,6 +108,44 @@ fun main() {
 
 private object PerformanceTester {
 
+    fun testPerformanceAverage(
+        scenarioList: List<PerformanceTestScenario>,
+        iterations: Int = 1000,
+        runs: Int = 5,
+    ): List<PerformanceTestResult> {
+        val allResults: MutableList<PerformanceTestResult> = mutableListOf()
+
+        // Run the performance test multiple times to get an average
+        var startTime: Long
+        repeat(runs) {
+            startTime = System.currentTimeMillis()
+            println("\n\n============Run ${it + 1}/$runs============")
+            allResults.addAll(testPerformance(scenarioList, iterations))
+            println("Run ${it + 1}/$runs took ${System.currentTimeMillis() - startTime} ms")
+        }
+
+        // Calculate the average time taken for each scenario
+        val averageResults: List<PerformanceTestResult> =
+            allResults
+                .groupBy { it.scenario.name }
+                .map { (name: String, results: List<PerformanceTestResult>) ->
+                    val averageTime: Long =
+                        results
+                            .map { it.time }
+                            .average().toLong()
+                    PerformanceTestResult(
+                        scenario = PerformanceTestScenario(name = name, objectCreation = { emptyList() }),
+                        time = averageTime,
+                    )
+                }
+
+        println("\n\n============Average Results============")
+        println("Average time per run: ${averageResults.sumOf { it.time }} ms")
+        println("Average time taken for $iterations iterations over $runs runs:")
+
+        return averageResults
+    }
+
     fun testPerformance(
         scenarioList: List<PerformanceTestScenario>,
         iterations: Int = 1000,
@@ -153,44 +191,6 @@ private object PerformanceTester {
         }
 
         return results
-    }
-
-    fun testPerformanceAverage(
-        scenarioList: List<PerformanceTestScenario>,
-        iterations: Int = 1000,
-        runs: Int = 5,
-    ): List<PerformanceTestResult> {
-        val allResults: MutableList<PerformanceTestResult> = mutableListOf()
-
-        // Run the performance test multiple times to get an average
-        var startTime: Long
-        repeat(runs) {
-            startTime = System.currentTimeMillis()
-            println("\n\n============Run ${it + 1}/$runs============")
-            allResults.addAll(testPerformance(scenarioList, iterations))
-            println("Run ${it + 1}/$runs took ${System.currentTimeMillis() - startTime} ms")
-        }
-
-        // Calculate the average time taken for each scenario
-        val averageResults: List<PerformanceTestResult> =
-            allResults
-                .groupBy { it.scenario.name }
-                .map { (name: String, results: List<PerformanceTestResult>) ->
-                    val averageTime: Long =
-                        results
-                            .map { it.time }
-                            .average().toLong()
-                    PerformanceTestResult(
-                        scenario = PerformanceTestScenario(name = name, objectCreation = { emptyList() }),
-                        time = averageTime,
-                    )
-                }
-
-        println("\n\n============Average Results============")
-        println("Average time per run: ${averageResults.sumOf { it.time }} ms")
-        println("Average time taken for $iterations iterations over $runs runs:")
-
-        return averageResults
     }
 }
 

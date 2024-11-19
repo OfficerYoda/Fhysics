@@ -31,7 +31,7 @@ object FhysicsCore {
     var updateCount = 0 // Includes all sub steps
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
-    var running: Boolean = true
+    var running: Boolean = false
     val updateStopwatch = Stopwatch(50)
 
     // Quad tree capacity optimization
@@ -43,11 +43,14 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        repeat(10) {
-            spawn(FhysicsObjectFactory.randomCircle())
-        }
-
-        spawn(List(10) { FhysicsObjectFactory.randomCircle() })
+        val objects: List<FhysicsObject> = List(100) { FhysicsObjectFactory.randomCircle() }
+//        objects.forEach {
+//            it.restitution = 1f
+//            it.frictionDynamic = 0f
+//            it.frictionStatic = 0f
+//        }
+//        UIController.setBorderProperties(1f, 1f, 1f)
+        spawn(objects)
 
 //        repeat(100) {
 //            spawn(FhysicsObjectFactory.randomRectangle())
