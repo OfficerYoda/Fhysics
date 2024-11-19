@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.engine.datastructures
 
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
@@ -190,7 +191,57 @@ object BVH {
     }
 
     fun handleCollisions() {
-        root?.handleCollisions()
+        root?.handleBorderCollision()
+
+        // Collect all potential collisions
+        val collisions: MutableList<CollisionInfo> = mutableListOf()
+        root?.let { traverseAndCollect(it, collisions) }
+
+        // Solve all collected collisions
+        collisions.forEach { CollisionSolver.solveCollision(it) }
+    }
+
+    private fun traverseAndCollect(node: BVHNode, collisions: MutableList<CollisionInfo>) {
+        if (node.isLeaf) return
+
+        val left: BVHNode? = node.left
+        val right: BVHNode? = node.right
+
+        // Collect potential collisions between left and right subtrees
+        if (!node.isLeaf) {
+            collectPotentialCollisions(left!!, right!!, collisions)
+        }
+
+        // Recurse into children
+        left?.let { traverseAndCollect(it, collisions) }
+        right?.let { traverseAndCollect(it, collisions) }
+    }
+
+    private fun collectPotentialCollisions(nodeA: BVHNode, nodeB: BVHNode, collisions: MutableList<CollisionInfo>) {
+        when {
+            // No bounding volume overlap -> no collision
+            !nodeA.aabb.overlaps(nodeB.aabb) -> return
+
+            // Both nodes contain objects -> test for collision
+            nodeA.isLeaf && nodeB.isLeaf -> {
+                val info: CollisionInfo = nodeA.obj!!.testCollision(nodeB.obj!!)
+                if (info.hasCollision) {
+                    collisions.add(info)
+                }
+            }
+
+            // nodeA is a tree, and nodeB is a leaf or a tree with smaller area -> recurse into nodeA
+            !nodeA.isLeaf && (nodeB.isLeaf || nodeB.aabb.area() < nodeA.aabb.area()) -> {
+                collectPotentialCollisions(nodeA.left!!, nodeB, collisions)
+                collectPotentialCollisions(nodeA.right!!, nodeB, collisions)
+            }
+
+            // nodeB is a tree, and nodeA is a leaf or a tree with smaller area -> recurse into nodeB
+            else -> {
+                collectPotentialCollisions(nodeA, nodeB.left!!, collisions)
+                collectPotentialCollisions(nodeA, nodeB.right!!, collisions)
+            }
+        }
     }
 
     // Render the BVH for debugging
@@ -223,12 +274,12 @@ private data class BVHNode(
         }
     }
 
-    fun handleCollisions() {
+    fun handleBorderCollision() {
         if (isLeaf) {
             CollisionSolver.handleBorderCollisions(obj!!)
         } else {
-            left?.handleCollisions()
-            right?.handleCollisions()
+            left?.handleBorderCollision()
+            right?.handleBorderCollision()
         }
     }
 
