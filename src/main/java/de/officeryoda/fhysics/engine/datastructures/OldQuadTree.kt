@@ -58,7 +58,7 @@ private data class OldQuadTree(
             return true
         }
 
-        // Check is necessary because the node could be min width // TODO: ??
+        // Check is necessary because the node could be min width
         if (!divided) {
             divide()
         }
@@ -91,7 +91,6 @@ private data class OldQuadTree(
         // If the object was not inserted in any child, move it inside the border and try again
         // This should only be called if everything else fails
         if (!successfullyInserted) {
-            // TODO: Make a check before inserting if the object is in the root boundary
             System.err.println("Object could not be inserted in any child node")
             CollisionSolver.moveInsideBorder(obj)
             obj.updateBoundingBox() // Update bounding box since it's used to check if the object is in the boundary

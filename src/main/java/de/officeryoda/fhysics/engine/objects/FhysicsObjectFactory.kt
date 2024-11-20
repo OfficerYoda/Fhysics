@@ -67,7 +67,6 @@ object FhysicsObjectFactory {
 
         val points: Array<Vector2> =
             generatePolygon(center, avgRadius, irregularity, spikiness, numVertices).toTypedArray()
-        // Creating the polygon can hang the application, TODO: use a timeout
 
         val polygon: Polygon = try {
             val future: CompletableFuture<Polygon> = CompletableFuture.supplyAsync({

@@ -28,6 +28,13 @@ data class QuadTreeNode(
     private var isRoot: Boolean = parent == null
     private var divided: Boolean = false
 
+    // Points to the first child if this node is a branch
+    // or the first element if this node is a leaf.
+    private var idxFirstChild: Int = -1
+
+    // Stores the number of elements in the leaf or -1 if the node is not a leaf
+    private var count: Int = -1
+
     private val pendingRemovals: MutableSet<FhysicsObject>
         get() = getPendingRemovals()
 
@@ -125,13 +132,7 @@ data class QuadTreeNode(
     }
 
     private fun rebuildChildren() {
-//        if (isRoot) { // TODO: implement async rebuild
-//            // Update root children async
-//            rebuildChildrenAsync()
-//        } else {
-        // Update children synchronously
         children.forEach { it!!.rebuild() }
-//        }
     }
 
     private fun handleRebuildObjects() {

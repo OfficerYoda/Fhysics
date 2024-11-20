@@ -6,7 +6,6 @@ import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.quadTreeCapacityChanged
-import java.util.concurrent.Executors
 
 object QuadTree {
 
@@ -19,8 +18,8 @@ object QuadTree {
     // Pool of nodes to prevent excessive object creation
     private val nodePool: ObjectPool<QuadTreeNode> = ObjectPool()
 
-    // Thread pool for parallelizing the tree processes
-    val threadPool = Executors.newFixedThreadPool(4)
+    // Thread pool for parallelizing the tree processes TODO
+//    val threadPool = Executors.newFixedThreadPool(4)
 
     // List of objects to add, used to queue up insertions and prevent concurrent modification
     private val pendingAdditions: MutableList<FhysicsObject> = ArrayList()
@@ -103,7 +102,7 @@ object QuadTree {
 
     fun shutdownThreadPool() {
         println("Shutting down thread pool")
-        threadPool.shutdownNow()
+//        threadPool.shutdownNow() // TODO
     }
 
     override fun toString(): String {

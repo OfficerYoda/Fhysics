@@ -14,7 +14,8 @@ fun main() {
     Runtime.getRuntime().addShutdownHook(Thread {
         try {
             QuadTree.shutdownThreadPool()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     })
 }
