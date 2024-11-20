@@ -75,8 +75,8 @@ object QuadTree {
         root.drawObjects(drawer)
     }
 
-    fun drawNodes(drawer: FhysicsObjectDrawer) {
-        root.drawNode(drawer)
+    fun drawNodes() {
+        root.drawNode()
     }
 
     fun updateNodeSizes() {

@@ -1,6 +1,5 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.datastructures.BVH
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -9,6 +8,7 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
+import de.officeryoda.fhysics.rendering.SceneListener
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -31,7 +31,7 @@ object FhysicsCore {
     var updateCount = 0 // Includes all sub steps
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
-    var running: Boolean = false
+    var running: Boolean = true
     val updateStopwatch = Stopwatch(50)
 
     // Quad tree capacity optimization
@@ -114,6 +114,7 @@ object FhysicsCore {
         objectsAtStepSizeIncrease = objectCount
     }
 
+
     fun startEverything() {
         Thread { FhysicsObjectDrawer().launch() }.start()
         startUpdateLoop()
@@ -135,27 +136,19 @@ object FhysicsCore {
     fun update() {
         updateStopwatch.start()
 
-//        if (updateCount % 100 == 0) {
-//            spawn(FhysicsObjectFactory.randomCircle())
-//        }
+        QuadTree.insertPendingAdditions()
+        QuadTree.rebuild()
 
-        BVH.handleCollisions()
-        BVH.updateFhysicsObjects()
-        BVH.rebuild()
+        repeat(SUB_STEPS) {
+            QuadTree.updateFhysicsObjects()
+            QuadTree.handleCollisions()
 
-//        QuadTree.insertPendingAdditions()
-//        QuadTree.rebuild()
+            SceneListener.pullObject()
 
-//        repeat(SUB_STEPS) {
-//            QuadTree.handleCollisions()
-//            QuadTree.updateFhysicsObjects()
-//
-//            SceneListener.pullObject()
-//
-        updateCount++
-//        }
+            updateCount++
+        }
 
-//        if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
+        if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
         updateStopwatch.stop()
     }
@@ -167,9 +160,8 @@ object FhysicsCore {
     private fun spawn(objects: List<FhysicsObject>) {
         for (obj: FhysicsObject in objects) {
             obj.updateBoundingBox()
+            QuadTree.insert(obj)
         }
-
-        BVH.insert(objects)
     }
 
     fun clear() {
@@ -230,10 +222,7 @@ object FhysicsCore {
         } else {
             val direction: Vector2 = UIController.gravityPoint - pos
             val sqrDistance: Float =
-                max(
-                    1f,
-                    direction.sqrMagnitude()
-                ) // Prevent high forces when the object is close to the gravity point
+                max(1f, direction.sqrMagnitude()) // Prevent high forces when the object is close to the gravity point
             return UIController.gravityPointStrength / sqrDistance * direction.normalized()
         }
     }

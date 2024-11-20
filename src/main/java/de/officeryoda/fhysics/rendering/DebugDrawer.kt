@@ -1,7 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.datastructures.BVH
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -35,7 +34,7 @@ object DebugDrawer {
 
     /// region =====Draw functions=====
     fun drawDebug() {
-        if (UIController.drawQuadTree) BVH.drawNodes()
+        if (UIController.drawQuadTree) QuadTree.drawNodes()
         drawDebugPoints()
         drawDebugLines()
         drawDebugVectors()
@@ -214,17 +213,6 @@ object DebugDrawer {
         gc.fillRect(x, y, width, height)
         // Write the amount of objects in the cell
         drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
-    }
-
-    fun transformAndDrawBVHNode(bounds: BoundingBox) {
-        val x: Double = RenderUtil.worldToScreenX(bounds.x)
-        val y: Double = RenderUtil.worldToScreenY(bounds.y + bounds.height)
-        val width: Double = bounds.width * zoom
-        val height: Double = bounds.height * zoom
-
-        // Draw Border
-        RenderUtil.setStrokeColor(Color.WHITE)
-        gc.strokeRect(x, y, width, height)
     }
 
     private fun drawCenteredText(text: String, rect: Rectangle2D) {

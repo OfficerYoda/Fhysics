@@ -6,7 +6,7 @@ import de.officeryoda.fhysics.engine.datastructures.QuadTree
 // needs to be run with special VM options
 // see https://www.youtube.com/watch?v=hS_6ek9rTco&ab_channel=BoostMyTool
 fun main() {
-    println("FhysicsBVH")
+    println("Fhysics")
 
     FhysicsCore.startEverything()
 

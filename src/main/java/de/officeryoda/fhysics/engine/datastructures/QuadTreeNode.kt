@@ -284,9 +284,9 @@ data class QuadTreeNode(
         }
     }
 
-    fun drawNode(drawer: FhysicsObjectDrawer) {
+    fun drawNode() {
         if (divided) {
-            children.forEach { it!!.drawNode(drawer) }
+            children.forEach { it!!.drawNode() }
         } else {
             DebugDrawer.transformAndDrawQuadTreeNode(boundary, objects.size)
         }
