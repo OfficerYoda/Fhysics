@@ -1,25 +1,40 @@
 package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
-import de.officeryoda.fhysics.rendering.UIController.Companion.quadTreeCapacityChanged
 
 object QuadTree {
+    private class QTNodeElement(
+        /**
+         * The index of the object in [QuadTree.objects]
+         */
+        val index: Int,
+        /**
+         * The index of the element in the node or -1 if it's the last element
+         */
+        var next: Int,
+    )
 
     // Capacity of the tree
-    var capacity: Int = 4
+    var capacity: Int = 8
         set(value) {
             field = value.coerceAtLeast(1)
         }
 
-    // Pool of nodes to prevent excessive object creation
-    private val nodePool: ObjectPool<QuadTreeNode> = ObjectPool()
+    // The root node of the tree
+    private var root: QuadTreeNode = QuadTreeNode(FhysicsCore.BORDER, null)
 
-    // Thread pool for parallelizing the tree processes TODO
-//    val threadPool = Executors.newFixedThreadPool(4)
+    // List of all nodes in the tree
+    private val nodes = IndexedFreeList<QuadTreeNode>()
+
+    // List of all elements in the tree (elements store the index of the object in QuadTree.objects)
+    // This is done, so that objects are only stored once in the tree and can be referenced multiple times by different elements
+    private val elements = IndexedFreeList<QTNodeElement>()
+
+    // List of all objects in the tree
+    private val objects = IndexedFreeList<FhysicsObject>()
 
     // List of objects to add, used to queue up insertions and prevent concurrent modification
     private val pendingAdditions: MutableList<FhysicsObject> = ArrayList()
@@ -27,73 +42,208 @@ object QuadTree {
     // Set of objects to remove, used to mark objects for deletion safely
     private val pendingRemovals: MutableSet<FhysicsObject> = HashSet()
 
-    // The root node of the tree
-    private var root: QuadTreeNode = QuadTreeNode(FhysicsCore.BORDER, null)
-
+    /// region =====Basic QuadTree Operations=====
     fun query(pos: Vector2): FhysicsObject? {
-        return root.query(pos)
+        val leaf: QuadTreeNode = getLeafNode(pos)
+        val objectHit: FhysicsObject? = queryLeafObjects(leaf, pos)
+        return objectHit
+    }
+
+    private fun getLeafNode(pos: Vector2): QuadTreeNode {
+        var node: QuadTreeNode = root
+        // Traverse the tree until a leaf node is found
+        while (!node.isLeaf()) {
+            val index: Int = node.firstIdx
+            for (i: Int in 0 until 4) {
+                val child: QuadTreeNode = nodes[index + i]
+                if (child.boundary.contains(pos)) {
+                    node = child
+                    break
+                }
+            }
+        }
+        return node
+    }
+
+    // Returns the index of the object or -1
+    private fun queryLeafObjects(
+        node: QuadTreeNode,
+        pos: Vector2
+    ): FhysicsObject? {
+        if (node.count <= 0) return null
+
+        // Traverse the element linked list
+        var element: QTNodeElement = elements[node.firstIdx]
+        while (true) {
+            // Get the object from the list
+            val obj: FhysicsObject = objects[element.index]
+            // Check if the object is at the position
+            if (obj.contains(pos)) {
+                return obj
+            }
+
+            // No more elements in the leaf
+            if (element.next == -1) {
+                break
+            }
+
+            // Get the next element
+            element = elements[element.next]
+        }
+
+        return null
     }
 
     fun insert(obj: FhysicsObject) {
-        pendingAdditions.add(obj)
+        // A collection of nodes to process
+        val queue: ArrayDeque<QuadTreeNode> = ArrayDeque()
+        queue.add(root)
+
+        while (!queue.isEmpty()) {
+            val node: QuadTreeNode = queue.removeFirst()
+
+            // If the node is a leaf, insert the object
+            if (node.isLeaf()) {
+                insertIntoLeaf(node, obj)
+                return
+            }
+
+            // Find the child nodes that overlap with the object
+            val index: Int = node.firstIdx
+            for (i: Int in 0 until 4) {
+                val child: QuadTreeNode = nodes[index + i]
+                if (child.boundary.overlaps(obj.boundingBox)) {
+                    queue.add(child)
+                }
+            }
+        }
+    }
+
+    private fun insertIntoLeaf(node: QuadTreeNode, obj: FhysicsObject) {
+        // Create a new element
+        val element = QTNodeElement(objects.add(obj), -1)
+
+        // If the node is empty, add the element as the first element
+        if (node.count == 0) {
+            node.firstIdx = elements.add(element)
+            node.count = 1
+            return
+        }
+
+        // Traverse the element linked list
+        var current: QTNodeElement = elements[node.firstIdx]
+        while (true) {
+            // If the next element is the last element, add the new element
+            if (current.next == -1) {
+                current.next = elements.add(element)
+                node.count++
+                return
+            }
+
+            // Get the next element
+            current = elements[current.next]
+        }
     }
 
     fun remove(obj: FhysicsObject) {
-        pendingRemovals.add(obj)
+        // A collection of nodes to process
+        val queue: ArrayDeque<QuadTreeNode> = ArrayDeque()
+        queue.add(root)
+
+        while (!queue.isEmpty()) {
+            val node: QuadTreeNode = queue.removeFirst()
+
+            // If the node is a leaf, insert the object
+            if (node.isLeaf()) {
+                removeFromLeaf(node, obj)
+                return
+            }
+
+            // Find the child nodes that overlap with the object
+            val index: Int = node.firstIdx
+            for (i: Int in 0 until 4) {
+                val child: QuadTreeNode = nodes[index + i]
+                if (child.boundary.overlaps(obj.boundingBox)) {
+                    queue.add(child)
+                }
+            }
+        }
     }
 
+    private fun removeFromLeaf(node: QuadTreeNode, obj: FhysicsObject) {
+        // Traverse the element linked list
+        var current: QTNodeElement = elements[node.firstIdx]
+        var previous: QTNodeElement? = null
+        while (true) {
+            // Get the object from the list
+            val currentObj: FhysicsObject = objects[current.index]
+            // Check if the object is the one to remove
+            if (currentObj == obj) {
+                // If the object is the first element, update the first element
+                if (previous == null) {
+                    elements.remove(node.firstIdx)
+                    node.firstIdx = current.next
+                } else {
+                    elements.remove(previous.index)
+                    previous.next = current.next
+                }
+
+                // Remove the element
+                objects.remove(current.index)
+                node.count--
+                return
+            }
+
+            // No more elements in the leaf
+            if (current.next == -1) {
+                break
+            }
+
+            // Get the next element
+            previous = current
+            current = elements[current.next]
+        }
+    }
+    /// endregion
+
     fun insertPendingAdditions() {
-        pendingAdditions.forEach { root.insert(it) }
+        pendingAdditions.forEach { insert(it) }
         pendingAdditions.clear()
     }
 
     fun rebuild() {
-        // If the capacity was changed, divideNextUpdate will be true and the root should try to divide
-        if (quadTreeCapacityChanged) {
-            root.tryDivide()
-            quadTreeCapacityChanged = false
-        }
-
-        root.rebuild()
+        // TODO
     }
 
     fun clear() {
         root = QuadTreeNode(FhysicsCore.BORDER, null)
-        nodePool.clear()
+        nodes.clear()
+        elements.clear()
+        objects.clear()
     }
 
     fun updateFhysicsObjects() {
-        root.updateFhysicsObjects()
+        // TODO
     }
 
     fun handleCollisions() {
-        root.handleCollisions()
+        // TODO
     }
 
     fun drawObjects(drawer: FhysicsObjectDrawer) {
-        root.drawObjects(drawer)
+        // TODO
     }
 
     fun drawNodes() {
-        root.drawNode()
+        // TODO
     }
 
     fun updateNodeSizes() {
-        root.updateNodeSizes(isTop = true, isLeft = true)
-    }
-
-    fun getNodeFromPool(): QuadTreeNode {
-        // Try to get a node from the pool, if it's null, create a new one
-        return nodePool.borrowObject() ?: QuadTreeNode(BoundingBox(0f, 0f, 0f, 0f), null)
-    }
-
-    fun addNodeToPool(qtNode: QuadTreeNode) {
-        qtNode.clear()
-        nodePool.returnObject(qtNode)
+        // TODO
     }
 
     fun getObjectCount(): Int {
-        return root.countUnique()
+        return objects.capacity()
     }
 
     fun getPendingRemovals(): MutableSet<FhysicsObject> {
