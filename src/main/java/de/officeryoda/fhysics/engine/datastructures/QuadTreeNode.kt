@@ -3,8 +3,7 @@ package de.officeryoda.fhysics.engine.datastructures
 import de.officeryoda.fhysics.engine.math.BoundingBox
 
 data class QuadTreeNode(
-    var boundary: BoundingBox,
-    private var parent: QuadTreeNode?,
+    var boundingBox: BoundingBox,
 ) {
     /**
      * Points to the first child node in [QuadTree.nodes] when the node is a branch
@@ -24,6 +23,6 @@ data class QuadTreeNode(
     }
 
     override fun toString(): String {
-        return "QuadTreeNode(boundary=$boundary, firstIdx=$firstIdx, count=$count)"
+        return "QuadTreeNode(boundary=$boundingBox, firstIdx=$firstIdx, count=$count)"
     }
 }

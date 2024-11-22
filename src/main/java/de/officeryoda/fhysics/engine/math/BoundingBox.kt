@@ -19,11 +19,36 @@ data class BoundingBox(
      * @return True if the bounding boxes overlap, false otherwise.
      */
     fun overlaps(other: BoundingBox): Boolean {
-        return (x <= (other.x + other.width))
-                && ((x + width) >= other.x)
-                && (y <= (other.y + other.height))
-                && ((y + height) >= other.y)
+        return this.x <= (other.x + other.width)
+                && this.y <= (other.y + other.height)
+                && other.x <= (this.x + this.width)
+                && other.y <= (this.y + this.height)
     }
+
+    /**
+     * Checks if the given position is contained within this bounding box.
+     *
+     * @param pos The position to check for containment.
+     * @return True if the position is contained within the bounding box, false otherwise.
+     */
+    fun contains(pos: Vector2): Boolean {
+        return pos.x in x..(x + width) &&
+                pos.y in y..(y + height)
+    }
+
+    /**
+     * Checks if this bounding box contains the given bounding box.
+     *
+     * @param other The other bounding box to check for containment.
+     * @return True if this bounding box contains the other bounding box, false otherwise.
+     */
+    fun contains(other: BoundingBox): Boolean {
+        return this.x <= other.x
+                && this.y <= other.y
+                && (this.x + this.width) >= (other.x + other.width)
+                && (this.y + this.height) >= (other.y + other.height)
+    }
+
 
     /**
      * Sets the bounding box to the bounding box of the given circle.
@@ -61,52 +86,5 @@ data class BoundingBox(
         this.y = minY
         this.width = maxX - minX
         this.height = maxY - minY
-    }
-
-    /**
-     * Checks if the given position is contained within this bounding box.
-     *
-     * @param pos The position to check for containment.
-     * @return True if the position is contained within the bounding box, false otherwise.
-     */
-    fun contains(pos: Vector2): Boolean {
-        return pos.x in x..(x + width) &&
-                pos.y in y..(y + height)
-    }
-
-    /**
-     * Checks if this bounding box contains the given bounding box.
-     *
-     * @param other The other bounding box to check for containment.
-     * @return True if this bounding box contains the other bounding box, false otherwise.
-     */
-    fun contains(other: BoundingBox): Boolean {
-        return this.x <= other.x && this.y <= other.y &&
-                (this.x + this.width) >= (other.x + other.width) &&
-                (this.y + this.height) >= (other.y + other.height)
-    }
-
-    /**
-     * Merges this bounding box with the given bounding box.
-     *
-     * @param other The other bounding box to merge with.
-     * @return The merged bounding box.
-     */
-    fun merge(other: BoundingBox): BoundingBox {
-        val minX: Float = min(this.x, other.x)
-        val minY: Float = min(this.y, other.y)
-        val maxX: Float = max(this.x + width, other.x + other.width)
-        val maxY: Float = max(this.y + height, other.y + other.height)
-
-        return BoundingBox(minX, minY, maxX - minX, maxY - minY)
-    }
-
-    /**
-     * Calculates the area of the bounding box.
-     *
-     * @return The area of the bounding box.
-     */
-    fun area(): Float {
-        return width * height
     }
 }

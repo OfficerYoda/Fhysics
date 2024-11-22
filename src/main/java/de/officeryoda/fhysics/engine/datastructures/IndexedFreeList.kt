@@ -107,6 +107,15 @@ class IndexedFreeList<T> : Iterable<T> {
     }
 
     /**
+     * Returns the index of the specified element.
+     *
+     * @param element The element to search for.
+     */
+    fun indexOf(element: T): Int {
+        return data.indexOfFirst { it.element == element }
+    }
+
+    /**
      * Returns an iterator over the elements of this object.
      */
     override fun iterator(): Iterator<T> {
