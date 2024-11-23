@@ -14,22 +14,10 @@ object PolygonCreator {
         ensureCCW(vertices)
         if (!isConcave(vertices)) return ConvexPolygon(vertices, angle)
 
+        // Triangulate the polygon
         val triangles: MutableList<Array<Vector2>> = triangulate(vertices.toMutableList())
-        // draw triangles
-//        triangles.forEach { triangle ->
-//            DebugDrawer.addDebugLine(triangle[0].copy(), triangle[1].copy(), Color.RED, 2400)
-//            DebugDrawer.addDebugLine(triangle[1].copy(), triangle[2].copy(), Color.RED, 2400)
-//            DebugDrawer.addDebugLine(triangle[2].copy(), triangle[0].copy(), Color.RED, 2400)
-//        }
-
+        // Merge the triangles to create convex polygons
         val polygonIndices: Array<Array<Int>> = mergePolygons(vertices, triangles)
-        // draw merged triangles
-//        polygonIndices.forEach { polygon ->
-//            polygon.indices.forEach { i ->
-//                val j: Int = (i + 1) % polygon.size
-//                DebugDrawer.addDebugLine(vertices[polygon[i]].copy(), vertices[polygon[j]].copy(), Color.GREEN, 2400)
-//            }
-//        }
 
         return ConcavePolygon(vertices, polygonIndices, angle)
     }
@@ -175,7 +163,7 @@ object PolygonCreator {
         for (i: Int in polyA.indices) {
             val p1: Vector2 = polyA[i]
             val p2: Vector2 = polyA[(i + 1) % polyA.size]
-            polyB.indices.forEach { j ->
+            for (j: Int in polyB.indices) {
                 val p3: Vector2 = polyB[j]
                 val p4: Vector2 = polyB[(j + 1) % polyB.size]
                 if (p1 == p4 && p2 == p3) return Pair(i, j)

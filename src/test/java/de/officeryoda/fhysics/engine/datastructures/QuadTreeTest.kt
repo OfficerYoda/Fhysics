@@ -111,7 +111,7 @@ class QuadTreeTest {
 
         objects.forEach { QuadTree.insert(it) }
 
-        assertTrue(!QuadTree.root.isLeaf())
+        assertTrue(!QuadTree.root.isLeaf)
     }
 
     @Test

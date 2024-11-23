@@ -18,9 +18,7 @@ data class QuadTreeNode(
     var count: Int = 0
 
     // Returns if the node is a leaf
-    fun isLeaf(): Boolean {
-        return count != -1
-    }
+    val isLeaf: Boolean get() = count != -1
 
     override fun toString(): String {
         return "QuadTreeNode(boundary=$boundingBox, firstIdx=$firstIdx, count=$count)"

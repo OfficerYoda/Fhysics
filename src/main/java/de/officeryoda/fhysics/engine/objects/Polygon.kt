@@ -31,7 +31,9 @@ abstract class Polygon(
 
     init {
         // convert vertices to local space
-        vertices.forEach { it -= position }
+        for (it: Vector2 in vertices) {
+            it -= position
+        }
     }
 
     open fun getAxes(): Set<Vector2> {

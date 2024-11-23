@@ -87,7 +87,7 @@ object ContactFinder {
 
                 val subContactPoints: Array<Vector2> = findContactPoints(subPolyA, subPolyB)
 
-                subContactPoints.forEach {
+                for (it: Vector2 in subContactPoints) {
                     if (!isNearExisting(it, contactPoints)) {
                         contactPoints.add(it)
                     }
@@ -160,7 +160,7 @@ object ContactFinder {
         for (subPoly: Polygon in concavePolygon.subPolygons) {
             val subContactPoints: Array<Vector2> = findContactPoints(border, subPoly)
 
-            subContactPoints.forEach {
+            for (it: Vector2 in subContactPoints) {
                 if (!isNearExisting(it, contactPoints)) {
                     contactPoints.add(it)
                 }

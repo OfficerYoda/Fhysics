@@ -299,7 +299,7 @@ object CollisionSolver {
         val collidingBorders: MutableSet<BorderEdge> = moveInsideBorder(obj)
 
         // Find contact points and solve collisions
-        collidingBorders.forEach { border: BorderEdge ->
+        for (border: BorderEdge in collidingBorders) {
             solveBorderCollision(obj, border)
         }
     }
@@ -316,11 +316,7 @@ object CollisionSolver {
     ) {
         // Find contact points
         val contactPoints: Array<Vector2> = obj.findContactPoints(border)
-
-//        contactPoints.forEach {
-//            DebugDrawer.addDebugPoint(it, Color.green)
-//        }
-
+        // Early out
         if (contactPoints.isEmpty()) return
 
         // Solve collision

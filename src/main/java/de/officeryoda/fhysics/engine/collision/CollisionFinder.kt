@@ -53,7 +53,7 @@ object CollisionFinder {
 
         val axes: Set<Vector2> = poly.getAxes()
 
-        axes.forEach { axis: Vector2 ->
+        for (axis: Vector2 in axes) {
             val projResult: ProjectionResult = testProjectionOverlap(axis, poly, circle)
 
             if (!projResult.hasOverlap) return CollisionInfo()
@@ -93,7 +93,7 @@ object CollisionFinder {
         var normal: Vector2 = Vector2.ZERO
         var depth: Float = Float.MAX_VALUE
 
-        axes.forEach { axis: Vector2 ->
+        for (axis: Vector2 in axes) {
             val projResult: ProjectionResult = testProjectionOverlap(axis, polyA, polyB)
 
             if (!projResult.hasOverlap) return CollisionInfo()
@@ -126,9 +126,9 @@ object CollisionFinder {
         var deepestCollision = CollisionInfo()
 
         // Check for collision between the circle and every sub-polygon
-        poly.subPolygons.forEach { subPoly: Polygon ->
+        for (subPoly: Polygon in poly.subPolygons) {
             val collisionInfo: CollisionInfo = testCollision(subPoly, circle)
-            if (!collisionInfo.hasCollision) return@forEach
+            if (!collisionInfo.hasCollision) continue
             if (abs(deepestCollision.depth) < abs(collisionInfo.depth) || deepestCollision.depth == Float.NEGATIVE_INFINITY) {
                 deepestCollision = collisionInfo
             }

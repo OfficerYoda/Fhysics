@@ -43,7 +43,7 @@ object FhysicsCore {
 
     init {
 //        val objects: List<FhysicsObject> = List(100) { FhysicsObjectFactory.randomCircle() }
-//        objects.forEach {
+//        for (it: FhysicsObject in objects) {
 //            it.restitution = 1f
 //            it.frictionDynamic = 0f
 //            it.frictionStatic = 0f

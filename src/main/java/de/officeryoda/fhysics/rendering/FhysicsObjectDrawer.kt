@@ -357,8 +357,14 @@ class FhysicsObjectDrawer : Application() {
 
         // Check if the mouse is still hovering over the object
         val obj: FhysicsObject? =
-            hoveredObject?.takeIf { it.contains(mousePosWorld) && !pendingRemovals.contains(it) }
-                ?: QuadTree.query(mousePosWorld)
+            if (hoveredObject != null &&
+                hoveredObject!!.contains(mousePosWorld) &&
+                !pendingRemovals.contains(hoveredObject)
+            ) {
+                hoveredObject
+            } else {
+                QuadTree.query(mousePosWorld)
+            }
 
         // If the object is in the remove queue, don't return it
         return obj.takeUnless { pendingRemovals.contains(it) }

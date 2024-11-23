@@ -161,7 +161,8 @@ private object PerformanceTester {
             // Set up the scenario
             // Set up the object properties
             val objectProperties: PhysicalProperties = scenario.objectProperties
-            scenario.objectCreation().forEach {
+            val objects: List<FhysicsObject> = scenario.objectCreation()
+            for (it: FhysicsObject in objects) {
                 it.apply {
                     restitution = objectProperties.restitution
                     frictionStatic = objectProperties.frictionStatic

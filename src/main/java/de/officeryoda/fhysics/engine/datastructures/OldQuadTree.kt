@@ -117,7 +117,9 @@ private data class OldQuadTree(
         val br = BoundingBox(x + hw, y, hw, hh)
         botRight = OldQuadTree(br, this)
 
-        objects.forEach { insertInChildren(it) }
+        for (it: FhysicsObject in objects) {
+            insertInChildren(it)
+        }
         objects.clear()
 
         divided = true
