@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.extensions
 
 import de.officeryoda.fhysics.engine.math.Vector2
+import kotlin.math.ceil
 
 /**
  * Extension functions for Float class related to Vector2 operations.
@@ -46,5 +47,19 @@ inline fun <T> Iterable<T>.sumOf(selector: (T) -> Float): Float {
         sum += selector(element)
     }
     return sum
+}
+
+/**
+ * Rounds the float value down to the nearest integer.
+ */
+fun Float.floorToInt(): Int {
+    return this.toInt()
+}
+
+/**
+ * Rounds the float value up to the nearest integer.
+ */
+fun Float.ceilToInt(): Int {
+    return ceil(this).toInt()
 }
 

@@ -13,7 +13,12 @@ package de.officeryoda.fhysics.engine.datastructures
  *
  * @param T The type of elements stored in the free list.
  */
-class IndexedFreeList<T> : Iterable<T> {
+class IndexedFreeList<T>() : Iterable<T> {
+
+    constructor(element: T) : this() {
+        this.add(element)
+    }
+
     /**
      * The data structure for a free element in the free list.
      * @param element The element.
