@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.engine.math
 
+import de.officeryoda.fhysics.engine.datastructures.CenterRect
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.Polygon
 import kotlin.math.max
@@ -19,10 +20,27 @@ data class BoundingBox(
      * @return True if the bounding boxes overlap, false otherwise.
      */
     fun overlaps(other: BoundingBox): Boolean {
-        return this.x <= (other.x + other.width)
-                && this.y <= (other.y + other.height)
-                && other.x <= (this.x + this.width)
-                && other.y <= (this.y + this.height)
+        return this.x <= (other.x + other.width) &&
+                this.y <= (other.y + other.height) &&
+                other.x <= (this.x + this.width) &&
+                other.y <= (this.y + this.height)
+    }
+
+    /**
+     * Checks if this bounding box overlaps with the given center rectangle.
+     *
+     * @param cRect The center rectangle to check for overlap.
+     * @return True if the bounding box overlaps with the center rectangle, false otherwise.
+     */
+    fun overlaps(cRect: CenterRect): Boolean {
+        val cx: Int = cRect[0]
+        val cy: Int = cRect[1]
+        val hw: Int = cRect[2] / 2
+        val hh: Int = cRect[3] / 2
+        return (cx + hw) > this.x &&
+                (cy + hh) > this.y &&
+                (cx - hw) < (this.x + this.width) &&
+                (cy - hh) < (this.y + this.width)
     }
 
     /**
@@ -43,10 +61,10 @@ data class BoundingBox(
      * @return True if this bounding box contains the other bounding box, false otherwise.
      */
     fun contains(other: BoundingBox): Boolean {
-        return this.x <= other.x
-                && this.y <= other.y
-                && (this.x + this.width) >= (other.x + other.width)
-                && (this.y + this.height) >= (other.y + other.height)
+        return this.x <= other.x &&
+                this.y <= other.y &&
+                (this.x + this.width) >= (other.x + other.width) &&
+                (this.y + this.height) >= (other.y + other.height)
     }
 
 

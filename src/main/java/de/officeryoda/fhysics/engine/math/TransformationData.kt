@@ -12,8 +12,8 @@ import kotlin.math.sin
  * 3. y-translation
  */
 @JvmInline
-// Inline class reduces memory overhead and improves performance
-// by avoiding runtime object allocation and working directly with the underlying value.
+// Inline classes reduce memory overhead and improve performance
+// by eliminating runtime object allocation and directly using the underlying value.
 value class TransformationData(
     /**
      * The transformation data.

@@ -104,13 +104,17 @@ class QuadTreeTest {
         val obj2 = Circle(Vector2(15f, 15f), 1f)
         val obj3 = Circle(Vector2(25f, 25f), 1f)
         val obj4 = Circle(Vector2(35f, 35f), 1f)
-        val obj5 = Circle(Vector2(55f, 55f), 1f)
+        val obj5 = Circle(Vector2(45f, 45f), 1f)
 
         val objects = listOf(obj1, obj2, obj3, obj4, obj5)
         objects.forEach { it.updateBoundingBox() }
 
         objects.forEach { QuadTree.insert(it) }
 
+        QuadTree.printTree()
+
+        assertEquals(5, QuadTree.getObjectCount())
+        assertEquals(2, QuadTree.getCurrentDepth())
         assertTrue(!QuadTree.root.isLeaf)
     }
 
@@ -133,6 +137,7 @@ class QuadTreeTest {
         val result3 = QuadTree.query(Vector2(25f, 25f))
         val result4 = QuadTree.query(Vector2(35f, 35f))
         val result5 = QuadTree.query(Vector2(45f, 45f))
+
         assertNotNull(result1)
         assertNotNull(result2)
         assertNotNull(result3)

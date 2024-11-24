@@ -20,24 +20,6 @@ class IndexedFreeList<T>() : Iterable<T> {
     }
 
     /**
-     * The data structure for a free element in the free list.
-     * @param element The element.
-     * @param next The index of the next free element.
-     */
-    private data class FreeElement<T>(
-        /**
-         * The element.
-         * null if the element is free.
-         */
-        var element: T? = null,
-        /**
-         * The index of the next free element.
-         * -1 if there is no next free element or the element is not free.
-         */
-        var next: Int = -1
-    )
-
-    /**
      * The data of the free list.
      */
     private val data: MutableList<FreeElement<T>> = mutableListOf()
@@ -126,4 +108,22 @@ class IndexedFreeList<T>() : Iterable<T> {
     override fun iterator(): Iterator<T> {
         return data.mapNotNull { it.element }.iterator()
     }
+
+    /**
+     * The data structure for a free element in the free list.
+     * @param element The element.
+     * @param next The index of the next free element.
+     */
+    private data class FreeElement<T>(
+        /**
+         * The element.
+         * null if the element is free.
+         */
+        var element: T? = null,
+        /**
+         * The index of the next free element.
+         * -1 if there is no next free element or the element is not free.
+         */
+        var next: Int = -1,
+    )
 }
