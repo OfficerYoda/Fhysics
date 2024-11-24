@@ -189,22 +189,6 @@ data class Vector2
     }
 
     /**
-     * Multiplies the Matrix2x3 by this Vector2.
-     *
-     * Assuming that the third row of the matrix is always [0, 0, 1] and
-     * the Vector2 is treated as a 3x1 matrix [x, y, 1].
-     *
-     * @param matrix The Matrix2x3 to multiply with.
-     * @return The result of the multiplication.
-     */
-    operator fun times(matrix: Matrix2x3): Vector2 {
-        return Vector2(
-            this.x * matrix.m00 + this.y * matrix.m01 + matrix.m02,
-            this.x * matrix.m10 + this.y * matrix.m11 + matrix.m12
-        )
-    }
-
-    /**
      * Divides the Vector2 by a scalar.
      *
      * @param scalar The scalar value.
