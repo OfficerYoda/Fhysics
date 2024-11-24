@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.math.BoundingBox
 
-data class QuadTreeNode(
+data class QTNode(
     var boundingBox: BoundingBox,
 ) {
     /**
