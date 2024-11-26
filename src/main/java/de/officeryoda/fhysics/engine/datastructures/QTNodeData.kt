@@ -3,11 +3,12 @@ package de.officeryoda.fhysics.engine.datastructures
 data class QTNodeData(
     /** Index of the node in the [QuadTree.nodes] list */
     val index: Int,
-    /** Array representing the node's bounding box: [centerX, centerY, width, height] */
+    /** IntArray representing the node's bounding box: [centerX, centerY, width, height] */
     val cRect: CenterRect,
     /** Depth of the node in the Quadtree */
     val depth: Int,
 ) {
+
 
     /**
      * Constructs a new [QTNodeData] object.

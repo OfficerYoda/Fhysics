@@ -37,10 +37,10 @@ data class BoundingBox(
         val cy: Int = cRect[1]
         val hw: Int = cRect[2] / 2
         val hh: Int = cRect[3] / 2
-        return (cx + hw) > this.x &&
-                (cy + hh) > this.y &&
-                (cx - hw) < (this.x + this.width) &&
-                (cy - hh) < (this.y + this.width)
+        return (cx + hw) >= this.x &&
+                (cy + hh) >= this.y &&
+                (cx - hw) <= (this.x + this.width) &&
+                (cy - hh) <= (this.y + this.width)
     }
 
     /**

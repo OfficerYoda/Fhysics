@@ -7,114 +7,114 @@ import org.junit.jupiter.api.Test
 
 class IndexedFreeListTest {
 
-    private lateinit var list: IndexedFreeList<Int>
+    private lateinit var freeList: IndexedFreeList<Int>
 
     @BeforeEach
     fun setUp() {
-        list = IndexedFreeList()
+        freeList = IndexedFreeList()
     }
 
     @Test
     fun testAdd() {
-        val index = list.add(10)
+        val index = freeList.add(10)
         assertEquals(0, index)
-        assertEquals(10, list[0])
+        assertEquals(10, freeList[0])
     }
 
     @Test
-    fun testRemove() {
-        val index = list.add(20)
-        list.remove(index)
+    fun testFree() {
+        val index = freeList.add(20)
+        freeList.free(index)
         assertThrows(IndexOutOfBoundsException::class.java) {
-            list[index]
+            freeList[index]
         }
     }
 
     @Test
     fun testClear() {
-        list.add(30)
-        list.clear()
-        assertEquals(0, list.capacity())
+        freeList.add(30)
+        freeList.clear()
+        assertEquals(0, freeList.capacity())
     }
 
     @Test
     fun testCapacity() {
-        list.add(40)
-        list.add(50)
-        assertEquals(2, list.capacity())
+        freeList.add(40)
+        freeList.add(50)
+        assertEquals(2, freeList.capacity())
     }
 
     @Test
     fun testGet() {
-        val index = list.add(60)
-        assertEquals(60, list[index])
+        val index = freeList.add(60)
+        assertEquals(60, freeList[index])
     }
 
     @Test
     fun testAddMultiple() {
-        val index1 = list.add(10)
-        val index2 = list.add(20)
-        val index3 = list.add(30)
+        val index1 = freeList.add(10)
+        val index2 = freeList.add(20)
+        val index3 = freeList.add(30)
         assertEquals(0, index1)
         assertEquals(1, index2)
         assertEquals(2, index3)
-        assertEquals(10, list[0])
-        assertEquals(20, list[1])
-        assertEquals(30, list[2])
+        assertEquals(10, freeList[0])
+        assertEquals(20, freeList[1])
+        assertEquals(30, freeList[2])
     }
 
     @Test
-    fun testRemoveAndReuse() {
-        val index1 = list.add(10)
-        val index2 = list.add(20)
-        list.remove(index1)
-        val index3 = list.add(30)
+    fun testFreeAndReuse() {
+        val index1 = freeList.add(10)
+        val index2 = freeList.add(20)
+        freeList.free(index1)
+        val index3 = freeList.add(30)
         assertEquals(index1, index3) // Reused the erased index
-        assertEquals(30, list[index1])
-        assertEquals(20, list[index2])
+        assertEquals(30, freeList[index1])
+        assertEquals(20, freeList[index2])
     }
 
     @Test
-    fun testRemoveNonExistent() {
+    fun testFreeNonExistent() {
         assertThrows(IndexOutOfBoundsException::class.java) {
-            list.remove(0)
+            freeList.free(0)
         }
     }
 
     @Test
     fun testAddAfterClear() {
-        list.add(10)
-        list.clear()
-        val index = list.add(20)
+        freeList.add(10)
+        freeList.clear()
+        val index = freeList.add(20)
         assertEquals(0, index)
-        assertEquals(20, list[0])
+        assertEquals(20, freeList[0])
     }
 
     @Test
-    fun testCapacityAfterRemove() {
-        list.add(10)
-        list.add(20)
-        list.remove(0)
-        assertEquals(2, list.capacity()) // Range should still be 2 even after erasing
+    fun testCapacityAfterFree() {
+        freeList.add(10)
+        freeList.add(20)
+        freeList.free(0)
+        assertEquals(2, freeList.capacity()) // Range should still be 2 even after erasing
     }
 
     @Test
-    fun testAddAndRemoveMultiple() {
-        val indices = (0..9).map { list.add(it) }
-        indices.forEach { list.remove(it) }
+    fun testAddAndFreeMultiple() {
+        val indices = (0..9).map { freeList.add(it) }
+        indices.forEach { freeList.free(it) }
         indices.forEach {
             assertThrows(IndexOutOfBoundsException::class.java) {
-                list[it]
+                freeList[it]
             }
         }
     }
 
     @Test
-    fun testAddAfterRemoveBlock() {
-        val indices = (0..9).map { list.add(it) }
-        indices.forEach { list.remove(it) }
-        val newIndex = list.add(100)
-        assertEquals(indices[0], newIndex) // Should reuse the first erased index
-        assertEquals(100, list[newIndex])
+    fun testAddAfterFreeBlock() {
+        val indices = (0..9).map { freeList.add(it) }
+        indices.forEach { freeList.free(it) }
+        val newIndex = freeList.add(100)
+        assertEquals(indices[indices.size - 1], newIndex) // Should reuse the last erased index
+        assertEquals(100, freeList[newIndex])
     }
 }

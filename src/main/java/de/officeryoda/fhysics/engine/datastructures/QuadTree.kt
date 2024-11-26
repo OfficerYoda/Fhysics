@@ -107,7 +107,7 @@ object QuadTree {
             }
             if (edges[3] <= cy) { // Bottom edge intersects or is below the center
                 // Bottom-right
-                toProcess.add(QTNodeData(cx + 0, cy - hh, tw - hw, th - hh, childIndex + 4, nodeData.depth + 1))
+                toProcess.add(QTNodeData(cx + 0, cy - hh, tw - hw, th - hh, childIndex + 3, nodeData.depth + 1))
             }
         }
     }
@@ -148,6 +148,7 @@ object QuadTree {
 
             nodeElement = elements[nodeElement.next]
         }
+
         return Pair(nodeElement, false)
     }
     /// endregion
@@ -165,7 +166,7 @@ object QuadTree {
         bboxEdges: BoundingBoxEdges,
     ) {
         // Remove the element from the object list
-        objects.remove(objIdx)
+        objects.free(objIdx)
 
         // A collection of nodes to process
         val queue: ArrayDeque<QTNodeData> = ArrayDeque()
@@ -199,10 +200,10 @@ object QuadTree {
             if (current.index == objIdx) {
                 // If the object is the first element, update the first element
                 if (previous.index == -1) {
-                    elements.remove(node.firstIdx)
+                    elements.free(node.firstIdx)
                     node.firstIdx = current.next
                 } else {
-                    elements.remove(previous.next)
+                    elements.free(previous.next)
                     previous.next = current.next
                 }
 
@@ -301,9 +302,8 @@ object QuadTree {
         val firstNodeIndex: Int = nodes.add(QTNode()) // Store the index of the first child node
         repeat(3) { nodes.add(QTNode()) } // Add the other 3 child nodes
 
-        // Order of insertion matters:
-        // Top-left, Top-right, Bottom-left, Bottom-right
         val qtNodeData: MutableList<QTNodeData> = mutableListOf()
+        // Top-left, Top-right, Bottom-left, Bottom-right
         qtNodeData.add(QTNodeData(cx - hw, cy + 0, hw, hh, firstNodeIndex + 0, parent.depth + 1))
         qtNodeData.add(QTNodeData(cx + 0, cy + 0, tw - hw, hh, firstNodeIndex + 1, parent.depth + 1))
         qtNodeData.add(QTNodeData(cx - hw, cy - hh, hw, th - hh, firstNodeIndex + 2, parent.depth + 1))
@@ -337,16 +337,18 @@ object QuadTree {
         node: QTNode,
         firstChildData: QTNodeData,
     ) {
+        // Remove the elements from the parent node
+        var current = QTNodeElement(-1, node.firstIdx) // Dummy element
+        while (current.next != -1) {
+            val removeIdx: Int = current.next
+            current = elements[current.next]
+            elements.free(removeIdx)
+        }
+
         // Set the count to -1 to indicate that the node is a branch
         node.count = -1
         // Set the first index to the first child node
         node.firstIdx = firstChildData.index
-
-        // Remove the elements from the parent node
-        for (i: Int in 3 downTo 0) {
-            // Remove elements in reverse order to maintain correct indices
-            elements.remove(node.firstIdx + i)
-        }
     }
     /// endregion
     /// endregion

@@ -51,11 +51,11 @@ class IndexedFreeList<T>() : Iterable<T> {
     }
 
     /**
-     * Removes an element from the free list.
+     * Frees an index in the free list for reuse.
      *
      * @param n The index of the element to remove.
      */
-    fun remove(n: Int) {
+    fun free(n: Int) {
         data[n].element = null
         data[n].next = firstFree
         firstFree = n
@@ -80,7 +80,7 @@ class IndexedFreeList<T>() : Iterable<T> {
     /**
      * Returns the number of elements in the free list. This excludes free elements.
      */
-    fun size(): Int {
+    fun usedCount(): Int {
         return data.count { it.element != null }
     }
 
