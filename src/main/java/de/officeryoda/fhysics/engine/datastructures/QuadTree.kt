@@ -81,8 +81,10 @@ object QuadTree {
         // Extract the current node's center and half-size
         val cx: Int = nodeData.cRect[0] // Center X
         val cy: Int = nodeData.cRect[1] // Center Y
-        val hw: Int = nodeData.cRect[2] / 2 // Half width
-        val hh: Int = nodeData.cRect[3] / 2 // Half height
+        val tw: Int = nodeData.cRect[2] // Total width
+        val th: Int = nodeData.cRect[3] // Total height
+        val hw: Int = tw / 2 // Half width
+        val hh: Int = th / 2 // Half height
 
         // Get the index of the first child
         val childIndex: Int = nodes[nodeData.index].firstIdx
@@ -90,18 +92,22 @@ object QuadTree {
         // Check which children overlap the bounding box
         if (edges[0] <= cx) { // Left edge intersects or is left of the center
             if (edges[2] >= cy) { // Top edge intersects or is above the center
-                toProcess.add(QTNodeData(cx - hw, cy + 0, hw, hh, childIndex + 0, nodeData.depth + 1)) // Top-left
+                // Top-left
+                toProcess.add(QTNodeData(cx - hw, cy + 0, hw, hh, childIndex + 0, nodeData.depth + 1))
             }
             if (edges[3] <= cy) { // Bottom edge intersects or is below the center
-                toProcess.add(QTNodeData(cx - hw, cy - hh, hw, hh, childIndex + 2, nodeData.depth + 1)) // Bottom-left
+                // Bottom-left
+                toProcess.add(QTNodeData(cx - hw, cy - hh, hw, tw - hh, childIndex + 2, nodeData.depth + 1))
             }
         }
         if (edges[1] >= cx) { // Right edge intersects or is right of the center
             if (edges[2] >= cy) { // Top edge intersects or is above the center
-                toProcess.add(QTNodeData(cx + 0, cy + 0, hw, hh, childIndex + 1, nodeData.depth + 1)) // Top-right
+                // Top-right
+                toProcess.add(QTNodeData(cx + 0, cy + 0, tw - hw, hh, childIndex + 1, nodeData.depth + 1))
             }
             if (edges[3] <= cy) { // Bottom edge intersects or is below the center
-                toProcess.add(QTNodeData(cx + 0, cy - hh, hw, hh, childIndex + 4, nodeData.depth + 1)) // Bottom-right
+                // Bottom-right
+                toProcess.add(QTNodeData(cx + 0, cy - hh, tw - hw, th - hh, childIndex + 4, nodeData.depth + 1))
             }
         }
     }
@@ -136,7 +142,6 @@ object QuadTree {
     ): Pair<QTNodeElement, Boolean> {
         // Traverse the element linked list until the last element
         var nodeElement: QTNodeElement = elements[node.firstIdx]
-        var objContained = false
         while (nodeElement.next != -1) {
             // Check if the object is already in the node
             if (nodeElement.index == objIdx) return Pair(nodeElement, true)
@@ -144,16 +149,6 @@ object QuadTree {
             nodeElement = elements[nodeElement.next]
         }
         return Pair(nodeElement, false)
-    }
-
-    private fun getLastElement(node: QTNode): QTNodeElement {
-        // Traverse the element linked list until the last element
-        var nodeElement: QTNodeElement = elements[node.firstIdx]
-        while (nodeElement.next != -1) {
-            nodeElement = elements[nodeElement.next]
-        }
-
-        return nodeElement
     }
     /// endregion
 
@@ -234,22 +229,28 @@ object QuadTree {
 
             val cx: Int = nodeData.cRect[0] // Center X
             val cy: Int = nodeData.cRect[1] // Center Y
-            val hw: Int = nodeData.cRect[2] / 2 // Half width
-            val hh: Int = nodeData.cRect[3] / 2 // Half height
+            val tw: Int = nodeData.cRect[2] // Total width
+            val th: Int = nodeData.cRect[3] // Total height
+            val hw: Int = tw / 2 // Half width
+            val hh: Int = th / 2 // Half height
 
             // Check which child node contains the position (favouring the top-left node)
             nodeData =
                 if (pos.x <= cx) { // Left side
                     if (pos.y >= cy) { // Top side
-                        QTNodeData(cx - hw, cy + 0, hw, hh, node.firstIdx + 0, nodeData.depth + 1) // Top-left
+                        // Top-left
+                        QTNodeData(cx - hw, cy + 0, hw, hh, node.firstIdx + 0, nodeData.depth + 1)
                     } else {
-                        QTNodeData(cx - hw, cy - hh, hw, hh, node.firstIdx + 2, nodeData.depth + 1) // Bottom-left
+                        // Bottom-left
+                        QTNodeData(cx - hw, cy - hh, hw, th - hh, node.firstIdx + 2, nodeData.depth + 1)
                     }
                 } else { // Right side
                     if (pos.y >= cy) { // Top side
-                        QTNodeData(cx + 0, cy + 0, hw, hh, node.firstIdx + 1, nodeData.depth + 1) // Top-right
+                        // Top-right
+                        QTNodeData(cx + 0, cy + 0, tw - hw, hh, node.firstIdx + 1, nodeData.depth + 1)
                     } else {
-                        QTNodeData(cx + 0, cy - hh, hw, hh, node.firstIdx + 3, nodeData.depth + 1) // Bottom-right
+                        // Bottom-right
+                        QTNodeData(cx + 0, cy - hh, tw - hw, th - hh, node.firstIdx + 3, nodeData.depth + 1)
                     }
                 }
         }
@@ -291,23 +292,22 @@ object QuadTree {
     private fun createChildNodes(parent: QTNodeData): Array<QTNodeData> {
         val cx: Int = parent.cRect[0] // Center X
         val cy: Int = parent.cRect[1] // Center Y
-        val hw: Int = parent.cRect[2] / 2 // Half width
-        val hh: Int = parent.cRect[3] / 2 // Half height
-
-        // Calculate the edges of the parents' bounds TODO remove
-//        val pl: Int = cx - hw // Parent's left edge
-//        val pb: Int = cy - hh // Parent's bottom edge
+        val tw: Int = parent.cRect[2] // Total width
+        val th: Int = parent.cRect[3] // Total height
+        val hw: Int = tw / 2 // Half width
+        val hh: Int = th / 2 // Half height
 
         // Add new child nodes to the list
         val firstNodeIndex: Int = nodes.add(QTNode()) // Store the index of the first child node
         repeat(3) { nodes.add(QTNode()) } // Add the other 3 child nodes
 
-        // Order of insertion matters
+        // Order of insertion matters:
+        // Top-left, Top-right, Bottom-left, Bottom-right
         val qtNodeData: MutableList<QTNodeData> = mutableListOf()
-        qtNodeData.add(QTNodeData(cx - hw, cy + 0, hw, hh, firstNodeIndex + 0, parent.depth + 1)) // Top-left child
-        qtNodeData.add(QTNodeData(cx + 0, cy + 0, hw, hh, firstNodeIndex + 1, parent.depth + 1)) // Top-right child
-        qtNodeData.add(QTNodeData(cx - hw, cy - hh, hw, hh, firstNodeIndex + 2, parent.depth + 1)) // Bottom-left child
-        qtNodeData.add(QTNodeData(cx + 0, cy - hh, hw, hh, firstNodeIndex + 3, parent.depth + 1)) // Bottom-right child
+        qtNodeData.add(QTNodeData(cx - hw, cy + 0, hw, hh, firstNodeIndex + 0, parent.depth + 1))
+        qtNodeData.add(QTNodeData(cx + 0, cy + 0, tw - hw, hh, firstNodeIndex + 1, parent.depth + 1))
+        qtNodeData.add(QTNodeData(cx - hw, cy - hh, hw, th - hh, firstNodeIndex + 2, parent.depth + 1))
+        qtNodeData.add(QTNodeData(cx + 0, cy - hh, tw - hw, th - hh, firstNodeIndex + 3, parent.depth + 1))
 
         return qtNodeData.toTypedArray()
     }
@@ -363,15 +363,18 @@ object QuadTree {
 
             if (!nodes[nodeData.index].isLeaf) {
                 val childIdx: Int = nodes[nodeData.index].firstIdx
-                val cx: Int = nodeData.cRect[0]
-                val cy: Int = nodeData.cRect[1]
-                val hw: Int = nodeData.cRect[2] / 2
-                val hh: Int = nodeData.cRect[3] / 2
+                val cx: Int = nodeData.cRect[0] // Center X
+                val cy: Int = nodeData.cRect[1] // Center Y
+                val tw: Int = nodeData.cRect[2] // Total width
+                val th: Int = nodeData.cRect[3] // Total height
+                val hw: Int = tw / 2 // Half width
+                val hh: Int = th / 2 // Half height
 
-                toProcess.add(QTNodeData(cx - hw, cy + 0, hw, hh, childIdx + 0, nodeData.depth + 1)) // Top-left
-                toProcess.add(QTNodeData(cx + 0, cy + 0, hw, hh, childIdx + 1, nodeData.depth + 1)) // Top-right
-                toProcess.add(QTNodeData(cx - hw, cy - hh, hw, hh, childIdx + 2, nodeData.depth + 1)) // Bottom-left
-                toProcess.add(QTNodeData(cx + 0, cy - hh, hw, hh, childIdx + 3, nodeData.depth + 1)) // Bottom-right
+                // Add the child nodes to the queue
+                toProcess.add(QTNodeData(cx - hw, cy + 0, hw, hh, childIdx + 0, nodeData.depth + 1))
+                toProcess.add(QTNodeData(cx + 0, cy + 0, tw - hw, hh, childIdx + 1, nodeData.depth + 1))
+                toProcess.add(QTNodeData(cx - hw, cy - hh, hw, th - hh, childIdx + 2, nodeData.depth + 1))
+                toProcess.add(QTNodeData(cx + 0, cy - hh, tw - hw, th - hh, childIdx + 3, nodeData.depth + 1))
             }
         }
 
@@ -406,17 +409,28 @@ object QuadTree {
 
         val childData: MutableList<QTNodeData> = mutableListOf()
         val childIdx: Int = nodes[parentData.index].firstIdx
-        val cx: Int = parentData.cRect[0]
-        val cy: Int = parentData.cRect[1]
-        val hw: Int = parentData.cRect[2] / 2
-        val hh: Int = parentData.cRect[3] / 2
+        val cx: Int = parentData.cRect[0] // Center X
+        val cy: Int = parentData.cRect[1] // Center Y
+        val tw: Int = parentData.cRect[2] // Total width
+        val th: Int = parentData.cRect[3] // Total height
+        val hw: Int = tw / 2 // Half width
+        val hh: Int = th / 2 // Half height
 
-        childData.add(QTNodeData(cx - hw, cy + 0, hw, hh, childIdx + 0, parentData.depth + 1)) // Top-left
-        childData.add(QTNodeData(cx + 0, cy + 0, hw, hh, childIdx + 1, parentData.depth + 1)) // Top-right
-        childData.add(QTNodeData(cx - hw, cy - hh, hw, hh, childIdx + 2, parentData.depth + 1)) // Bottom-left
-        childData.add(QTNodeData(cx + 0, cy - hh, hw, hh, childIdx + 3, parentData.depth + 1)) // Bottom-right
+        childData.add(QTNodeData(cx - hw, cy + 0, hw, hh, childIdx + 0, parentData.depth + 1))
+        childData.add(QTNodeData(cx + 0, cy + 0, tw - hw, hh, childIdx + 1, parentData.depth + 1))
+        childData.add(QTNodeData(cx - hw, cy - hh, hw, th - hh, childIdx + 2, parentData.depth + 1))
+        childData.add(QTNodeData(cx + 0, cy - hh, tw - hw, th - hh, childIdx + 3, parentData.depth + 1))
 
         return childData
+    }
+
+    fun getChildren(parent: QTNode): Array<QTNode> {
+        val children: Array<QTNode> = Array(4) { QTNode() }
+        val firstChildIdx: Int = parent.firstIdx
+        for (i: Int in 0..3) {
+            children[i] = nodes[firstChildIdx + i]
+        }
+        return children
     }
     /// endregion
 

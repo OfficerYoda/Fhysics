@@ -100,11 +100,11 @@ class QuadTreeTest {
     @Test
     fun testSplitNode() {
         QuadTree.capacity = 4
-        val obj1 = Circle(Vector2(5f, 5f), 1f)
-        val obj2 = Circle(Vector2(15f, 15f), 1f)
+        val obj1 = Circle(Vector2(2f, 5f), 1f)
+        val obj2 = Circle(Vector2(25f, 15f), 1f)
         val obj3 = Circle(Vector2(25f, 25f), 1f)
-        val obj4 = Circle(Vector2(35f, 35f), 1f)
-        val obj5 = Circle(Vector2(45f, 45f), 1f)
+        val obj4 = Circle(Vector2(25f, 35f), 1f)
+        val obj5 = Circle(Vector2(25f, 45f), 1f)
 
         val objects = listOf(obj1, obj2, obj3, obj4, obj5)
         objects.forEach { it.updateBoundingBox() }
@@ -112,6 +112,14 @@ class QuadTreeTest {
         objects.forEach { QuadTree.insert(it) }
 
         QuadTree.printTree()
+
+        val childrenGen1: Array<QTNode> = QuadTree.getChildren(QuadTree.root)
+        val childrenBl: Array<QTNode> = QuadTree.getChildren(childrenGen1[2])
+
+        assertEquals(1, childrenBl[0].count)
+        assertEquals(3, childrenBl[1].count)
+        assertEquals(3, childrenBl[2].count)
+        assertEquals(1, childrenBl[3].count)
 
         assertEquals(5, QuadTree.getObjectCount())
         assertEquals(2, QuadTree.getCurrentDepth())
