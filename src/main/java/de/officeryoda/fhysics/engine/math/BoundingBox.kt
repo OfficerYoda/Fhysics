@@ -7,8 +7,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 data class BoundingBox(
-    var x: Float = 0.0f,
-    var y: Float = 0.0f,
+    var x: Float = 0.0f, // Lower left corner x-coordinate
+    var y: Float = 0.0f, // Lower left corner y-coordinate
     var width: Float = 0.0f,
     var height: Float = 0.0f,
 ) {

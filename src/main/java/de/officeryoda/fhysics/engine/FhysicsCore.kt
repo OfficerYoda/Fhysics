@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -42,14 +43,14 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        val objects: List<FhysicsObject> = List(100) { FhysicsObjectFactory.randomCircle() }
-//        for (it: FhysicsObject in objects) {
-//            it.restitution = 1f
-//            it.frictionDynamic = 0f
-//            it.frictionStatic = 0f
-//        }
-//        UIController.setBorderProperties(1f, 1f, 1f)
-//        spawn(objects)
+        val objects: List<FhysicsObject> = List(100) { FhysicsObjectFactory.randomCircle() }
+        for (it: FhysicsObject in objects) {
+            it.restitution = 1f
+            it.frictionDynamic = 0f
+            it.frictionStatic = 0f
+        }
+        UIController.setBorderProperties(1f, 1f, 1f)
+        spawn(objects)
 
 //        repeat(100) {
 //            spawn(FhysicsObjectFactory.randomRectangle())

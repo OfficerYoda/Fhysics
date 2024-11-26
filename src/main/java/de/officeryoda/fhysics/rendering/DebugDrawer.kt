@@ -13,7 +13,6 @@ import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.util.*
 import kotlin.math.PI
-import kotlin.math.max
 import kotlin.math.min
 
 object DebugDrawer {
@@ -181,20 +180,24 @@ object DebugDrawer {
 
     fun drawBoundingBox(boundingBox: BoundingBox) {
         RenderUtil.setStrokeColor(Color.RED)
-        gc.strokeRect(
-            RenderUtil.worldToScreenX(boundingBox.x),
-            RenderUtil.worldToScreenY(boundingBox.y + boundingBox.height),
-            boundingBox.width * zoom,
-            boundingBox.height * zoom
-        )
+//        gc.strokeRect(
+//            RenderUtil.worldToScreenX(boundingBox.x),
+//            RenderUtil.worldToScreenY(boundingBox.y + boundingBox.height),
+//            boundingBox.width * zoom,
+//            boundingBox.height * zoom
+//        )
+
+        val cRect: CenterRect = CenterRect.fromBoundingBox(boundingBox)
+        val x: Double = RenderUtil.worldToScreenX((cRect[0] - cRect[2] / 2).toDouble())
+        val y: Double = RenderUtil.worldToScreenY(((cRect[1] + (cRect[3] - cRect[3] / 2)).toDouble()))
+        val width: Double = cRect[2] * zoom
+        val height: Double = cRect[3] * zoom
+        gc.strokeRect(x, y, width, height)
     }
 
     fun drawQTNode(cRect: CenterRect, count: Int) {
         val x: Double = RenderUtil.worldToScreenX((cRect[0] - cRect[2] / 2).toDouble())
-        val worldY = max(
-            (cRect[1] + cRect[3] / 2), (cRect[1] + (cRect[3] - cRect[3] / 2))
-        )
-        val y: Double = RenderUtil.worldToScreenY(worldY.toDouble())
+        val y: Double = RenderUtil.worldToScreenY(((cRect[1] + (cRect[3] - cRect[3] / 2)).toDouble()))
         val width: Double = cRect[2] * zoom
         val height: Double = cRect[3] * zoom
 

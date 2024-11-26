@@ -26,7 +26,7 @@ object QuadTree {
     var root: QTNode = QTNode()
         private set
 
-    private var rootData: QTNodeData = QTNodeData(0, CenterRect(FhysicsCore.BORDER), 0)
+    private var rootData: QTNodeData = QTNodeData(0, CenterRect.fromBoundingBox(FhysicsCore.BORDER), 0)
 
     // List of all nodes in the tree (root node is always at index 0)
     private val nodes = IndexedFreeList(root)
@@ -367,8 +367,8 @@ object QuadTree {
         val th: Int = nodeData.cRect[3] // Total height
         val hwl: Int = tw / 2 // Half width left
         val hwr: Int = tw - hwl // Half width right
-        val hht: Int = th / 2 // Half height top
-        val hhb: Int = tw - hht // Half height bottom
+        val hhb: Int = th / 2 // Half height bottom
+        val hht: Int = tw - hhb // Half height top
         val _0_ = 0 // For better readability
 
         // Calculate the child nodes and add them to the collection
@@ -430,7 +430,7 @@ object QuadTree {
             val nodeData: QTNodeData = queue.removeFirst()
             val node: QTNode = nodes[nodeData.index]
 
-            // Only drawing leaf nodes is enough // TODO check if this is correct
+            // Only drawing leaf nodes is enough
             if (node.isLeaf) {
                 DebugDrawer.drawQTNode(nodeData.cRect, node.count)
                 continue

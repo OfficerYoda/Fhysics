@@ -6,9 +6,9 @@ import de.officeryoda.fhysics.extensions.floorToInt
 
 /**
  * A data class for storing center rectangle data.
- * It stores the center rectangle data in the following order:
- * 0. centerX
- * 1. centerY
+ * It stores rectangle data in the following order:
+ * 0. centerX (rounded down)
+ * 1. centerY (rounded down)
  * 2. width
  * 3. height
  *
@@ -24,22 +24,33 @@ value class CenterRect(private val data: IntArray) {
     constructor(centerX: Int, centerY: Int, width: Int, height: Int) : this(intArrayOf(centerX, centerY, width, height))
 
     /**
-     * Constructs the smallest possible center rectangle that contains the given bounding box
+     * Returns the value represented by the given index:
+     * 0. centerX (rounded down)
+     * 1. centerY (rounded down)
+     * 2. width
+     * 3. height
+     * @param index The index of the value to return
      */
-    constructor(bbox: BoundingBox) : this(
-        intArrayOf(
-            (bbox.x + bbox.width / 2).floorToInt(),
-            (bbox.y + bbox.height / 2).floorToInt(),
-            bbox.width.ceilToInt(),
-            bbox.height.ceilToInt()
-        )
-    )
-
     operator fun get(index: Int): Int {
         return data[index]
     }
 
     override fun toString(): String {
         return "CenterRect(centerX=${data[0]}, centerY=${data[1]}, width=${data[2]}, height=${data[3]})"
+    }
+
+    companion object {
+        /** Constructs the smallest possible [CenterRect] that contains the given [BoundingBox]. */
+        fun fromBoundingBox(bbox: BoundingBox): CenterRect {
+            // This has problems with negative values, but everything in the border should be positive
+            val flooredX: Int = bbox.x.floorToInt()
+            val flooredY: Int = bbox.y.floorToInt()
+            val width: Int = (bbox.x + bbox.width).ceilToInt() - flooredX
+            val height: Int = (bbox.y + bbox.height).ceilToInt() - flooredY
+            val x: Int = flooredX + (width / 2)
+            val y: Int = flooredY + (height / 2)
+
+            return CenterRect(intArrayOf(x, y, width, height))
+        }
     }
 }
