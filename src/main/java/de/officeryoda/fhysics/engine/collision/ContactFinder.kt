@@ -31,7 +31,7 @@ object ContactFinder {
      * @return An array containing the contact points
      */
     fun findContactPoints(polyA: Polygon, polyB: Polygon): Array<Vector2> {
-        if (polyA is ConcavePolygon || polyB is ConcavePolygon) {
+        if (polyA is ConcavePolygon || polyB is ConcavePolygon) { // TODO Optimize to not use type checking
             return findConcavePolygonContactPoints(polyA, polyB)
         }
 

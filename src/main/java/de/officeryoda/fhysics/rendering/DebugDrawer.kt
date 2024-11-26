@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.datastructures.CenterRect
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -12,6 +13,7 @@ import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.util.*
 import kotlin.math.PI
+import kotlin.math.max
 import kotlin.math.min
 
 object DebugDrawer {
@@ -187,11 +189,14 @@ object DebugDrawer {
         )
     }
 
-    fun transformAndDrawQuadTreeNode(rect: BoundingBox, contentCount: Int) {
-        val x: Double = RenderUtil.worldToScreenX(rect.x)
-        val y: Double = RenderUtil.worldToScreenY(rect.y + rect.height)
-        val width: Double = rect.width * zoom
-        val height: Double = rect.height * zoom
+    fun drawQTNode(cRect: CenterRect, count: Int) {
+        val x: Double = RenderUtil.worldToScreenX((cRect[0] - cRect[2] / 2).toDouble())
+        val worldY = max(
+            (cRect[1] + cRect[3] / 2), (cRect[1] + (cRect[3] - cRect[3] / 2))
+        )
+        val y: Double = RenderUtil.worldToScreenY(worldY.toDouble())
+        val width: Double = cRect[2] * zoom
+        val height: Double = cRect[3] * zoom
 
         // Draw Border
         RenderUtil.setStrokeColor(Color.WHITE)
@@ -204,15 +209,14 @@ object DebugDrawer {
         val quadTreeCapacity: Int = QuadTree.capacity
         RenderUtil.setFillColor(
             Color(
-                66,
-                164,
-                245,
-                (contentCount.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)
+                66, 164, 245,
+                // Less transparent if more objects are in the cell
+                (count.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)
             )
         )
         gc.fillRect(x, y, width, height)
         // Write the amount of objects in the cell
-        drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
+        drawCenteredText(count.toString(), Rectangle2D.Double(x, y, width, height))
     }
 
     private fun drawCenteredText(text: String, rect: Rectangle2D) {

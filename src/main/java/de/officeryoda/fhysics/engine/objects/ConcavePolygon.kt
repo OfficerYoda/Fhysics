@@ -27,17 +27,17 @@ class ConcavePolygon(
         return other.findContactPoints(this, info)
     }
 
-    override fun clone(): FhysicsObject {
-        val clone: ConcavePolygon =
-            PolygonCreator.createPolygon(vertices.map { it + position }.toTypedArray(), angle) as ConcavePolygon
-        return clone
-    }
-
     override fun updateBoundingBox() {
         boundingBox.setFromPolygon(this)
         for (it: SubPolygon in subPolygons) {
             it.updateBoundingBox()
         }
+    }
+
+    override fun clone(): FhysicsObject {
+        val clone: ConcavePolygon =
+            PolygonCreator.createPolygon(vertices.map { it + position }.toTypedArray(), angle) as ConcavePolygon
+        return clone
     }
 
     override fun toString(): String {

@@ -159,7 +159,7 @@ object FhysicsCore {
     private fun spawn(objects: List<FhysicsObject>) {
         for (obj: FhysicsObject in objects) {
             obj.updateBoundingBox()
-            QuadTree.insert(obj)
+            QuadTree.queueInsertion(obj)
         }
     }
 
@@ -168,6 +168,7 @@ object FhysicsCore {
         QuadTree.clear()
     }
 
+    // TODO remove all this optimization stuff and just use a fixed capacity
     private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++
         if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame where the rebuild takes place which takes longer

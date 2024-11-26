@@ -47,7 +47,7 @@ object CollisionFinder {
     fun testCollision(poly: Polygon, circle: Circle): CollisionInfo {
         if (!poly.boundingBox.overlaps(circle.boundingBox)) return CollisionInfo()
 
-        if (poly is ConcavePolygon) {
+        if (poly is ConcavePolygon) { // TODO Optimize to not use type checking
             return testConcavePolygonCollision(poly, circle)
         }
 
@@ -71,7 +71,8 @@ object CollisionFinder {
             finalAxis.negate()
         }
 
-        val targetPoly: Polygon = if (poly is SubPolygon) poly.parent else poly
+        val targetPoly: Polygon =
+            if (poly is SubPolygon) poly.parent else poly // TODO Optimize to not use type checking
         return CollisionInfo(circle, targetPoly, finalAxis, projResult.getOverlap())
     }
 
@@ -85,7 +86,7 @@ object CollisionFinder {
     fun testCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
         if (!polyA.boundingBox.overlaps(polyB.boundingBox)) return CollisionInfo()
 
-        if (polyA is ConcavePolygon || polyB is ConcavePolygon) {
+        if (polyA is ConcavePolygon || polyB is ConcavePolygon) { // TODO Optimize to not use type checking
             return testConcavePolygonCollision(polyA, polyB)
         }
 
@@ -148,8 +149,10 @@ object CollisionFinder {
     private fun testConcavePolygonCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
         var deepestCollision = CollisionInfo()
 
-        val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
-        val polygonsB: List<Polygon> = if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB)
+        val polygonsA: List<Polygon> =
+            if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA) // TODO Optimize to not use type checking
+        val polygonsB: List<Polygon> =
+            if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB) // TODO Optimize to not use type checking
 
         // Check for collision between every sub-polygon pair
         for (subPolyA: Polygon in polygonsA) {

@@ -7,6 +7,7 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.damping
 import java.awt.Color
 
@@ -17,7 +18,6 @@ abstract class FhysicsObject protected constructor(
     open var angle: Float = 0f, // In radians
     var angularVelocity: Float = 0f, // In radians per second
 ) {
-
     val id: Int = FhysicsCore.nextId()
     var color: Color = colorFromId()
     val boundingBox: BoundingBox = BoundingBox()
@@ -135,9 +135,11 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2>
 
-    abstract fun clone(): FhysicsObject
-
     abstract fun updateBoundingBox()
+
+    abstract fun draw(drawer: FhysicsObjectDrawer)
+
+    abstract fun clone(): FhysicsObject
 
     private fun colorFromId(): Color {
         val colors: List<Color> =

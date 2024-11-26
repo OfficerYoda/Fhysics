@@ -160,34 +160,44 @@ class FhysicsObjectDrawer : Application() {
         drawStopwatch.stop()
     }
 
-    fun drawObject(obj: FhysicsObject) {
-        // Hovered and selected object will be drawn pulsing
-        if (obj == hoveredObject || obj == selectedObject) return
-
-        setFillColor(obj.color)
-
-        // Draw Object
-        when (obj) {
-            is Circle -> drawCircle(obj)
-            is Rectangle -> drawRectangle(obj)
-            is Polygon -> drawPolygon(obj)
-        }
-    }
-
     private fun drawObjectPulsing(obj: FhysicsObject) {
         val alpha: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
         val c: Color = obj.color
         val color = Color(c.red, c.green, c.blue, alpha)
-        setFillColor(color)
 
+        setFillColor(color)
         when (obj) {
-            is Circle -> drawCircle(obj)
-            is Rectangle -> drawRectangle(obj)
-            is Polygon -> drawPolygon(obj)
+            is Circle -> drawCircleShape(obj)
+            is Rectangle -> drawRectangleShape(obj)
+            is Polygon -> drawPolygonShape(obj)
         }
     }
 
-    private fun drawCircle(circle: Circle) {
+    fun drawCircle(circle: Circle) {
+        // Hovered and selected object will be drawn pulsing
+        if (circle == hoveredObject || circle == selectedObject) return
+
+        setFillColor(circle.color)
+        drawCircleShape(circle)
+    }
+
+    fun drawRectangle(rect: Rectangle) {
+        // Hovered and selected object will be drawn pulsing
+        if (rect == hoveredObject || rect == selectedObject) return
+
+        setFillColor(rect.color)
+        drawRectangleShape(rect)
+    }
+
+    fun drawPolygon(poly: Polygon) {
+        // Hovered and selected object will be drawn pulsing
+        if (poly == hoveredObject || poly == selectedObject) return
+
+        setFillColor(poly.color)
+        drawPolygonShape(poly)
+    }
+
+    private fun drawCircleShape(circle: Circle) {
         gc.lineWidth = 2.0 * zoom * 0.05
 
         val pos: Vector2 = worldToScreen(circle.position)
@@ -211,7 +221,7 @@ class FhysicsObjectDrawer : Application() {
         gc.lineWidth = 2.0
     }
 
-    private fun drawRectangle(rect: Rectangle) {
+    private fun drawRectangleShape(rect: Rectangle) {
         val pos: Vector2 = worldToScreen(rect.position)
 
         // Save the current state of the graphics context
@@ -235,8 +245,8 @@ class FhysicsObjectDrawer : Application() {
         gc.restore()
     }
 
-    private fun drawPolygon(poly: Polygon) {
-        if (UIController.drawSubPolygons && poly is ConcavePolygon) {
+    private fun drawPolygonShape(poly: Polygon) {
+        if (UIController.drawSubPolygons && poly is ConcavePolygon) { // TODO Optimize to not use type checking
             for (subPoly: SubPolygon in poly.subPolygons) {
                 setFillColor(subPoly.color)
                 drawPolygon(subPoly)
@@ -258,11 +268,10 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawSpawnPreview() {
-        // Triangle temp for nothing selected to spawn
         when (UIController.spawnObjectType) {
             SpawnObjectType.NOTHING -> return
             SpawnObjectType.POLYGON -> drawPolygonPreview()
-            else -> drawObject(spawnPreview!!)
+            else -> spawnPreview!!.draw(this)
         }
     }
 

@@ -391,12 +391,12 @@ object SceneListener {
                 FhysicsCore.update()
             }
 
-            KeyCode.Q -> println(QuadTree.toString())
+            KeyCode.Q -> QuadTree.printTree()
             KeyCode.Z -> drawer.resetZoom()
-            KeyCode.H -> QuadTree.capacity -= 5
-            KeyCode.J -> QuadTree.capacity -= 1
-            KeyCode.K -> QuadTree.capacity += 1
-            KeyCode.L -> QuadTree.capacity += 5
+            KeyCode.H -> QuadTree.capacity -= 1
+            KeyCode.J -> QuadTree.capacity -= 5
+            KeyCode.K -> QuadTree.capacity += 5
+            KeyCode.L -> QuadTree.capacity += 1
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
             KeyCode.S -> println(selectedObject)
             else -> {}

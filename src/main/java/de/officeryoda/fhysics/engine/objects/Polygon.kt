@@ -7,6 +7,7 @@ import de.officeryoda.fhysics.engine.collision.ContactFinder
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.TransformationData
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import kotlin.math.abs
 
 // primary constructor is used to sync position and velocity from sub-polygons with the main polygon
@@ -144,6 +145,10 @@ abstract class Polygon(
 
     override fun updateBoundingBox() {
         boundingBox.setFromPolygon(this)
+    }
+
+    override fun draw(drawer: FhysicsObjectDrawer) {
+        drawer.drawPolygon(this)
     }
 
     override fun toString(): String {
