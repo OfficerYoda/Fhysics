@@ -1,8 +1,11 @@
-package de.officeryoda.fhysics.engine.objects
+package de.officeryoda.fhysics.engine.objects.factories
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -11,6 +14,7 @@ import java.util.concurrent.TimeoutException
 import kotlin.math.*
 import kotlin.random.Random.Default as KtRandom
 
+@Suppress("SameParameterValue", "SameParameterValue", "SameParameterValue")
 object FhysicsObjectFactory {
 
     private val RANDOM: Random = Random()
@@ -70,11 +74,11 @@ object FhysicsObjectFactory {
 
         val polygon: Polygon = try {
             val future: CompletableFuture<Polygon> = CompletableFuture.supplyAsync({
-                PolygonCreator.createPolygon(points)
+                PolygonFactory.createPolygon(points)
             }, executor)
 
             future.get(50, TimeUnit.MILLISECONDS)
-        } catch (e: TimeoutException) {
+        } catch (_: TimeoutException) {
             println("Polygon creation timed out, retrying...")
             return randomPolygon()
         }
@@ -158,7 +162,7 @@ object FhysicsObjectFactory {
         val upper: Double = (2 * Math.PI / steps) + irregularity
         var angleSum = 0.0
 
-        for (i: Int in 0 until steps) {
+        repeat(steps) {
             val angle: Double = KtRandom.nextDouble(lower, upper)
             angles.add(angle)
             angleSum += angle
@@ -180,6 +184,7 @@ object FhysicsObjectFactory {
      * @param upper The upper bound of the interval.
      * @return The clipped value, within the range [lower, upper].
      */
+    @Suppress("SameParameterValue", "SameParameterValue", "SameParameterValue")
     private fun clip(value: Float, lower: Float, upper: Float): Float {
         return value.coerceIn(lower, upper)
     }

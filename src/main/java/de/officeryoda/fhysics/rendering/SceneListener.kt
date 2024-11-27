@@ -2,17 +2,21 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
-import de.officeryoda.fhysics.engine.datastructures.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnColor
+import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
 import java.awt.Color
-import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType as selectedSpawnObjectType
@@ -176,10 +180,6 @@ object SceneListener {
         drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
     }
 
-    private fun almostEqual(a: Double, b: Double): Boolean {
-        return (a - b).absoluteValue < EPSILON
-    }
-
     /// endregion
 
     /// region =====Other methods=====
@@ -210,7 +210,7 @@ object SceneListener {
      */
     private fun handlePolygonCreation() {
         // Create the polygon if the polygon is complete
-        if (polyVertices.size > 2 && PolygonCreator.isPolygonValid(polyVertices)) {
+        if (polyVertices.size > 2 && PolygonFactory.isPolygonValid(polyVertices)) {
             val startPos: Vector2 = polyVertices.first()
             if (mousePosWorld.distanceToSqr(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                 createAndSpawnPolygon()
@@ -224,7 +224,7 @@ object SceneListener {
 
     private fun createAndSpawnPolygon() {
         // Create and spawn the polygon
-        val polygon: Polygon = PolygonCreator.createPolygon(polyVertices.toTypedArray())
+        val polygon: Polygon = PolygonFactory.createPolygon(polyVertices.toTypedArray())
         FhysicsCore.spawn(polygon)
 
         // Clear the polygon vertices
@@ -235,12 +235,12 @@ object SceneListener {
      * Updates the spawn preview object based on the current spawn object type and the input fields.
      */
     fun updateSpawnPreview() {
-        if (UIController.spawnObjectType == SpawnObjectType.NOTHING) {
+        if (spawnObjectType == SpawnObjectType.NOTHING) {
             spawnPreview = null
             return
         }
 
-        val obj: FhysicsObject = when (UIController.spawnObjectType) {
+        val obj: FhysicsObject = when (spawnObjectType) {
             SpawnObjectType.CIRCLE -> Circle(mousePosWorld.copy(), UIController.spawnRadius)
             SpawnObjectType.RECTANGLE -> Rectangle(
                 mousePosWorld.copy(),
@@ -391,7 +391,7 @@ object SceneListener {
                 FhysicsCore.update()
             }
 
-            KeyCode.Q -> QuadTree.printTree()
+            KeyCode.Q -> QuadTree.QTDebugHelper.printTree()
             KeyCode.Z -> drawer.resetZoom()
             KeyCode.H -> QuadTree.capacity -= 1
             KeyCode.J -> QuadTree.capacity -= 5

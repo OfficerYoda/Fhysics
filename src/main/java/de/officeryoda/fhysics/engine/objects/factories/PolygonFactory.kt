@@ -1,8 +1,11 @@
-package de.officeryoda.fhysics.engine.objects
+package de.officeryoda.fhysics.engine.objects.factories
 
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.engine.objects.ConcavePolygon
+import de.officeryoda.fhysics.engine.objects.ConvexPolygon
+import de.officeryoda.fhysics.engine.objects.Polygon
 
-object PolygonCreator {
+object PolygonFactory {
 
     /**
      * Creates a polygon from the given vertices

@@ -1,10 +1,11 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.datastructures.QuadTree
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory
+import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.extensions.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
@@ -31,7 +32,7 @@ object FhysicsCore {
     var updateCount = 0 // Includes all sub steps
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
-    var running: Boolean = true
+    var running: Boolean = false
     val updateStopwatch = Stopwatch(50)
 
     // Quad tree capacity optimization

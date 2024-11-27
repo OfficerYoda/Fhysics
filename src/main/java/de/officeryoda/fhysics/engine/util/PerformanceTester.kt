@@ -1,14 +1,14 @@
-package de.officeryoda.fhysics
+package de.officeryoda.fhysics.engine.util
 
-import de.officeryoda.fhysics.PerformanceTestScenario.Companion.idealPhysicsScenarioSetup
-import de.officeryoda.fhysics.PerformanceTestScenario.Companion.randomPhysicsScenarioSetup
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.spawn
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory.randomCircle
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory.randomPolygon
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory.randomRectangle
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomCircle
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomPolygon
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomRectangle
+import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.idealPhysicsScenarioSetup
+import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.randomPhysicsScenarioSetup
 import de.officeryoda.fhysics.rendering.UIController
 import kotlin.random.Random
 import kotlin.system.exitProcess

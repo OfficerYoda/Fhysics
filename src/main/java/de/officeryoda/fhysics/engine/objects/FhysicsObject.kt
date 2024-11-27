@@ -4,7 +4,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.dt
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -48,7 +48,7 @@ abstract class FhysicsObject protected constructor(
             invInertia = if (static) 0f else 1f / inertia
         }
     var invMass: Float = 1f / mass
-        protected set
+        private set
 
     // Used to avoid multiple updates in the same frame due to multiple quadtree nodes
     private var lastUpdate = -1
@@ -74,7 +74,6 @@ abstract class FhysicsObject protected constructor(
         set(value) {
             field = Math.clamp(value, 0f, 1f)
         }
-
     var frictionStatic: Float = 0.5f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~1.0)
@@ -85,6 +84,8 @@ abstract class FhysicsObject protected constructor(
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~0.8)
             field = Math.clamp(value, 0f, 1f)
         }
+
+    private val TWO_PI: Float = Math.PI.toFloat() * 2
 
     fun update() {
         // Static objects don't move
@@ -168,9 +169,5 @@ abstract class FhysicsObject protected constructor(
 
     override fun hashCode(): Int {
         return id.hashCode()
-    }
-
-    companion object {
-        private const val TWO_PI: Float = Math.PI.toFloat() * 2
     }
 }

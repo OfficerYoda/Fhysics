@@ -1,5 +1,8 @@
 package de.officeryoda.fhysics.engine.datastructures
 
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.QTDebugHelper
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.QTDebugHelper.QTNodeDebug
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import org.junit.jupiter.api.Assertions.*
@@ -111,8 +114,10 @@ class QuadTreeTest {
 
         objects.forEach { QuadTree.insert(it) }
 
-        val childrenGen1: Array<QTNode> = QuadTree.getChildren(QuadTree.root)
-        val childrenBl: Array<QTNode> = QuadTree.getChildren(childrenGen1[2])
+        QTDebugHelper.printTree()
+
+        val childrenGen1: Array<QTNodeDebug> = QTDebugHelper.getChildren(QTDebugHelper.root)
+        val childrenBl: Array<QTNodeDebug> = QTDebugHelper.getChildren(childrenGen1[2])
 
         assertEquals(1, childrenBl[0].count)
         assertEquals(3, childrenBl[1].count)
@@ -120,8 +125,8 @@ class QuadTreeTest {
         assertEquals(1, childrenBl[3].count)
 
         assertEquals(5, QuadTree.getObjectCount())
-        assertEquals(2, QuadTree.getCurrentDepth())
-        assertTrue(!QuadTree.root.isLeaf)
+        assertEquals(2, QTDebugHelper.getCurrentDepth())
+        assertTrue(!QTDebugHelper.root.isLeaf)
     }
 
     @Test

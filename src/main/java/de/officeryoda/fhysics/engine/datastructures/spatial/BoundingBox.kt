@@ -1,6 +1,6 @@
-package de.officeryoda.fhysics.engine.math
+package de.officeryoda.fhysics.engine.datastructures.spatial
 
-import de.officeryoda.fhysics.engine.datastructures.CenterRect
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.Polygon
 import kotlin.math.max

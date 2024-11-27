@@ -1,6 +1,7 @@
-package de.officeryoda.fhysics.engine.datastructures
+package de.officeryoda.fhysics.engine.datastructures.spatial
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.datastructures.IndexedFreeList
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.extensions.floorToInt
@@ -23,10 +24,9 @@ object QuadTree {
     private val MAX_DEPTH = log2(min(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height)).floorToInt()
 
     // The root node of the tree
-    var root: QTNode = QTNode()
-        private set
+    private var root: QTNode = QTNode()
 
-    private var rootData: QTNodeData = QTNodeData(0, CenterRect.fromBoundingBox(FhysicsCore.BORDER), 0)
+    private var rootData: QTNodeData = QTNodeData(0, CenterRect.Companion.fromBoundingBox(FhysicsCore.BORDER), 0)
 
     // List of all nodes in the tree (root node is always at index 0)
     private val nodes = IndexedFreeList(root)
@@ -45,7 +45,6 @@ object QuadTree {
     private val pendingRemovals: MutableList<FhysicsObject> = ArrayList()
 
     /// region =====Basic QuadTree Operations=====
-
     /// region =====Insertion=====
     /** Thread safe insertion of an object into the QuadTree */
     fun queueInsertion(obj: FhysicsObject) {
@@ -462,63 +461,154 @@ object QuadTree {
     }
     /// endregion
 
+    /// region =====Inner Classes=====
+    /**
+     * A class representing a node in the QuadTree.
+     */
+    private data class QTNode(
+        /**
+         * Points to the first child node in [QuadTree.nodes] when the node is a branch
+         * or to the first element in [QuadTree.elements] when the node is a leaf.
+         *
+         * Nodes are stored in blocks of 4 in order: top left, top right, bottom left, bottom right.
+         *
+         * Elements are stored as a linked list.
+         */
+        var firstIdx: Int = -1,
+        /** The number of elements in the node or -1 if it's a branch. */
+        var count: Int = 0,
+    ) {
+        /** Whether the node is a leaf or a branch. */
+        val isLeaf: Boolean get() = count != -1
+
+        override fun toString(): String {
+            return "QuadTreeNode(firstIdx=$firstIdx, count=$count, isLeaf=$isLeaf)"
+
+        }
+    }
+
+    /**
+     * A class holding additional data for a [QTNode] object.
+     *
+     * This data is not stored, but calculated when needed.
+     */
+    private data class QTNodeData(
+        /** Index of the node in the [QuadTree.nodes] list. */
+        val index: Int,
+        /** IntArray representing the node's bounding box: [centerX, centerY, width, height]. */
+        val cRect: CenterRect,
+        /** Depth of the node in the Quadtree. */
+        val depth: Int,
+    ) {
+
+
+        /**
+         * Constructs a new [QTNodeData] object.
+         * @param x The x-coordinate of the node's bottom-left corner
+         * @param y The y-coordinate of the node's bottom-left corner
+         * @param width The width of the node
+         * @param height The height of the node
+         * @param index The index of the node in the [QuadTree.nodes] list
+         * @param depth The depth of the node in the Quadtree
+         */
+        constructor(
+            x: Int, y: Int,
+            width: Int, height: Int,
+            index: Int, depth: Int,
+        ) : this(
+            index,
+            CenterRect(x + width / 2, y + height / 2, width, height),
+            depth
+        )
+    }
+
+    /**
+     * A class representing an element in a [QTNode].
+     *
+     * An Element is a reference to an object in the [QuadTree.objects] list.
+     * Multiple elements can reference the same object. This is done to prevent storing the same object multiple times.
+     */
+    private data class QTNodeElement(
+        /** The index of the object in [QuadTree.objects]. */
+        val index: Int,
+        /** The index of the next element in the node within [QuadTree.elements], or -1 if it is the last element. */
+        var next: Int,
+    )
+
     /// region =====Debugging=====
-    fun getCurrentDepth(): Int {
-        var maxDepth = 0
-        val toProcess: ArrayDeque<QTNodeData> = ArrayDeque()
-        toProcess.add(rootData)
+    object QTDebugHelper {
+        val root: QTNodeDebug get() = QTNodeDebug(QuadTree.root.firstIdx, QuadTree.root.count)
 
-        while (toProcess.isNotEmpty()) {
-            val nodeData: QTNodeData = toProcess.removeFirst()
-            maxDepth = maxOf(maxDepth, nodeData.depth)
+        fun getCurrentDepth(): Int {
+            var maxDepth = 0
+            val toProcess: ArrayDeque<QTNodeData> = ArrayDeque()
+            toProcess.add(rootData)
 
-            if (!nodes[nodeData.index].isLeaf) {
-                addChildNodeDataToCollection(nodeData, toProcess)
+            while (toProcess.isNotEmpty()) {
+                val nodeData: QTNodeData = toProcess.removeFirst()
+                maxDepth = maxOf(maxDepth, nodeData.depth)
+
+                if (!nodes[nodeData.index].isLeaf) {
+                    addChildNodeDataToCollection(nodeData, toProcess)
+                }
+            }
+
+            return maxDepth
+        }
+
+        fun printTree() {
+            printlnNode(rootData)
+            getChildNodeData(rootData).forEachIndexed { index, it ->
+                printTree(it, "", index == 0)
             }
         }
 
-        return maxDepth
-    }
+        private fun printTree(nodeData: QTNodeData, indent: String, left: Boolean) {
+            print(indent)
+            print(if (left) "\u251C " else "\u2514 ")
 
-    fun printTree() {
-        printlnNode(rootData)
-        getChildNodeData(rootData).forEachIndexed { index, it ->
-            printTree(it, "", index == 0)
+            printlnNode(nodeData)
+            getChildNodeData(nodeData).forEach {
+                val newIndent = indent + (if (left) "\u2502 " else "  ")
+                printTree(it, newIndent, true)
+            }
+        }
+
+        private fun printlnNode(nodeData: QTNodeData) {
+            val node: QTNode = nodes[nodeData.index]
+            println("QTNode(${node.count}, ${nodeData.depth}, ${nodeData.cRect})")
+        }
+
+        private fun getChildNodeData(parentData: QTNodeData): MutableList<QTNodeData> {
+            if (nodes[parentData.index].isLeaf) return mutableListOf()
+
+            val childData: MutableList<QTNodeData> = mutableListOf()
+            addChildNodeDataToCollection(parentData, childData)
+
+            return childData
+        }
+
+        fun getChildren(parent: QTNodeDebug): Array<QTNodeDebug> {
+            val children: Array<QTNodeDebug> = Array(4) { QTNodeDebug() }
+            val firstChildIdx: Int = parent.firstIdx
+            for (i: Int in 0..3) {
+                val node: QTNode = nodes[firstChildIdx + i]
+                children[i] = QTNodeDebug(node.firstIdx, node.count)
+            }
+            return children
+        }
+
+        /** This class exists to keep the [QTNode] class private. */
+        data class QTNodeDebug(
+            /** For a full documentation see [QTNode.firstIdx]. */
+            val firstIdx: Int = -1,
+            /** For a full documentation see [QTNode.count]. */
+            val count: Int = 0,
+        ) {
+            /** For a full documentation see [QTNode.isLeaf]. */
+            val isLeaf: Boolean get() = count != -1
         }
     }
-
-    private fun printTree(nodeData: QTNodeData, indent: String, left: Boolean) {
-        print(indent)
-        print(if (left) "\u251C " else "\u2514 ")
-
-        printlnNode(nodeData)
-        getChildNodeData(nodeData).forEach {
-            val newIndent = indent + (if (left) "\u2502 " else "  ")
-            printTree(it, newIndent, true)
-        }
-    }
-
-    private fun printlnNode(nodeData: QTNodeData) {
-        val node: QTNode = nodes[nodeData.index]
-        println("QTNode(${node.count}, ${nodeData.depth}, ${nodeData.cRect})")
-    }
-
-    private fun getChildNodeData(parentData: QTNodeData): MutableList<QTNodeData> {
-        if (nodes[parentData.index].isLeaf) return mutableListOf()
-
-        val childData: MutableList<QTNodeData> = mutableListOf()
-        addChildNodeDataToCollection(parentData, childData)
-
-        return childData
-    }
-
-    fun getChildren(parent: QTNode): Array<QTNode> {
-        val children: Array<QTNode> = Array(4) { QTNode() }
-        val firstChildIdx: Int = parent.firstIdx
-        for (i: Int in 0..3) {
-            children[i] = nodes[firstChildIdx + i]
-        }
-        return children
-    }
+    /// endregion
     /// endregion
 }

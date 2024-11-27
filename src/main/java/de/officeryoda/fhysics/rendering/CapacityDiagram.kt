@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.rendering
 
-import de.officeryoda.fhysics.engine.datastructures.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import javafx.animation.AnimationTimer
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartPanel
@@ -10,7 +10,6 @@ import org.jfree.data.category.DefaultCategoryDataset
 import java.awt.Dimension
 import java.util.*
 import javax.swing.JFrame
-import javax.swing.WindowConstants
 
 class CapacityDiagram(private val map: MutableMap<Int, Double>) : JFrame("Map Visualization") {
 
@@ -26,7 +25,7 @@ class CapacityDiagram(private val map: MutableMap<Int, Double>) : JFrame("Map Vi
     private fun initUI() {
         createChart()
 
-        defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
+        defaultCloseOperation = DISPOSE_ON_CLOSE
         setLocationRelativeTo(null)
         isVisible = true
     }

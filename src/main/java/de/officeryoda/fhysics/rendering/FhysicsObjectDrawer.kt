@@ -2,11 +2,12 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
-import de.officeryoda.fhysics.engine.Stopwatch
-import de.officeryoda.fhysics.engine.datastructures.QuadTree
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
+import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.darkenColor
 import de.officeryoda.fhysics.rendering.RenderUtil.lerp
@@ -293,7 +294,7 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(transparentC)
 
         gc.stroke()
-        if (!PolygonCreator.isPolygonValid(vertices)) {
+        if (!PolygonFactory.isPolygonValid(vertices)) {
             setFillColor(Color(255, 0, 0, 128))
         }
         gc.fill()

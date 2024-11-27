@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.math.sqrt
@@ -10,7 +11,7 @@ class PolygonTest {
     @Test
     fun `calculateInertia returns correct inertia for regular polygon (rectangle)`() {
         val vertices = arrayOf(Vector2(0f, 0f), Vector2(1f, 0f), Vector2(1f, 1f), Vector2(0f, 1f))
-        val polygon = PolygonCreator.createPolygon(vertices)
+        val polygon = PolygonFactory.createPolygon(vertices)
 
         val inertia = polygon.calculateInertia()
 
@@ -20,7 +21,7 @@ class PolygonTest {
     @Test
     fun `calculateInertia returns correct inertia for regular polygon (triangle)`() {
         val vertices = arrayOf(Vector2(0f, 0f), Vector2(2f, 0f), Vector2(1f, sqrt(3f)))
-        val polygon = PolygonCreator.createPolygon(vertices)
+        val polygon = PolygonFactory.createPolygon(vertices)
 
         val inertia = polygon.calculateInertia()
 
@@ -30,7 +31,7 @@ class PolygonTest {
     @Test
     fun `calculateInertia returns correct inertia for irregular polygon`() {
         val vertices = arrayOf(Vector2(0f, 0f), Vector2(2f, 0f), Vector2(0f, 2f))
-        val polygon = PolygonCreator.createPolygon(vertices)
+        val polygon = PolygonFactory.createPolygon(vertices)
 
         val inertia = polygon.calculateInertia()
 
@@ -40,7 +41,7 @@ class PolygonTest {
     @Test
     fun `calculateInertia returns correct inertia for rotated polygon`() {
         val vertices = arrayOf(Vector2(0f, 0f), Vector2(1f, 0f), Vector2(1f, 1f), Vector2(0f, 1f))
-        val polygon = PolygonCreator.createPolygon(vertices)
+        val polygon = PolygonFactory.createPolygon(vertices)
         polygon.angle = Math.PI.toFloat() / 4f
 
         val inertia = polygon.calculateInertia()
@@ -60,7 +61,7 @@ class PolygonTest {
             Vector2(0f, 1f),
             Vector2(0.75f, 1f)
         )
-        val polygon = PolygonCreator.createPolygon(vertices.map { it.copy() }.toTypedArray())
+        val polygon = PolygonFactory.createPolygon(vertices.map { it.copy() }.toTypedArray())
 
         assertEquals(Vector2(1.0f, 0.75f), Polygon.calculatePolygonCenter(vertices))
         assertEquals(0.6875f, polygon.calculateInertia(), 1.0e-6f)

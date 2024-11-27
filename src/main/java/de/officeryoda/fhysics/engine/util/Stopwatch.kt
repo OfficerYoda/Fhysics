@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.engine
+package de.officeryoda.fhysics.engine.util
 
 import java.util.*
 
@@ -26,8 +26,8 @@ class Stopwatch(private val maxDurations: Int = 50) {
         return try {
             updateDurations.average() / 1E6
         } catch (e: Exception) {
-            // just try again lol
-            average()
+            System.err.println("Error calculating average duration: $e")
+            -1.0
         }
     }
 
@@ -36,6 +36,6 @@ class Stopwatch(private val maxDurations: Int = 50) {
     }
 
     fun roundedString(decimalPlaces: Int = 2): String {
-        return String.format(Locale.US, "%.${decimalPlaces}f", average())
+        return String.Companion.format(Locale.US, "%.${decimalPlaces}f", average())
     }
 }

@@ -1,6 +1,5 @@
-package de.officeryoda.fhysics.engine.datastructures
+package de.officeryoda.fhysics.engine.datastructures.spatial
 
-import de.officeryoda.fhysics.engine.math.BoundingBox
 import de.officeryoda.fhysics.extensions.ceilToInt
 import de.officeryoda.fhysics.extensions.floorToInt
 
