@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.engine.datastructures.spatial
 
-import de.officeryoda.fhysics.extensions.ceilToInt
-import de.officeryoda.fhysics.extensions.floorToInt
+import de.officeryoda.fhysics.engine.util.ceilToInt
+import de.officeryoda.fhysics.engine.util.floorToInt
 
 /**
  * A data class for storing center rectangle data.

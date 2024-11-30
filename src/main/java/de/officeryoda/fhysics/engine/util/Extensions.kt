@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.extensions
+package de.officeryoda.fhysics.engine.util
 
 import de.officeryoda.fhysics.engine.math.Vector2
 import kotlin.math.ceil

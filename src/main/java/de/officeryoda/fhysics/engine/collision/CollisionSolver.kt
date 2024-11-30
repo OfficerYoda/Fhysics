@@ -5,7 +5,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionDynamic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionStatic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution

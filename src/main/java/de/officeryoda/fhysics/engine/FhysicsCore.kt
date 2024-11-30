@@ -4,9 +4,8 @@ import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory
 import de.officeryoda.fhysics.engine.util.Stopwatch
-import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.SceneListener
@@ -32,7 +31,7 @@ object FhysicsCore {
     var updateCount = 0 // Includes all sub steps
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
-    var running: Boolean = false
+    var running: Boolean = true
     val updateStopwatch = Stopwatch(50)
 
     // Quad tree capacity optimization
@@ -44,14 +43,14 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        val objects: List<FhysicsObject> = List(100) { FhysicsObjectFactory.randomCircle() }
-        for (it: FhysicsObject in objects) {
-            it.restitution = 1f
-            it.frictionDynamic = 0f
-            it.frictionStatic = 0f
-        }
-        UIController.setBorderProperties(1f, 1f, 1f)
-        spawn(objects)
+//        val objects: List<FhysicsObject> = List(100) { FhysicsObjectFactory.randomCircle() }
+//        for (it: FhysicsObject in objects) {
+//            it.restitution = 1f
+//            it.frictionDynamic = 0f
+//            it.frictionStatic = 0f
+//        }
+//        UIController.setBorderProperties(1f, 1f, 1f)
+//        spawn(objects)
 
 //        repeat(100) {
 //            spawn(FhysicsObjectFactory.randomRectangle())
