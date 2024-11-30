@@ -2,7 +2,6 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
 
 class ConcavePolygon(
     vertices: Array<Vector2>,
@@ -33,12 +32,6 @@ class ConcavePolygon(
         for (it: SubPolygon in subPolygons) {
             it.updateBoundingBox()
         }
-    }
-
-    override fun clone(): FhysicsObject {
-        val clone: ConcavePolygon =
-            PolygonFactory.createPolygon(vertices.map { it + position }.toTypedArray(), angle) as ConcavePolygon
-        return clone
     }
 
     override fun toString(): String {

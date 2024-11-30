@@ -35,17 +35,6 @@ class SubPolygon(
         return other.findContactPoints(this, info)
     }
 
-    override fun clone(): FhysicsObject {
-        return SubPolygon(
-            position.copy(),
-            calculatePolygonCenter(vertices),
-            velocity.copy(),
-            vertices.map { it.copy() + centerOffset }.toTypedArray(),
-            angularVelocity,
-            parent
-        )
-    }
-
     override fun toString(): String {
         return "SubPolygon(id=$id, position=$position, velocity=$velocity, acceleration=$acceleration, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, vertices=${vertices.contentToString()}, parent=$parent)"
     }

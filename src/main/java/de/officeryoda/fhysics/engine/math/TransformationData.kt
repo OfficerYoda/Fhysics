@@ -40,11 +40,10 @@ value class TransformationData(
     /**
      * Applies the transformation to a vector.
      */
-    operator fun times(vector2: Vector2): Vector2 {
-        // Order: sin, cos, x, y
+    fun applyTo(vector: Vector2): Vector2 {
         return Vector2(
-            vector2.x * data[1] - vector2.y * data[0] + data[2],
-            vector2.x * data[0] + vector2.y * data[1] + data[3]
+            vector.x * data[1] - vector.y * data[0] + data[2],
+            vector.x * data[0] + vector.y * data[1] + data[3]
         )
     }
 

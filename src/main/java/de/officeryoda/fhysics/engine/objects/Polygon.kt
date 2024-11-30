@@ -113,10 +113,10 @@ abstract class Polygon(
      */
     fun getTransformedVertices(): Array<Vector2> {
         // Create the transformation data
-        val transformation = TransformationData(angle, position)
+        val transformationData = TransformationData(angle, position)
 
         // Transform the vertices
-        return Array(vertices.size) { i -> transformation * vertices[i] }
+        return Array(vertices.size) { i -> transformationData.applyTo(vertices[i]) }
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo

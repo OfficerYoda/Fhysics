@@ -7,8 +7,8 @@ import kotlin.math.sqrt
 /**
  * A 2D vector class providing basic vector operations.
  *
- * @property x The x-coordinate of the Vector2.
- * @property y The y-coordinate of the Vector2.
+ * @property x The x-coordinate of the [Vector2].
+ * @property y The y-coordinate of the [Vector2].
  */
 data class Vector2
 @JvmOverloads constructor(
@@ -16,28 +16,21 @@ data class Vector2
 ) {
 
     /**
-     * Returns a normalized version of the  Vector2.
-     *
-     * @return The normalized Vector2.
+     * Returns a normalized version of the [Vector2].
      */
     fun normalized(): Vector2 {
         val magnitude: Float = magnitude()
-        return if (magnitude != 0.0f) {
+        return if (magnitude != 0f) {
             Vector2(this.x / magnitude, this.y / magnitude)
         } else {
-            Vector2(0.0f, 0.0f)  // Handle division by zero, return a default zero vector.
+            Vector2(0f, 0f)  // Handle division by zero, return a default zero vector.
         }
     }
 
     /**
-     * Returns a rotated version of the Vector2 around the given center point.
-     *
-     * @param center The center of rotation.
-     * @param angle The angle of rotation in radians.
-     *
-     * @return The rotated Vector2.
+     * Returns a [Vector2] which was rotated around the given [center] by the given [angle].
      */
-    fun rotatedAround(center: Vector2, angle: Float): Vector2 {
+    fun rotatedAround(angle: Float, center: Vector2): Vector2 {
         val translatedX: Float = this.x - center.x
         val translatedY: Float = this.y - center.y
 
@@ -51,10 +44,7 @@ data class Vector2
     }
 
     /**
-     * Rotates the Vector2 around the origin by the given angle.
-     *
-     * @param angle The angle of rotation in radians.
-     * @return The rotated Vector2.
+     * Returns a [Vector2] which was rotated around the origin by the given [angle].
      */
     fun rotated(angle: Float): Vector2 {
         val cosAngle: Float = cos(angle)
@@ -67,61 +57,45 @@ data class Vector2
     }
 
     /**
-     * Calculates the dot product of this Vector2 with another Vector2.
-     *
-     * @param other The other Vector2.
-     * @return The dot product of the two Vector2 instances.
+     * Calculates the dot product of [this][Vector2] and [other].
      */
     fun dot(other: Vector2): Float {
         return this.x * other.x + this.y * other.y
     }
 
     /**
-     * Calculates the cross product of this Vector2 with another Vector2.
+     * Calculates the cross product of [this][Vector2] with [other].
      *
      * To my math teacher Mr. Jungblut: I know that cross products are
      * technically only defined for 3D vectors, but if it works, it works.
-     *
-     * @param other The other Vector2.
-     * @return The cross product of the two Vector2 instances.
      */
     fun cross(other: Vector2): Float {
         return this.x * other.y - this.y * other.x
     }
 
     /**
-     * Calculates the magnitude (length) of the Vector2.
-     *
-     * @return The magnitude of the Vector2.
+     * Calculates the magnitude (length) of the [Vector2].
      */
     fun magnitude(): Float {
         return sqrt(sqrMagnitude())
     }
 
     /**
-     * Calculates the squared magnitude (length) of the Vector2.
-     *
-     * @return The squared magnitude of the Vector2.
+     * Calculates the squared magnitude (length) of the [Vector2].
      */
     fun sqrMagnitude(): Float {
         return this.x * this.x + this.y * this.y
     }
 
     /**
-     * Calculates the Euclidean distance between this Vector2 and another Vector2.
-     *
-     * @param other The other Vector2.
-     * @return The distance between the two Vector2 instances.
+     * Calculates the Euclidean distance between [this][Vector2] and [other].
      */
     fun distanceTo(other: Vector2): Float {
         return sqrt(distanceToSqr(other))
     }
 
     /**
-     * Calculates the squared Euclidean distance between this Vector2 and another Vector2.
-     *
-     * @param other The other Vector2.
-     * @return The squared distance between the two Vector2 instances.
+     * Calculates the squared Euclidean distance between [this][Vector2] and [other].
      */
     fun distanceToSqr(other: Vector2): Float {
         val dx: Float = this.x - other.x
@@ -130,10 +104,7 @@ data class Vector2
     }
 
     /**
-     * Sets the components of the Vector2.
-     *
-     * @param x The new x-coordinate.
-     * @param y The new y-coordinate.
+     * Sets the components of the [Vector2].
      */
     fun set(x: Float, y: Float) {
         this.x = x
@@ -141,9 +112,7 @@ data class Vector2
     }
 
     /**
-     * Sets the components of this Vector2 to be equal to another Vector2.
-     *
-     * @param other The Vector2 whose components will be copied.
+     * Sets the components of [this][Vector2] to be equal to [other].
      */
     fun set(other: Vector2) {
         this.x = other.x
@@ -151,7 +120,7 @@ data class Vector2
     }
 
     /**
-     * Negates the Vector2.
+     * Negates this [Vector2].
      */
     fun negate() {
         this.x = -this.x
@@ -159,40 +128,29 @@ data class Vector2
     }
 
     /**
-     * Adds another Vector2 to this Vector2.
-     *
-     * @param other The Vector2 to add.
-     * @return The result of the addition.
+     * Returns the sum of [this][Vector2] and [other].
      */
     operator fun plus(other: Vector2): Vector2 {
         return Vector2(this.x + other.x, this.y + other.y)
     }
 
     /**
-     * Subtracts another Vector2 from this Vector2.
-     *
-     * @param other The Vector2 to subtract.
-     * @return The result of the subtraction.
+     * Returns the difference of [this][Vector2] and [other].
      */
     operator fun minus(other: Vector2): Vector2 {
         return Vector2(this.x - other.x, this.y - other.y)
     }
 
     /**
-     * Multiplies the Vector2 by a scalar.
-     *
-     * @param scalar The scalar value.
-     * @return The result of the multiplication.
+     * Returns the product of the [this][Vector2] and a [scalar].
      */
     operator fun times(scalar: Float): Vector2 {
         return Vector2(this.x * scalar, this.y * scalar)
     }
 
     /**
-     * Divides the Vector2 by a scalar.
+     * Returns the division of the [this][Vector2] by a [scalar].
      *
-     * @param scalar The scalar value.
-     * @return The result of the division.
      * @throws IllegalArgumentException if division by zero is attempted.
      */
     operator fun div(scalar: Float): Vector2 {
@@ -200,9 +158,7 @@ data class Vector2
     }
 
     /**
-     * Adds another Vector2 to this Vector2 in-place.
-     *
-     * @param other The Vector2 to add.
+     * Assigns the sum of [this][Vector2] and [other] to [this][Vector2].
      */
     operator fun plusAssign(other: Vector2) {
         this.x += other.x
@@ -210,9 +166,7 @@ data class Vector2
     }
 
     /**
-     * Subtracts another Vector2 from this Vector2 in-place.
-     *
-     * @param other The Vector2 to subtract.
+     * Assigns the difference of [this][Vector2] and [other] to [this][Vector2].
      */
     operator fun minusAssign(other: Vector2) {
         this.x -= other.x
@@ -220,9 +174,7 @@ data class Vector2
     }
 
     /**
-     * Multiplies the Vector2 by a scalar in-place.
-     *
-     * @param scalar The scalar value.
+     * Assigns the product of [this][Vector2] and a [scalar] to [this][Vector2].
      */
     operator fun timesAssign(scalar: Float) {
         this.x *= scalar
@@ -230,9 +182,8 @@ data class Vector2
     }
 
     /**
-     * Divides the Vector2 by a scalar in-place.
+     * Assigns the division of [this][Vector2] by a [scalar] to [this][Vector2].
      *
-     * @param scalar The scalar value.
      * @throws IllegalArgumentException if division by zero is attempted.
      */
     operator fun divAssign(scalar: Float) {
@@ -241,28 +192,21 @@ data class Vector2
     }
 
     /**
-     * Returns a new Vector2 instance that represents the negation of the current vector.
-     *
-     * @return The negated Vector2.
+     * Returns a negated version of the [Vector2].
      */
     operator fun unaryMinus(): Vector2 {
         return Vector2(-this.x, -this.y)
     }
 
     /**
-     * Returns a string representation of the Vector2.
-     *
-     * @return A string containing the values of the x and y components.
+     * Returns a string representation of the [Vector2].
      */
     override fun toString(): String {
         return "Vector2(x=${this.x}, y=${this.y})"
     }
 
     /**
-     * Compares this Vector2 to another object for equality.
-     *
-     * @param other The other object.
-     * @return `true` if the objects are equal, `false` otherwise.
+     * Compares this [Vector2] to [another][other] object for equality.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -275,9 +219,7 @@ data class Vector2
     }
 
     /**
-     * Returns a hash code value for the Vector2.
-     *
-     * @return A hash code value.
+     * Returns a hash code value for the [Vector2].
      */
     override fun hashCode(): Int {
         var result: Int = this.x.hashCode()
@@ -286,13 +228,11 @@ data class Vector2
     }
 
     /**
-     * Companion object providing utility functions for Vector2.
+     * Companion object providing utility functions for [Vector2].
      */
     companion object {
         /**
-         * Creates a Vector2 with both components set to zero.
-         *
-         * @return The zero Vector2.
+         * Creates a [Vector2] with both components set to zero.
          */
         @JvmStatic
         val ZERO: Vector2

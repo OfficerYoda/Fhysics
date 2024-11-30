@@ -140,8 +140,6 @@ abstract class FhysicsObject protected constructor(
 
     abstract fun draw(drawer: FhysicsObjectDrawer)
 
-    abstract fun clone(): FhysicsObject
-
     private fun colorFromId(): Color {
         val colors: List<Color> =
             listOf(Color.decode("#32a852"), Color.decode("#4287f5"), Color.decode("#eb4034"), Color.decode("#fcba03"))
