@@ -6,18 +6,22 @@ import de.officeryoda.fhysics.engine.objects.Polygon
 import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * A BoundingBox is an axis-aligned rectangle that encloses an object.
+ */
 data class BoundingBox(
-    var x: Float = 0.0f, // Lower left corner x-coordinate
-    var y: Float = 0.0f, // Lower left corner y-coordinate
+    /** Lower left corner x-coordinate */
+    var x: Float = 0.0f,
+    /** Lower left corner y-coordinate */
+    var y: Float = 0.0f,
+    /** Width of the bounding box */
     var width: Float = 0.0f,
+    /** Height of the bounding box */
     var height: Float = 0.0f,
 ) {
 
     /**
-     * Checks if this bounding box overlaps with the given bounding box.
-     *
-     * @param other The other bounding box to check for overlap.
-     * @return True if the bounding boxes overlap, false otherwise.
+     * Checks if this bounding box overlaps with [another][other] bounding box.
      */
     fun overlaps(other: BoundingBox): Boolean {
         return this.x <= (other.x + other.width) &&
@@ -27,10 +31,7 @@ data class BoundingBox(
     }
 
     /**
-     * Checks if this bounding box overlaps with the given center rectangle.
-     *
-     * @param cRect The center rectangle to check for overlap.
-     * @return True if the bounding box overlaps with the center rectangle, false otherwise.
+     * Checks if this bounding box overlaps with the [given][cRect] center rectangle.
      */
     fun overlaps(cRect: CenterRect): Boolean {
         val cx: Int = cRect[0]
@@ -44,10 +45,7 @@ data class BoundingBox(
     }
 
     /**
-     * Checks if the given position is contained within this bounding box.
-     *
-     * @param pos The position to check for containment.
-     * @return True if the position is contained within the bounding box, false otherwise.
+     * Checks if the given [position][pos] is contained within this bounding box.
      */
     fun contains(pos: Vector2): Boolean {
         return pos.x in x..(x + width) &&
@@ -55,10 +53,7 @@ data class BoundingBox(
     }
 
     /**
-     * Checks if this bounding box contains the given bounding box.
-     *
-     * @param other The other bounding box to check for containment.
-     * @return True if this bounding box contains the other bounding box, false otherwise.
+     * Checks if this bounding box contains the [given][other] bounding box.
      */
     fun contains(other: BoundingBox): Boolean {
         return this.x <= other.x &&
@@ -69,9 +64,7 @@ data class BoundingBox(
 
 
     /**
-     * Sets the bounding box to the bounding box of the given circle.
-     *
-     * @param circle The circle to set the bounding box from.
+     * Sets the bounding box to the bounding box of the [given][circle] circle.
      */
     fun setFromCircle(circle: Circle) {
         this.x = circle.position.x - circle.radius
@@ -81,9 +74,7 @@ data class BoundingBox(
     }
 
     /**
-     * Sets the bounding box to the bounding box of the given polygon.
-     *
-     * @param poly The polygon to set the bounding box from.
+     * Sets the bounding box to the bounding box of the [given][poly] polygon.
      */
     fun setFromPolygon(poly: Polygon) {
         val transformedVertices: Array<Vector2> = poly.getTransformedVertices()

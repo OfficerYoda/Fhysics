@@ -56,11 +56,7 @@ class Rectangle(
 }
 
 /**
- * Creates the vertices of a rectangle with the given width and height
- *
- * @param width The width of the rectangle
- * @param height The height of the rectangle
- * @return The vertices of the rectangle
+ * Creates the vertices of a rectangle with the given [width] and [height].
  */
 private fun createRectangleVertices(width: Float, height: Float): Array<Vector2> {
     val halfWidth: Float = width / 2

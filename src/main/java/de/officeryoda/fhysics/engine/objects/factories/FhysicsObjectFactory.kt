@@ -24,9 +24,7 @@ object FhysicsObjectFactory {
     private val executor = Executors.newCachedThreadPool()
 
     /**
-     * Generates a random circle with a random position, radius, and velocity.
-     *
-     * @return A random circle.
+     * Returns a random circle with a random position, radius, and velocity.
      */
     fun randomCircle(): Circle {
         val radius: Float = RANDOM.nextFloat(0.2f, 0.4f)
@@ -39,9 +37,7 @@ object FhysicsObjectFactory {
     }
 
     /**
-     * Generates a random rectangle with a random position, width, height, rotation, and velocity.
-     *
-     * @return A random rectangle.
+     * Returns a random rectangle with a random position, width, height, rotation, and velocity.
      */
     fun randomRectangle(): Rectangle {
         val width: Float = RANDOM.nextFloat(1.0f, 10.0f)
@@ -56,11 +52,9 @@ object FhysicsObjectFactory {
     }
 
     /**
-     * Generates a random polygon with a random position and velocity.
+     * Returns a random polygon with a random position and velocity.
      *
      * This only works when called from the main thread.
-     *
-     * @return A random polygon.
      */
     fun randomPolygon(): Polygon {
         val center: Vector2 = randomPosInsideBounds(0.0f)

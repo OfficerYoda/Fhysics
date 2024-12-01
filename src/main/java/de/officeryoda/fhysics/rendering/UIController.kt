@@ -1,7 +1,3 @@
-/**
- * Sample Skeleton for 'ui.fxml' Controller Class
- */
-
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
@@ -23,7 +19,7 @@ import kotlin.math.max
 /**
  * Controller class for the UI.
  *
- * Doubles as a data holder for the settings made through the UI.
+ * Doubles as a data container for the settings made through the UI. // TODO remove this when Setting class is implemented
  */
 class UIController {
 
@@ -301,19 +297,19 @@ class UIController {
     @FXML
     fun onPropertyRestitutionChanged() {
         selectedObject!!.restitution = sldPropertyRestitution.value.toFloat()
-        lblPropertyRestitution.text = toRoundedString(selectedObject!!.restitution)
+        lblPropertyRestitution.text = roundedToString(selectedObject!!.restitution)
     }
 
     @FXML
     fun onPropertyFrictionStaticChanged() {
         selectedObject!!.frictionStatic = sldPropertyFrictionStatic.value.toFloat()
-        lblPropertyFrictionStatic.text = toRoundedString(selectedObject!!.frictionStatic)
+        lblPropertyFrictionStatic.text = roundedToString(selectedObject!!.frictionStatic)
     }
 
     @FXML
     fun onPropertyFrictionDynamicChanged() {
         selectedObject!!.frictionDynamic = sldPropertyFrictionDynamic.value.toFloat()
-        lblPropertyFrictionDynamic.text = toRoundedString(selectedObject!!.frictionDynamic)
+        lblPropertyFrictionDynamic.text = roundedToString(selectedObject!!.frictionDynamic)
     }
 
     @FXML
@@ -348,8 +344,8 @@ class UIController {
 
         cbPropertyStatic.isSelected = obj.static
         clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
-        txtPropertyMass.text = toRoundedString(obj.mass)
-        txtPropertyRotation.text = toRoundedString(selectedObject!!.angle * RADIANS_TO_DEGREES)
+        txtPropertyMass.text = roundedToString(obj.mass)
+        txtPropertyRotation.text = roundedToString(selectedObject!!.angle * RADIANS_TO_DEGREES)
         setSliderAndLabel(sldPropertyRestitution, lblPropertyRestitution, obj.restitution)
         setSliderAndLabel(sldPropertyFrictionStatic, lblPropertyFrictionStatic, obj.frictionStatic)
         setSliderAndLabel(sldPropertyFrictionDynamic, lblPropertyFrictionDynamic, obj.frictionDynamic)
@@ -413,7 +409,7 @@ class UIController {
     @FXML
     fun onDampingChanged() {
         damping = sldDamping.value.toFloat()
-        lblDamping.text = toRoundedString(damping, 4)
+        lblDamping.text = roundedToString(damping, 4)
     }
     /// endregion
 
@@ -462,19 +458,19 @@ class UIController {
     @FXML
     fun onBorderRestitutionChanged() {
         borderRestitution = sldBorderRestitution.value.toFloat()
-        lblBorderRestitution.text = toRoundedString(borderRestitution)
+        lblBorderRestitution.text = roundedToString(borderRestitution)
     }
 
     @FXML
     fun onBorderFrictionStaticChanged() {
         borderFrictionStatic = sldBorderFrictionStatic.value.toFloat()
-        lblBorderFrictionStatic.text = toRoundedString(borderFrictionStatic)
+        lblBorderFrictionStatic.text = roundedToString(borderFrictionStatic)
     }
 
     @FXML
     fun onBorderFrictionDynamicChanged() {
         borderFrictionDynamic = sldBorderFrictionDynamic.value.toFloat()
-        lblBorderFrictionDynamic.text = toRoundedString(borderFrictionDynamic)
+        lblBorderFrictionDynamic.text = roundedToString(borderFrictionDynamic)
     }
     /// endregion
 
@@ -639,31 +635,22 @@ class UIController {
     }
 
     /**
-     * Rounds a float value to two decimal places and converts it to a string.
-     *
-     * @param value The float value to convert.
-     * @return The string representation of the float value with two decimal places.
+     * Rounds a float [value] to two decimal places and converts it to a string.
      */
-    private fun toRoundedString(value: Float, decimalPlaces: Int = 2): String {
+    private fun roundedToString(value: Float, decimalPlaces: Int = 2): String {
         return String.format(Locale.US, "%.${decimalPlaces}f", value)
     }
 
     /**
-     * Sets the value of a slider and its corresponding label.
-     *
-     * @param slider The slider to set the value of.
-     * @param label The label to set the text of.
-     * @param value The value to set the slider and label to.
+     * Sets the [value] of a [slider] and its corresponding [label].
      */
     private fun setSliderAndLabel(slider: Slider, label: Label, value: Float, lblDecimalPlaces: Int = 2) {
         slider.value = value.toDouble()
-        label.text = toRoundedString(value, lblDecimalPlaces)
+        label.text = roundedToString(value, lblDecimalPlaces)
     }
 
     /**
-     * Restricts the input of a text field to numeric values.
-     *
-     * @param textField The text field to restrict.
+     * Restricts the input of a [text field][textField] to numeric values.
      * @param allowNegatives Whether negative values are allowed.
      */
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
@@ -676,12 +663,8 @@ class UIController {
     }
 
     /**
-     * Parses the text of a text field to a float.
-     * If the text cannot be parsed, the default value is returned.
-     *
-     * @param textField The text field to parse.
-     * @param default The default value to return if the text cannot be parsed.
-     * @return The parsed float value or the default value if the text cannot be parsed.
+     * Parses the text of a [text field][textField] to a float.
+     * If the text cannot be parsed, the [default value][default] is returned.
      */
     private fun parseTextField(textField: TextField, default: Float = 0.0f): Float {
         return textField.text.toFloatOrNull() ?: default

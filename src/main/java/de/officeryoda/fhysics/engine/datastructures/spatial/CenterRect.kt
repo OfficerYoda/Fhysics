@@ -23,12 +23,11 @@ value class CenterRect(private val data: IntArray) {
     constructor(centerX: Int, centerY: Int, width: Int, height: Int) : this(intArrayOf(centerX, centerY, width, height))
 
     /**
-     * Returns the value represented by the given index:
+     * Returns the value represented by the given [index]:
      * 0. centerX (rounded down)
      * 1. centerY (rounded down)
      * 2. width
      * 3. height
-     * @param index The index of the value to return
      */
     operator fun get(index: Int): Int {
         return data[index]
@@ -39,7 +38,9 @@ value class CenterRect(private val data: IntArray) {
     }
 
     companion object {
-        /** Constructs the smallest possible [CenterRect] that contains the given [BoundingBox]. */
+        /**
+         * Constructs the smallest possible [CenterRect] that contains the [given][bbox] bounding box.
+         */
         fun fromBoundingBox(bbox: BoundingBox): CenterRect {
             // This has problems with negative values, but everything in the border should be positive
             val flooredX: Int = bbox.x.floorToInt()

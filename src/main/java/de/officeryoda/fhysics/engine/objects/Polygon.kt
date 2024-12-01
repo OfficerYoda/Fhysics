@@ -106,10 +106,7 @@ abstract class Polygon(
     }
 
     /**
-     * Transforms the vertices from local space to world space
-     * taking into account the position and rotation of the polygon
-     *
-     * @return The transformed vertices
+     * Returns an array of vertices transformed from local space to global space.
      */
     fun getTransformedVertices(): Array<Vector2> {
         // Create the transformation data
@@ -157,10 +154,7 @@ abstract class Polygon(
 
     companion object {
         /**
-         * Calculates the area of a polygon
-         * The area will always be positive
-         *
-         * @param vertices the vertices of the polygon
+         * Calculates the area of a polygon with the given [vertices].
          */
         fun calculatePolygonArea(vertices: Array<Vector2>): Float {
             var signedArea = 0f
@@ -176,9 +170,7 @@ abstract class Polygon(
         }
 
         /**
-         * Calculates the center of a polygon
-         *
-         * @param vertices the vertices of the polygon
+         * Calculates the center of a polygon with the given [vertices].
          */
         fun calculatePolygonCenter(vertices: Array<Vector2>): Vector2 {
             return vertices.reduce { acc, vector2 -> acc + vector2 } / vertices.size.toFloat()

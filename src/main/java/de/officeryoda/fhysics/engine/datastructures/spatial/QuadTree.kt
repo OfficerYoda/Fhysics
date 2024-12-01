@@ -46,7 +46,9 @@ object QuadTree {
 
     /// region =====Basic QuadTree Operations=====
     /// region =====Insertion=====
-    /** Thread safe insertion of an object into the QuadTree */
+    /**
+     * Thread safe insertion of an object into the QuadTree
+     */
     fun queueInsertion(obj: FhysicsObject) {
         pendingAdditions.add(obj)
     }
@@ -475,10 +477,14 @@ object QuadTree {
          * Elements are stored as a linked list.
          */
         var firstIdx: Int = -1,
-        /** The number of elements in the node or -1 if it's a branch. */
+        /**
+         * The number of elements in the node or -1 if it's a branch.
+         */
         var count: Int = 0,
     ) {
-        /** Whether the node is a leaf or a branch. */
+        /**
+         * Whether the node is a leaf or a branch.
+         */
         val isLeaf: Boolean get() = count != -1
 
         override fun toString(): String {

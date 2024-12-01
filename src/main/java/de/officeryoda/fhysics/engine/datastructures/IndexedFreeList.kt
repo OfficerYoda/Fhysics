@@ -1,17 +1,8 @@
 package de.officeryoda.fhysics.engine.datastructures
 
 /**
- * An efficient, indexed free list for managing elements with constant time and space complexity.
+ * An efficient, indexed free list for managing elements of type [T] with constant time and space complexity.
  * It reuses memory slots, preventing fragmentation and reducing heap allocations.
- *
- * Key Operations:
- * - **insert(element: T)**: Inserts an element and returns its index. Reuses free slots when possible.
- * - **erase(index: Int)**: Removes an element, marking its index as free for reuse.
- * - **clear()**: Clears all elements from the list.
- * - **range()**: Returns the number of elements in the list.
- * - **get(index: Int)**: Accesses an element by index.
- *
- * @param T The type of elements stored in the free list.
  */
 class IndexedFreeList<T>() : Iterable<T> {
 
@@ -20,20 +11,17 @@ class IndexedFreeList<T>() : Iterable<T> {
     }
 
     /**
-     * The data of the free list.
+     * The data of the [IndexedFreeList].
      */
     private val data: MutableList<FreeElement<T>> = mutableListOf()
 
     /**
-     * The index of the first free element in the free list.
+     * The index of the first free element in the [IndexedFreeList].
      */
     private var firstFree: Int = -1
 
     /**
-     * Inserts an element into the free list.
-     *
-     * @param element The element to insert.
-     * @return The index of the inserted element.
+     * Adds an [element] to the free list and returns the index of the element.
      */
     fun add(element: T): Int {
         return if (firstFree != -1) {
@@ -51,18 +39,16 @@ class IndexedFreeList<T>() : Iterable<T> {
     }
 
     /**
-     * Frees an index in the free list for reuse.
-     *
-     * @param n The index of the element to remove.
+     * Frees an [index] in the [IndexedFreeList] for reuse.
      */
-    fun free(n: Int) {
-        data[n].element = null
-        data[n].next = firstFree
-        firstFree = n
+    fun free(index: Int) {
+        data[index].element = null
+        data[index].next = firstFree
+        firstFree = index
     }
 
     /**
-     * Clears the free list.
+     * Clears the [IndexedFreeList].
      */
     fun clear() {
         data.clear()
@@ -70,33 +56,30 @@ class IndexedFreeList<T>() : Iterable<T> {
     }
 
     /**
-     * Returns the total capacity of the free list.
-     * This includes free and occupied elements.
+     * Returns the capacity of the [IndexedFreeList].
+     * This includes free elements.
      */
     fun capacity(): Int {
         return data.size
     }
 
     /**
-     * Returns the number of elements in the free list. This excludes free elements.
+     * Returns the number of elements in the [IndexedFreeList].
+     * This excludes free elements.
      */
     fun usedCount(): Int {
         return data.count { it.element != null }
     }
 
     /**
-     * Returns the element at the specified index.
-     *
-     * @param n The index of the element to return.
+     * Returns the element at the given [index].
      */
-    operator fun get(n: Int): T {
-        return data[n].element ?: throw IndexOutOfBoundsException("No element at index $n")
+    operator fun get(index: Int): T {
+        return data[index].element ?: throw IndexOutOfBoundsException("No element at index $index")
     }
 
     /**
-     * Returns the index of the specified element.
-     *
-     * @param element The element to search for.
+     * Returns the index of the given [element].
      */
     fun indexOf(element: T): Int {
         return data.indexOfFirst { it.element == element }
@@ -110,9 +93,7 @@ class IndexedFreeList<T>() : Iterable<T> {
     }
 
     /**
-     * The data structure for a free element in the free list.
-     * @param element The element.
-     * @param next The index of the next free element.
+     * The data structure for an element in the [IndexedFreeList].
      */
     private data class FreeElement<T>(
         /**
