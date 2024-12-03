@@ -110,7 +110,7 @@ abstract class Polygon(
      */
     fun getTransformedVertices(): Array<Vector2> {
         // Create the transformation data
-        val transformationData = TransformationData(angle, position)
+        val transformationData = TransformationData(angle, super.position)
 
         // Transform the vertices
         return Array(vertices.size) { i -> transformationData.applyTo(vertices[i]) }
