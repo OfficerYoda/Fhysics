@@ -111,4 +111,35 @@ class IndexedFreeList<T>() : Iterable<T> {
          */
         var next: Int = -1,
     )
+
+    /**
+     * An iterator over the elements of the [IndexedFreeList] with the index of the current element in the [list].
+     *
+     * The iterator skips free elements.
+     *
+     * @param T The type of the elements.
+     * @property list The [IndexedFreeList] to iterate over.
+     */
+    class IndexedIterator<T>(private val list: IndexedFreeList<T>) : Iterator<T> {
+        private var currentIndex = 0
+
+        override fun hasNext(): Boolean {
+            while (currentIndex < list.capacity() && list.data[currentIndex].element == null) {
+                currentIndex++
+            }
+            return currentIndex < list.capacity()
+        }
+
+        override fun next(): T {
+            if (!hasNext()) throw NoSuchElementException()
+            return list.data[currentIndex++].element!!
+        }
+
+        /**
+         * Returns the index of the current element in the [list].
+         */
+        fun index(): Int {
+            return currentIndex - 1
+        }
+    }
 }

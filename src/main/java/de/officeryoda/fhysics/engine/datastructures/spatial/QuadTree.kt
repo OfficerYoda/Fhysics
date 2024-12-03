@@ -1,6 +1,8 @@
 package de.officeryoda.fhysics.engine.datastructures.spatial
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.collision.CollisionInfo
+import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.IndexedFreeList
 import de.officeryoda.fhysics.engine.datastructures.Tuple6
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.processPendingOperations
@@ -67,6 +69,7 @@ object QuadTree {
         for (it: FhysicsObject in pendingAdditions) {
             insertIteratively(it)
         }
+
         pendingAdditions.clear()
     }
 
@@ -193,8 +196,10 @@ object QuadTree {
         for (it: FhysicsObject in pendingRemovals) {
             val objIdx: Int = objects.indexOf(it)
             if (objIdx == -1) continue
+
             removeIteratively(objIdx, BoundingBoxEdges(it.boundingBox))
         }
+
         pendingRemovals.clear()
     }
 
@@ -502,17 +507,90 @@ object QuadTree {
     }
 
     fun updateFhysicsObjects() {
-        for (obj: FhysicsObject in objects) {
+        // Custom iterator to get the index of the object in the free list
+        val iterator: IndexedFreeList.IndexedIterator<FhysicsObject> =
+            IndexedFreeList.IndexedIterator(objects)
+
+        // Update all objects and update their position in the tree if necessary
+        while (iterator.hasNext()) {
+            // Get the object and its index
+            val obj: FhysicsObject = iterator.next()
+            val index: Int = iterator.index()
+
+            // Update the object
+            val cRectBefore: CenterRect = CenterRect.fromBoundingBox(obj.boundingBox)
             obj.update()
+            val cRectAfter: CenterRect = CenterRect.fromBoundingBox(obj.boundingBox)
+
+            // Only update the object in the tree if the integer-based bounding box has changed
+            if (!cRectBefore.contentEquals(cRectAfter)) {
+                updateObjectInTree(index, obj, cRectBefore)
+            }
         }
     }
 
-    fun handleCollisions() {
-        // TODO
+    /**
+     * Updates the object in the tree by removing it and reinserting it.
+     */
+    private fun updateObjectInTree(objIdx: Int, obj: FhysicsObject, cRectBefore: CenterRect) {
+        removeIteratively(objIdx, BoundingBoxEdges.fromCenterRect(cRectBefore))
+        insertIteratively(obj)
     }
 
-    fun updateNodeSizes() {
-        // TODO
+    fun handleCollisions() {
+        handleBorderCollision()
+        handleObjectCollision()
+    }
+
+    private fun handleBorderCollision() {
+        for (obj: FhysicsObject in objects) {
+            CollisionSolver.handleBorderCollisions(obj)
+        }
+    }
+
+    private fun handleObjectCollision() {
+        // Get all leaves
+        val leaves: List<QTNode> = nodes.filter { it.isLeaf }
+
+        // Declare outside to only allocate once
+        val collisions: MutableList<CollisionInfo> = ArrayList()
+        // Handle collisions in each leaf
+        for (leaf: QTNode in leaves) {
+            handleCollisionsInLeaf(leaf, collisions)
+            collisions.clear()
+        }
+    }
+
+    private fun handleCollisionsInLeaf(node: QTNode, collisions: MutableList<CollisionInfo>) {
+        // TODO check if querying the object in the QuadTree is faster than iterating over the elements
+        // Traverse the element linked list
+        var current = QTNodeElement(-1, node.firstIdx) // Dummy element
+        while (current.next != -1) {
+            current = elements[current.next]
+
+            // Get the object from the list
+            val obj: FhysicsObject = objects[current.index]
+
+            // Check for collisions with other objects in the leaf
+            var next = QTNodeElement(-1, current.next) // Dummy element
+            while (next.next != -1) {
+                next = elements[next.next]
+
+                // Get the object from the list
+                val other: FhysicsObject = objects[next.index]
+
+                //  Check for collision
+                val info: CollisionInfo = obj.testCollision(other)
+                if (info.hasCollision) {
+                    collisions.add(info)
+                }
+            }
+        }
+
+        // Solve the collisions
+        for (collision: CollisionInfo in collisions) {
+            CollisionSolver.solveCollision(collision)
+        }
     }
 
     fun shutdownThreadPool() {
@@ -684,7 +762,7 @@ object QuadTree {
 
         private fun printlnNode(nodeData: QTNodeData) {
             val node: QTNode = nodes[nodeData.index]
-            println("QTNode(${node.count}, ${nodeData.depth}, ${nodeData.cRect})")
+            println("QTNode(count=${node.count}, depth=${nodeData.depth}, ${nodeData.cRect})")
         }
 
         private fun getChildNodeData(parentData: QTNodeData): MutableList<QTNodeData> {

@@ -2,7 +2,6 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.util.times
@@ -43,9 +42,6 @@ object CollisionSolver {
                 Vector2(BORDER.x, BORDER.y)
             )
         )
-
-        // Update the node sizes of the quad tree nodes
-        QuadTree.updateNodeSizes()
     }
 
 

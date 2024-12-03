@@ -436,6 +436,7 @@ class UIController {
         val width: Float = parseTextField(txtBorderWidth, 1f)
         FhysicsCore.BORDER.width = max(width, 1f) // Minimum border size of 1x1
         CollisionSolver.updateBorderObjects()
+        QuadTree.rebuild() // Rebuild to resize the QTNodes
 
         // Make sure the text field matches the actual border width
         if (width < 1f) {
@@ -448,6 +449,7 @@ class UIController {
         val height: Float = parseTextField(txtBorderHeight, 1f)
         FhysicsCore.BORDER.height = max(height, 1f) // Minimum border size of 1x1
         CollisionSolver.updateBorderObjects()
+        QuadTree.rebuild() // Rebuild to resize the QTNodes
 
         // Make sure the text field matches the actual border height
         if (height < 1f) {

@@ -42,4 +42,22 @@ value class BoundingBoxEdges(
             bbox.y.floorToInt() // Bottom edge
         )
     )
+
+    companion object {
+        /**
+         * Creates a [BoundingBoxEdges] object from a [CenterRect] object.
+         */
+        fun fromCenterRect(cRect: CenterRect): BoundingBoxEdges {
+            val halfWidth: Int = cRect.width / 2
+            val halfHeight: Int = cRect.height / 2
+            return BoundingBoxEdges(
+                intArrayOf(
+                    cRect.centerX - halfWidth, // Left edge
+                    cRect.centerX + cRect.width - halfWidth, // Right edge
+                    cRect.centerY + cRect.height - halfHeight, // Top edge
+                    cRect.centerY - halfHeight // Bottom edge
+                )
+            )
+        }
+    }
 }
