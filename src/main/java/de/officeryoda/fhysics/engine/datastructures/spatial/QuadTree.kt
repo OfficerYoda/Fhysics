@@ -11,7 +11,6 @@ import de.officeryoda.fhysics.rendering.UIController
 import kotlin.math.log2
 import kotlin.math.min
 
-
 object QuadTree {
     // Capacity of the tree
     var capacity: Int = 8
@@ -26,7 +25,7 @@ object QuadTree {
     // The root node of the tree
     private var root: QTNode = QTNode()
 
-    private var rootData: QTNodeData = QTNodeData(0, CenterRect.Companion.fromBoundingBox(FhysicsCore.BORDER), 0)
+    private var rootData: QTNodeData = QTNodeData(CenterRect.Companion.fromBoundingBox(FhysicsCore.BORDER), 0, 0)
 
     // List of all nodes in the tree (root node is always at index 0)
     private val nodes = IndexedFreeList(root)
@@ -47,13 +46,13 @@ object QuadTree {
     /// region =====Basic QuadTree Operations=====
     /// region =====Insertion=====
     /**
-     * Thread safe insertion of an object into the QuadTree
+     * Queues an object for insertion into the QuadTree.
      */
     fun queueInsertion(obj: FhysicsObject) {
         pendingAdditions.add(obj)
     }
 
-    fun insert(obj: FhysicsObject) {
+    private fun insert(obj: FhysicsObject) {
         val objIdx: Int = objects.add(obj)
         val overlappingLeaves: MutableList<QTNodeData> = findOverlappingLeaves(BoundingBoxEdges(obj.boundingBox))
         for (leave: QTNodeData in overlappingLeaves) {
@@ -98,28 +97,20 @@ object QuadTree {
         val childIndex: Int = nodes[nodeData.index].firstIdx
 
         // Check which children overlap the bounding box
-        if (edges[0] <= cx) { // Left edge intersects or is left of the center
-            if (edges[2] >= cy) { // Top edge intersects or is above the center
-                // Top-left
-                toProcess.add(QTNodeData(cx - hw, cy + 0, hw, hh, childIndex + 0, nodeData.depth + 1))
+        if (edges.top >= cy) { // Top edge intersects or is above the center
+            if (edges.left <= cx) { // Left edge intersects or is left of the center
+                toProcess.add(QTNodeData(cx - hw, cy, hw, th - hh, childIndex + 0, nodeData.depth + 1)) // Top-left
             }
-            if (edges[3] <= cy) { // Bottom edge intersects or is below the center
-                // Bottom-left
-                val h: Int = tw - hh // Height
-                toProcess.add(QTNodeData(cx - hw, cy - h, hw, h, childIndex + 2, nodeData.depth + 1))
+            if (edges.right >= cx) { // Right edge intersects or is right of the center
+                toProcess.add(QTNodeData(cx, cy, tw - hw, th - hh, childIndex + 1, nodeData.depth + 1)) // Top-right
             }
         }
-        if (edges[1] >= cx) { // Right edge intersects or is right of the center
-            if (edges[2] >= cy) { // Top edge intersects or is above the center
-                // Top-right
-                val w: Int = tw - hw // Width
-                toProcess.add(QTNodeData(cx + 0, cy + 0, w, hh, childIndex + 1, nodeData.depth + 1))
+        if (edges.bottom <= cy) { // Bottom edge intersects or is below the center
+            if (edges.left <= cx) { // Left edge intersects or is left of the center
+                toProcess.add(QTNodeData(cx - hw, cy - hh, hw, hh, childIndex + 2, nodeData.depth + 1)) // Bottom-left
             }
-            if (edges[3] <= cy) { // Bottom edge intersects or is below the center
-                // Bottom-right
-                val w: Int = tw - hw // Width
-                val h: Int = th - hh // Height
-                toProcess.add(QTNodeData(cx + 0, cy - h, w, h, childIndex + 3, nodeData.depth + 1))
+            if (edges.right >= cx) { // Right edge intersects or is right of the center
+                toProcess.add(QTNodeData(cx, cy - hh, tw - hw, hh, childIndex + 3, nodeData.depth + 1)) // Bottom-right
             }
         }
     }
@@ -143,7 +134,7 @@ object QuadTree {
         node.count++
 
         // Split the node if it's full
-        if (node.count > capacity && nodeData.depth <= MAX_DEPTH) {
+        if (node.count > capacity && nodeData.depth <= MAX_DEPTH) { // Check for size <= 1 to prevent splitting into zero size
             splitNode(nodeData)
         }
     }
@@ -166,7 +157,7 @@ object QuadTree {
     /// endregion
 
     /// region =====Removal=====
-    // TODO add thread safe removal and traverse only one for all objects
+    // TODO add thread safe removal and traverse only once for all objects
     fun remove(obj: FhysicsObject) {
         // Get the index of the object
         val objIdx: Int = objects.indexOf(obj)
@@ -247,28 +238,21 @@ object QuadTree {
             val th: Int = nodeData.cRect[3] // Total height
             val hw: Int = tw / 2 // Half width
             val hh: Int = th / 2 // Half height
+            // Odd sizes will be split, so that the right and top sides are larger
 
             // Check which child node contains the position (favouring the top-left node)
             nodeData =
-                if (pos.x <= cx) { // Left side
-                    if (pos.y >= cy) { // Top side
-                        // Top-left
-                        QTNodeData(cx - hw, cy + 0, hw, hh, node.firstIdx + 0, nodeData.depth + 1)
+                if (pos.y >= cy) { // Top side
+                    if (pos.x <= cx) { // Left side
+                        QTNodeData(cx - hw, cy, hw, th - hh, node.firstIdx + 0, nodeData.depth + 1) // Top-left
                     } else {
-                        // Bottom-left
-                        val h: Int = th - hh // Height
-                        QTNodeData(cx - hw, cy - h, hw, h, node.firstIdx + 2, nodeData.depth + 1)
+                        QTNodeData(cx, cy, tw - hw, th - hh, node.firstIdx + 1, nodeData.depth + 1) // Top-right
                     }
-                } else { // Right side
-                    if (pos.y >= cy) { // Top side
-                        // Top-right
-                        val w: Int = tw - hw // Width
-                        QTNodeData(cx + 0, cy + 0, w, hh, node.firstIdx + 1, nodeData.depth + 1)
+                } else { // Bottom side
+                    if (pos.x <= cx) { // Left side
+                        QTNodeData(cx - hw, cy - hh, hw, hh, node.firstIdx + 2, nodeData.depth + 1) // Bottom-left
                     } else {
-                        // Bottom-right
-                        val w: Int = tw - hw // Width
-                        val h: Int = th - hh // Height
-                        QTNodeData(cx + 0, cy - h, w, h, node.firstIdx + 3, nodeData.depth + 1)
+                        QTNodeData(cx, cy - hh, tw - hw, hh, node.firstIdx + 3, nodeData.depth + 1) // Bottom-right
                     }
                 }
         }
@@ -357,26 +341,28 @@ object QuadTree {
         node.firstIdx = firstChildData.index
     }
 
-    private fun addChildNodeDataToCollection(
-        nodeData: QTNodeData,
+    fun addChildNodeDataToCollection(
+        parentData: QTNodeData,
         collection: MutableCollection<QTNodeData>,
-        childIndex: Int = nodes[nodeData.index].firstIdx, // I love this syntax
+        childIndex: Int = nodes[parentData.index].firstIdx, // I love this syntax
     ) {
-        val cx: Int = nodeData.cRect[0] // Center X
-        val cy: Int = nodeData.cRect[1] // Center Y
-        val tw: Int = nodeData.cRect[2] // Total width
-        val th: Int = nodeData.cRect[3] // Total height
+        val cx: Int = parentData.cRect[0] // Center X
+        val cy: Int = parentData.cRect[1] // Center Y
+        val tw: Int = parentData.cRect[2] // Total width
+        val th: Int = parentData.cRect[3] // Total height
+        // Odd sizes will be split, so that the right and top sides are larger
         val hwl: Int = tw / 2 // Half width left
         val hwr: Int = tw - hwl // Half width right
         val hhb: Int = th / 2 // Half height bottom
-        val hht: Int = tw - hhb // Half height top
+        val hht: Int = th - hhb // Half height top
         val _0_ = 0 // For better readability
 
         // Calculate the child nodes and add them to the collection
-        collection.add(QTNodeData(cx - hwl, cy + _0_, hwl, hht, childIndex + 0, nodeData.depth + 1)) // Top-left
-        collection.add(QTNodeData(cx + _0_, cy + _0_, hwr, hht, childIndex + 1, nodeData.depth + 1)) // Top-right
-        collection.add(QTNodeData(cx - hwl, cy - hhb, hwl, hhb, childIndex + 2, nodeData.depth + 1)) // Bottom-left
-        collection.add(QTNodeData(cx + _0_, cy - hhb, hwr, hhb, childIndex + 3, nodeData.depth + 1)) // Bottom-right
+        // x (bottom left corner), y (bottom left corner), width, height, index, depth
+        collection.add(QTNodeData(cx - hwl, cy + _0_, hwl, hht, childIndex + 0, parentData.depth + 1)) // Top-left
+        collection.add(QTNodeData(cx + _0_, cy + _0_, hwr, hht, childIndex + 1, parentData.depth + 1)) // Top-right
+        collection.add(QTNodeData(cx - hwl, cy - hhb, hwl, hhb, childIndex + 2, parentData.depth + 1)) // Bottom-left
+        collection.add(QTNodeData(cx + _0_, cy - hhb, hwr, hhb, childIndex + 3, parentData.depth + 1)) // Bottom-right
     }
     /// endregion
     /// endregion
@@ -467,7 +453,7 @@ object QuadTree {
     /**
      * A class representing a node in the QuadTree.
      */
-    private data class QTNode(
+    data class QTNode(
         /**
          * Points to the first child node in [QuadTree.nodes] when the node is a branch
          * or to the first element in [QuadTree.elements] when the node is a leaf.
@@ -482,6 +468,7 @@ object QuadTree {
          */
         var count: Int = 0,
     ) {
+
         /**
          * Whether the node is a leaf or a branch.
          */
@@ -498,15 +485,14 @@ object QuadTree {
      *
      * This data is not stored, but calculated when needed.
      */
-    private data class QTNodeData(
-        /** Index of the node in the [QuadTree.nodes] list. */
-        val index: Int,
+    data class QTNodeData(
         /** IntArray representing the node's bounding box: [centerX, centerY, width, height]. */
         val cRect: CenterRect,
+        /** Index of the node in the [QuadTree.nodes] list. */
+        val index: Int,
         /** Depth of the node in the Quadtree. */
         val depth: Int,
     ) {
-
 
         /**
          * Constructs a new [QTNodeData] object.
@@ -522,10 +508,31 @@ object QuadTree {
             width: Int, height: Int,
             index: Int, depth: Int,
         ) : this(
-            index,
             CenterRect(x + width / 2, y + height / 2, width, height),
-            depth
+            index, depth,
         )
+
+        override fun toString(): String {
+            return "QTNodeData(${cRect}, index=$index, depth=$depth)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is QTNodeData) return false
+
+            if (!cRect.contentEquals(other.cRect)) return false
+            if (index != other.index) return false
+            if (depth != other.depth) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result: Int = index
+            result = 31 * result + depth
+            result = 31 * result + cRect.hashCode()
+            return result
+        }
     }
 
     /**
@@ -543,7 +550,7 @@ object QuadTree {
 
     /// region =====Debugging=====
     object QTDebugHelper {
-        val root: QTNodeDebug get() = QTNodeDebug(QuadTree.root.firstIdx, QuadTree.root.count)
+        val root: QTNode get() = QuadTree.root
 
         fun getCurrentDepth(): Int {
             var maxDepth = 0
@@ -594,25 +601,14 @@ object QuadTree {
             return childData
         }
 
-        fun getChildren(parent: QTNodeDebug): Array<QTNodeDebug> {
-            val children: Array<QTNodeDebug> = Array(4) { QTNodeDebug() }
+        fun getChildren(parent: QTNode): Array<QTNode> {
+            val children: Array<QTNode> = Array(4) { QTNode() }
             val firstChildIdx: Int = parent.firstIdx
             for (i: Int in 0..3) {
                 val node: QTNode = nodes[firstChildIdx + i]
-                children[i] = QTNodeDebug(node.firstIdx, node.count)
+                children[i] = QTNode(node.firstIdx, node.count)
             }
             return children
-        }
-
-        /** This class exists to keep the [QTNode] class private. */
-        data class QTNodeDebug(
-            /** For a full documentation see [QTNode.firstIdx]. */
-            val firstIdx: Int = -1,
-            /** For a full documentation see [QTNode.count]. */
-            val count: Int = 0,
-        ) {
-            /** For a full documentation see [QTNode.isLeaf]. */
-            val isLeaf: Boolean get() = count != -1
         }
     }
     /// endregion

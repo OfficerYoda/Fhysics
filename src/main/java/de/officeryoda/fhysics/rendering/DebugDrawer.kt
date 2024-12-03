@@ -196,8 +196,8 @@ object DebugDrawer {
     }
 
     fun drawQTNode(cRect: CenterRect, count: Int) {
-        val x: Double = RenderUtil.worldToScreenX((cRect[0] - cRect[2] / 2).toDouble())
-        val y: Double = RenderUtil.worldToScreenY(((cRect[1] + (cRect[3] - cRect[3] / 2)).toDouble()))
+        val x: Double = RenderUtil.worldToScreenX((cRect.centerX - cRect.width / 2).toDouble())
+        val y: Double = RenderUtil.worldToScreenY(((cRect.centerY + (cRect.height - cRect.height / 2)).toDouble()))
         val width: Double = cRect[2] * zoom
         val height: Double = cRect[3] * zoom
 

@@ -4,17 +4,31 @@ import de.officeryoda.fhysics.engine.util.ceilToInt
 import de.officeryoda.fhysics.engine.util.floorToInt
 
 /**
- * A data class for storing bounding box edge data.
- * It stores the bounding box edge data in the following order:
- * 0. X-coordinate of the left edge
- * 1. X-coordinate of the right edge
- * 2. Y-coordinate of the top edge
- * 3. Y-coordinate of the bottom edge
- *
- * This class helps clarify the meaning of the values in the array when used in QuadTree
+ * A data class for storing the edges of a bounding box.
  */
 @JvmInline
-value class BoundingBoxEdges(private val edges: IntArray) {
+value class BoundingBoxEdges(
+    /**
+     * The edges of the bounding box in the following order:
+     * 0. Left edge (X-coordinate)
+     * 1. Right edge (X-coordinate)
+     * 2. Top edge (Y-coordinate)
+     * 3. Bottom edge (Y-coordinate)
+     */
+    private val edges: IntArray,
+) {
+
+    /** The X-coordinate of the left edge. */
+    val left: Int get() = edges[0]
+
+    /** The X-coordinate of the right edge. */
+    val right: Int get() = edges[1]
+
+    /** The Y-coordinate of the top edge. */
+    val top: Int get() = edges[2]
+
+    /** The Y-coordinate of the bottom edge. */
+    val bottom: Int get() = edges[3]
 
     init {
         require(edges.size == 4) { "BoundingBoxEdges requires exactly 4 int values (left-X, right-X, top-Y, bottom-Y)." }
@@ -28,8 +42,4 @@ value class BoundingBoxEdges(private val edges: IntArray) {
             bbox.y.floorToInt() // Bottom edge
         )
     )
-
-    operator fun get(index: Int): Int {
-        return edges[index]
-    }
 }

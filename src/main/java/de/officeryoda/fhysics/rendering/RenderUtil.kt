@@ -49,7 +49,7 @@ object RenderUtil {
      * Transforms an [x-coordinate][x] from world space to screen space.
      */
     fun worldToScreenX(x: Double): Double {
-        return x * zoom - zoomCenter.x * zoom + width / 2
+        return (x - zoomCenter.x) * zoom + width / 2
     }
 
     /**
@@ -63,7 +63,7 @@ object RenderUtil {
      * Transforms a [y-coordinate][y] from world space to screen space.
      */
     fun worldToScreenY(y: Double): Double {
-        return height - (y * zoom - zoomCenter.y * zoom + height / 2)
+        return height - ((y - zoomCenter.y) * zoom + height / 2)
     }
 
     /**

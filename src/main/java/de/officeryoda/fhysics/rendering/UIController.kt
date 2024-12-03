@@ -680,13 +680,13 @@ class UIController {
         /// endregion
 
         /// region =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.NOTHING
+        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
             private set
         var drawSpawnPreview: Boolean = true
             private set
         var spawnStatic: Boolean = false
             private set
-        var spawnRadius: Float = 1.0f
+        var spawnRadius: Float = 0.1f
             private set
         var spawnWidth: Float = 1.0f
             private set

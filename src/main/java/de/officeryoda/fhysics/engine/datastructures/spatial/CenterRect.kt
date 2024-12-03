@@ -16,6 +16,18 @@ import de.officeryoda.fhysics.engine.util.floorToInt
 @JvmInline
 value class CenterRect(private val data: IntArray) {
 
+    /** The X-coordinate of the center. */
+    val centerX: Int get() = data[0]
+
+    /** The Y-coordinate of the center. */
+    val centerY: Int get() = data[1]
+
+    /** The width of the rectangle. */
+    val width: Int get() = data[2]
+
+    /** The height of the rectangle. */
+    val height: Int get() = data[3]
+
     init {
         require(data.size == 4) { "TransformationData requires exactly 4 int values (centerX, centerY, width, height)." }
     }
@@ -35,6 +47,15 @@ value class CenterRect(private val data: IntArray) {
 
     override fun toString(): String {
         return "CenterRect(centerX=${data[0]}, centerY=${data[1]}, width=${data[2]}, height=${data[3]})"
+    }
+
+    /**
+     * Can be used to check if the content of two [CenterRect] objects is equal.
+     *
+     * Can't override equals() because kotlin won't allow it for inline classes yet.
+     */
+    fun contentEquals(other: CenterRect): Boolean {
+        return data.contentEquals(other.data)
     }
 
     companion object {
