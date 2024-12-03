@@ -92,6 +92,10 @@ class IndexedFreeList<T>() : Iterable<T> {
         return data.mapNotNull { it.element }.iterator()
     }
 
+    override fun toString(): String {
+        return "IndexedFreeList(firstFree=$firstFree, capacity=${capacity()}, data=$data)"
+    }
+
     /**
      * The data structure for an element in the [IndexedFreeList].
      */

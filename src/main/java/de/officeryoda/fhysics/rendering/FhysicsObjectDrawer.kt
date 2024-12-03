@@ -363,7 +363,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun checkForHoveredObject(): FhysicsObject? {
-        val pendingRemovals: MutableList<FhysicsObject> = QuadTree.getPendingRemovals()
+        val pendingRemovals: MutableList<FhysicsObject> = QuadTree.pendingRemovals
 
         // Check if the mouse is still hovering over the object
         val obj: FhysicsObject? =

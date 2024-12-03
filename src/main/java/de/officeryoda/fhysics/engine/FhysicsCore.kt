@@ -136,10 +136,10 @@ object FhysicsCore {
     fun update() {
         updateStopwatch.start()
 
-        QuadTree.insertPendingAdditions()
-        QuadTree.rebuild()
+        QuadTree.processPendingOperations()
 
         repeat(SUB_STEPS) {
+            QuadTree.rebuild()
             QuadTree.updateFhysicsObjects()
             QuadTree.handleCollisions()
 
@@ -147,6 +147,8 @@ object FhysicsCore {
 
             updateCount++
         }
+
+        QuadTree.cleanup()
 
         if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 
@@ -160,7 +162,7 @@ object FhysicsCore {
     private fun spawn(objects: List<FhysicsObject>) {
         for (obj: FhysicsObject in objects) {
             obj.updateBoundingBox()
-            QuadTree.queueInsertion(obj)
+            QuadTree.insert(obj)
         }
     }
 

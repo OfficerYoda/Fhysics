@@ -2,6 +2,8 @@ package de.officeryoda.fhysics.engine.datastructures.spatial
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.datastructures.IndexedFreeList
+import de.officeryoda.fhysics.engine.datastructures.Tuple6
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.processPendingOperations
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.util.floorToInt
@@ -24,6 +26,10 @@ object QuadTree {
 
     // The root node of the tree
     private var root: QTNode = QTNode()
+        set(value) {
+            field = value
+            rootData = QTNodeData(CenterRect.Companion.fromBoundingBox(FhysicsCore.BORDER), 0, 0)
+        }
 
     private var rootData: QTNodeData = QTNodeData(CenterRect.Companion.fromBoundingBox(FhysicsCore.BORDER), 0, 0)
 
@@ -37,22 +43,34 @@ object QuadTree {
     // List of all objects in the tree
     private val objects = IndexedFreeList<FhysicsObject>()
 
+    /** A flag indicating whether the QuadTree should be rebuilt. */
+    var rebuild: Boolean = false
+
     // List of objects to add, used to queue up insertions and prevent concurrent modification
     private val pendingAdditions: MutableList<FhysicsObject> = ArrayList()
 
     // Set of objects to remove, used to mark objects for deletion safely
-    private val pendingRemovals: MutableList<FhysicsObject> = ArrayList()
+    val pendingRemovals: MutableList<FhysicsObject> = ArrayList()
 
-    /// region =====Basic QuadTree Operations=====
+    /// region =====QuadTree Operations=====
     /// region =====Insertion=====
     /**
-     * Queues an object for insertion into the QuadTree.
+     * Inserts an [object][obj] into the QuadTree.
+     *
+     * Insertion will happen the next time [processPendingOperations] is called.
      */
-    fun queueInsertion(obj: FhysicsObject) {
+    fun insert(obj: FhysicsObject) {
         pendingAdditions.add(obj)
     }
 
-    private fun insert(obj: FhysicsObject) {
+    private fun insertPending() {
+        for (it: FhysicsObject in pendingAdditions) {
+            insertIteratively(it)
+        }
+        pendingAdditions.clear()
+    }
+
+    private fun insertIteratively(obj: FhysicsObject) {
         val objIdx: Int = objects.add(obj)
         val overlappingLeaves: MutableList<QTNodeData> = findOverlappingLeaves(BoundingBoxEdges(obj.boundingBox))
         for (leave: QTNodeData in overlappingLeaves) {
@@ -85,13 +103,11 @@ object QuadTree {
         edges: BoundingBoxEdges,
         toProcess: ArrayDeque<QTNodeData>, // [left edge, right edge, top edge, bottom edge]
     ) {
-        // Extract the current node's center and half-size
-        val cx: Int = nodeData.cRect[0] // Center X
-        val cy: Int = nodeData.cRect[1] // Center Y
-        val tw: Int = nodeData.cRect[2] // Total width
-        val th: Int = nodeData.cRect[3] // Total height
-        val hw: Int = tw / 2 // Half width
-        val hh: Int = th / 2 // Half height
+        val (
+            cx: Int, cy: Int, // Center X/Y
+            hwl: Int, hwr: Int, // Half width left/right
+            hhb: Int, hht: Int, // Half height bottom/top
+        ) = calculateNodeDimensions(nodeData)
 
         // Get the index of the first child
         val childIndex: Int = nodes[nodeData.index].firstIdx
@@ -99,18 +115,27 @@ object QuadTree {
         // Check which children overlap the bounding box
         if (edges.top >= cy) { // Top edge intersects or is above the center
             if (edges.left <= cx) { // Left edge intersects or is left of the center
-                toProcess.add(QTNodeData(cx - hw, cy, hw, th - hh, childIndex + 0, nodeData.depth + 1)) // Top-left
+                toProcess.add(QTNodeData(cx - hwl, cy, hwl, hht, childIndex + 0, nodeData.depth + 1)) // Top-left
             }
             if (edges.right >= cx) { // Right edge intersects or is right of the center
-                toProcess.add(QTNodeData(cx, cy, tw - hw, th - hh, childIndex + 1, nodeData.depth + 1)) // Top-right
+                toProcess.add(QTNodeData(cx, cy, hwr, hht, childIndex + 1, nodeData.depth + 1)) // Top-right
             }
         }
         if (edges.bottom <= cy) { // Bottom edge intersects or is below the center
             if (edges.left <= cx) { // Left edge intersects or is left of the center
-                toProcess.add(QTNodeData(cx - hw, cy - hh, hw, hh, childIndex + 2, nodeData.depth + 1)) // Bottom-left
+                toProcess.add(
+                    QTNodeData(
+                        cx - hwl,
+                        cy - hhb,
+                        hwl,
+                        hhb,
+                        childIndex + 2,
+                        nodeData.depth + 1
+                    )
+                ) // Bottom-left
             }
             if (edges.right >= cx) { // Right edge intersects or is right of the center
-                toProcess.add(QTNodeData(cx, cy - hh, tw - hw, hh, childIndex + 3, nodeData.depth + 1)) // Bottom-right
+                toProcess.add(QTNodeData(cx, cy - hhb, hwr, hhb, childIndex + 3, nodeData.depth + 1)) // Bottom-right
             }
         }
     }
@@ -133,10 +158,8 @@ object QuadTree {
         nodeElement.next = elements.add(element)
         node.count++
 
-        // Split the node if it's full
-        if (node.count > capacity && nodeData.depth <= MAX_DEPTH) { // Check for size <= 1 to prevent splitting into zero size
-            splitNode(nodeData)
-        }
+        // Try splitting the node
+        trySplitNode(nodeData)
     }
 
     private fun getLastElement(
@@ -157,15 +180,25 @@ object QuadTree {
     /// endregion
 
     /// region =====Removal=====
-    // TODO add thread safe removal and traverse only once for all objects
+    /**
+     * Removes an [object][obj] from the QuadTree.
+     *
+     * Removal will happen the next time [processPendingOperations] is called.
+     */
     fun remove(obj: FhysicsObject) {
-        // Get the index of the object
-        val objIdx: Int = objects.indexOf(obj)
-
-        removeIterative(objIdx, BoundingBoxEdges(obj.boundingBox))
+        pendingRemovals.add(obj)
     }
 
-    private fun removeIterative(
+    private fun removePending() {
+        for (it: FhysicsObject in pendingRemovals) {
+            val objIdx: Int = objects.indexOf(it)
+            if (objIdx == -1) continue
+            removeIteratively(objIdx, BoundingBoxEdges(it.boundingBox))
+        }
+        pendingRemovals.clear()
+    }
+
+    private fun removeIteratively(
         objIdx: Int,
         bboxEdges: BoundingBoxEdges,
     ) {
@@ -232,27 +265,25 @@ object QuadTree {
             val node: QTNode = nodes[nodeData.index]
             if (node.isLeaf) return node
 
-            val cx: Int = nodeData.cRect[0] // Center X
-            val cy: Int = nodeData.cRect[1] // Center Y
-            val tw: Int = nodeData.cRect[2] // Total width
-            val th: Int = nodeData.cRect[3] // Total height
-            val hw: Int = tw / 2 // Half width
-            val hh: Int = th / 2 // Half height
-            // Odd sizes will be split, so that the right and top sides are larger
+            val (
+                cx: Int, cy: Int, // Center X/Y
+                hwl: Int, hwr: Int, // Half width left/right
+                hhb: Int, hht: Int, // Half height bottom/top
+            ) = calculateNodeDimensions(nodeData)
 
             // Check which child node contains the position (favouring the top-left node)
             nodeData =
                 if (pos.y >= cy) { // Top side
                     if (pos.x <= cx) { // Left side
-                        QTNodeData(cx - hw, cy, hw, th - hh, node.firstIdx + 0, nodeData.depth + 1) // Top-left
+                        QTNodeData(cx - hwl, cy, hwl, hht, node.firstIdx + 0, nodeData.depth + 1) // Top-left
                     } else {
-                        QTNodeData(cx, cy, tw - hw, th - hh, node.firstIdx + 1, nodeData.depth + 1) // Top-right
+                        QTNodeData(cx, cy, hwr, hht, node.firstIdx + 1, nodeData.depth + 1) // Top-right
                     }
                 } else { // Bottom side
                     if (pos.x <= cx) { // Left side
-                        QTNodeData(cx - hw, cy - hh, hw, hh, node.firstIdx + 2, nodeData.depth + 1) // Bottom-left
+                        QTNodeData(cx - hwl, cy - hhb, hwl, hhb, node.firstIdx + 2, nodeData.depth + 1) // Bottom-left
                     } else {
-                        QTNodeData(cx, cy - hh, tw - hw, hh, node.firstIdx + 3, nodeData.depth + 1) // Bottom-right
+                        QTNodeData(cx, cy - hhb, hwr, hhb, node.firstIdx + 3, nodeData.depth + 1) // Bottom-right
                     }
                 }
         }
@@ -282,13 +313,21 @@ object QuadTree {
     }
     /// endregion
 
+    /// region =====Partitioning=====
     /// region =====Splitting=====
-    private fun splitNode(nodeData: QTNodeData) {
+    private fun trySplitNode(nodeData: QTNodeData) {
         val parent: QTNode = nodes[nodeData.index]
+        if (!shouldSplitNode(parent, nodeData)) return
+
+        // Split the node
         val firstElementIndex: Int = parent.firstIdx
         val childNodes: Array<QTNodeData> = createChildNodes(nodeData)
         moveElementsToChildren(firstElementIndex, childNodes)
         convertToBranch(parent, childNodes.first())
+    }
+
+    private fun shouldSplitNode(node: QTNode, nodeData: QTNodeData): Boolean {
+        return node.count > capacity && nodeData.depth < MAX_DEPTH
     }
 
     private fun createChildNodes(parent: QTNodeData): Array<QTNodeData> {
@@ -340,21 +379,72 @@ object QuadTree {
         // Set the first index to the first child node
         node.firstIdx = firstChildData.index
     }
+    /// endregion
 
-    fun addChildNodeDataToCollection(
+    /// region =====Cleanup=====
+    /**
+     * Collapses nodes with only empty leaves as children into a single leaf node.
+     */
+    fun cleanup() {
+        // Queue of node indices to process
+        val toProcess: ArrayDeque<Int> = ArrayDeque()
+        // Only process the root if it's not a leaf
+        if (!nodes[0].isLeaf) toProcess.add(rootData.index)
+
+        while (toProcess.isNotEmpty()) {
+            val nodeIdx: Int = toProcess.removeFirst()
+            val node: QTNode = nodes[nodeIdx]
+
+            // Loop through the children
+            var numEmptyLeaves = countEmptyLeaves(node, toProcess)
+
+            // If all children are empty leaves, convert the node to a leaf
+            if (numEmptyLeaves == 4) {
+                convertToLeaf(node)
+            }
+        }
+    }
+
+    private fun countEmptyLeaves(node: QTNode, toProcess: ArrayDeque<Int>): Int {
+        var numEmptyLeaves = 0
+        for (i: Int in 0..3) {
+            val childIdx: Int = node.firstIdx + i
+            val child: QTNode = nodes[childIdx]
+
+            when {
+                // Is empty leaf --> increment the counter
+                child.count == 0 -> numEmptyLeaves++
+                // Is branch --> add to be processed
+                !child.isLeaf -> toProcess.add(childIdx)
+            }
+        }
+
+        return numEmptyLeaves
+    }
+
+    private fun convertToLeaf(node: QTNode) {
+        // Free children in reverse order to keep order (tl, tr...) during insertion
+        for (i: Int in 3 downTo 0) {
+            nodes.free(node.firstIdx + i)
+        }
+
+        // Convert the node to a leaf
+        node.count = 0
+        node.firstIdx = -1
+    }
+    /// endregion
+
+    /// region =====Utility=====
+    private fun addChildNodeDataToCollection(
         parentData: QTNodeData,
         collection: MutableCollection<QTNodeData>,
         childIndex: Int = nodes[parentData.index].firstIdx, // I love this syntax
     ) {
-        val cx: Int = parentData.cRect[0] // Center X
-        val cy: Int = parentData.cRect[1] // Center Y
-        val tw: Int = parentData.cRect[2] // Total width
-        val th: Int = parentData.cRect[3] // Total height
-        // Odd sizes will be split, so that the right and top sides are larger
-        val hwl: Int = tw / 2 // Half width left
-        val hwr: Int = tw - hwl // Half width right
-        val hhb: Int = th / 2 // Half height bottom
-        val hht: Int = th - hhb // Half height top
+        val (
+            cx: Int, cy: Int, // Center X/Y
+            hwl: Int, hwr: Int, // Half width left/right
+            hhb: Int, hht: Int, // Half height bottom/top
+        ) = calculateNodeDimensions(parentData)
         val _0_ = 0 // For better readability
 
         // Calculate the child nodes and add them to the collection
@@ -364,19 +454,43 @@ object QuadTree {
         collection.add(QTNodeData(cx - hwl, cy - hhb, hwl, hhb, childIndex + 2, parentData.depth + 1)) // Bottom-left
         collection.add(QTNodeData(cx + _0_, cy - hhb, hwr, hhb, childIndex + 3, parentData.depth + 1)) // Bottom-right
     }
+
+    /**
+     * Returns a Tuple6 containing the center x, center y, half width left, half width right, half height bottom, and half height top of a [node][nodeData].
+     */
+    private fun calculateNodeDimensions(nodeData: QTNodeData): Tuple6<Int, Int, Int, Int, Int, Int> {
+        val cRect: CenterRect = nodeData.cRect
+        val cx: Int = cRect.centerX
+        val cy: Int = cRect.centerY
+        val tw: Int = cRect.width // Total width
+        val th: Int = cRect.height // Total height
+        // Odd sizes will be split, so that the right and top sides are larger
+        val hwl: Int = tw / 2 // Half width left
+        val hwr: Int = tw - hwl // Half width right
+        val hhb: Int = th / 2 // Half height bottom
+        val hht: Int = th - hhb // Half height top
+        return Tuple6(cx, cy, hwl, hwr, hhb, hht)
+    }
+
+    fun getObjectCount(): Int {
+        return objects.usedCount()
+    }
     /// endregion
     /// endregion
 
-    /// region
-    fun insertPendingAdditions() {
-        for (it: FhysicsObject in pendingAdditions) {
-            insert(it)
-        }
-        pendingAdditions.clear()
+    /// region =====Fhysics Operations=====
+    fun processPendingOperations() {
+        if (rebuild) rebuild()
+        insertPending()
+        removePending()
     }
 
     fun rebuild() {
-        // TODO
+        // Store all objects in a temporary list
+        val tempObjects: List<FhysicsObject> = objects.toList()
+        clear()
+        pendingAdditions.addAll(tempObjects)
+        insertPending()
     }
 
     fun clear() {
@@ -397,6 +511,17 @@ object QuadTree {
         // TODO
     }
 
+    fun updateNodeSizes() {
+        // TODO
+    }
+
+    fun shutdownThreadPool() {
+        println("Shutting down thread pool")
+//        threadPool.shutdownNow() // TODO
+    }
+    /// endregion
+
+    /// region =====Rendering=====
     fun drawObjects(drawer: FhysicsObjectDrawer) {
         for (obj: FhysicsObject in objects) {
             obj.draw(drawer)
@@ -426,27 +551,6 @@ object QuadTree {
             addChildNodeDataToCollection(nodeData, queue)
         }
     }
-
-    fun updateNodeSizes() {
-        // TODO
-    }
-
-    fun getObjectCount(): Int {
-        return objects.usedCount()
-    }
-
-    fun getPendingRemovals(): MutableList<FhysicsObject> {
-        return pendingRemovals
-    }
-
-    fun shutdownThreadPool() {
-        println("Shutting down thread pool")
-//        threadPool.shutdownNow() // TODO
-    }
-
-    override fun toString(): String {
-        return root.toString()
-    }
     /// endregion
 
     /// region =====Inner Classes=====
@@ -473,11 +577,6 @@ object QuadTree {
          * Whether the node is a leaf or a branch.
          */
         val isLeaf: Boolean get() = count != -1
-
-        override fun toString(): String {
-            return "QuadTreeNode(firstIdx=$firstIdx, count=$count, isLeaf=$isLeaf)"
-
-        }
     }
 
     /**
@@ -511,10 +610,6 @@ object QuadTree {
             CenterRect(x + width / 2, y + height / 2, width, height),
             index, depth,
         )
-
-        override fun toString(): String {
-            return "QTNodeData(${cRect}, index=$index, depth=$depth)"
-        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
