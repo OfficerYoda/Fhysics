@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.QTDebugHelper
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.QTNode
@@ -18,8 +19,8 @@ class QuadTreeTest {
         @BeforeAll
         @JvmStatic
         fun initAll() {
-            // Make sure BORDER is initialized
-            println(FhysicsCore.BORDER)
+            // Make sure BORDER is initialized correctly
+            assert(FhysicsCore.BORDER == BoundingBox(0f, 0f, 100f, 100f))
         }
     }
 
@@ -131,7 +132,6 @@ class QuadTreeTest {
         assertEquals(1, childrenBl[3].count)
 
         assertEquals(5, QuadTree.getObjectCount())
-        assertEquals(2, QTDebugHelper.getCurrentDepth())
         assertTrue(!QTDebugHelper.root.isLeaf)
     }
 

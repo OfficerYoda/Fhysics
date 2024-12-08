@@ -19,17 +19,10 @@ object QuadTree {
             field = value.coerceAtLeast(1)
         }
 
-
     private const val MIN_SIZE: Float = 1f  // Minimum size of a node
 
     // The root node of the tree
     private var root: QTNode = QTNode(BORDER)
-        set(value) {
-            field = value
-            rootData = QTNodeData(BORDER, 0, 0)
-        }
-
-    private var rootData: QTNodeData = QTNodeData(BORDER, 0, 0)
 
     // List of all nodes in the tree (root node is always at index 0)
     private val nodes = IndexedFreeList<QTNode>(root)
@@ -71,87 +64,66 @@ object QuadTree {
 
     private fun insertIteratively(obj: FhysicsObject) {
         val objIdx: Int = objects.add(obj)
-        val overlappingLeaves: MutableList<QTNodeData> = findOverlappingLeaves(obj.boundingBox)
-        for (leave: QTNodeData in overlappingLeaves) {
+        val overlappingLeaves: MutableList<QTNode> = findOverlappingLeaves(obj.boundingBox)
+        for (leave: QTNode in overlappingLeaves) {
             insertIntoLeaf(objIdx, leave)
         }
     }
 
-    private fun findOverlappingLeaves(area: BoundingBox): MutableList<QTNodeData> {
-        val leaves: MutableList<QTNodeData> = mutableListOf() // List to store leaf nodes
-        val toProcess: ArrayDeque<QTNodeData> = ArrayDeque() // Queue to manage nodes to process
-        toProcess.add(rootData) // Add the root node to the queue
+    private fun findOverlappingLeaves(area: BoundingBox): MutableList<QTNode> {
+        val leaves: MutableList<QTNode> = mutableListOf() // List to store leaf nodes
+        val toProcess: ArrayDeque<QTNode> = ArrayDeque() // Queue to manage nodes to process
+        toProcess.add(root) // Add the root node to the queue
 
         while (toProcess.isNotEmpty()) {
-            val nodeData: QTNodeData = toProcess.removeFirst()
+            val node: QTNode = toProcess.removeFirst()
 
             // Add leaf nodes to the leaves list
-            if (nodes[nodeData.index].isLeaf) { // TODO check if overlap check is necessary here (add better explanation)
-                leaves.add(nodeData)
+            if (node.isLeaf) {
+                leaves.add(node)
                 continue
             }
 
-            addOverlappingNodesToQueue(nodeData, area, toProcess)
+            // Add overlapping children to the processing queue
+            addOverlappingNodesToQueue(node, area, toProcess)
         }
 
         return leaves
     }
 
     private fun addOverlappingNodesToQueue(
-        nodeData: QTNodeData,
+        node: QTNode,
         area: BoundingBox,
-        toProcess: ArrayDeque<QTNodeData>, // [left edge, right edge, top edge, bottom edge]
+        toProcess: ArrayDeque<QTNode>,
     ) {
-        val nodeBbox: BoundingBox = nodeData.bbox
+        val nodeBbox: BoundingBox = node.bbox
         val cx: Float = nodeBbox.x + nodeBbox.width / 2 // Center X
         val cy: Float = nodeBbox.y + nodeBbox.height / 2 // Center Y
-        val hw: Float = nodeBbox.width / 2 // Half width
-        val hh: Float = nodeBbox.height / 2 // Half height
 
         // Get the index of the first child
-        val childIndex: Int = nodes[nodeData.index].firstIdx
+        val childIndex: Int = node.firstIdx
 
         // Check which children overlap the bounding box
         if (area.y + area.height > cy) { // Top edge intersects or is above the center
             if (area.x < cx) { // Left edge intersects or is left of the center
-                toProcess.add(
-                    QTNodeData(
-                        BoundingBox(nodeBbox.x, cy, hw, hh),
-                        childIndex + 0, nodeData.depth + 1
-                    )
-                ) // Top-left
+                toProcess.add(nodes[childIndex + 0]) // Top-left
             }
             if (area.x + area.width > cx) { // Right edge intersects or is right of the center
-                toProcess.add(
-                    QTNodeData(
-                        BoundingBox(cx, cy, hw, hh),
-                        childIndex + 1, nodeData.depth + 1
-                    )
-                ) // Top-right
+                toProcess.add(nodes[childIndex + 1]) // Top-right
             }
         }
         if (area.y < cy) { // Bottom edge intersects or is below the center
             if (area.x < cx) { // Left edge intersects or is left of the center
-                toProcess.add(
-                    QTNodeData(
-                        BoundingBox(nodeBbox.x, nodeBbox.y, hw, hh),
-                        childIndex + 2, nodeData.depth + 1
-                    )
-                ) // Bottom-left
+                toProcess.add(nodes[childIndex + 2]) // Bottom-left
             }
             if (area.x + area.width > cx) { // Right edge intersects or is right of the center
-                toProcess.add(
-                    QTNodeData(
-                        BoundingBox(cx, nodeBbox.y, hw, hh),
-                        childIndex + 3, nodeData.depth + 1
-                    )
-                ) // Bottom-right
+                toProcess.add(nodes[childIndex + 3]) // Bottom-right
             }
         }
     }
 
-    private fun insertIntoLeaf(objIdx: Int, nodeData: QTNodeData) {
-        val node: QTNode = nodes[nodeData.index]
+    private fun insertIntoLeaf(objIdx: Int, node: QTNode) {
+        // Create a new element holding a reference to the object
         val element = QTNodeElement(objIdx, -1)
 
         // If the node is empty, add the element as the first element
@@ -169,7 +141,7 @@ object QuadTree {
         node.count++
 
         // Try splitting the node
-        trySplitNode(nodeData)
+        trySplitNode(node)
     }
 
     /**
@@ -216,21 +188,21 @@ object QuadTree {
         objects.free(objIdx)
 
         // A collection of nodes to process
-        val queue: ArrayDeque<QTNodeData> = ArrayDeque()
-        queue.add(rootData)
+        val queue: ArrayDeque<QTNode> = ArrayDeque()
+        queue.add(root)
 
         // Remove all node elements pointing to the object
         while (queue.isNotEmpty()) {
-            val nodeData: QTNodeData = queue.removeFirst()
+            val node: QTNode = queue.removeFirst()
 
             // If the node is a leaf, remove the object
-            if (nodes[nodeData.index].isLeaf) {
-                removeFromLeaf(nodes[nodeData.index], objIdx)
+            if (node.isLeaf) {
+                removeFromLeaf(node, objIdx)
                 continue
             }
 
             // Add nodes that overlap with the object to the processing queue
-            addOverlappingNodesToQueue(nodeData, bbox, queue)
+            addOverlappingNodesToQueue(node, bbox, queue)
         }
     }
 
@@ -244,19 +216,20 @@ object QuadTree {
             current = elements[current.next]
 
             // Check if the object is the one to remove
-            if (current.index == objIdx) {
-                // If the object is the first element, update the first element
-                if (previous.index == -1) {
-                    elements.free(node.firstIdx)
-                    node.firstIdx = current.next
-                } else {
-                    elements.free(previous.next)
-                    previous.next = current.next
-                }
+            if (current.index != objIdx) continue
 
-                node.count--
-                return
+            // If the object is the first element, update the first index
+            if (previous.index == -1) {
+                elements.free(node.firstIdx)
+                node.firstIdx = current.next
+            } else {
+                elements.free(previous.next)
+                previous.next = current.next
             }
+
+            // Object removed successfully
+            node.count--
+            return
         }
     }
     /// endregion
@@ -270,47 +243,24 @@ object QuadTree {
 
     private fun getLeafNode(pos: Vector2): QTNode {
         // Traverse the tree until the leaf node containing the position is found
-        var nodeData: QTNodeData = rootData
+        var node: QTNode = root
         while (true) {
-            val node: QTNode = nodes[nodeData.index]
             if (node.isLeaf) return node
 
-            val nodeBbox: BoundingBox = nodeData.bbox
+            val nodeBbox: BoundingBox = node.bbox
             val cx: Float = nodeBbox.x + nodeBbox.width / 2 // Center X
             val cy: Float = nodeBbox.y + nodeBbox.height / 2 // Center Y
-            val hw: Float = nodeBbox.width / 2 // Half width
-            val hh: Float = nodeBbox.height / 2 // Half height
 
             // Get the index of the first child
             val childIndex: Int = node.firstIdx
 
-            // Check which child node contains the position (favouring the top-left node)
-            nodeData =
-                if (pos.y >= cy) { // Top side
-                    if (pos.x <= cx) { // Left side
-                        QTNodeData(
-                            BoundingBox(nodeBbox.x, cy, hw, hh),
-                            childIndex + 0, nodeData.depth + 1
-                        ) // Top-left
-                    } else {
-                        QTNodeData(
-                            BoundingBox(cx, cy, hw, hh),
-                            childIndex + 1, nodeData.depth + 1
-                        ) // Top-right
-                    }
-                } else { // Bottom side
-                    if (pos.x <= cx) { // Left side
-                        QTNodeData(
-                            BoundingBox(nodeBbox.x, nodeBbox.y, hw, hh),
-                            childIndex + 2, nodeData.depth + 1
-                        ) // Bottom-left
-                    } else {
-                        QTNodeData(
-                            BoundingBox(cx, nodeBbox.y, hw, hh),
-                            childIndex + 3, nodeData.depth + 1
-                        ) // Bottom-right
-                    }
-                }
+            // Check which child node contains the position
+            node = when {
+                pos.y >= cy && pos.x <= cx -> nodes[childIndex + 0] // Top-left
+                pos.y >= cy && pos.x > cx -> nodes[childIndex + 1] // Top-right
+                pos.y < cy && pos.x <= cx -> nodes[childIndex + 2] // Bottom-left
+                else -> nodes[childIndex + 3] // Bottom-right
+            }
         }
     }
 
@@ -326,9 +276,7 @@ object QuadTree {
             // Get the object from the list
             val obj: FhysicsObject = objects[nodeElement.index]
             // Check if the object contains the position
-            if (obj.contains(pos)) {
-                return obj
-            }
+            if (obj.contains(pos)) return obj
         }
 
         return null
@@ -337,32 +285,21 @@ object QuadTree {
 
     /// region =====Partitioning=====
     /// region =====Splitting=====
-    private fun trySplitNode(nodeData: QTNodeData) {
-        val parent: QTNode = nodes[nodeData.index]
-        if (!shouldSplitNode(parent, nodeData)) return
+    private fun trySplitNode(parent: QTNode) {
+        if (!shouldSplitNode(parent)) return
 
         // Split the node
         val firstElementIndex: Int = parent.firstIdx
-        val childNodes: Array<QTNodeData> = createChildNodes(nodeData)
-        moveElementsToChildren(firstElementIndex, childNodes)
-        convertToBranch(parent, childNodes.first())
+        val firstChildIdx: Int = createChildNodes(parent.bbox)
+        moveElementsToChildren(firstElementIndex, firstChildIdx)
+        convertToBranch(parent, firstChildIdx)
     }
 
-    private fun shouldSplitNode(node: QTNode, nodeData: QTNodeData): Boolean {
-        return node.count > capacity && min(nodeData.bbox.width, nodeData.bbox.height) > MIN_SIZE
+    private fun shouldSplitNode(node: QTNode): Boolean {
+        return node.count > capacity && min(node.bbox.width, node.bbox.height) > MIN_SIZE
     }
 
-    private fun createChildNodes(parent: QTNodeData): Array<QTNodeData> {
-        // Add new child nodes to the list
-        val firstNodeIndex: Int = createNodes(parent.bbox) // Store the index of the first child node
-
-        val qtNodeData: MutableList<QTNodeData> = mutableListOf()
-        addChildNodeDataToCollection(parent, qtNodeData, firstNodeIndex)
-
-        return qtNodeData.toTypedArray()
-    }
-
-    private fun createNodes(parentBbox: BoundingBox): Int {
+    private fun createChildNodes(parentBbox: BoundingBox): Int {
         val cx: Float = parentBbox.x + parentBbox.width / 2 // Center X
         val cy: Float = parentBbox.y + parentBbox.height / 2 // Center Y
         val hw: Float = parentBbox.width / 2 // Half width
@@ -380,13 +317,14 @@ object QuadTree {
         return firstNodeIndex
     }
 
-    private fun moveElementsToChildren(firstElementIndex: Int, children: Array<QTNodeData>) {
-        for (child: QTNodeData in children) {
+    private fun moveElementsToChildren(firstElementIndex: Int, firstChildIdx: Int) {
+        for (i: Int in 0..3) {
+            val child: QTNode = nodes[firstChildIdx + i]
             insertOverlappingObjects(firstElementIndex, child)
         }
     }
 
-    private fun insertOverlappingObjects(firstElementIndex: Int, node: QTNodeData) {
+    private fun insertOverlappingObjects(firstElementIndex: Int, node: QTNode) {
         var current = QTNodeElement(-1, firstElementIndex) // Dummy element
         while (current.next != -1) {
             current = elements[current.next]
@@ -398,7 +336,7 @@ object QuadTree {
         }
     }
 
-    private fun convertToBranch(node: QTNode, firstChildData: QTNodeData) {
+    private fun convertToBranch(node: QTNode, firstChildIdx: Int) {
         // Remove the elements from the parent node
         var current = QTNodeElement(-1, node.firstIdx) // Dummy element
         while (current.next != -1) {
@@ -410,7 +348,7 @@ object QuadTree {
         // Set the count to -1 to indicate that the node is a branch
         node.count = -1
         // Set the first index to the first child node
-        node.firstIdx = firstChildData.index
+        node.firstIdx = firstChildIdx
     }
     /// endregion
 
@@ -419,14 +357,14 @@ object QuadTree {
      * Collapses nodes with only empty leaves as children into a single leaf node.
      */
     fun cleanup() {
+        if (root.isLeaf) return
+
         // Queue of node indices to process
-        val toProcess: ArrayDeque<Int> = ArrayDeque()
-        // Only process the root if it's not a leaf
-        if (!nodes[0].isLeaf) toProcess.add(rootData.index)
+        val toProcess: ArrayDeque<QTNode> = ArrayDeque()
+        toProcess.add(root)
 
         while (toProcess.isNotEmpty()) {
-            val nodeIdx: Int = toProcess.removeFirst()
-            val node: QTNode = nodes[nodeIdx]
+            val node: QTNode = toProcess.removeFirst()
 
             // Loop through the children
             var numEmptyLeaves: Int = countEmptyLeaves(node, toProcess)
@@ -438,7 +376,7 @@ object QuadTree {
         }
     }
 
-    private fun countEmptyLeaves(node: QTNode, toProcess: ArrayDeque<Int>): Int {
+    private fun countEmptyLeaves(node: QTNode, toProcess: ArrayDeque<QTNode>): Int {
         var numEmptyLeaves = 0
         for (i: Int in 0..3) {
             val childIdx: Int = node.firstIdx + i
@@ -448,7 +386,7 @@ object QuadTree {
                 // Is empty leaf --> increment the counter
                 child.count == 0 -> numEmptyLeaves++
                 // Is branch --> add to be processed
-                !child.isLeaf -> toProcess.add(childIdx)
+                !child.isLeaf -> toProcess.add(child)
             }
         }
 
@@ -469,31 +407,14 @@ object QuadTree {
     /// endregion
 
     /// region =====Utility=====
-    private fun addChildNodeDataToCollection(
-        parentData: QTNodeData,
-        collection: MutableCollection<QTNodeData>,
-        childIndex: Int = nodes[parentData.index].firstIdx, // I love this syntax
+    private fun addChildNodesToCollection(
+        firstChildIdx: Int,
+        collection: MutableCollection<QTNode>,
     ) {
-//        val (
-//            cx: Int, cy: Int, // Center X/Y
-//            hwl: Int, hwr: Int, // Half width left/right
-//            hhb: Int, hht: Int, // Half height bottom/top
-//        ) = calculateNodeDimensions(parentData)
-//        val _0_ = 0 // For better readability
-        val bbox: BoundingBox = parentData.bbox
-        val blx: Float = bbox.x
-        val bly: Float = bbox.y
-        val cx: Float = blx + bbox.width / 2
-        val cy: Float = bly + bbox.height / 2
-        val hw: Float = bbox.width / 2
-        val hh: Float = bbox.height / 2
-
-        // Calculate the child nodes and add them to the collection
-        // x (bottom left corner), y (bottom left corner), width, height, index, depth
-        collection.add(QTNodeData(BoundingBox(blx, cy, hw, hh), childIndex + 0, parentData.depth + 1)) // Top-left
-        collection.add(QTNodeData(BoundingBox(cx, cy, hw, hh), childIndex + 1, parentData.depth + 1)) // Top-right
-        collection.add(QTNodeData(BoundingBox(blx, bly, hw, hh), childIndex + 2, parentData.depth + 1)) // Bottom-left
-        collection.add(QTNodeData(BoundingBox(cx, bly, hw, hh), childIndex + 3, parentData.depth + 1)) // Bottom-right
+        collection.add(nodes[firstChildIdx + 0]) // Top-left
+        collection.add(nodes[firstChildIdx + 1]) // Top-right
+        collection.add(nodes[firstChildIdx + 2]) // Bottom-left
+        collection.add(nodes[firstChildIdx + 3]) // Bottom-right
     }
 
     fun getObjectCount(): Int {
@@ -504,12 +425,15 @@ object QuadTree {
 
     /// region =====Fhysics Operations=====
     fun processPendingOperations() {
-        if (rebuild) rebuild()
+        if (rebuild) {
+            rebuild = false
+            rebuild()
+        }
         insertPending()
         removePending()
     }
 
-    fun rebuild() {
+    private fun rebuild() {
         // Store all objects in a temporary list
         val tempObjects: List<FhysicsObject> = objects.toList()
         clear()
@@ -626,20 +550,19 @@ object QuadTree {
     }
 
     fun drawNodes() {
-        val queue = ArrayDeque<QTNodeData>()
-        queue.add(rootData)
+        val queue = ArrayDeque<QTNode>()
+        queue.add(root)
 
         while (queue.isNotEmpty()) {
-            val nodeData: QTNodeData = queue.removeFirst()
-            val node: QTNode = nodes[nodeData.index]
+            val node: QTNode = queue.removeFirst()
 
             // Only drawing leaf nodes is enough
             if (node.isLeaf) {
-                DebugDrawer.drawQTNode(nodeData.bbox, node.count)
+                DebugDrawer.drawQTNode(node.bbox, node.count)
                 continue
             }
 
-            addChildNodeDataToCollection(nodeData, queue)
+            addChildNodesToCollection(node.firstIdx, queue)
         }
     }
     /// endregion
@@ -675,41 +598,6 @@ object QuadTree {
     }
 
     /**
-     * A class holding additional data for a [QTNode] object.
-     *
-     * This data is not stored, but calculated when needed.
-     */
-    data class QTNodeData(
-//        /** IntArray representing the node's bounding box: [centerX, centerY, width, height]. */
-//        val cRect: CenterRect,
-        /** The bounding box of the node. */
-        val bbox: BoundingBox,
-        /** Index of the node in the [QuadTree.nodes] list. */
-        val index: Int,
-        /** Depth of the node in the Quadtree. */
-        val depth: Int,
-    ) {
-
-        /**
-         * Constructs a new [QTNodeData] object.
-         * @param x The x-coordinate of the node's bottom-left corner
-         * @param y The y-coordinate of the node's bottom-left corner
-         * @param width The width of the node
-         * @param height The height of the node
-         * @param index The index of the node in the [QuadTree.nodes] list
-         * @param depth The depth of the node in the Quadtree
-         */
-//        constructor(
-//            x: Int, y: Int,
-//            width: Int, height: Int,
-//            index: Int, depth: Int,
-//        ) : this(
-//            CenterRect(x + width / 2, y + height / 2, width, height),
-//            index, depth,
-//        )
-    }
-
-    /**
      * A class representing an element in a [QTNode].
      *
      * An Element is a reference to an object in the [QuadTree.objects] list.
@@ -726,53 +614,35 @@ object QuadTree {
     object QTDebugHelper {
         val root: QTNode get() = QuadTree.root
 
-        fun getCurrentDepth(): Int {
-            var maxDepth = 0
-            val toProcess: ArrayDeque<QTNodeData> = ArrayDeque()
-            toProcess.add(rootData)
-
-            while (toProcess.isNotEmpty()) {
-                val nodeData: QTNodeData = toProcess.removeFirst()
-                maxDepth = maxOf(maxDepth, nodeData.depth)
-
-                if (!nodes[nodeData.index].isLeaf) {
-                    addChildNodeDataToCollection(nodeData, toProcess)
-                }
-            }
-
-            return maxDepth
-        }
-
         fun printTree() {
-            printlnNode(rootData)
-            getChildNodeData(rootData).forEachIndexed { index, it ->
+            printlnNode(root)
+            getChildNodes(root).forEachIndexed { index, it ->
                 printTree(it, "", index == 0)
             }
         }
 
-        private fun printTree(nodeData: QTNodeData, indent: String, left: Boolean) {
+        private fun printTree(node: QTNode, indent: String, left: Boolean) {
             print(indent)
             print(if (left) "\u251C " else "\u2514 ")
 
-            printlnNode(nodeData)
-            getChildNodeData(nodeData).forEach {
-                val newIndent = indent + (if (left) "\u2502 " else "  ")
+            printlnNode(node)
+            getChildNodes(node).forEach {
+                val newIndent: String = indent + (if (left) "\u2502 " else "  ")
                 printTree(it, newIndent, true)
             }
         }
 
-        private fun printlnNode(nodeData: QTNodeData) {
-            val node: QTNode = nodes[nodeData.index]
-            println("QTNode(count=${node.count}, depth=${nodeData.depth})")
+        private fun printlnNode(node: QTNode) {
+            println("QTNode(count=${node.count}, firstIdx=${node.firstIdx}, bbox=${node.bbox})")
         }
 
-        private fun getChildNodeData(parentData: QTNodeData): MutableList<QTNodeData> {
-            if (nodes[parentData.index].isLeaf) return mutableListOf()
+        private fun getChildNodes(parent: QTNode): MutableList<QTNode> {
+            if (parent.isLeaf) return mutableListOf()
 
-            val childData: MutableList<QTNodeData> = mutableListOf()
-            addChildNodeDataToCollection(parentData, childData)
+            val children: MutableList<QTNode> = mutableListOf()
+            addChildNodesToCollection(parent.firstIdx, children)
 
-            return childData
+            return children
         }
 
         /** Returns the children of the given [parent]. */

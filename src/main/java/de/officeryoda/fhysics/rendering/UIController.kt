@@ -433,26 +433,22 @@ class UIController {
 
     @FXML
     fun onBorderWidthTyped() {
-        val width: Float = parseTextField(txtBorderWidth, 1f)
-        FhysicsCore.BORDER.width = max(width, 1f) // Minimum border size of 1x1
-        CollisionSolver.updateBorderObjects()
-        QuadTree.rebuild() // Rebuild to resize the QTNodes
-
-        // Make sure the text field matches the actual border width
-        if (width < 1f) {
-            txtBorderWidth.text = "1.0"
-        }
+        handleBorderSizeTyped(txtBorderWidth)
     }
 
     @FXML
     fun onBorderHeightTyped() {
-        val height: Float = parseTextField(txtBorderHeight, 1f)
-        FhysicsCore.BORDER.height = max(height, 1f) // Minimum border size of 1x1
+        handleBorderSizeTyped(txtBorderHeight)
+    }
+
+    private fun handleBorderSizeTyped(textField: TextField) {
+        val size: Float = parseTextField(textField, 1f)
+        FhysicsCore.BORDER.height = max(size, 1f) // Minimum border size of 1x1
         CollisionSolver.updateBorderObjects()
-        QuadTree.rebuild() // Rebuild to resize the QTNodes
+        QuadTree.rebuild = true // Rebuild to resize the QTNodes
 
         // Make sure the text field matches the actual border height
-        if (height < 1f) {
+        if (size < 1f) {
             txtBorderHeight.text = "1.0"
         }
     }

@@ -31,20 +31,6 @@ data class BoundingBox(
     }
 
     /**
-     * Checks if this bounding box overlaps with the [given][cRect] center rectangle.
-     */
-    fun overlaps(cRect: CenterRect): Boolean {
-        val cx: Int = cRect[0]
-        val cy: Int = cRect[1]
-        val hw: Int = cRect[2] / 2
-        val hh: Int = cRect[3] / 2
-        return (cx + hw) >= this.x &&
-                (cy + hh) >= this.y &&
-                (cx - hw) <= (this.x + this.width) &&
-                (cy - hh) <= (this.y + this.width)
-    }
-
-    /**
      * Checks if the given [position][pos] is contained within this bounding box.
      */
     fun contains(pos: Vector2): Boolean {

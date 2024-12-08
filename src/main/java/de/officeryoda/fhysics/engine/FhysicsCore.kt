@@ -18,7 +18,7 @@ import kotlin.math.sign
 object FhysicsCore {
 
     // Constants
-    val BORDER: BoundingBox = BoundingBox(0f, 0f, 1000f, 1000f) // x and y must be 0.0
+    val BORDER: BoundingBox = BoundingBox(0f, 0f, 100f, 100f) // x and y must be 0.0
     const val UPDATES_PER_SECOND: Int = 60 * 4
     const val SUB_STEPS: Int = 1
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100

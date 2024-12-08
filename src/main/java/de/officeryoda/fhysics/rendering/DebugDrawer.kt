@@ -2,7 +2,6 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
-import de.officeryoda.fhysics.engine.datastructures.spatial.CenterRect
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.RenderUtil.zoom
@@ -180,19 +179,12 @@ object DebugDrawer {
 
     fun drawBoundingBox(boundingBox: BoundingBox) {
         RenderUtil.setStrokeColor(Color.RED)
-//        gc.strokeRect(
-//            RenderUtil.worldToScreenX(boundingBox.x),
-//            RenderUtil.worldToScreenY(boundingBox.y + boundingBox.height),
-//            boundingBox.width * zoom,
-//            boundingBox.height * zoom
-//        )
-
-        val cRect: CenterRect = CenterRect.fromBoundingBox(boundingBox)
-        val x: Double = RenderUtil.worldToScreenX((cRect[0] - cRect[2] / 2).toDouble())
-        val y: Double = RenderUtil.worldToScreenY(((cRect[1] + (cRect[3] - cRect[3] / 2)).toDouble()))
-        val width: Double = cRect[2] * zoom
-        val height: Double = cRect[3] * zoom
-        gc.strokeRect(x, y, width, height)
+        gc.strokeRect(
+            RenderUtil.worldToScreenX(boundingBox.x),
+            RenderUtil.worldToScreenY(boundingBox.y + boundingBox.height),
+            boundingBox.width * zoom,
+            boundingBox.height * zoom
+        )
     }
 
     fun drawQTNode(bbox: BoundingBox, count: Int) {
