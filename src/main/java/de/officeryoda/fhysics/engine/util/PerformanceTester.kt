@@ -96,12 +96,21 @@ private val scenarioListLong: List<PerformanceTestScenario> = listOf(
 )
 
 fun main() {
-    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListShort)
+    PerformanceTester.testPerformance(
+        listOf(
+            idealPhysicsScenarioSetup(
+                name = "1,000 Circles",
+                objectCreation = { List(1_000) { randomCircle() } },
+            )
+        )
+    )
 
-    println("============Results============")
-    for (result: PerformanceTestResult in results) {
-        println("${result.scenario.name}: ${result.time}ms")
-    }
+//    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListShort)
+//
+//    println("============Results============")
+//    for (result: PerformanceTestResult in results) {
+//        println("${result.scenario.name}: ${result.time}ms")
+//    }
 
     exitProcess(0)
 }

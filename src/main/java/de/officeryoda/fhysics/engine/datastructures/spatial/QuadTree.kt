@@ -1,13 +1,13 @@
 package de.officeryoda.fhysics.engine.datastructures.spatial
 
-import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.IndexedFreeList
-import de.officeryoda.fhysics.engine.datastructures.Tuple6
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.processPendingOperations
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.util.ceilToInt
 import de.officeryoda.fhysics.engine.util.floorToInt
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -24,19 +24,33 @@ object QuadTree {
 
     // The max depth of the QuadTree
     // The formula calculates the amount of divisions before the size falls under 0
-    private val MAX_DEPTH = log2(min(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height)).floorToInt()
+    private val MAX_DEPTH = log2(min(BORDER.width, BORDER.height)).floorToInt()
 
     // The root node of the tree
     private var root: QTNode = QTNode()
         set(value) {
             field = value
-            rootData = QTNodeData(CenterRect.Companion.fromBoundingBox(FhysicsCore.BORDER), 0, 0)
+            rootData = QTNodeData(
+                CenterRect(
+                    (BORDER.width / 2).floorToInt(),
+                    (BORDER.height / 2).floorToInt(),
+                    BORDER.width.ceilToInt(),
+                    BORDER.height.ceilToInt()
+                ), 0, 0
+            )
         }
 
-    private var rootData: QTNodeData = QTNodeData(CenterRect.Companion.fromBoundingBox(FhysicsCore.BORDER), 0, 0)
+    private var rootData: QTNodeData = QTNodeData(
+        CenterRect(
+            (BORDER.width / 2).floorToInt(),
+            (BORDER.height / 2).floorToInt(),
+            BORDER.width.ceilToInt(),
+            BORDER.height.ceilToInt()
+        ), 0, 0
+    )
 
     // List of all nodes in the tree (root node is always at index 0)
-    private val nodes = IndexedFreeList(root)
+    private val nodes = IndexedFreeList<QTNode>(root)
 
     // List of all elements in the tree (elements store the index of the object in QuadTree.objects)
     // This is done, so that objects are only stored once in the tree and can be referenced multiple times by different elements
@@ -116,28 +130,21 @@ object QuadTree {
         val childIndex: Int = nodes[nodeData.index].firstIdx
 
         // Check which children overlap the bounding box
-        if (edges.top >= cy) { // Top edge intersects or is above the center
-            if (edges.left <= cx) { // Left edge intersects or is left of the center
+        if (edges.top > cy) { // Top edge intersects or is above the center
+            if (edges.left < cx) { // Left edge intersects or is left of the center
                 toProcess.add(QTNodeData(cx - hwl, cy, hwl, hht, childIndex + 0, nodeData.depth + 1)) // Top-left
             }
-            if (edges.right >= cx) { // Right edge intersects or is right of the center
+            if (edges.right > cx) { // Right edge intersects or is right of the center
                 toProcess.add(QTNodeData(cx, cy, hwr, hht, childIndex + 1, nodeData.depth + 1)) // Top-right
             }
         }
-        if (edges.bottom <= cy) { // Bottom edge intersects or is below the center
-            if (edges.left <= cx) { // Left edge intersects or is left of the center
+        if (edges.bottom < cy) { // Bottom edge intersects or is below the center
+            if (edges.left < cx) { // Left edge intersects or is left of the center
                 toProcess.add(
-                    QTNodeData(
-                        cx - hwl,
-                        cy - hhb,
-                        hwl,
-                        hhb,
-                        childIndex + 2,
-                        nodeData.depth + 1
-                    )
+                    QTNodeData(cx - hwl, cy - hhb, hwl, hhb, childIndex + 2, nodeData.depth + 1)
                 ) // Bottom-left
             }
-            if (edges.right >= cx) { // Right edge intersects or is right of the center
+            if (edges.right > cx) { // Right edge intersects or is right of the center
                 toProcess.add(QTNodeData(cx, cy - hhb, hwr, hhb, childIndex + 3, nodeData.depth + 1)) // Bottom-right
             }
         }
@@ -154,8 +161,8 @@ object QuadTree {
             return
         }
 
-        val (nodeElement: QTNodeElement, alreadyInNode: Boolean) = getLastElement(node, objIdx)
-        if (alreadyInNode) return
+        val nodeElement: QTNodeElement? = getLastElement(node, objIdx)
+        if (nodeElement == null) return
 
         // Append the element to the end of the list
         nodeElement.next = elements.add(element)
@@ -165,20 +172,21 @@ object QuadTree {
         trySplitNode(nodeData)
     }
 
-    private fun getLastElement(
-        node: QTNode,
-        objIdx: Int,
-    ): Pair<QTNodeElement, Boolean> {
+    /**
+     * Returns the last element in the linked list of elements in a [node].
+     * If the object is already in the node, the function returns mull.
+     */
+    private fun getLastElement(node: QTNode, objIdx: Int): QTNodeElement? {
         // Traverse the element linked list until the last element
         var nodeElement: QTNodeElement = elements[node.firstIdx]
         while (nodeElement.next != -1) {
             // Check if the object is already in the node
-            if (nodeElement.index == objIdx) return Pair(nodeElement, true)
+            if (nodeElement.index == objIdx) return null
 
             nodeElement = elements[nodeElement.next]
         }
 
-        return Pair(nodeElement, false)
+        return nodeElement
     }
     /// endregion
 
@@ -203,10 +211,7 @@ object QuadTree {
         pendingRemovals.clear()
     }
 
-    private fun removeIteratively(
-        objIdx: Int,
-        bboxEdges: BoundingBoxEdges,
-    ) {
+    private fun removeIteratively(objIdx: Int, bboxEdges: BoundingBoxEdges) {
         // Remove the element from the object list
         objects.free(objIdx)
 
@@ -294,10 +299,7 @@ object QuadTree {
         }
     }
 
-    private fun queryLeafObjects(
-        node: QTNode,
-        pos: Vector2,
-    ): FhysicsObject? {
+    private fun queryLeafObjects(node: QTNode, pos: Vector2): FhysicsObject? {
         if (node.count <= 0) return null
 
         // Traverse the element linked list
@@ -346,10 +348,7 @@ object QuadTree {
         return qtNodeData.toTypedArray()
     }
 
-    private fun moveElementsToChildren(
-        firstElementIndex: Int,
-        children: Array<QTNodeData>,
-    ) {
+    private fun moveElementsToChildren(firstElementIndex: Int, children: Array<QTNodeData>) {
         for (child: QTNodeData in children) {
             insertOverlappingObjects(firstElementIndex, child)
         }
@@ -367,10 +366,7 @@ object QuadTree {
         }
     }
 
-    private fun convertToBranch(
-        node: QTNode,
-        firstChildData: QTNodeData,
-    ) {
+    private fun convertToBranch(node: QTNode, firstChildData: QTNodeData) {
         // Remove the elements from the parent node
         var current = QTNodeElement(-1, node.firstIdx) // Dummy element
         while (current.next != -1) {
@@ -401,7 +397,7 @@ object QuadTree {
             val node: QTNode = nodes[nodeIdx]
 
             // Loop through the children
-            var numEmptyLeaves = countEmptyLeaves(node, toProcess)
+            var numEmptyLeaves: Int = countEmptyLeaves(node, toProcess)
 
             // If all children are empty leaves, convert the node to a leaf
             if (numEmptyLeaves == 4) {
@@ -438,6 +434,7 @@ object QuadTree {
         node.firstIdx = -1
     }
     /// endregion
+    /// endregion
 
     /// region =====Utility=====
     private fun addChildNodeDataToCollection(
@@ -463,18 +460,31 @@ object QuadTree {
     /**
      * Returns a Tuple6 containing the center x, center y, half width left, half width right, half height bottom, and half height top of a [node][nodeData].
      */
-    private fun calculateNodeDimensions(nodeData: QTNodeData): Tuple6<Int, Int, Int, Int, Int, Int> {
+    private fun calculateNodeDimensions(nodeData: QTNodeData): NodeDimensions {
         val cRect: CenterRect = nodeData.cRect
-        val cx: Int = cRect.centerX
-        val cy: Int = cRect.centerY
-        val tw: Int = cRect.width // Total width
-        val th: Int = cRect.height // Total height
         // Odd sizes will be split, so that the right and top sides are larger
-        val hwl: Int = tw / 2 // Half width left
-        val hwr: Int = tw - hwl // Half width right
-        val hhb: Int = th / 2 // Half height bottom
-        val hht: Int = th - hhb // Half height top
-        return Tuple6(cx, cy, hwl, hwr, hhb, hht)
+        val hwl: Int = cRect.width / 2 // Half width left
+        val hwr: Int = cRect.width - hwl // Half width right
+        val hhb: Int = cRect.height / 2 // Half height bottom
+        val hht: Int = cRect.height - hhb // Half height top
+        return NodeDimensions(intArrayOf(cRect.centerX, cRect.centerY, hwl, hwr, hhb, hht))
+    }
+
+    @JvmInline
+    private value class NodeDimensions(private val data: IntArray) {
+        val cx get() = data[0]
+        val cy get() = data[1]
+        val hwl get() = data[2]
+        val hwr get() = data[3]
+        val hhb get() = data[4]
+        val hht get() = data[5]
+
+        operator fun component1() = cx
+        operator fun component2() = cy
+        operator fun component3() = hwl
+        operator fun component4() = hwr
+        operator fun component5() = hhb
+        operator fun component6() = hht
     }
 
     fun getObjectCount(): Int {
@@ -562,34 +572,38 @@ object QuadTree {
     }
 
     private fun handleCollisionsInLeaf(node: QTNode, collisions: MutableList<CollisionInfo>) {
-        // TODO check if querying the object in the QuadTree is faster than iterating over the elements
         // Traverse the element linked list
         var current = QTNodeElement(-1, node.firstIdx) // Dummy element
         while (current.next != -1) {
             current = elements[current.next]
 
-            // Get the object from the list
-            val obj: FhysicsObject = objects[current.index]
-
             // Check for collisions with other objects in the leaf
-            var next = QTNodeElement(-1, current.next) // Dummy element
-            while (next.next != -1) {
-                next = elements[next.next]
-
-                // Get the object from the list
-                val other: FhysicsObject = objects[next.index]
-
-                //  Check for collision
-                val info: CollisionInfo = obj.testCollision(other)
-                if (info.hasCollision) {
-                    collisions.add(info)
-                }
-            }
+            checkForCollisions(current, collisions)
         }
 
         // Solve the collisions
         for (collision: CollisionInfo in collisions) {
             CollisionSolver.solveCollision(collision)
+        }
+    }
+
+    private fun checkForCollisions(current: QTNodeElement, collisions: MutableList<CollisionInfo>) {
+        // Get the object from the list
+        val obj: FhysicsObject = objects[current.index]
+
+        // Iterate over the remaining elements in the node
+        var next = QTNodeElement(-1, current.next) // Dummy element
+        while (next.next != -1) {
+            next = elements[next.next]
+
+            // Get the object from the list
+            val other: FhysicsObject = objects[next.index]
+
+            //  Check for collision
+            val info: CollisionInfo = obj.testCollision(other)
+            if (info.hasCollision) {
+                collisions.add(info)
+            }
         }
     }
 

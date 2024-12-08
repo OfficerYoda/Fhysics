@@ -6,6 +6,9 @@ package de.officeryoda.fhysics.engine.datastructures
  */
 class IndexedFreeList<T>() : Iterable<T> {
 
+    /**
+     * Constructs an [IndexedFreeList] with [element] as the first element.
+     */
     constructor(element: T) : this() {
         this.add(element)
     }
@@ -13,7 +16,7 @@ class IndexedFreeList<T>() : Iterable<T> {
     /**
      * The data of the [IndexedFreeList].
      */
-    private val data: MutableList<FreeElement<T>> = mutableListOf()
+    private val data: MutableList<FreeElement<T>> = ArrayList()
 
     /**
      * The index of the first free element in the [IndexedFreeList].

@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory
 import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -18,7 +19,7 @@ import kotlin.math.sign
 object FhysicsCore {
 
     // Constants
-    val BORDER: BoundingBox = BoundingBox(0.0f, 0.0f, 100.0f, 100.0f) // x and y must be 0.0
+    val BORDER: BoundingBox = BoundingBox(0f, 0f, 1000f, 1000f) // x and y must be 0.0
     const val UPDATES_PER_SECOND: Int = 60 * 4
     const val SUB_STEPS: Int = 1
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
@@ -31,7 +32,7 @@ object FhysicsCore {
     var updateCount = 0 // Includes all sub steps
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
-    var running: Boolean = true
+    var running: Boolean = false
     val updateStopwatch = Stopwatch(50)
 
     // Quad tree capacity optimization
@@ -43,14 +44,14 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        val objects: List<FhysicsObject> = List(1000) { FhysicsObjectFactory.randomCircle() }
-//        for (it: FhysicsObject in objects) {
-//            it.restitution = 1f
-//            it.frictionDynamic = 0f
-//            it.frictionStatic = 0f
-//        }
-//        UIController.setBorderProperties(1f, 1f, 1f)
-//        spawn(objects)
+        val objects: List<FhysicsObject> = List(7_000) { FhysicsObjectFactory.randomCircle() }
+        for (it: FhysicsObject in objects) {
+            it.restitution = 1f
+            it.frictionDynamic = 0f
+            it.frictionStatic = 0f
+        }
+        UIController.setBorderProperties(1f, 1f, 1f)
+        spawn(objects)
 
 //        repeat(100) {
 //            spawn(FhysicsObjectFactory.randomRectangle())
@@ -138,8 +139,7 @@ object FhysicsCore {
 
         QuadTree.processPendingOperations()
 
-        repeat(SUB_STEPS) {
-            QuadTree.rebuild()
+        for (i: Int in 0 until SUB_STEPS) {
             QuadTree.updateFhysicsObjects()
             QuadTree.handleCollisions()
 

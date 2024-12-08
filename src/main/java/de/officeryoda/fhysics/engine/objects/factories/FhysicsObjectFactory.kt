@@ -27,11 +27,11 @@ object FhysicsObjectFactory {
      * Returns a random circle with a random position, radius, and velocity.
      */
     fun randomCircle(): Circle {
-        val radius: Float = RANDOM.nextFloat(0.2f, 0.4f)
+        val radius: Float = RANDOM.nextFloat(2f, 4f)
         val pos: Vector2 = randomPosInsideBounds(buffer = radius)
         val circle = Circle(pos, radius)
 
-        circle.velocity.set(randomVector2(-10.0f, 10.0f))
+        circle.velocity.set(randomVector2(-100f, 100f))
 
         return circle
     }

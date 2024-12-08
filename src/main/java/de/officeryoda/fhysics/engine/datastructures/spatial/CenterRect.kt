@@ -71,7 +71,7 @@ value class CenterRect(private val data: IntArray) {
             val x: Int = flooredX + (width / 2)
             val y: Int = flooredY + (height / 2)
 
-            return CenterRect(intArrayOf(x, y, width, height))
+            return CenterRect(intArrayOf(x, y, (width * 1.2f).toInt(), (height * 1.2f).toInt()))
         }
     }
 }
