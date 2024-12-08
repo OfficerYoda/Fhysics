@@ -195,11 +195,11 @@ object DebugDrawer {
         gc.strokeRect(x, y, width, height)
     }
 
-    fun drawQTNode(cRect: CenterRect, count: Int) {
-        val x: Double = RenderUtil.worldToScreenX((cRect.centerX - cRect.width / 2).toDouble())
-        val y: Double = RenderUtil.worldToScreenY(((cRect.centerY + (cRect.height - cRect.height / 2)).toDouble()))
-        val width: Double = cRect[2] * zoom
-        val height: Double = cRect[3] * zoom
+    fun drawQTNode(bbox: BoundingBox, count: Int) {
+        val x: Double = bbox.x.toDouble()
+        val y: Double = bbox.y.toDouble()
+        val width: Double = bbox.width * zoom
+        val height: Double = bbox.height * zoom
 
         // Draw Border
         RenderUtil.setStrokeColor(Color.WHITE)

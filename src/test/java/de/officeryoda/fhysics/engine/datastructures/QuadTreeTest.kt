@@ -1,5 +1,6 @@
 package de.officeryoda.fhysics.engine.datastructures
 
+import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.QTDebugHelper
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.QTNode
@@ -7,10 +8,20 @@ import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class QuadTreeTest {
+
+    companion object {
+        @BeforeAll
+        @JvmStatic
+        fun initAll() {
+            // Make sure BORDER is initialized
+            println(FhysicsCore.BORDER)
+        }
+    }
 
     @BeforeEach
     fun setUp() {
@@ -135,7 +146,6 @@ class QuadTreeTest {
 
         val objects = listOf(obj1, obj2, obj3, obj4, obj5)
         objects.forEach { it.updateBoundingBox() }
-
         insertObjects(objects)
 
         val result1 = QuadTree.query(Vector2(5f, 5f))

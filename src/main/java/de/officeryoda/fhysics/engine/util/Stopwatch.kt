@@ -26,7 +26,7 @@ class Stopwatch(private val maxDurations: Int = 50) {
         return try {
             updateDurations.average() / 1E6
         } catch (e: Exception) {
-            System.err.println("Error calculating average duration: $e")
+            System.err.println("Error calculating average duration: \n$e")
             -1.0
         }
     }

@@ -12,7 +12,8 @@ import kotlin.math.sqrt
  */
 data class Vector2
 @JvmOverloads constructor(
-    var x: Float = 0.0f, var y: Float = 0.0f,
+    var x: Float = 0.0f,
+    var y: Float = 0.0f,
 ) {
 
     /**

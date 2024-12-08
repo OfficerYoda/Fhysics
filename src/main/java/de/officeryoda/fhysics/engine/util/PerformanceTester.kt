@@ -96,21 +96,21 @@ private val scenarioListLong: List<PerformanceTestScenario> = listOf(
 )
 
 fun main() {
-    PerformanceTester.testPerformance(
-        listOf(
-            idealPhysicsScenarioSetup(
-                name = "1,000 Circles",
-                objectCreation = { List(1_000) { randomCircle() } },
-            )
-        )
-    )
+//    PerformanceTester.testPerformance(
+//        listOf(
+//            idealPhysicsScenarioSetup(
+//                name = "1,000 Circles",
+//                objectCreation = { List(1_000) { randomCircle() } },
+//            )
+//        )
+//    )
 
-//    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListShort)
-//
-//    println("============Results============")
-//    for (result: PerformanceTestResult in results) {
-//        println("${result.scenario.name}: ${result.time}ms")
-//    }
+    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListShort)
+
+    println("============Results============")
+    for (result: PerformanceTestResult in results) {
+        println("${result.scenario.name}: ${result.time}ms")
+    }
 
     exitProcess(0)
 }
@@ -128,9 +128,9 @@ private object PerformanceTester {
         var startTime: Long
         repeat(runs) {
             startTime = System.currentTimeMillis()
-            println("\n\n============Run ${it + 1}/$runs============")
+            println("\n============Run ${it + 1}/$runs============")
             allResults.addAll(testPerformance(scenarioList, iterations))
-            println("Run ${it + 1}/$runs took ${System.currentTimeMillis() - startTime} ms")
+            println("\nRun ${it + 1}/$runs took ${System.currentTimeMillis() - startTime} ms")
         }
 
         // Calculate the average time taken for each scenario
@@ -180,7 +180,6 @@ private object PerformanceTester {
 
                 spawn(it)
             }
-
             // Set up the border properties
             val borderProperties: PhysicalProperties = scenario.borderProperties
             UIController.setBorderProperties(
