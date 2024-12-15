@@ -64,7 +64,11 @@ object QuadTree {
 
     private fun insertIteratively(obj: FhysicsObject) {
         val objIdx: Int = objects.add(obj)
-        val overlappingLeaves: MutableList<QTNode> = findOverlappingLeaves(obj.boundingBox)
+        insertIteratively(objIdx, obj.boundingBox)
+    }
+
+    private fun insertIteratively(objIdx: Int, bbox: BoundingBox) {
+        val overlappingLeaves: MutableList<QTNode> = findOverlappingLeaves(bbox)
         for (leave: QTNode in overlappingLeaves) {
             insertIntoLeaf(objIdx, leave)
         }
@@ -78,14 +82,11 @@ object QuadTree {
         while (toProcess.isNotEmpty()) {
             val node: QTNode = toProcess.removeFirst()
 
-            // Add leaf nodes to the leaves list
             if (node.isLeaf) {
                 leaves.add(node)
-                continue
+            } else {
+                addOverlappingNodesToQueue(node, area, toProcess)
             }
-
-            // Add overlapping children to the processing queue
-            addOverlappingNodesToQueue(node, area, toProcess)
         }
 
         return leaves
@@ -151,10 +152,10 @@ object QuadTree {
     private fun getLastElement(node: QTNode, objIdx: Int): QTNodeElement? {
         // Traverse the element linked list until the last element
         var nodeElement: QTNodeElement = elements[node.firstIdx]
-        while (nodeElement.next != -1) {
+        while (true) {
             // Check if the object is already in the node
             if (nodeElement.index == objIdx) return null
-
+            if (nodeElement.next == -1) break
             nodeElement = elements[nodeElement.next]
         }
 
@@ -195,14 +196,11 @@ object QuadTree {
         while (queue.isNotEmpty()) {
             val node: QTNode = queue.removeFirst()
 
-            // If the node is a leaf, remove the object
             if (node.isLeaf) {
                 removeFromLeaf(node, objIdx)
-                continue
+            } else {
+                addOverlappingNodesToQueue(node, bbox, queue)
             }
-
-            // Add nodes that overlap with the object to the processing queue
-            addOverlappingNodesToQueue(node, bbox, queue)
         }
     }
 
@@ -405,22 +403,6 @@ object QuadTree {
     }
     /// endregion
     /// endregion
-
-    /// region =====Utility=====
-    private fun addChildNodesToCollection(
-        firstChildIdx: Int,
-        collection: MutableCollection<QTNode>,
-    ) {
-        collection.add(nodes[firstChildIdx + 0]) // Top-left
-        collection.add(nodes[firstChildIdx + 1]) // Top-right
-        collection.add(nodes[firstChildIdx + 2]) // Bottom-left
-        collection.add(nodes[firstChildIdx + 3]) // Bottom-right
-    }
-
-    fun getObjectCount(): Int {
-        return objects.usedCount()
-    }
-    /// endregion
     /// endregion
 
     /// region =====Fhysics Operations=====
@@ -449,60 +431,33 @@ object QuadTree {
         objects.clear()
     }
 
-    fun updateFhysicsObjects() {
-        // Custom iterator to get the index of the object in the free list
-        val iterator: IndexedFreeList.IndexedIterator<FhysicsObject> =
-            IndexedFreeList.IndexedIterator(objects)
+    fun update() {
+        val queue: ArrayDeque<QTNode> = ArrayDeque()
+        queue.add(root)
 
-        // Update all objects and update their position in the tree if necessary
-        while (iterator.hasNext()) {
-            // Get the object and its index
-            val obj: FhysicsObject = iterator.next()
-            val index: Int = iterator.index()
+        while (queue.isNotEmpty()) {
+            val node: QTNode = queue.removeFirst()
 
-            // Update the object
-            obj.update()
-
-            // Only update the object in the tree if the integer-based bounding box has changed
-            updateObjectInTree(index, obj)
+            if (node.isLeaf) {
+                updateLeaf(node)
+            } else {
+                for (i: Int in 0..3) {
+                    queue.add(nodes[node.firstIdx + i])
+                }
+            }
         }
+
+//        val leaves: List<QTNode> = nodes.filter { it.isLeaf }
+//        for (leaf: QTNode in leaves) {
+//            handlePhysicsInLeaf(leaf)
+//        }
     }
 
-    /**
-     * Updates the object in the tree by removing it and reinserting it.
-     */
-    private fun updateObjectInTree(objIdx: Int, obj: FhysicsObject) {
-        removeIteratively(objIdx, obj.boundingBox)
-        insertIteratively(obj)
-    }
-
-    fun handleCollisions() {
-        handleBorderCollision()
-        handleObjectCollision()
-    }
-
-    private fun handleBorderCollision() {
-        for (obj: FhysicsObject in objects) {
-            CollisionSolver.handleBorderCollisions(obj)
-        }
-    }
-
-    private fun handleObjectCollision() {
-        // Get all leaves
-        val leaves: List<QTNode> = nodes.filter { it.isLeaf }
-
-        // Declare outside to only allocate once
-        val collisions: MutableList<CollisionInfo> = ArrayList()
-        // Handle collisions in each leaf
-        for (leaf: QTNode in leaves) {
-            handleCollisionsInLeaf(leaf)
-            collisions.clear()
-        }
-    }
-
-    private fun handleCollisionsInLeaf(node: QTNode) {
+    private fun updateLeaf(node: QTNode) {
         val objectsInLeaf: MutableList<FhysicsObject> = getObjectsInLeaf(node)
-        checkAndSolveCollisions(objectsInLeaf)
+        updateFhysicsObjects(objectsInLeaf)
+        handleCollisions(objectsInLeaf)
+        rebuild(objectsInLeaf, node)
     }
 
     private fun getObjectsInLeaf(node: QTNode): MutableList<FhysicsObject> {
@@ -515,16 +470,40 @@ object QuadTree {
         return objectsInLeaf
     }
 
-    private fun checkAndSolveCollisions(objects: MutableList<FhysicsObject>) {
+    private fun updateFhysicsObjects(objectsInLeaf: MutableList<FhysicsObject>) {
+        for (obj: FhysicsObject in objectsInLeaf) {
+            obj.update()
+        }
+    }
+
+    private fun handleCollisions(objects: MutableList<FhysicsObject>) {
         for (i: Int in 0 until objects.size) {
+            // Check for collisions with other objects
             val obj: FhysicsObject = objects[i]
             for (j: Int in i + 1 until objects.size) {
                 val other: FhysicsObject = objects[j]
+
                 val info: CollisionInfo = obj.testCollision(other)
                 if (info.hasCollision) {
                     CollisionSolver.solveCollision(info)
                 }
             }
+
+            // Can collide with border because all possible object collisions have been checked
+            CollisionSolver.handleBorderCollisions(obj)
+        }
+    }
+
+    private fun rebuild(objectsInLeaf: MutableList<FhysicsObject>, node: QTNode) {
+        for (obj: FhysicsObject in objectsInLeaf) {
+            // Check if the object has moved out of the leaf
+            if (node.bbox.contains(obj.boundingBox)) continue
+
+            val objIdx: Int = objects.indexOf(obj)
+            if (!node.bbox.overlaps(obj.boundingBox)) {
+                removeFromLeaf(node, objIdx)
+            }
+            insertIteratively(objIdx, obj.boundingBox)
         }
     }
 
@@ -548,20 +527,17 @@ object QuadTree {
     }
 
     fun drawNodes() {
-        val queue = ArrayDeque<QTNode>()
-        queue.add(root)
-
-        while (queue.isNotEmpty()) {
-            val node: QTNode = queue.removeFirst()
-
-            // Only drawing leaf nodes is enough
-            if (node.isLeaf) {
-                DebugDrawer.drawQTNode(node.bbox, node.count)
-                continue
-            }
-
-            addChildNodesToCollection(node.firstIdx, queue)
+        // Only drawing leaf nodes is enough
+        val leaves: List<QTNode> = nodes.filter { it.isLeaf }
+        for (leaf: QTNode in leaves) {
+            DebugDrawer.drawQTNode(leaf.bbox, leaf.count)
         }
+    }
+    /// endregion
+
+    /// region =====Other=====
+    fun getObjectCount(): Int {
+        return objects.usedCount()
     }
     /// endregion
 
@@ -587,7 +563,8 @@ object QuadTree {
          * The number of elements in the node or -1 if it's a branch.
          */
         var count: Int = 0,
-    ) {
+
+        ) {
 
         /**
          * Whether the node is a leaf or a branch.
@@ -641,6 +618,16 @@ object QuadTree {
             addChildNodesToCollection(parent.firstIdx, children)
 
             return children
+        }
+
+        private fun addChildNodesToCollection(
+            firstChildIdx: Int,
+            collection: MutableCollection<QTNode>,
+        ) {
+            collection.add(nodes[firstChildIdx + 0]) // Top-left
+            collection.add(nodes[firstChildIdx + 1]) // Top-right
+            collection.add(nodes[firstChildIdx + 2]) // Bottom-left
+            collection.add(nodes[firstChildIdx + 3]) // Bottom-right
         }
 
         /** Returns the children of the given [parent]. */

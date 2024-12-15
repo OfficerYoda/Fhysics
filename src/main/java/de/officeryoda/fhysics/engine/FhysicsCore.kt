@@ -43,7 +43,7 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-//        val objects: List<FhysicsObject> = List(7_000) { FhysicsObjectFactory.randomCircle() }
+//        val objects: List<FhysicsObject> = List(1_000) { FhysicsObjectFactory.randomCircle() }
 //        for (it: FhysicsObject in objects) {
 //            it.restitution = 1f
 //            it.frictionDynamic = 0f
@@ -122,6 +122,7 @@ object FhysicsCore {
 
     private fun startUpdateLoop() {
         val updateIntervalMillis: Long = (1f / UPDATES_PER_SECOND * 1000).toLong()
+
         Timer("Fhysics-Core", true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 if (running) {
@@ -139,8 +140,7 @@ object FhysicsCore {
         QuadTree.processPendingOperations()
 
         for (i: Int in 0 until SUB_STEPS) {
-            QuadTree.updateFhysicsObjects()
-            QuadTree.handleCollisions()
+            QuadTree.update()
 
             SceneListener.pullObject()
 

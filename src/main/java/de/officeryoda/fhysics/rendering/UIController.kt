@@ -684,7 +684,7 @@ class UIController {
             private set
         var spawnStatic: Boolean = false
             private set
-        var spawnRadius: Float = 0.1f
+        var spawnRadius: Float = 1.0f
             private set
         var spawnWidth: Float = 1.0f
             private set

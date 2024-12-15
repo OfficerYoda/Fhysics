@@ -102,7 +102,7 @@ fun main() {
                 name = "1,000 Circles",
                 objectCreation = { List(1_000) { randomCircle() } },
             )
-        ), 100
+        ), 1000
     )
 
 //    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListShort)
