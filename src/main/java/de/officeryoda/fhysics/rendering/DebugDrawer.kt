@@ -188,8 +188,8 @@ object DebugDrawer {
     }
 
     fun drawQTNode(bbox: BoundingBox, count: Int) {
-        val x: Double = bbox.x.toDouble()
-        val y: Double = bbox.y.toDouble()
+        val x: Double = RenderUtil.worldToScreenX(bbox.x)
+        val y: Double = RenderUtil.worldToScreenY(bbox.y + bbox.height)
         val width: Double = bbox.width * zoom
         val height: Double = bbox.height * zoom
 

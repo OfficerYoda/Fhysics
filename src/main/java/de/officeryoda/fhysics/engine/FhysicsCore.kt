@@ -31,7 +31,7 @@ object FhysicsCore {
     var updateCount = 0 // Includes all sub steps
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
-    var running: Boolean = false
+    var running: Boolean = true
     val updateStopwatch = Stopwatch(50)
 
     // Quad tree capacity optimization

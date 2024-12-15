@@ -501,31 +501,29 @@ object QuadTree {
     }
 
     private fun handleCollisionsInLeaf(node: QTNode) {
+        val objectsInLeaf: MutableList<FhysicsObject> = getObjectsInLeaf(node)
+        checkAndSolveCollisions(objectsInLeaf)
+    }
+
+    private fun getObjectsInLeaf(node: QTNode): MutableList<FhysicsObject> {
+        val objectsInLeaf: MutableList<FhysicsObject> = ArrayList(node.count)
         var current = QTNodeElement(-1, node.firstIdx) // Dummy element
         while (current.next != -1) {
             current = elements[current.next]
-
-            // Check for collisions between current and the remaining elements in the node
-            checkAndSolveCollisions(current)
+            objectsInLeaf.add(objects[current.index])
         }
+        return objectsInLeaf
     }
 
-    private fun checkAndSolveCollisions(current: QTNodeElement) {
-        // Get the object from the list
-        val obj: FhysicsObject = objects[current.index]
-
-        // Iterate over the remaining elements in the node
-        var next = QTNodeElement(-1, current.next) // Dummy element
-        while (next.next != -1) {
-            next = elements[next.next]
-
-            // Get the object from the list
-            val other: FhysicsObject = objects[next.index]
-
-            // Check for collision
-            val info: CollisionInfo = obj.testCollision(other)
-            if (info.hasCollision) {
-                CollisionSolver.solveCollision(info)
+    private fun checkAndSolveCollisions(objects: MutableList<FhysicsObject>) {
+        for (i: Int in 0 until objects.size) {
+            val obj: FhysicsObject = objects[i]
+            for (j: Int in i + 1 until objects.size) {
+                val other: FhysicsObject = objects[j]
+                val info: CollisionInfo = obj.testCollision(other)
+                if (info.hasCollision) {
+                    CollisionSolver.solveCollision(info)
+                }
             }
         }
     }
