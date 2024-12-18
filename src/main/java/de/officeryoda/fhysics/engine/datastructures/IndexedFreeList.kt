@@ -32,6 +32,7 @@ class IndexedFreeList<T>() : Iterable<T> {
             val index: Int = firstFree
             firstFree = data[firstFree].next
             data[index].element = element
+            data[index].next = -1
             index
         } else {
             // Append a new element

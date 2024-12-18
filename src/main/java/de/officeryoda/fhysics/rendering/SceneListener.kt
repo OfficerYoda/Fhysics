@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
+import de.officeryoda.fhysics.engine.FhysicsCore.spawn
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
@@ -393,6 +394,7 @@ object SceneListener {
             KeyCode.L -> QuadTree.capacity += 1
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
             KeyCode.S -> println(selectedObject)
+            KeyCode.C -> spawn(Circle(Vector2(50f, 70f), 1f))
             else -> {}
         }
     }
