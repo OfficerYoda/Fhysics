@@ -445,7 +445,7 @@ class UIController {
         val size: Float = parseTextField(textField, 1f)
         FhysicsCore.BORDER.height = max(size, 1f) // Minimum border size of 1x1
         CollisionSolver.updateBorderObjects()
-        QuadTree.rebuild = true // Rebuild to resize the QTNodes
+        QuadTree.rebuildFlag = true // Rebuild to resize the QTNodes
 
         // Make sure the text field matches the actual border height
         if (size < 1f) {
@@ -500,7 +500,7 @@ class UIController {
         val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
         if (capacity > 0) {
             QuadTree.capacity = capacity
-            quadTreeCapacityChanged = true
+            QuadTree.rebuildFlag = true
         }
     }
     /// endregion
@@ -584,11 +584,7 @@ class UIController {
         txtGravityPointX.text = gravityPoint.x.toString()
         txtGravityPointY.text = gravityPoint.y.toString()
         txtGravityPointStrength.text = gravityPointStrength.toString()
-        txtGravityDirectionX.isDisable = gravityType != GravityType.DIRECTIONAL
-        txtGravityDirectionY.isDisable = gravityType != GravityType.DIRECTIONAL
-        txtGravityPointX.isDisable = gravityType != GravityType.TOWARDS_POINT
-        txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
-        txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
+        updateGravityFieldsAvailability()
         setSliderAndLabel(sldDamping, lblDamping, damping, 4)
 
         restrictToNumericInput(txtGravityDirectionX)
@@ -739,9 +735,6 @@ class UIController {
             private set
         var optimizeQTCapacity: Boolean = false
             private set
-
-        // Used to prevent concurrent modification of the quad tree
-        var quadTreeCapacityChanged: Boolean = false
         /// endregion
 
         /// region =====Debug=====

@@ -10,11 +10,13 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
+import java.util.*
+import kotlin.collections.ArrayDeque
 import kotlin.math.min
 
 object QuadTree {
     // Capacity of the tree
-    var capacity: Int = 4
+    var capacity: Int = 16
         set(value) {
             field = value.coerceAtLeast(1)
         }
@@ -35,7 +37,7 @@ object QuadTree {
     private val objects = IndexedFreeList<FhysicsObject>()
 
     /** A flag indicating whether the QuadTree should be rebuilt. */
-    var rebuild: Boolean = false
+    var rebuildFlag: Boolean = false
 
     // List of objects to add, used to queue up insertions and prevent concurrent modification
     private val pendingAdditions: MutableList<FhysicsObject> = ArrayList()
@@ -407,8 +409,8 @@ object QuadTree {
 
     /// region =====Fhysics Operations=====
     fun processPendingOperations() {
-        if (rebuild) {
-            rebuild = false
+        if (rebuildFlag) {
+            rebuildFlag = false
             totalRebuild()
         }
         insertPending()
@@ -434,14 +436,14 @@ object QuadTree {
     fun update() {
         val stack = ArrayDeque<QTNode>()
         val visited: MutableSet<QTNode> = mutableSetOf<QTNode>()
-        val rebuildList: MutableList<Int> = mutableListOf<Int>()
+        val rebuildList: MutableList<Int> = LinkedList<Int>()
 
         stack.add(root)
 
         while (stack.isNotEmpty()) {
             val current: QTNode = stack.last()
 
-            // If it's a leaf node, process, pop it and continue
+            // If it's a leaf node, process and pop it
             if (current.isLeaf) {
                 updateLeaf(current)
                 addElementsToRebuildList(current, rebuildList)

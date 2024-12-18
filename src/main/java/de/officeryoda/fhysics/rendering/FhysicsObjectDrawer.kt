@@ -205,10 +205,8 @@ class FhysicsObjectDrawer : Application() {
         val radius: Double = circle.radius * zoom
 
         gc.fillOval(
-            pos.x - radius,
-            pos.y - radius,
-            2 * radius,
-            2 * radius
+            pos.x - radius, pos.y - radius,
+            2 * radius, 2 * radius
         )
 
         // Show rotation

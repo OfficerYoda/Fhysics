@@ -198,7 +198,7 @@ object SceneListener {
 
         if (!validParams) return
 
-        FhysicsCore.spawn(spawnPreview!!.apply {
+        spawn(spawnPreview!!.apply {
             color = asOpaqueColor(spawnPreview!!.color)
             static = UIController.spawnStatic
         })
