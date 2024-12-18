@@ -16,7 +16,7 @@ import kotlin.math.min
 
 object QuadTree {
     // Capacity of the tree
-    var capacity: Int = 16
+    var capacity: Int = 4
         set(value) {
             field = value.coerceAtLeast(1)
         }
@@ -94,11 +94,7 @@ object QuadTree {
         return leaves
     }
 
-    private fun addOverlappingNodesToQueue(
-        node: QTNode,
-        area: BoundingBox,
-        toProcess: ArrayDeque<QTNode>,
-    ) {
+    private fun addOverlappingNodesToQueue(node: QTNode, area: BoundingBox, toProcess: ArrayDeque<QTNode>) {
         val nodeBbox: BoundingBox = node.bbox
         val cx: Float = nodeBbox.x + nodeBbox.width / 2 // Center X
         val cy: Float = nodeBbox.y + nodeBbox.height / 2 // Center Y
@@ -152,6 +148,8 @@ object QuadTree {
      * If the object is already in the node, the function returns mull.
      */
     private fun getLastElement(node: QTNode, objIdx: Int): QTNodeElement? {
+        if (node.count == 0) return null
+
         // Traverse the element linked list until the last element
         var nodeElement: QTNodeElement = elements[node.firstIdx]
         while (true) {
@@ -403,6 +401,14 @@ object QuadTree {
         node.count = 0
         node.firstIdx = -1
     }
+
+    private fun addElementsToNode(fromNode: QTNode, toNode: QTNode) {
+        var current = QTNodeElement(-1, fromNode.firstIdx) // Dummy element
+        while (current.next != -1) {
+            current = elements[current.next]
+            insertIntoLeaf(current.index, toNode)
+        }
+    }
     /// endregion
     /// endregion
     /// endregion
@@ -541,13 +547,46 @@ object QuadTree {
     private fun tryCollapseBranch(node: QTNode) {
         if (node.isLeaf) return
 
-        val children: Array<QTNode> = getChildren(node)
-        // TODO change to count the elements in the children
-        val numEmptyLeaves: Int = children.count { it.count == 0 }
+        var elementsInChildren: Int = getElementsInChildren(node)
+        if (elementsInChildren == -1) return // Node has branch children
 
-        if (numEmptyLeaves == 4) {
-            convertToLeaf(node)
+        if (elementsInChildren <= capacity) {
+            collapseBranch(node)
         }
+    }
+
+    /** Assumes that the [node] only has leaf children */
+    private fun collapseBranch(node: QTNode) {
+        if (node.isLeaf) return // TODO remove
+
+        val firstChildIdx: Int = node.firstIdx
+        // Mark as leaf
+        node.firstIdx = -1
+        node.count = 0
+
+        // Traverse backwards because the children need to be freed in reverse order
+        for (i: Int in 3 downTo 0) {
+            val child: QTNode = nodes[firstChildIdx + i]
+            addElementsToNode(child, node)
+            // Child is now empty, free it
+            nodes.free(firstChildIdx + i)
+        }
+    }
+
+    /** Returns the number of elements in the children of the [node] or -1 if the node has branch children */
+    fun getElementsInChildren(node: QTNode): Int {
+        val children: Array<QTNode> = getChildren(node)
+
+        var elements = 0
+        for (child: QTNode in children) {
+            if (child.count == -1) {
+                // Node has branch children, don't collapse
+                return -1
+            }
+            elements += child.count
+        }
+
+        return elements
     }
 
     private fun getChildren(node: QTNode): Array<QTNode> {
