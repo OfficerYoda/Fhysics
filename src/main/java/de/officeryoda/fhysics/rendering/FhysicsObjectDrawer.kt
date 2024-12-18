@@ -58,7 +58,7 @@ class FhysicsObjectDrawer : Application() {
     val height: Double get() = stage.scene.height // Use scene height to prevent including the window's title bar
 
     // Draw timer
-    val drawStopwatch = Stopwatch()
+    val drawStopwatch = Stopwatch(20)
 
     /// region =====Start functions=====
     fun launch() {
@@ -154,9 +154,10 @@ class FhysicsObjectDrawer : Application() {
 
         if (hoveredObject != null) drawObjectPulsing(hoveredObject!!)
         if (selectedObject != null && selectedObject !== hoveredObject) drawObjectPulsing(selectedObject!!)
-        if (UIController.drawSpawnPreview) drawSpawnPreview()
 
+        drawSpawnPreview()
         drawBorder()
+
         DebugDrawer.drawDebug()
         drawStopwatch.stop()
     }
