@@ -2,11 +2,12 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
-import de.officeryoda.fhysics.engine.Stopwatch
-import de.officeryoda.fhysics.engine.datastructures.QuadTree
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
+import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
 import de.officeryoda.fhysics.rendering.RenderUtil.darkenColor
 import de.officeryoda.fhysics.rendering.RenderUtil.lerp
@@ -38,7 +39,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.system.exitProcess
 
-// Can't be converted to object because it is a JavaFX Application
+// Can't be converted to a singleton because JavaFX won't allow it
 class FhysicsObjectDrawer : Application() {
 
     // Rendering properties
@@ -160,44 +161,52 @@ class FhysicsObjectDrawer : Application() {
         drawStopwatch.stop()
     }
 
-    fun drawObject(obj: FhysicsObject) {
-        // Hovered and selected object will be drawn pulsing
-        if (obj == hoveredObject || obj == selectedObject) return
-
-        setFillColor(obj.color)
-
-        // Draw Object
-        when (obj) {
-            is Circle -> drawCircle(obj)
-            is Rectangle -> drawRectangle(obj)
-            is Polygon -> drawPolygon(obj)
-        }
-    }
-
     private fun drawObjectPulsing(obj: FhysicsObject) {
         val alpha: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
         val c: Color = obj.color
         val color = Color(c.red, c.green, c.blue, alpha)
-        setFillColor(color)
 
+        setFillColor(color)
         when (obj) {
-            is Circle -> drawCircle(obj)
-            is Rectangle -> drawRectangle(obj)
-            is Polygon -> drawPolygon(obj)
+            is Circle -> drawCircleShape(obj)
+            is Rectangle -> drawRectangleShape(obj)
+            is Polygon -> drawPolygonShape(obj)
         }
     }
 
-    private fun drawCircle(circle: Circle) {
+    fun drawCircle(circle: Circle) {
+        // Hovered and selected object will be drawn pulsing
+        if (circle == hoveredObject || circle == selectedObject) return
+
+        setFillColor(circle.color)
+        drawCircleShape(circle)
+    }
+
+    fun drawRectangle(rect: Rectangle) {
+        // Hovered and selected object will be drawn pulsing
+        if (rect == hoveredObject || rect == selectedObject) return
+
+        setFillColor(rect.color)
+        drawRectangleShape(rect)
+    }
+
+    fun drawPolygon(poly: Polygon) {
+        // Hovered and selected object will be drawn pulsing
+        if (poly == hoveredObject || poly == selectedObject) return
+
+        setFillColor(poly.color)
+        drawPolygonShape(poly)
+    }
+
+    private fun drawCircleShape(circle: Circle) {
         gc.lineWidth = 2.0 * zoom * 0.05
 
         val pos: Vector2 = worldToScreen(circle.position)
         val radius: Double = circle.radius * zoom
 
         gc.fillOval(
-            pos.x - radius,
-            pos.y - radius,
-            2 * radius,
-            2 * radius
+            pos.x - radius, pos.y - radius,
+            2 * radius, 2 * radius
         )
 
         // Show rotation
@@ -211,7 +220,7 @@ class FhysicsObjectDrawer : Application() {
         gc.lineWidth = 2.0
     }
 
-    private fun drawRectangle(rect: Rectangle) {
+    private fun drawRectangleShape(rect: Rectangle) {
         val pos: Vector2 = worldToScreen(rect.position)
 
         // Save the current state of the graphics context
@@ -235,8 +244,8 @@ class FhysicsObjectDrawer : Application() {
         gc.restore()
     }
 
-    private fun drawPolygon(poly: Polygon) {
-        if (UIController.drawSubPolygons && poly is ConcavePolygon) {
+    private fun drawPolygonShape(poly: Polygon) {
+        if (UIController.drawSubPolygons && poly is ConcavePolygon) { // TODO Optimize to not use type checking
             for (subPoly: SubPolygon in poly.subPolygons) {
                 setFillColor(subPoly.color)
                 drawPolygon(subPoly)
@@ -258,11 +267,10 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawSpawnPreview() {
-        // Triangle temp for nothing selected to spawn
         when (UIController.spawnObjectType) {
             SpawnObjectType.NOTHING -> return
             SpawnObjectType.POLYGON -> drawPolygonPreview()
-            else -> drawObject(spawnPreview!!)
+            else -> spawnPreview!!.draw(this)
         }
     }
 
@@ -284,7 +292,7 @@ class FhysicsObjectDrawer : Application() {
         setFillColor(transparentC)
 
         gc.stroke()
-        if (!PolygonCreator.isPolygonValid(vertices)) {
+        if (!PolygonFactory.isPolygonValid(vertices)) {
             setFillColor(Color(255, 0, 0, 128))
         }
         gc.fill()
@@ -353,12 +361,18 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun checkForHoveredObject(): FhysicsObject? {
-        val pendingRemovals: MutableSet<FhysicsObject> = QuadTree.getPendingRemovals()
+        val pendingRemovals: MutableList<FhysicsObject> = QuadTree.pendingRemovals
 
         // Check if the mouse is still hovering over the object
         val obj: FhysicsObject? =
-            hoveredObject?.takeIf { it.contains(mousePosWorld) && !pendingRemovals.contains(it) }
-                ?: QuadTree.query(mousePosWorld)
+            if (hoveredObject != null &&
+                hoveredObject!!.contains(mousePosWorld) &&
+                !pendingRemovals.contains(hoveredObject)
+            ) {
+                hoveredObject
+            } else {
+                QuadTree.query(mousePosWorld)
+            }
 
         // If the object is in the remove queue, don't return it
         return obj.takeUnless { pendingRemovals.contains(it) }

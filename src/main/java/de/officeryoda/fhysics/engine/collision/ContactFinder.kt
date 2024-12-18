@@ -10,11 +10,7 @@ object ContactFinder {
 
     /// region =====Object-Object=====
     /**
-     * Finds the contact points in a collision with a circle
-     *
-     * @param circle The circle
-     * @param info The CollisionInfo object containing information about the collision
-     * @return An array containing the contact points
+     * Returns an array containing the contact points in the [collision][info] with the given [circle].
      */
     fun findContactPoints(circle: Circle, info: CollisionInfo): Array<Vector2> {
         val offset: Vector2 = info.normal * circle.radius
@@ -24,14 +20,10 @@ object ContactFinder {
     }
 
     /**
-     * Finds the contact points between two polygons
-     *
-     * @param polyA The first polygon
-     * @param polyB The second polygon
-     * @return An array containing the contact points
+     * Returns an array containing the contact points between [polyA] and [polyB].
      */
     fun findContactPoints(polyA: Polygon, polyB: Polygon): Array<Vector2> {
-        if (polyA is ConcavePolygon || polyB is ConcavePolygon) {
+        if (polyA is ConcavePolygon || polyB is ConcavePolygon) { // TODO Optimize to not use type checking
             return findConcavePolygonContactPoints(polyA, polyB)
         }
 
@@ -68,10 +60,7 @@ object ContactFinder {
     }
 
     /**
-     * Finds the contact points between two polygons when at least one of them is a concave polygon
-     *
-     * @param polyA The first polygon
-     * @param polyB The second polygon
+     * Returns an array containing the contact points between [polyA] and [polyB], where at least one of them is a [ConcavePolygon].
      */
     private fun findConcavePolygonContactPoints(polyA: Polygon, polyB: Polygon): Array<Vector2> {
         val contactPoints: MutableList<Vector2> = mutableListOf()
@@ -87,7 +76,7 @@ object ContactFinder {
 
                 val subContactPoints: Array<Vector2> = findContactPoints(subPolyA, subPolyB)
 
-                subContactPoints.forEach {
+                for (it: Vector2 in subContactPoints) {
                     if (!isNearExisting(it, contactPoints)) {
                         contactPoints.add(it)
                     }
@@ -101,11 +90,7 @@ object ContactFinder {
 
     /// region =====Border-Object=====
     /**
-     * Finds the contact points between a border and a circle
-     *
-     * @param border The border
-     * @param circle The circle
-     * @return An array containing the contact points
+     * Returns an array containing the contact points between the [border] and the given [circle].
      */
     fun findContactPoints(border: BorderEdge, circle: Circle): Array<Vector2> {
         // Circle will be pushed inside bounds at this point
@@ -114,11 +99,7 @@ object ContactFinder {
     }
 
     /**
-     * Finds the contact points between a border and a polygon
-     *
-     * @param border The border
-     * @param poly The polygon
-     * @return An array containing the contact points
+     * Returns an array containing the contact points between the [border] and the given [polygon][poly].
      */
     fun findContactPoints(border: BorderEdge, poly: Polygon): Array<Vector2> {
         if (poly is ConcavePolygon) {
@@ -148,11 +129,7 @@ object ContactFinder {
     }
 
     /**
-     * Finds the contact points between a border and a concave polygon
-     *
-     * @param border The border
-     * @param concavePolygon The concave polygon
-     * @return An array containing the contact points
+     * Returns an array containing the contact points between the [border] and the given [concave polygon][concavePolygon].
      */
     private fun findConcavePolygonContactPoints(border: BorderEdge, concavePolygon: ConcavePolygon): Array<Vector2> {
         val contactPoints: MutableList<Vector2> = mutableListOf()
@@ -160,7 +137,7 @@ object ContactFinder {
         for (subPoly: Polygon in concavePolygon.subPolygons) {
             val subContactPoints: Array<Vector2> = findContactPoints(border, subPoly)
 
-            subContactPoints.forEach {
+            for (it: Vector2 in subContactPoints) {
                 if (!isNearExisting(it, contactPoints)) {
                     contactPoints.add(it)
                 }
@@ -173,22 +150,14 @@ object ContactFinder {
 
     /// region =====Helper Methods=====
     /**
-     * Checks if a contact point is near any existing contact points
-     *
-     * @param contactPoint The contact point to check
-     * @param existingContactPoints The existing contact points
-     * @return A boolean indicating if the contact point is near any existing contact points
+     * Returns a boolean indicating if the given [contactPoint] is near any of the [existingContactPoints].
      */
     private fun isNearExisting(contactPoint: Vector2, existingContactPoints: List<Vector2>): Boolean {
         return existingContactPoints.firstOrNull { nearlyEquals(contactPoint, it) } != null
     }
 
     /**
-     * Checks if two vectors are nearly equal
-     *
-     * @param a The first vector
-     * @param b The second vector
-     * @return A boolean indicating if the vectors are nearly equal
+     * Returns a boolean indicating if the given Vectors [a] and [b] are nearly equal.
      */
     private fun nearlyEquals(a: Vector2, b: Vector2): Boolean {
         return a.distanceToSqr(b) < EPSILON

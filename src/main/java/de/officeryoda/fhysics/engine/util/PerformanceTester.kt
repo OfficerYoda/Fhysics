@@ -1,14 +1,14 @@
-package de.officeryoda.fhysics
+package de.officeryoda.fhysics.engine.util
 
-import de.officeryoda.fhysics.PerformanceTestScenario.Companion.idealPhysicsScenarioSetup
-import de.officeryoda.fhysics.PerformanceTestScenario.Companion.randomPhysicsScenarioSetup
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.spawn
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory.randomCircle
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory.randomPolygon
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory.randomRectangle
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomCircle
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomPolygon
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomRectangle
+import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.idealPhysicsScenarioSetup
+import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.randomPhysicsScenarioSetup
 import de.officeryoda.fhysics.rendering.UIController
 import kotlin.random.Random
 import kotlin.system.exitProcess
@@ -96,17 +96,61 @@ private val scenarioListLong: List<PerformanceTestScenario> = listOf(
 )
 
 fun main() {
-    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListShort)
+    PerformanceTester.testPerformance(
+        listOf(
+            idealPhysicsScenarioSetup(
+                name = "1,000 Circles",
+                objectCreation = { List(1_000) { randomCircle() } },
+            )
+        ), 1000
+    )
+
+//    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListShort)
 
     println("============Results============")
-    for (result: PerformanceTestResult in results) {
-        println("${result.scenario.name}: ${result.time}ms")
-    }
+//    for (result: PerformanceTestResult in results) {
+//        println("${result.scenario.name}: ${result.time}ms")
+//    }
 
     exitProcess(0)
 }
 
 private object PerformanceTester {
+
+    fun testPerformanceAverage(
+        scenarioList: List<PerformanceTestScenario>,
+        iterations: Int = 1000,
+        runs: Int = 5,
+    ): List<PerformanceTestResult> {
+        val allResults: MutableList<PerformanceTestResult> = mutableListOf()
+
+        // Run the performance test multiple times to get an average
+        var startTime: Long
+        repeat(runs) {
+            startTime = System.currentTimeMillis()
+            println("\n============Run ${it + 1}/$runs============")
+            allResults.addAll(testPerformance(scenarioList, iterations))
+            println("\nRun ${it + 1}/$runs took ${System.currentTimeMillis() - startTime} ms")
+        }
+
+        // Calculate the average time taken for each scenario
+        val averageResults: List<PerformanceTestResult> =
+            allResults
+                .groupBy { it.scenario.name }
+                .map { (name: String, results: List<PerformanceTestResult>) ->
+                    val averageTime: Long = results.map { it.time }.average().toLong()
+                    PerformanceTestResult(
+                        scenario = PerformanceTestScenario(name = name, objectCreation = { emptyList() }),
+                        time = averageTime,
+                    )
+                }
+
+        println("\n\n============Average Results============")
+        println("Average time per run: ${averageResults.sumOf { it.time }} ms")
+        println("Average time taken for $iterations iterations over $runs runs:")
+
+        return averageResults
+    }
 
     fun testPerformance(
         scenarioList: List<PerformanceTestScenario>,
@@ -123,7 +167,8 @@ private object PerformanceTester {
             // Set up the scenario
             // Set up the object properties
             val objectProperties: PhysicalProperties = scenario.objectProperties
-            scenario.objectCreation().forEach {
+            val objects: List<FhysicsObject> = scenario.objectCreation()
+            for (it: FhysicsObject in objects) {
                 it.apply {
                     restitution = objectProperties.restitution
                     frictionStatic = objectProperties.frictionStatic
@@ -132,7 +177,6 @@ private object PerformanceTester {
 
                 spawn(it)
             }
-
             // Set up the border properties
             val borderProperties: PhysicalProperties = scenario.borderProperties
             UIController.setBorderProperties(
@@ -153,44 +197,6 @@ private object PerformanceTester {
         }
 
         return results
-    }
-
-    fun testPerformanceAverage(
-        scenarioList: List<PerformanceTestScenario>,
-        iterations: Int = 1000,
-        runs: Int = 5,
-    ): List<PerformanceTestResult> {
-        val allResults: MutableList<PerformanceTestResult> = mutableListOf()
-
-        // Run the performance test multiple times to get an average
-        var startTime: Long
-        repeat(runs) {
-            startTime = System.currentTimeMillis()
-            println("\n\n============Run ${it + 1}/$runs============")
-            allResults.addAll(testPerformance(scenarioList, iterations))
-            println("Run ${it + 1}/$runs took ${System.currentTimeMillis() - startTime} ms")
-        }
-
-        // Calculate the average time taken for each scenario
-        val averageResults: List<PerformanceTestResult> =
-            allResults
-                .groupBy { it.scenario.name }
-                .map { (name: String, results: List<PerformanceTestResult>) ->
-                    val averageTime: Long =
-                        results
-                            .map { it.time }
-                            .average().toLong()
-                    PerformanceTestResult(
-                        scenario = PerformanceTestScenario(name = name, objectCreation = { emptyList() }),
-                        time = averageTime,
-                    )
-                }
-
-        println("\n\n============Average Results============")
-        println("Average time per run: ${averageResults.sumOf { it.time }} ms")
-        println("Average time taken for $iterations iterations over $runs runs:")
-
-        return averageResults
     }
 }
 

@@ -2,78 +2,81 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
-import de.officeryoda.fhysics.engine.datastructures.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.engine.objects.*
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnColor
+import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
 import java.awt.Color
-import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType as selectedSpawnObjectType
 
 object SceneListener {
 
-    /// =====Vanilla event handler fields=====
-    /**
-     * The minimum distance the mouse has to be moved in screen space to be registered as a drag
-     */
+    /** The minimum distance the mouse has to be moved in screen space to be registered as a drag. */
     private const val MIN_DRAG_DISTANCE_SQR: Float = 4f // 2px
 
-    /**
-     * The position of the mouse in world space
-     */
+    /** The position of the mouse in screen space. */
     private val mousePosScreen: Vector2 = Vector2.ZERO
+
+    /** The position of the mouse in world space. */
     val mousePosWorld: Vector2 = Vector2.ZERO
 
-    // The state of the mouse buttons
+    /** Whether the left mouse button is pressed. */
     private var leftPressed: Boolean = false
+
+    /** Whether the right mouse button is pressed. */
     private var rightPressed: Boolean = false
 
-    // The position where the left mouse button was pressed (in world space)
-    private val leftPressedPosScreen: Vector2 = Vector2.ZERO
-    private val leftPressedPosWorld: Vector2 = Vector2.ZERO
-    private val rightPressedPosScreen: Vector2 = Vector2.ZERO
-    private val rightPressedPosWorld: Vector2 = Vector2.ZERO
-
-    /// =====Custom event handler fields=====
-    // The state of the mouse dragging
+    /** Whether the left mouse button is being dragged. */
     private var leftDragging: Boolean = false
 
-    /**
-     * The preview object to spawn
-     */
+    /** The position where the left mouse button was pressed in screen space. */
+    private val leftPressedPosScreen: Vector2 = Vector2.ZERO
+
+    /** The position where the left mouse button was pressed in world space. */
+    private val leftPressedPosWorld: Vector2 = Vector2.ZERO
+
+    /** The position where the right mouse button was pressed in screen space. */
+    private val rightPressedPosScreen: Vector2 = Vector2.ZERO
+
+    /** The position where the right mouse button was pressed in world space. */
+    private val rightPressedPosWorld: Vector2 = Vector2.ZERO
+
+    /** The preview object to spawn. */
     var spawnPreview: FhysicsObject? = null
 
-    /**
-     * The object that is currently selected
-     */
+    /** The object that is currently selected. */
     var selectedObject: FhysicsObject? = null
 
-    /**
-     * The object that is currently hovered
-     */
+    /** The object that is currently hovered. */
     var hoveredObject: FhysicsObject? = null
 
-    /**
-     * The radius around the first polygon vertex where the polygon closes when clicked inside
-     */
+    /** The radius around the first polygon vertex where the polygon closes when clicked inside. */
     const val POLYGON_CLOSE_RADIUS = 1.0f
 
-    /**
-     * The vertices of the polygon being created
-     */
+    /** The vertices of the polygon being created. */
     var polyVertices: MutableList<Vector2> = ArrayList()
 
-    private var pullObject: FhysicsObject? = null // The objects that is being pulled
+    /** The object that is being pulled by the mouse. */
+    private var pullObject: FhysicsObject? = null
+
+    /** The relative position of the object to the mouse when pulling started. */
     private var pulledRelativePos: Vector2 =
-        Vector2.ZERO // The relative position of the object to the mouse when pulling started
-    private var pulledAtAngle = 0.0f // The angle of the object when pulling started
+        Vector2.ZERO
+
+    /** The angle of the object when pulling started. */
+    private var pulledAtAngle = 0.0f
 
     /// region =====Custom event handlers=====
     private fun onLeftClick() {
@@ -176,15 +179,11 @@ object SceneListener {
         drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
     }
 
-    private fun almostEqual(a: Double, b: Double): Boolean {
-        return (a - b).absoluteValue < EPSILON
-    }
-
     /// endregion
 
     /// region =====Other methods=====
     /**
-     * Spawns the preview object at the mouse position
+     * Spawns the preview object at the mouse position.
      */
     private fun spawnPreview() {
         // Check if spawn pos is outside the border
@@ -206,11 +205,11 @@ object SceneListener {
     }
 
     /**
-     * Handles the placement of the polygon vertices and creates the polygon if it's complete
+     * Handles the placement of the polygon vertices and creates the polygon if it's complete.
      */
     private fun handlePolygonCreation() {
         // Create the polygon if the polygon is complete
-        if (polyVertices.size > 2 && PolygonCreator.isPolygonValid(polyVertices)) {
+        if (polyVertices.size > 2 && PolygonFactory.isPolygonValid(polyVertices)) {
             val startPos: Vector2 = polyVertices.first()
             if (mousePosWorld.distanceToSqr(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                 createAndSpawnPolygon()
@@ -224,7 +223,7 @@ object SceneListener {
 
     private fun createAndSpawnPolygon() {
         // Create and spawn the polygon
-        val polygon: Polygon = PolygonCreator.createPolygon(polyVertices.toTypedArray())
+        val polygon: Polygon = PolygonFactory.createPolygon(polyVertices.toTypedArray())
         FhysicsCore.spawn(polygon)
 
         // Clear the polygon vertices
@@ -235,12 +234,12 @@ object SceneListener {
      * Updates the spawn preview object based on the current spawn object type and the input fields.
      */
     fun updateSpawnPreview() {
-        if (UIController.spawnObjectType == SpawnObjectType.NOTHING) {
+        if (spawnObjectType == SpawnObjectType.NOTHING) {
             spawnPreview = null
             return
         }
 
-        val obj: FhysicsObject = when (UIController.spawnObjectType) {
+        val obj: FhysicsObject = when (spawnObjectType) {
             SpawnObjectType.CIRCLE -> Circle(mousePosWorld.copy(), UIController.spawnRadius)
             SpawnObjectType.RECTANGLE -> Rectangle(
                 mousePosWorld.copy(),
@@ -263,17 +262,14 @@ object SceneListener {
     }
 
     /**
-     * Converts a color to an opaque color
-     *
-     * @param color the color to convert
-     * @return the opaque color
+     * Returns an opaque version of the given [color].
      */
     private fun asOpaqueColor(color: Color): Color {
         return Color(color.red, color.green, color.blue)
     }
 
     /**
-     * Pulls the object that is being pulled by the mouse
+     * Pulls the object that is being pulled by the mouse.
      */
     fun pullObject() {
         val obj: FhysicsObject = pullObject ?: return
@@ -290,8 +286,7 @@ object SceneListener {
     }
 
     /**
-     * Sets the mouse position in world space and updates the spawn preview position
-     * @param e the mouse event
+     * Sets the mouse position in world space and updates the spawn preview position based on the [MouseEvent][e].
      */
     private fun updateMousePos(e: MouseEvent) {
         mousePosScreen.set(getMouseScreenPos(e))
@@ -304,8 +299,7 @@ object SceneListener {
     }
 
     /**
-     * Updates the state of the mouse buttons
-     * @param e the mouse event
+     * Updates the state of the mouse buttons based on the [MouseEvent][e].
      */
     private fun updateMouseButtonState(e: MouseEvent) {
         leftPressed = e.isPrimaryButtonDown
@@ -391,12 +385,12 @@ object SceneListener {
                 FhysicsCore.update()
             }
 
-            KeyCode.Q -> println(QuadTree.toString())
+            KeyCode.Q -> QuadTree.QTDebugHelper.printTree()
             KeyCode.Z -> drawer.resetZoom()
-            KeyCode.H -> QuadTree.capacity -= 5
-            KeyCode.J -> QuadTree.capacity -= 1
-            KeyCode.K -> QuadTree.capacity += 1
-            KeyCode.L -> QuadTree.capacity += 5
+            KeyCode.H -> QuadTree.capacity -= 1
+            KeyCode.J -> QuadTree.capacity -= 5
+            KeyCode.K -> QuadTree.capacity += 5
+            KeyCode.L -> QuadTree.capacity += 1
             KeyCode.G -> CapacityDiagram(FhysicsCore.qtCapacity)
             KeyCode.S -> println(selectedObject)
             else -> {}
@@ -404,9 +398,7 @@ object SceneListener {
     }
 
     /**
-     * Gets the mouse position in screen space
-     * @param e the mouse event
-     * @return the mouse position in screen space
+     * Returns the mouse position in screen space from the [MouseEvent][e].
      */
     private fun getMouseScreenPos(e: MouseEvent): Vector2 {
         return Vector2(e.x.toFloat(), e.y.toFloat())

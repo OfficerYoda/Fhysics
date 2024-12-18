@@ -494,12 +494,12 @@
                                     <children>
                                         <ToggleButton fx:id="btnTimePause" mnemonicParsing="false" onMouseClicked="#onTimePauseClicked" text="Pause">
                                             <tooltip>
-                                                <Tooltip text="Pausees the Simulation (Schortcut: P)" />
+                                                <Tooltip text="Pauses the Simulation (Shortcut: P)"/>
                                             </tooltip>
                                         </ToggleButton>
                                         <Button fx:id="btnTimeStep" mnemonicParsing="false" onMouseClicked="#onTimeStepClicked" text="Step">
                                             <tooltip>
-                                                <Tooltip text="Do one simulation step (Schortcut: ENTER/SPACE)" />
+                                                <Tooltip text="Do one simulation step (Shortcut: ENTER/SPACE)"/>
                                             </tooltip>
                                         </Button>
                                     </children>

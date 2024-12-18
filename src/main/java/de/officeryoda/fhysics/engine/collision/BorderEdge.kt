@@ -21,10 +21,7 @@ data class BorderEdge(
 ) {
 
     /**
-     * Tests for a collision between the border and the given physics object.
-     *
-     * @param obj The physics object to test for collision.
-     * @return A CollisionInfo object containing information about the collision.
+     * Returns the [CollisionInfo] of a collision between the border and the given [object][obj].
      */
     fun testCollision(obj: FhysicsObject): CollisionInfo {
         val projection: Projection = obj.project(normal)

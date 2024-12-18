@@ -1,11 +1,13 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.datastructures.QuadTree
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.FhysicsObjectFactory
-import de.officeryoda.fhysics.extensions.times
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory
+import de.officeryoda.fhysics.engine.util.Stopwatch
+import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.SceneListener
@@ -18,7 +20,7 @@ import kotlin.math.sign
 object FhysicsCore {
 
     // Constants
-    val BORDER: BoundingBox = BoundingBox(0.0f, 0.0f, 100.0f, 100.0f) // x and y must be 0.0
+    val BORDER: BoundingBox = BoundingBox(0f, 0f, 1000f, 1000f) // x and y must be 0.0
     const val UPDATES_PER_SECOND: Int = 60 * 4
     const val SUB_STEPS: Int = 1
     private const val MAX_FRAMES_AT_CAPACITY: Int = 100
@@ -32,7 +34,7 @@ object FhysicsCore {
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
     var running: Boolean = true
-    val updateStopwatch = Stopwatch(50)
+    val updateStopwatch = Stopwatch(20)
 
     // Quad tree capacity optimization
     val qtCapacity: MutableMap<Int, Double> = mutableMapOf()
@@ -43,17 +45,28 @@ object FhysicsCore {
     private var objectsAtStepSizeIncrease: Int = 0
 
     init {
-        repeat(1000) {
-            spawn(FhysicsObjectFactory.randomCircle())
-        }
+//        val objects: List<FhysicsObject> = List(5) { FhysicsObjectFactory.randomCircle() }
+//        for (it: FhysicsObject in objects) {
+//            it.restitution = 1f
+//            it.frictionDynamic = 0f
+//            it.frictionStatic = 0f
+//        }
+//        UIController.setBorderProperties(1f, 1f, 1f)
+//        spawn(objects)
 
-        repeat(100) {
-            spawn(FhysicsObjectFactory.randomRectangle())
-        }
+//        repeat(100) {
+//            spawn(FhysicsObjectFactory.randomRectangle())
+//        }
 //
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomConcavePolygon())
 //        }
+
+        spawn(Circle(Vector2(10f, 10f), 1f))
+        spawn(Circle(Vector2(20f, 20f), 1f))
+        spawn(Circle(Vector2(70f, 20f), 1f))
+        spawn(Circle(Vector2(20f, 70f), 1f))
+        spawn(Circle(Vector2(70f, 70f), 1f))
 
         // Three rectangles that act as slides + ground rectangle
 //        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).static = true
@@ -117,7 +130,8 @@ object FhysicsCore {
 
     private fun startUpdateLoop() {
         val updateIntervalMillis: Long = (1f / UPDATES_PER_SECOND * 1000).toLong()
-        Timer(true).scheduleAtFixedRate(object : TimerTask() {
+
+        Timer("Fhysics-Core", true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 if (running) {
                     RENDER_LOCK.lock()
@@ -131,12 +145,16 @@ object FhysicsCore {
     fun update() {
         updateStopwatch.start()
 
-        QuadTree.insertPendingAdditions()
-        QuadTree.rebuild()
+        if (objectCount < 20_000) {
+            repeat(100) {
+                spawn(FhysicsObjectFactory.randomCircle())
+            }
+        }
+
+        QuadTree.processPendingOperations()
 
         repeat(SUB_STEPS) {
-            QuadTree.updateFhysicsObjects()
-            QuadTree.handleCollisions()
+            QuadTree.update()
 
             SceneListener.pullObject()
 
@@ -148,12 +166,15 @@ object FhysicsCore {
         updateStopwatch.stop()
     }
 
-    fun spawn(vararg objects: FhysicsObject): Array<out FhysicsObject> {
+    fun spawn(vararg objects: FhysicsObject) {
+        spawn(objects.toList())
+    }
+
+    private fun spawn(objects: List<FhysicsObject>) {
         for (obj: FhysicsObject in objects) {
             obj.updateBoundingBox()
             QuadTree.insert(obj)
         }
-        return objects
     }
 
     fun clear() {
@@ -161,6 +182,7 @@ object FhysicsCore {
         QuadTree.clear()
     }
 
+    // TODO remove all this optimization stuff and just use a fixed capacity
     private fun optimizeQuadTreeCapacity() {
         framesAtCapacity++
         if (framesAtCapacity > MAX_FRAMES_AT_CAPACITY) { // > and not >= to exclude the first frame where the rebuild takes place which takes longer

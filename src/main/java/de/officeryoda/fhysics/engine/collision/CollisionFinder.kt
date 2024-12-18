@@ -10,11 +10,7 @@ import kotlin.math.min
 object CollisionFinder {
 
     /**
-     * Tests for collision between two circles
-     *
-     * @param circleA The first circle
-     * @param circleB The second circle
-     * @return A CollisionInfo object containing information about the collision
+     * Returns the [CollisionInfo] of the collision between [circleA] and [circleB].
      */
     fun testCollision(circleA: Circle, circleB: Circle): CollisionInfo {
         // Calculate squared distance between circle centers
@@ -38,22 +34,18 @@ object CollisionFinder {
     }
 
     /**
-     * Tests for collision between a polygon and a circle
-     *
-     * @param poly The polygon
-     * @param circle The circle
-     * @return A CollisionInfo object containing information about the collision
+     * Returns the [CollisionInfo] of the collision between [poly] and [circle].
      */
     fun testCollision(poly: Polygon, circle: Circle): CollisionInfo {
         if (!poly.boundingBox.overlaps(circle.boundingBox)) return CollisionInfo()
 
-        if (poly is ConcavePolygon) {
+        if (poly is ConcavePolygon) { // TODO Optimize to not use type checking
             return testConcavePolygonCollision(poly, circle)
         }
 
         val axes: Set<Vector2> = poly.getAxes()
 
-        axes.forEach { axis: Vector2 ->
+        for (axis: Vector2 in axes) {
             val projResult: ProjectionResult = testProjectionOverlap(axis, poly, circle)
 
             if (!projResult.hasOverlap) return CollisionInfo()
@@ -71,21 +63,18 @@ object CollisionFinder {
             finalAxis.negate()
         }
 
-        val targetPoly: Polygon = if (poly is SubPolygon) poly.parent else poly
+        val targetPoly: Polygon =
+            if (poly is SubPolygon) poly.parent else poly // TODO Optimize to not use type checking
         return CollisionInfo(circle, targetPoly, finalAxis, projResult.getOverlap())
     }
 
     /**
-     * Tests for collision between two polygons
-     *
-     * @param polyA The first polygon
-     * @param polyB The second polygon
-     * @return A CollisionInfo object containing information about the collision
+     * Returns the [CollisionInfo] of the collision between [polyA] and [polyB].
      */
     fun testCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
         if (!polyA.boundingBox.overlaps(polyB.boundingBox)) return CollisionInfo()
 
-        if (polyA is ConcavePolygon || polyB is ConcavePolygon) {
+        if (polyA is ConcavePolygon || polyB is ConcavePolygon) { // TODO Optimize to not use type checking
             return testConcavePolygonCollision(polyA, polyB)
         }
 
@@ -93,7 +82,7 @@ object CollisionFinder {
         var normal: Vector2 = Vector2.ZERO
         var depth: Float = Float.MAX_VALUE
 
-        axes.forEach { axis: Vector2 ->
+        for (axis: Vector2 in axes) {
             val projResult: ProjectionResult = testProjectionOverlap(axis, polyA, polyB)
 
             if (!projResult.hasOverlap) return CollisionInfo()
@@ -116,19 +105,15 @@ object CollisionFinder {
     }
 
     /**
-     * Tests for collision between a concave polygon and a circle
-     *
-     * @param poly The concave polygon
-     * @param circle The circle
-     * @return A CollisionInfo object containing information about the collision
+     * Returns the [CollisionInfo] of the collision between [poly] (Concave) and [circle].
      */
     private fun testConcavePolygonCollision(poly: ConcavePolygon, circle: Circle): CollisionInfo {
         var deepestCollision = CollisionInfo()
 
         // Check for collision between the circle and every sub-polygon
-        poly.subPolygons.forEach { subPoly: Polygon ->
+        for (subPoly: Polygon in poly.subPolygons) {
             val collisionInfo: CollisionInfo = testCollision(subPoly, circle)
-            if (!collisionInfo.hasCollision) return@forEach
+            if (!collisionInfo.hasCollision) continue
             if (abs(deepestCollision.depth) < abs(collisionInfo.depth) || deepestCollision.depth == Float.NEGATIVE_INFINITY) {
                 deepestCollision = collisionInfo
             }
@@ -138,18 +123,15 @@ object CollisionFinder {
     }
 
     /**
-     * Tests for collision between one or two concave polygons
-     * This method is called when at least one of the polygons is a concave polygon
-     *
-     * @param polyA The first polygon
-     * @param polyB The second polygon
-     * @return A CollisionInfo object containing information about the collision
+     * Returns the [CollisionInfo] of the collision between [polyA] and [polyB], where at least one of them is a [ConcavePolygon].
      */
     private fun testConcavePolygonCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
         var deepestCollision = CollisionInfo()
 
-        val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
-        val polygonsB: List<Polygon> = if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB)
+        val polygonsA: List<Polygon> =
+            if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA) // TODO Optimize to not use type checking
+        val polygonsB: List<Polygon> =
+            if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB) // TODO Optimize to not use type checking
 
         // Check for collision between every sub-polygon pair
         for (subPolyA: Polygon in polygonsA) {
@@ -179,12 +161,7 @@ object CollisionFinder {
     }
 
     /**
-     * Tests for overlap between the projections of two objects onto an axis
-     *
-     * @param axis The axis
-     * @param objA The first object
-     * @param objB The second object
-     * @return A boolean indicating if the projections overlap
+     * Returns the [ProjectionResult] of the projection overlap test between [objA] and [objB] on the given [axis].
      */
     private fun testProjectionOverlap(axis: Vector2, objA: FhysicsObject, objB: FhysicsObject): ProjectionResult {
         val projectionA: Projection = objA.project(axis)
@@ -194,10 +171,7 @@ object CollisionFinder {
     }
 
     /**
-     * Gets the closest point on the polygon to the external point
-     *
-     * @param poly The polygon
-     * @param point The external point
+     * Gets the closest point on the [polygon][poly] to the [external point][point].
      */
     private fun getClosestPoint(poly: Polygon, point: Vector2): Vector2 {
         var closestPoint: Vector2 = Vector2.ZERO
@@ -223,12 +197,7 @@ object CollisionFinder {
     }
 
     /**
-     * Gets the closest point on an edge to an external point
-     *
-     * @param start The start point of the edge
-     * @param end The end point of the edge
-     * @param point The external point
-     * @return The closest point on the edge to the external point
+     * Returns the closest point on the edge defined by [start] and [end] to the [external point][point].
      */
     fun getClosestPointOnEdge(start: Vector2, end: Vector2, point: Vector2): Vector2 {
         // Calculate the closest point on the current edge to the external point

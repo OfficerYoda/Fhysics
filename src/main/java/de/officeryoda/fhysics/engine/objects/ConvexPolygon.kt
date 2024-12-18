@@ -16,10 +16,6 @@ class ConvexPolygon(
         return other.findContactPoints(this, info)
     }
 
-    override fun clone(): FhysicsObject {
-        return ConvexPolygon(vertices.map { position + it.copy() }.toTypedArray(), angle)
-    }
-
     override fun toString(): String {
         return "ConvexPolygon(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, vertices=${vertices.contentToString()})"
     }

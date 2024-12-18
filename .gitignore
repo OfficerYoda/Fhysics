@@ -36,3 +36,6 @@ build/
 
 ### Mac OS ###
 .DS_Store!/.idea/codeStyles/codeStyleConfig.xml
+/.idea/material_theme_project_new.xml
+/.idea/snyk.project.settings.xml
+/.idea/inspectionProfiles/Project_Default.xml

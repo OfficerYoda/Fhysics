@@ -4,12 +4,11 @@ import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionFinder
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.ContactFinder
-import de.officeryoda.fhysics.engine.math.Matrix2x3
 import de.officeryoda.fhysics.engine.math.Projection
+import de.officeryoda.fhysics.engine.math.TransformationData
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
 
 // primary constructor is used to sync position and velocity from sub-polygons with the main polygon
 abstract class Polygon(
@@ -31,7 +30,9 @@ abstract class Polygon(
 
     init {
         // convert vertices to local space
-        vertices.forEach { it -= position }
+        for (it: Vector2 in vertices) {
+            it -= position
+        }
     }
 
     open fun getAxes(): Set<Vector2> {
@@ -105,23 +106,14 @@ abstract class Polygon(
     }
 
     /**
-     * Transforms the vertices from local space to world space
-     * taking into account the position and rotation of the polygon
-     *
-     * @return The transformed vertices
+     * Returns an array of vertices transformed from local space to global space.
      */
     fun getTransformedVertices(): Array<Vector2> {
-        // Create the transformation matrix
-        val cos: Float = cos(angle)
-        val sin: Float = sin(angle)
-
-        val transformationMatrix = Matrix2x3(
-            cos, -sin, super.position.x,
-            sin, cos, super.position.y
-        )
+        // Create the transformation data
+        val transformationData = TransformationData(angle, super.position)
 
         // Transform the vertices
-        return vertices.map { transformationMatrix * it }.toTypedArray()
+        return Array(vertices.size) { i -> transformationData.applyTo(vertices[i]) }
     }
 
     abstract override fun testCollision(other: FhysicsObject): CollisionInfo
@@ -152,16 +144,17 @@ abstract class Polygon(
         boundingBox.setFromPolygon(this)
     }
 
+    override fun draw(drawer: FhysicsObjectDrawer) {
+        drawer.drawPolygon(this)
+    }
+
     override fun toString(): String {
         return "Polygon(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia, static=$static, color=$color, vertices=$vertices)"
     }
 
     companion object {
         /**
-         * Calculates the area of a polygon
-         * The area will always be positive
-         *
-         * @param vertices the vertices of the polygon
+         * Calculates the area of a polygon with the given [vertices].
          */
         fun calculatePolygonArea(vertices: Array<Vector2>): Float {
             var signedArea = 0f
@@ -177,9 +170,7 @@ abstract class Polygon(
         }
 
         /**
-         * Calculates the center of a polygon
-         *
-         * @param vertices the vertices of the polygon
+         * Calculates the center of a polygon with the given [vertices].
          */
         fun calculatePolygonCenter(vertices: Array<Vector2>): Vector2 {
             return vertices.reduce { acc, vector2 -> acc + vector2 } / vertices.size.toFloat()

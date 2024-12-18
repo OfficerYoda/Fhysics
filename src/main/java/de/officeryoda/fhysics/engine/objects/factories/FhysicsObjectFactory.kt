@@ -1,8 +1,11 @@
-package de.officeryoda.fhysics.engine.objects
+package de.officeryoda.fhysics.engine.objects.factories
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.engine.objects.Circle
+import de.officeryoda.fhysics.engine.objects.Polygon
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -11,6 +14,7 @@ import java.util.concurrent.TimeoutException
 import kotlin.math.*
 import kotlin.random.Random.Default as KtRandom
 
+@Suppress("SameParameterValue", "SameParameterValue", "SameParameterValue")
 object FhysicsObjectFactory {
 
     private val RANDOM: Random = Random()
@@ -20,24 +24,20 @@ object FhysicsObjectFactory {
     private val executor = Executors.newCachedThreadPool()
 
     /**
-     * Generates a random circle with a random position, radius, and velocity.
-     *
-     * @return A random circle.
+     * Returns a random circle with a random position, radius, and velocity.
      */
     fun randomCircle(): Circle {
         val radius: Float = RANDOM.nextFloat(0.2f, 0.4f)
         val pos: Vector2 = randomPosInsideBounds(buffer = radius)
         val circle = Circle(pos, radius)
 
-        circle.velocity.set(randomVector2(-10.0f, 10.0f))
+        circle.velocity.set(randomVector2(-100f, 100f))
 
         return circle
     }
 
     /**
-     * Generates a random rectangle with a random position, width, height, rotation, and velocity.
-     *
-     * @return A random rectangle.
+     * Returns a random rectangle with a random position, width, height, rotation, and velocity.
      */
     fun randomRectangle(): Rectangle {
         val width: Float = RANDOM.nextFloat(1.0f, 10.0f)
@@ -52,11 +52,9 @@ object FhysicsObjectFactory {
     }
 
     /**
-     * Generates a random polygon with a random position and velocity.
+     * Returns a random polygon with a random position and velocity.
      *
      * This only works when called from the main thread.
-     *
-     * @return A random polygon.
      */
     fun randomPolygon(): Polygon {
         val center: Vector2 = randomPosInsideBounds(0.0f)
@@ -67,15 +65,14 @@ object FhysicsObjectFactory {
 
         val points: Array<Vector2> =
             generatePolygon(center, avgRadius, irregularity, spikiness, numVertices).toTypedArray()
-        // Creating the polygon can hang the application, TODO: use a timeout
 
         val polygon: Polygon = try {
             val future: CompletableFuture<Polygon> = CompletableFuture.supplyAsync({
-                PolygonCreator.createPolygon(points)
+                PolygonFactory.createPolygon(points)
             }, executor)
 
             future.get(50, TimeUnit.MILLISECONDS)
-        } catch (e: TimeoutException) {
+        } catch (_: TimeoutException) {
             println("Polygon creation timed out, retrying...")
             return randomPolygon()
         }
@@ -159,7 +156,7 @@ object FhysicsObjectFactory {
         val upper: Double = (2 * Math.PI / steps) + irregularity
         var angleSum = 0.0
 
-        for (i: Int in 0 until steps) {
+        repeat(steps) {
             val angle: Double = KtRandom.nextDouble(lower, upper)
             angles.add(angle)
             angleSum += angle
@@ -181,6 +178,7 @@ object FhysicsObjectFactory {
      * @param upper The upper bound of the interval.
      * @return The clipped value, within the range [lower, upper].
      */
+    @Suppress("SameParameterValue", "SameParameterValue", "SameParameterValue")
     private fun clip(value: Float, lower: Float, upper: Float): Float {
         return value.coerceIn(lower, upper)
     }

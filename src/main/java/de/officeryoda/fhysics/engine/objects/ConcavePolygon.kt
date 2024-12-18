@@ -12,7 +12,7 @@ class ConcavePolygon(
     var subPolygons: MutableList<SubPolygon> = mutableListOf()
 
     init {
-        subPolygonIndices.forEach { indices ->
+        for (indices: Array<Int> in subPolygonIndices) {
             val subVertices: Array<Vector2> = indices.map { vertices[it] + position }.toTypedArray()
             val center: Vector2 = calculatePolygonCenter(subVertices)
             subPolygons.add(SubPolygon(position, center, velocity, subVertices, angularVelocity, this))
@@ -27,15 +27,11 @@ class ConcavePolygon(
         return other.findContactPoints(this, info)
     }
 
-    override fun clone(): FhysicsObject {
-        val clone: ConcavePolygon =
-            PolygonCreator.createPolygon(vertices.map { it + position }.toTypedArray(), angle) as ConcavePolygon
-        return clone
-    }
-
     override fun updateBoundingBox() {
         boundingBox.setFromPolygon(this)
-        subPolygons.forEach { it.updateBoundingBox() }
+        for (it: SubPolygon in subPolygons) {
+            it.updateBoundingBox()
+        }
     }
 
     override fun toString(): String {

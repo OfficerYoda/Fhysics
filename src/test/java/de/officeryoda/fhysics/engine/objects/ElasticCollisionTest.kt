@@ -1,3 +1,5 @@
+@file:Suppress("SameParameterValue", "SameParameterValue", "SameParameterValue")
+
 package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.FhysicsCore
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.Test
  * Some tests are taken from wikipedia for elastic collisions.
  * https://en.wikipedia.org/wiki/Elastic_collision
  */
+@Suppress("SameParameterValue", "SameParameterValue", "SameParameterValue")
 class ElasticCollisionTest {
 
 

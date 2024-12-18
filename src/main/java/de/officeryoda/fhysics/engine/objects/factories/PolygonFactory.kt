@@ -1,46 +1,31 @@
-package de.officeryoda.fhysics.engine.objects
+package de.officeryoda.fhysics.engine.objects.factories
 
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.engine.objects.ConcavePolygon
+import de.officeryoda.fhysics.engine.objects.ConvexPolygon
+import de.officeryoda.fhysics.engine.objects.Polygon
 
-object PolygonCreator {
+object PolygonFactory {
 
     /**
-     * Creates a polygon from the given vertices
-     *
-     * @param vertices the vertices of the polygon
-     * @return the polygon
+     * Creates a polygon from the given [vertices].
      */
     fun createPolygon(vertices: Array<Vector2>, angle: Float = 0f): Polygon {
         ensureCCW(vertices)
         if (!isConcave(vertices)) return ConvexPolygon(vertices, angle)
 
+        // Triangulate the polygon
         val triangles: MutableList<Array<Vector2>> = triangulate(vertices.toMutableList())
-        // draw triangles
-//        triangles.forEach { triangle ->
-//            DebugDrawer.addDebugLine(triangle[0].copy(), triangle[1].copy(), Color.RED, 2400)
-//            DebugDrawer.addDebugLine(triangle[1].copy(), triangle[2].copy(), Color.RED, 2400)
-//            DebugDrawer.addDebugLine(triangle[2].copy(), triangle[0].copy(), Color.RED, 2400)
-//        }
-
+        // Merge the triangles to create convex polygons
         val polygonIndices: Array<Array<Int>> = mergePolygons(vertices, triangles)
-        // draw merged triangles
-//        polygonIndices.forEach { polygon ->
-//            polygon.indices.forEach { i ->
-//                val j: Int = (i + 1) % polygon.size
-//                DebugDrawer.addDebugLine(vertices[polygon[i]].copy(), vertices[polygon[j]].copy(), Color.GREEN, 2400)
-//            }
-//        }
 
         return ConcavePolygon(vertices, polygonIndices, angle)
     }
 
     /**
-     * Triangulates a polygon
+     * Returns a list of triangles that form the polygon with the given [vertices].
      *
-     * It has problems with collinear points, but the appearance of those is unlikely when creating polygons by hand
-     *
-     * @param vertices the polygon to triangulate
-     * @return a list of triangles
+     * This method has problems with collinear points, but the appearance of those is unlikely when creating polygons by hand.
      */
     private fun triangulate(vertices: MutableList<Vector2>): MutableList<Array<Vector2>> {
         val triangles: MutableList<Array<Vector2>> = mutableListOf()
@@ -64,20 +49,15 @@ object PolygonCreator {
     }
 
     /**
-     * Checks if a triangle is an ear
+     * Returns a boolean indicating if the triangle ([v1], [v2], [v3]) is an ear of the [polygon].
      *
-     * An ear is a triangle that does not contain any other vertices of the polygon inside it
-     *
-     * @param p1 the first vertex of the triangle
-     * @param p2 the second vertex of the triangle
-     * @param p3 the third vertex of the triangle
-     * @param polygon the polygon containing the triangle
+     * An ear is a triangle that does not contain any other vertices of the polygon inside it.
      */
-    private fun isEar(p1: Vector2, p2: Vector2, p3: Vector2, polygon: List<Vector2>): Boolean {
+    private fun isEar(v1: Vector2, v2: Vector2, v3: Vector2, polygon: List<Vector2>): Boolean {
         // Check if the triangle (p1, p2, p3) is an ear
-        if (!isConvex(p1, p2, p3)) return false
+        if (!isConvex(v1, v2, v3)) return false
         for (vertex: Vector2 in polygon) {
-            if (vertex != p1 && vertex != p2 && vertex != p3 && isPointInTriangle(vertex, p1, p2, p3)) {
+            if (vertex != v1 && vertex != v2 && vertex != v3 && isPointInTriangle(vertex, v1, v2, v3)) {
                 return false
             }
         }
@@ -85,28 +65,20 @@ object PolygonCreator {
     }
 
     /**
-     * Checks if a point is inside a triangle
-     *
-     * @param p the point
-     * @param p1 the first vertex of the triangle
-     * @param p2 the second vertex of the triangle
-     * @param p3 the third vertex of the triangle
+     * Returns a boolean indicating if the [point] is inside the triangle ([v1], [v2], [v3]).
      */
-    private fun isPointInTriangle(p: Vector2, p1: Vector2, p2: Vector2, p3: Vector2): Boolean {
+    private fun isPointInTriangle(p: Vector2, v1: Vector2, v2: Vector2, v3: Vector2): Boolean {
         // WTF is going on here but it works
-        val area: Float = 0.5f * (-p2.y * p3.x + p1.y * (-p2.x + p3.x) + p1.x * (p2.y - p3.y) + p2.x * p3.y)
-        val s: Float = 1 / (2 * area) * (p1.y * p3.x - p1.x * p3.y + (p3.y - p1.y) * p.x + (p1.x - p3.x) * p.y)
-        val t: Float = 1 / (2 * area) * (p1.x * p2.y - p1.y * p2.x + (p1.y - p2.y) * p.x + (p2.x - p1.x) * p.y)
+        val area: Float = 0.5f * (-v2.y * v3.x + v1.y * (-v2.x + v3.x) + v1.x * (v2.y - v3.y) + v2.x * v3.y)
+        val s: Float = 1 / (2 * area) * (v1.y * v3.x - v1.x * v3.y + (v3.y - v1.y) * p.x + (v1.x - v3.x) * p.y)
+        val t: Float = 1 / (2 * area) * (v1.x * v2.y - v1.y * v2.x + (v1.y - v2.y) * p.x + (v2.x - v1.x) * p.y)
         val u: Float = 1 - s - t
         return s >= 0 && t >= 0 && u >= 0
     }
 
     /**
-     * Merges triangles to create convex polygons
-     *
-     * @param vertices all vertices of the polygon
-     * @param triangles the indexed triangles of the polygon
-     * @return a list of convex polygons
+     * Returns a list of indices that form the convex polygons by merging the [triangles].
+     * @param vertices the vertices of the polygon containing the triangles
      */
     private fun mergePolygons(vertices: Array<Vector2>, triangles: MutableList<Array<Vector2>>): Array<Array<Int>> {
         val polygons: MutableList<Array<Vector2>> = triangles
@@ -144,11 +116,7 @@ object PolygonCreator {
     }
 
     /**
-     * Merges two polygons by removing the shared edge
-     *
-     * @param polyA the first polygon
-     * @param polyB the second polygon
-     * @param sharedEdge the shared edge between the polygons
+     * Returns a merged polygon of [polyA] and [polyB] by removing the [shared edge][sharedEdge] between them.
      */
     private fun mergePolygons(
         polyA: Array<Vector2>,
@@ -165,17 +133,13 @@ object PolygonCreator {
     }
 
     /**
-     * Finds the shared edge between two polygons
-     *
-     * @param polyA the first polygon
-     * @param polyB the second polygon
-     * @return the indices of the shared edge in the polygons or null if no edge is shared
+     * Returns the shared edge between [polyA] and [polyB] if it exists.
      */
     private fun sharedEdge(polyA: Array<Vector2>, polyB: Array<Vector2>): Pair<Int, Int>? {
         for (i: Int in polyA.indices) {
             val p1: Vector2 = polyA[i]
             val p2: Vector2 = polyA[(i + 1) % polyA.size]
-            polyB.indices.forEach { j ->
+            for (j: Int in polyB.indices) {
                 val p3: Vector2 = polyB[j]
                 val p4: Vector2 = polyB[(j + 1) % polyB.size]
                 if (p1 == p4 && p2 == p3) return Pair(i, j)
@@ -185,12 +149,7 @@ object PolygonCreator {
     }
 
     /**
-     * Validates the polygon vertices
-     *
-     * Checks if the polygon is valid by checking if any
-     * of the edges between two neighboring vertices intersect
-     *
-     * @return true if the polygon is valid
+     * Returns a boolean indicating if the polygon's [vertices] are valid.
      */
     fun isPolygonValid(vertices: List<Vector2>): Boolean {
         val size: Int = vertices.size
@@ -200,11 +159,11 @@ object PolygonCreator {
     }
 
     /**
-     * Checks if the lines of the polygon are intersecting
-     *
-     * @return true if the lines are intersecting
+     * Returns a boolean indicating if the [vertices] are a valid polygon.
      */
     private fun areEdgesIntersecting(vertices: List<Vector2>): Boolean {
+        // Works by checking if the line between two neighbouring vertices
+        // intersects with any other line between two neighbouring vertices
         val size: Int = vertices.size
         for (i: Int in 0 until size) {
             for (j: Int in i + 1 until size) {
@@ -219,10 +178,7 @@ object PolygonCreator {
     }
 
     /**
-     * Checks if two lines intersect
-     *
-     * @param lineA the first line
-     * @param lineB the second line
+     * Returns a boolean indicating if [lineA] intersects with line [lineB].
      */
     private fun areLinesIntersecting(lineA: Pair<Vector2, Vector2>, lineB: Pair<Vector2, Vector2>): Boolean {
         val a: Vector2 = lineA.first
@@ -248,10 +204,7 @@ object PolygonCreator {
     }
 
     /**
-     * Checks if the polygon is concave
-     *
-     * @param vertices the vertices of the polygon (must be CCW)
-     * @return true if the polygon is concave
+     * Returns a boolean indicating if the polygon with the given [vertices] is concave.
      */
     private fun isConcave(vertices: Array<Vector2>): Boolean {
         val size: Int = vertices.size
@@ -266,21 +219,14 @@ object PolygonCreator {
     }
 
     /**
-     * Checks if the angle between three points is convex
-     *
-     * @param p1 the first point
-     * @param p2 the second point
-     * @param p3 the third point
-     * @return true if the angle is convex
+     * Returns a boolean indicating if the angle created by the points [p1], [p2], and [p3] is convex.
      */
     private fun isConvex(p1: Vector2, p2: Vector2, p3: Vector2): Boolean {
         return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x) > 0
     }
 
     /**
-     * Ensures that the vertices of the polygon are in counter-clockwise order
-     *
-     * @param vertices the vertices of the polygon
+     * Ensures that the [vertices] of the polygon are in counter-clockwise order
      */
     private fun ensureCCW(vertices: Array<Vector2>) {
         // Calculate the signed area of the polygon
@@ -291,13 +237,10 @@ object PolygonCreator {
     }
 
     /**
-     * Calculates the signed area of a polygon
+     * Returns the signed area of a polygon defined by the given [vertices].
      *
      * The area will be positive if the polygon is in counter-clockwise order
-     * and negative if the polygon is in clockwise order
-     *
-     * @param vertices the vertices of the polygon
-     * @return the signed area of the polygon
+     * and negative if the polygon is in clockwise order.
      */
     private fun calculateSignedArea(vertices: Array<Vector2>): Float {
         var signedArea = 0f

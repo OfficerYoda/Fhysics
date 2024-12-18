@@ -1,8 +1,8 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.datastructures.QuadTree
-import de.officeryoda.fhysics.engine.math.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.RenderUtil.zoom
 import javafx.scene.canvas.GraphicsContext
@@ -34,7 +34,7 @@ object DebugDrawer {
 
     /// region =====Draw functions=====
     fun drawDebug() {
-        if (UIController.drawQuadTree) QuadTree.drawNodes(drawer)
+        if (UIController.drawQuadTree) QuadTree.drawNodes()
         drawDebugPoints()
         drawDebugLines()
         drawDebugVectors()
@@ -187,11 +187,11 @@ object DebugDrawer {
         )
     }
 
-    fun transformAndDrawQuadTreeNode(rect: BoundingBox, contentCount: Int) {
-        val x: Double = RenderUtil.worldToScreenX(rect.x)
-        val y: Double = RenderUtil.worldToScreenY(rect.y + rect.height)
-        val width: Double = rect.width * zoom
-        val height: Double = rect.height * zoom
+    fun drawQTNode(bbox: BoundingBox, count: Int) {
+        val x: Double = RenderUtil.worldToScreenX(bbox.x)
+        val y: Double = RenderUtil.worldToScreenY(bbox.y + bbox.height)
+        val width: Double = bbox.width * zoom
+        val height: Double = bbox.height * zoom
 
         // Draw Border
         RenderUtil.setStrokeColor(Color.WHITE)
@@ -204,15 +204,14 @@ object DebugDrawer {
         val quadTreeCapacity: Int = QuadTree.capacity
         RenderUtil.setFillColor(
             Color(
-                66,
-                164,
-                245,
-                (contentCount.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)
+                66, 164, 245,
+                // Less transparent if more objects are in the cell
+                (count.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)
             )
         )
         gc.fillRect(x, y, width, height)
         // Write the amount of objects in the cell
-        drawCenteredText(contentCount.toString(), Rectangle2D.Double(x, y, width, height))
+        drawCenteredText(count.toString(), Rectangle2D.Double(x, y, width, height))
     }
 
     private fun drawCenteredText(text: String, rect: Rectangle2D) {

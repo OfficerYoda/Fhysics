@@ -1,12 +1,8 @@
-/**
- * Sample Skeleton for 'ui.fxml' Controller Class
- */
-
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
-import de.officeryoda.fhysics.engine.datastructures.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.SceneListener.polyVertices
@@ -23,7 +19,7 @@ import kotlin.math.max
 /**
  * Controller class for the UI.
  *
- * Doubles as a data holder for the settings made through the UI.
+ * Doubles as a data container for the settings made through the UI. // TODO remove this when Setting class is implemented
  */
 class UIController {
 
@@ -301,19 +297,19 @@ class UIController {
     @FXML
     fun onPropertyRestitutionChanged() {
         selectedObject!!.restitution = sldPropertyRestitution.value.toFloat()
-        lblPropertyRestitution.text = toRoundedString(selectedObject!!.restitution)
+        lblPropertyRestitution.text = roundedToString(selectedObject!!.restitution)
     }
 
     @FXML
     fun onPropertyFrictionStaticChanged() {
         selectedObject!!.frictionStatic = sldPropertyFrictionStatic.value.toFloat()
-        lblPropertyFrictionStatic.text = toRoundedString(selectedObject!!.frictionStatic)
+        lblPropertyFrictionStatic.text = roundedToString(selectedObject!!.frictionStatic)
     }
 
     @FXML
     fun onPropertyFrictionDynamicChanged() {
         selectedObject!!.frictionDynamic = sldPropertyFrictionDynamic.value.toFloat()
-        lblPropertyFrictionDynamic.text = toRoundedString(selectedObject!!.frictionDynamic)
+        lblPropertyFrictionDynamic.text = roundedToString(selectedObject!!.frictionDynamic)
     }
 
     @FXML
@@ -348,8 +344,8 @@ class UIController {
 
         cbPropertyStatic.isSelected = obj.static
         clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
-        txtPropertyMass.text = toRoundedString(obj.mass)
-        txtPropertyRotation.text = toRoundedString(selectedObject!!.angle * RADIANS_TO_DEGREES)
+        txtPropertyMass.text = roundedToString(obj.mass)
+        txtPropertyRotation.text = roundedToString(selectedObject!!.angle * RADIANS_TO_DEGREES)
         setSliderAndLabel(sldPropertyRestitution, lblPropertyRestitution, obj.restitution)
         setSliderAndLabel(sldPropertyFrictionStatic, lblPropertyFrictionStatic, obj.frictionStatic)
         setSliderAndLabel(sldPropertyFrictionDynamic, lblPropertyFrictionDynamic, obj.frictionDynamic)
@@ -413,7 +409,7 @@ class UIController {
     @FXML
     fun onDampingChanged() {
         damping = sldDamping.value.toFloat()
-        lblDamping.text = toRoundedString(damping, 4)
+        lblDamping.text = roundedToString(damping, 4)
     }
     /// endregion
 
@@ -437,24 +433,22 @@ class UIController {
 
     @FXML
     fun onBorderWidthTyped() {
-        val width: Float = parseTextField(txtBorderWidth, 1f)
-        FhysicsCore.BORDER.width = max(width, 1f) // Minimum border size of 1x1
-        CollisionSolver.updateBorderObjects()
-
-        // Make sure the text field matches the actual border width
-        if (width < 1f) {
-            txtBorderWidth.text = "1.0"
-        }
+        handleBorderSizeTyped(txtBorderWidth)
     }
 
     @FXML
     fun onBorderHeightTyped() {
-        val height: Float = parseTextField(txtBorderHeight, 1f)
-        FhysicsCore.BORDER.height = max(height, 1f) // Minimum border size of 1x1
+        handleBorderSizeTyped(txtBorderHeight)
+    }
+
+    private fun handleBorderSizeTyped(textField: TextField) {
+        val size: Float = parseTextField(textField, 1f)
+        FhysicsCore.BORDER.height = max(size, 1f) // Minimum border size of 1x1
         CollisionSolver.updateBorderObjects()
+        QuadTree.rebuildFlag = true // Rebuild to resize the QTNodes
 
         // Make sure the text field matches the actual border height
-        if (height < 1f) {
+        if (size < 1f) {
             txtBorderHeight.text = "1.0"
         }
     }
@@ -462,19 +456,19 @@ class UIController {
     @FXML
     fun onBorderRestitutionChanged() {
         borderRestitution = sldBorderRestitution.value.toFloat()
-        lblBorderRestitution.text = toRoundedString(borderRestitution)
+        lblBorderRestitution.text = roundedToString(borderRestitution)
     }
 
     @FXML
     fun onBorderFrictionStaticChanged() {
         borderFrictionStatic = sldBorderFrictionStatic.value.toFloat()
-        lblBorderFrictionStatic.text = toRoundedString(borderFrictionStatic)
+        lblBorderFrictionStatic.text = roundedToString(borderFrictionStatic)
     }
 
     @FXML
     fun onBorderFrictionDynamicChanged() {
         borderFrictionDynamic = sldBorderFrictionDynamic.value.toFloat()
-        lblBorderFrictionDynamic.text = toRoundedString(borderFrictionDynamic)
+        lblBorderFrictionDynamic.text = roundedToString(borderFrictionDynamic)
     }
     /// endregion
 
@@ -506,7 +500,7 @@ class UIController {
         val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
         if (capacity > 0) {
             QuadTree.capacity = capacity
-            quadTreeCapacityChanged = true
+            QuadTree.rebuildFlag = true
         }
     }
     /// endregion
@@ -590,11 +584,7 @@ class UIController {
         txtGravityPointX.text = gravityPoint.x.toString()
         txtGravityPointY.text = gravityPoint.y.toString()
         txtGravityPointStrength.text = gravityPointStrength.toString()
-        txtGravityDirectionX.isDisable = gravityType != GravityType.DIRECTIONAL
-        txtGravityDirectionY.isDisable = gravityType != GravityType.DIRECTIONAL
-        txtGravityPointX.isDisable = gravityType != GravityType.TOWARDS_POINT
-        txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
-        txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
+        updateGravityFieldsAvailability()
         setSliderAndLabel(sldDamping, lblDamping, damping, 4)
 
         restrictToNumericInput(txtGravityDirectionX)
@@ -639,31 +629,22 @@ class UIController {
     }
 
     /**
-     * Rounds a float value to two decimal places and converts it to a string.
-     *
-     * @param value The float value to convert.
-     * @return The string representation of the float value with two decimal places.
+     * Rounds a float [value] to two decimal places and converts it to a string.
      */
-    private fun toRoundedString(value: Float, decimalPlaces: Int = 2): String {
+    private fun roundedToString(value: Float, decimalPlaces: Int = 2): String {
         return String.format(Locale.US, "%.${decimalPlaces}f", value)
     }
 
     /**
-     * Sets the value of a slider and its corresponding label.
-     *
-     * @param slider The slider to set the value of.
-     * @param label The label to set the text of.
-     * @param value The value to set the slider and label to.
+     * Sets the [value] of a [slider] and its corresponding [label].
      */
     private fun setSliderAndLabel(slider: Slider, label: Label, value: Float, lblDecimalPlaces: Int = 2) {
         slider.value = value.toDouble()
-        label.text = toRoundedString(value, lblDecimalPlaces)
+        label.text = roundedToString(value, lblDecimalPlaces)
     }
 
     /**
-     * Restricts the input of a text field to numeric values.
-     *
-     * @param textField The text field to restrict.
+     * Restricts the input of a [text field][textField] to numeric values.
      * @param allowNegatives Whether negative values are allowed.
      */
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
@@ -676,12 +657,8 @@ class UIController {
     }
 
     /**
-     * Parses the text of a text field to a float.
-     * If the text cannot be parsed, the default value is returned.
-     *
-     * @param textField The text field to parse.
-     * @param default The default value to return if the text cannot be parsed.
-     * @return The parsed float value or the default value if the text cannot be parsed.
+     * Parses the text of a [text field][textField] to a float.
+     * If the text cannot be parsed, the [default value][default] is returned.
      */
     private fun parseTextField(textField: TextField, default: Float = 0.0f): Float {
         return textField.text.toFloatOrNull() ?: default
@@ -752,15 +729,12 @@ class UIController {
         /// endregion
 
         /// region =====QuadTree=====
-        var drawQuadTree: Boolean = false
+        var drawQuadTree: Boolean = true
             private set
         var drawQTNodeUtilization: Boolean = true
             private set
         var optimizeQTCapacity: Boolean = false
             private set
-
-        // Used to prevent concurrent modification of the quad tree
-        var quadTreeCapacityChanged: Boolean = false
         /// endregion
 
         /// region =====Debug=====
