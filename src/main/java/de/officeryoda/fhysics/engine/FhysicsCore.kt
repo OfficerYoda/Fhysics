@@ -33,7 +33,7 @@ object FhysicsCore {
     var updateCount = 0 // Includes all sub steps
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
-    var running: Boolean = false
+    var running: Boolean = true
     val updateStopwatch = Stopwatch(20)
 
     // Quad tree capacity optimization
@@ -153,15 +153,13 @@ object FhysicsCore {
 
         QuadTree.processPendingOperations()
 
-        for (i: Int in 0 until SUB_STEPS) {
+        repeat(SUB_STEPS) {
             QuadTree.update()
 
             SceneListener.pullObject()
 
             updateCount++
         }
-
-        QuadTree.cleanup()
 
         if (UIController.optimizeQTCapacity) optimizeQuadTreeCapacity()
 

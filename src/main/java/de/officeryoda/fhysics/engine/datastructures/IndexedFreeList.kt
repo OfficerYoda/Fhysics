@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.datastructures
 
 /**
  * An efficient, indexed free list for managing elements of type [T] with constant time and space complexity.
- * It reuses memory slots, preventing fragmentation and reducing heap allocations.
+ * It reuses memory slot by keeping track of free indices.
  */
 class IndexedFreeList<T>() : Iterable<T> {
 
@@ -20,6 +20,8 @@ class IndexedFreeList<T>() : Iterable<T> {
 
     /**
      * The index of the first free element in the [IndexedFreeList].
+     *
+     * -1 if there is no free element.
      */
     private var firstFree: Int = -1
 
@@ -89,9 +91,6 @@ class IndexedFreeList<T>() : Iterable<T> {
         return data.indexOfFirst { it.element == element }
     }
 
-    /**
-     * Returns an iterator over the elements of this object.
-     */
     override fun iterator(): Iterator<T> {
         return data.mapNotNull { it.element }.iterator()
     }
@@ -106,11 +105,13 @@ class IndexedFreeList<T>() : Iterable<T> {
     private data class FreeElement<T>(
         /**
          * The element.
+         *
          * null if the element is free.
          */
         var element: T? = null,
         /**
          * The index of the next free element.
+         *
          * -1 if there is no next free element or the element is not free.
          */
         var next: Int = -1,
