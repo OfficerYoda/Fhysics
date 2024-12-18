@@ -27,9 +27,6 @@ class UIController {
 
     /// region =====Fields: Spawn Object=====
     @FXML
-    private lateinit var cbSpawnPreview: CheckBox
-
-    @FXML
     private lateinit var cbSpawnStatic: CheckBox
 
     @FXML
@@ -152,9 +149,6 @@ class UIController {
     private lateinit var cbQTNodeUtilization: CheckBox
 
     @FXML
-    private lateinit var cbOptimizeQTCapacity: CheckBox
-
-    @FXML
     private lateinit var txtQuadTreeCapacity: TextField
     /// endregion
 
@@ -220,11 +214,6 @@ class UIController {
         txtSpawnRadius.isDisable = spawnObjectType != SpawnObjectType.CIRCLE
         txtSpawnWidth.isDisable = spawnObjectType != SpawnObjectType.RECTANGLE
         txtSpawnHeight.isDisable = spawnObjectType != SpawnObjectType.RECTANGLE
-    }
-
-    @FXML
-    fun onSpawnPreviewClicked() {
-        drawSpawnPreview = cbSpawnPreview.isSelected
     }
 
     @FXML
@@ -487,15 +476,6 @@ class UIController {
     }
 
     @FXML
-    fun onOptimizeQTCapacityClicked() {
-        optimizeQTCapacity = cbOptimizeQTCapacity.isSelected
-
-        // Disable manual capacity input if the capacity is being optimized
-        txtQuadTreeCapacity.isDisable = optimizeQTCapacity
-        txtQuadTreeCapacity.text = QuadTree.capacity.toString()
-    }
-
-    @FXML
     fun onQuadTreeCapacityTyped() {
         val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
         if (capacity > 0) {
@@ -556,7 +536,6 @@ class UIController {
         /// endregion
 
         /// region =====Spawn Object=====
-        cbSpawnPreview.isSelected = drawSpawnPreview
         cbSpawnStatic.isSelected = spawnStatic
         txtSpawnRadius.text = spawnRadius.toString()
         txtSpawnWidth.text = spawnWidth.toString()
@@ -613,7 +592,6 @@ class UIController {
         cbQuadTree.isSelected = drawQuadTree
         cbQTNodeUtilization.isDisable = !drawQuadTree
         cbQTNodeUtilization.isSelected = drawQTNodeUtilization
-        cbOptimizeQTCapacity.isSelected = optimizeQTCapacity
         txtQuadTreeCapacity.text = QuadTree.capacity.toString()
 
         restrictToNumericInput(txtQuadTreeCapacity, false)
@@ -676,8 +654,6 @@ class UIController {
         /// region =====Spawn Object=====
         var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
             private set
-        var drawSpawnPreview: Boolean = true
-            private set
         var spawnStatic: Boolean = false
             private set
         var spawnRadius: Float = 1.0f
@@ -732,8 +708,6 @@ class UIController {
         var drawQuadTree: Boolean = true
             private set
         var drawQTNodeUtilization: Boolean = true
-            private set
-        var optimizeQTCapacity: Boolean = false
             private set
         /// endregion
 
