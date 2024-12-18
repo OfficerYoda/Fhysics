@@ -454,20 +454,25 @@ object QuadTree {
     }
 
     private fun updateLeaf(node: QTNode) {
-        val objectsInLeaf: MutableList<FhysicsObject> = getObjectsInLeaf(node)
+        val (objectsInLeaf: MutableList<FhysicsObject>, objectIndices: IntArray) = getObjectsInLeaf(node)
         updateFhysicsObjects(objectsInLeaf)
         handleCollisions(objectsInLeaf)
-        rebuild(objectsInLeaf, node)
+        rebuild(node, objectsInLeaf, objectIndices)
     }
 
-    private fun getObjectsInLeaf(node: QTNode): MutableList<FhysicsObject> {
+    private fun getObjectsInLeaf(node: QTNode): Pair<MutableList<FhysicsObject>, IntArray> {
         val objectsInLeaf: MutableList<FhysicsObject> = ArrayList(node.count)
+        val objectIndices = IntArray(node.count)
+
         var current = QTNodeElement(-1, node.firstIdx) // Dummy element
-        while (current.next != -1) {
+        for (i: Int in 0 until node.count) {
             current = elements[current.next]
+
             objectsInLeaf.add(objects[current.index])
+            objectIndices[i] = current.index
         }
-        return objectsInLeaf
+
+        return Pair(objectsInLeaf, objectIndices)
     }
 
     private fun updateFhysicsObjects(objectsInLeaf: MutableList<FhysicsObject>) {
@@ -494,12 +499,14 @@ object QuadTree {
         }
     }
 
-    private fun rebuild(objectsInLeaf: MutableList<FhysicsObject>, node: QTNode) {
-        for (obj: FhysicsObject in objectsInLeaf) {
+    // objectIndices is a list of indices of the objects contained in objectsInLeaf
+    private fun rebuild(node: QTNode, objectsInLeaf: MutableList<FhysicsObject>, objectIndices: IntArray) {
+        for ((i: Int, obj: FhysicsObject) in objectsInLeaf.withIndex()) {
             // Check if the object has moved out of the leaf
             if (node.bbox.contains(obj.boundingBox)) continue
 
-            val objIdx: Int = objects.indexOf(obj)
+            // Object is not fully contained in the leaf
+            val objIdx: Int = objectIndices[i]
             if (!node.bbox.overlaps(obj.boundingBox)) {
                 removeFromLeaf(node, objIdx)
             }
