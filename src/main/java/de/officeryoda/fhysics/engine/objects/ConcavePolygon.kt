@@ -9,6 +9,8 @@ class ConcavePolygon(
     angle: Float = 0f,
 ) : Polygon(vertices, angle) {
 
+    override val type = FhysicsObjectType.CONCAVE_POLYGON
+
     /**
      * The concave polygons that form this polygon.
      */

@@ -39,8 +39,8 @@ object CollisionFinder {
     fun testCollision(poly: Polygon, circle: Circle): CollisionInfo {
         if (!poly.boundingBox.overlaps(circle.boundingBox)) return CollisionInfo()
 
-        if (poly is ConcavePolygon) { // TODO Optimize to not use type checking
-            return testConcavePolygonCollision(poly, circle)
+        if (poly.type == FhysicsObjectType.CONCAVE_POLYGON) {
+            return testConcavePolygonCollision(poly as ConcavePolygon, circle)
         }
 
         val axes: Set<Vector2> = poly.getAxes()
@@ -64,7 +64,7 @@ object CollisionFinder {
         }
 
         val targetPoly: Polygon =
-            if (poly is SubPolygon) poly.parent else poly // TODO Optimize to not use type checking
+            if (poly.type == FhysicsObjectType.SUB_POLYGON) (poly as SubPolygon).parent else poly
         return CollisionInfo(circle, targetPoly, finalAxis, projResult.getOverlap())
     }
 
@@ -74,7 +74,7 @@ object CollisionFinder {
     fun testCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
         if (!polyA.boundingBox.overlaps(polyB.boundingBox)) return CollisionInfo()
 
-        if (polyA is ConcavePolygon || polyB is ConcavePolygon) { // TODO Optimize to not use type checking
+        if (polyA.type == FhysicsObjectType.CONCAVE_POLYGON || polyB.type == FhysicsObjectType.CONCAVE_POLYGON) {
             return testConcavePolygonCollision(polyA, polyB)
         }
 
@@ -129,9 +129,11 @@ object CollisionFinder {
         var deepestCollision = CollisionInfo()
 
         val polygonsA: List<Polygon> =
-            if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA) // TODO Optimize to not use type checking
+            if (polyA.type == FhysicsObjectType.CONCAVE_POLYGON) (polyA as ConcavePolygon).subPolygons
+            else listOf(polyA)
         val polygonsB: List<Polygon> =
-            if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB) // TODO Optimize to not use type checking
+            if (polyB.type == FhysicsObjectType.CONCAVE_POLYGON) (polyB as ConcavePolygon).subPolygons
+            else listOf(polyB)
 
         // Check for collision between every sub-polygon pair
         for (subPolyA: Polygon in polygonsA) {

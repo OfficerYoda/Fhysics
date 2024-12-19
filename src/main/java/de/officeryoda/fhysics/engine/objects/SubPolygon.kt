@@ -12,6 +12,8 @@ class SubPolygon(
     val parent: ConcavePolygon,
 ) : Polygon(position, velocity, vertices, parent.angle, angularVelocity) {
 
+    override val type = FhysicsObjectType.SUB_POLYGON
+
     private val centerOffset: Vector2 = center - position
 
     override val position: Vector2

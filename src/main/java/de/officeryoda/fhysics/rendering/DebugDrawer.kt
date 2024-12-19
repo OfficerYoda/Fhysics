@@ -37,7 +37,7 @@ object DebugDrawer {
 
     /// region =====Draw functions=====
     fun drawDebug() {
-        if (UIController.drawQuadTree) QuadTree.drawNodes()
+        if (UIController.drawQuadTree) QuadTree.drawNodes(drawer.viewingFrustum)
         drawDebugPoints()
         drawDebugLines()
         drawDebugVectors()

@@ -17,6 +17,7 @@ import de.officeryoda.fhysics.rendering.RenderUtil.setStrokeColor
 import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
 import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceX
 import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceY
+import de.officeryoda.fhysics.rendering.RenderUtil.toWorldSpace
 import de.officeryoda.fhysics.rendering.SceneListener.POLYGON_CLOSE_RADIUS
 import de.officeryoda.fhysics.rendering.SceneListener.hoveredObject
 import de.officeryoda.fhysics.rendering.SceneListener.mousePosWorld
@@ -60,6 +61,10 @@ class FhysicsObjectDrawer : Application() {
     /** The current zoom center */
     var zoomCenter: Vector2 = targetZoomCenter
 
+    /**
+     * The area in world space which is visible on the screen.
+     */
+    var viewingFrustum: BoundingBox = BORDER
 
     /** The width of the scene */
     val width: Double get() = stage.scene.width
@@ -68,7 +73,7 @@ class FhysicsObjectDrawer : Application() {
     val height: Double get() = stage.scene.height // Use scene height to prevent including the window's title bar
 
     /** The stopwatch used to measure the time it takes to draw a frame */
-    val drawStopwatch = Stopwatch(20)
+    val drawStopwatch = Stopwatch()
 
     /// region =====Start functions=====
     fun launch() {
@@ -151,8 +156,9 @@ class FhysicsObjectDrawer : Application() {
     /// region =====Draw functions=====
     fun drawFrame() {
         drawStopwatch.start()
-        // Update the zoom
+        // Update the view
         lerpZoom()
+        updateCameraFrustum()
 
         // Clear the stage
         gc.clearRect(0.0, 0.0, width, height)
@@ -174,6 +180,7 @@ class FhysicsObjectDrawer : Application() {
         drawStopwatch.stop()
     }
 
+
     private fun drawObjectPulsing(obj: FhysicsObject) {
         // Pulsing effect by changing the transparency value
         val alpha: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
@@ -181,10 +188,10 @@ class FhysicsObjectDrawer : Application() {
         val color = Color(c.red, c.green, c.blue, alpha)
 
         setFillColor(color)
-        when (obj) {
-            is Circle -> drawCircleShape(obj)
-            is Rectangle -> drawRectangleShape(obj)
-            is Polygon -> drawPolygonShape(obj)
+        when {
+            obj.type == FhysicsObjectType.CIRCLE -> drawCircleShape(obj as Circle)
+            obj.type == FhysicsObjectType.RECTANGLE -> drawRectangleShape(obj as Rectangle)
+            obj.type.value >= 2 -> drawPolygonShape(obj as Polygon)
         }
     }
 
@@ -278,8 +285,8 @@ class FhysicsObjectDrawer : Application() {
      */
     private fun drawPolygonShape(poly: Polygon) {
         // Draw subPolygons if the option is enabled
-        if (UIController.showSubPolygons && poly is ConcavePolygon) { // TODO Optimize to not use type checking
-            for (subPoly: SubPolygon in poly.subPolygons) {
+        if (UIController.showSubPolygons && poly.type == FhysicsObjectType.CONCAVE_POLYGON) {
+            for (subPoly: SubPolygon in (poly as ConcavePolygon).subPolygons) {
                 setFillColor(subPoly.color)
                 drawPolygon(subPoly)
             }
@@ -404,6 +411,23 @@ class FhysicsObjectDrawer : Application() {
     }
 
     /**
+     * Resets the zoom level and center.
+     */
+    fun resetZoom() {
+        targetZoom = calculateZoom()
+        zoom = targetZoom
+        targetZoomCenter = Vector2((BORDER.width / 2), (BORDER.height / 2))
+        zoomCenter = targetZoomCenter
+    }
+
+    private fun updateCameraFrustum() {
+        val min: Vector2 = Vector2(0f, height.toFloat()).toWorldSpace() // Bottom left screen corner
+        val max: Vector2 = Vector2(width.toFloat(), 0f).toWorldSpace() // Top right screen corner
+
+        viewingFrustum = BoundingBox(min.x, min.y, max.x - min.x, max.y - min.y)
+    }
+
+    /**
      * Checks if the mouse is hovering over an object.
      *
      * @return The object the mouse is hovering over or `null` if no object is hovered.
@@ -424,16 +448,6 @@ class FhysicsObjectDrawer : Application() {
 
         // If the object is in the remove queue, don't return it
         return obj.takeUnless { pendingRemovals.contains(it) }
-    }
-
-    /**
-     * Resets the zoom level and center.
-     */
-    fun resetZoom() {
-        targetZoom = calculateZoom()
-        zoom = targetZoom
-        targetZoomCenter = Vector2((BORDER.width / 2), (BORDER.height / 2))
-        zoomCenter = targetZoomCenter
     }
     /// endregion
 

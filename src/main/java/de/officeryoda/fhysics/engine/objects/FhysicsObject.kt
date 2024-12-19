@@ -22,6 +22,7 @@ abstract class FhysicsObject protected constructor(
 ) {
     /** Unique id */
     val id: Int = nextId
+    abstract val type: FhysicsObjectType
     var color: Color = colorFromId()
     val boundingBox: BoundingBox = BoundingBox()
 

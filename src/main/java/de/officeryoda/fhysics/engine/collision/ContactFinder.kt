@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.ConcavePolygon
+import de.officeryoda.fhysics.engine.objects.FhysicsObjectType
 import de.officeryoda.fhysics.engine.objects.Polygon
 
 object ContactFinder {
@@ -23,7 +24,7 @@ object ContactFinder {
      * Returns an array containing the contact points between [polyA] and [polyB].
      */
     fun findContactPoints(polyA: Polygon, polyB: Polygon): Array<Vector2> {
-        if (polyA is ConcavePolygon || polyB is ConcavePolygon) { // TODO Optimize to not use type checking
+        if (polyA.type == FhysicsObjectType.CONCAVE_POLYGON || polyB.type == FhysicsObjectType.CONCAVE_POLYGON) {
             return findConcavePolygonContactPoints(polyA, polyB)
         }
 
@@ -65,8 +66,10 @@ object ContactFinder {
     private fun findConcavePolygonContactPoints(polyA: Polygon, polyB: Polygon): Array<Vector2> {
         val contactPoints: MutableList<Vector2> = mutableListOf()
 
-        val polygonsA: List<Polygon> = if (polyA is ConcavePolygon) polyA.subPolygons else listOf(polyA)
-        val polygonsB: List<Polygon> = if (polyB is ConcavePolygon) polyB.subPolygons else listOf(polyB)
+        val polygonsA: List<Polygon> =
+            if (polyA.type == FhysicsObjectType.CONCAVE_POLYGON) (polyA as ConcavePolygon).subPolygons else listOf(polyA)
+        val polygonsB: List<Polygon> =
+            if (polyB.type == FhysicsObjectType.CONCAVE_POLYGON) (polyB as ConcavePolygon).subPolygons else listOf(polyB)
 
         // Check for contact points between every sub-polygon pair
         for (subPolyA: Polygon in polygonsA) {
@@ -102,8 +105,8 @@ object ContactFinder {
      * Returns an array containing the contact points between the [border] and the given [polygon][poly].
      */
     fun findContactPoints(border: BorderEdge, poly: Polygon): Array<Vector2> {
-        if (poly is ConcavePolygon) {
-            return findConcavePolygonContactPoints(border, poly)
+        if (poly.type == FhysicsObjectType.CONCAVE_POLYGON) {
+            return findConcavePolygonContactPoints(border, poly as ConcavePolygon)
         }
 
         val contactPoints: Array<Vector2> = arrayOf(Vector2.ZERO, Vector2.ZERO)
