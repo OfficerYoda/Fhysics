@@ -14,7 +14,8 @@ import kotlin.math.abs
 abstract class Polygon(
     position: Vector2,
     velocity: Vector2,
-    val vertices: Array<Vector2>, // must be CCW and in global space
+    /** The vertices of the polygon in local space */
+    val vertices: Array<Vector2>,
     angle: Float,
     angularVelocity: Float,
 ) : FhysicsObject(position, velocity, calculatePolygonArea(vertices), angle, angularVelocity) {
@@ -22,24 +23,21 @@ abstract class Polygon(
     // Used for creating every polygon except sub-polygons
     constructor(vertices: Array<Vector2>, angle: Float) : this(
         calculatePolygonCenter(vertices),
-        Vector2.ZERO,
-        vertices,
-        angle,
-        0f
+        Vector2.ZERO, vertices, angle, 0f
     )
 
     init {
-        // convert vertices to local space
+        // Convert vertices to local space
         for (it: Vector2 in vertices) {
             it -= position
         }
     }
 
     open fun getAxes(): Set<Vector2> {
-        // Calculate the normals of the polygon's sides based on its rotation
         val axes: MutableSet<Vector2> = mutableSetOf()
         val transformedVertices: Array<Vector2> = getTransformedVertices()
 
+        // Calculate the normals of the polygon's sides based on its rotation
         for (i: Int in transformedVertices.indices) {
             val j: Int = (i + 1) % transformedVertices.size
             val edge: Vector2 = transformedVertices[j] - transformedVertices[i]
@@ -126,8 +124,8 @@ abstract class Polygon(
         return CollisionFinder.testCollision(this, other)
     }
 
-    override fun findContactPoints(other: BorderEdge): Array<Vector2> {
-        return ContactFinder.findContactPoints(other, this)
+    override fun findContactPoints(border: BorderEdge): Array<Vector2> {
+        return ContactFinder.findContactPoints(border, this)
     }
 
     abstract override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
@@ -156,7 +154,7 @@ abstract class Polygon(
         /**
          * Calculates the area of a polygon with the given [vertices].
          */
-        fun calculatePolygonArea(vertices: Array<Vector2>): Float {
+        private fun calculatePolygonArea(vertices: Array<Vector2>): Float {
             var signedArea = 0f
             for (i: Int in vertices.indices) {
                 val j: Int = (i + 1) % vertices.size
@@ -172,7 +170,8 @@ abstract class Polygon(
         /**
          * Calculates the center of a polygon with the given [vertices].
          */
-        fun calculatePolygonCenter(vertices: Array<Vector2>): Vector2 {
+        @JvmStatic
+        protected fun calculatePolygonCenter(vertices: Array<Vector2>): Vector2 {
             return vertices.reduce { acc, vector2 -> acc + vector2 } / vertices.size.toFloat()
         }
     }

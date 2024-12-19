@@ -14,9 +14,18 @@ import kotlin.math.sin
 @JvmInline
 // Inline classes reduce memory overhead and improve performance
 // by eliminating runtime object allocation and directly using the underlying value.
+/**
+ * A data class for storing the transformation data of a 2D transformation.
+ */
 value class TransformationData(
     /**
      * The transformation data.
+     *
+     * The data is stored in the following order:
+     * 0. sin(angle)
+     * 1. cos(angle)
+     * 2. x-translation
+     * 3. y-translation
      */
     private val data: FloatArray,
 ) {

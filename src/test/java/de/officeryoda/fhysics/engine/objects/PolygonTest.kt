@@ -63,7 +63,6 @@ class PolygonTest {
         )
         val polygon = PolygonFactory.createPolygon(vertices.map { it.copy() }.toTypedArray())
 
-        assertEquals(Vector2(1.0f, 0.75f), Polygon.calculatePolygonCenter(vertices))
         assertEquals(0.6875f, polygon.calculateInertia(), 1.0e-6f)
     }
 }

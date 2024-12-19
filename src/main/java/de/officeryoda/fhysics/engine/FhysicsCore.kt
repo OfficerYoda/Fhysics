@@ -16,15 +16,21 @@ import kotlin.math.max
 
 object FhysicsCore {
 
-    // Constants
+    /** The Bounds of the simulation */
     val BORDER: BoundingBox = BoundingBox(0f, 0f, 100f, 100f) // x and y must be 0.0
+
+    /** The amount of updates the simulation should perform per second */
     const val UPDATES_PER_SECOND: Int = 60
+
+    /** The amount of sub steps the simulation performs per update */
     const val SUB_STEPS: Int = 4
+
+    /** A Thread lock to prevent simulating and rendering at the same time */
     val RENDER_LOCK = ReentrantLock()
+
+    /** A small value used for floating point comparisons */
     const val EPSILON: Float = 1E-4f
 
-    // Variables
-    private var objectCount: Int = 0
     var updateCount = 0 // Includes all sub steps
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
@@ -73,12 +79,17 @@ object FhysicsCore {
         }, 0, updateIntervalMillis)
     }
 
+    /**
+     * Updates the simulation by one step.
+     */
     fun update() {
         updateStopwatch.start()
 
+        // Rebuild once per update
         QuadTree.processPendingOperations()
         QuadTree.rebuild()
 
+        // Update objects multiple times per update
         repeat(SUB_STEPS) {
             QuadTree.update()
 
@@ -102,10 +113,12 @@ object FhysicsCore {
     }
 
     fun clear() {
-        objectCount = 0
         QuadTree.clear()
     }
 
+    /**
+     * Calculates the gravity at the given [position][pos].
+     */
     fun gravityAt(pos: Vector2): Vector2 {
         if (UIController.gravityType == GravityType.DIRECTIONAL) {
             return UIController.gravityDirection
@@ -115,9 +128,5 @@ object FhysicsCore {
                 max(1f, direction.sqrMagnitude()) // Prevent high forces when the object is close to the gravity point
             return UIController.gravityPointStrength / sqrDistance * direction.normalized()
         }
-    }
-
-    fun nextId(): Int {
-        return objectCount++
     }
 }

@@ -9,9 +9,13 @@ class ConcavePolygon(
     angle: Float = 0f,
 ) : Polygon(vertices, angle) {
 
+    /**
+     * The concave polygons that form this polygon.
+     */
     var subPolygons: MutableList<SubPolygon> = mutableListOf()
 
     init {
+        // Create the sub-polygons
         for (indices: Array<Int> in subPolygonIndices) {
             val subVertices: Array<Vector2> = indices.map { vertices[it] + position }.toTypedArray()
             val center: Vector2 = calculatePolygonCenter(subVertices)

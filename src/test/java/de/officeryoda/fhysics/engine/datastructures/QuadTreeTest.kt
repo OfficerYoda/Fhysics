@@ -181,7 +181,9 @@ class QuadTreeTest {
         insertObjects(objects)
         removeObjects(objects)
 
-//        assertTrue(QuadTree.root.isLeaf()) // TODO: Will work when deferred cleanup is implemented
+        QuadTree.rebuild()
+
+        assertTrue(QTDebugHelper.root.isLeaf)
         assertEquals(0, QuadTree.getObjectCount())
     }
 
@@ -200,7 +202,7 @@ class QuadTreeTest {
         insertObjects(objects)
         removeObjects(objects)
 
-        QuadTree.cleanup()
+        QuadTree.rebuild()
 
         val rootNode = QTDebugHelper.root
 

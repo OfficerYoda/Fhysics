@@ -712,7 +712,7 @@ class UIController {
         /// endregion
 
         /// region =====QuadTree=====
-        var drawQuadTree: Boolean = true
+        var drawQuadTree: Boolean = false
             private set
         var drawQTNodeUtilization: Boolean = true
             private set
@@ -721,7 +721,7 @@ class UIController {
         /// region =====Debug=====
         var showBoundingBoxes: Boolean = false
             private set
-        var showSubPolygons: Boolean = true
+        var showSubPolygons: Boolean = false
             private set
         var showQTCapacity: Boolean = false
             private set

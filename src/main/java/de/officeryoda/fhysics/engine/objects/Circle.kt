@@ -39,8 +39,8 @@ class Circle(
         return CollisionFinder.testCollision(other, this)
     }
 
-    override fun findContactPoints(other: BorderEdge): Array<Vector2> {
-        return ContactFinder.findContactPoints(other, this)
+    override fun findContactPoints(border: BorderEdge): Array<Vector2> {
+        return ContactFinder.findContactPoints(border, this)
     }
 
     override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {

@@ -10,6 +10,7 @@ import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
+import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreen
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnColor
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType
 import javafx.scene.input.KeyCode
@@ -63,7 +64,7 @@ object SceneListener {
     var hoveredObject: FhysicsObject? = null
 
     /** The radius around the first polygon vertex where the polygon closes when clicked inside. */
-    const val POLYGON_CLOSE_RADIUS = 1.0f
+    const val POLYGON_CLOSE_RADIUS = 10f
 
     /** The vertices of the polygon being created. */
     var polyVertices: MutableList<Vector2> = ArrayList()
@@ -211,7 +212,7 @@ object SceneListener {
         // Create the polygon if the polygon is complete
         if (polyVertices.size > 2 && PolygonFactory.isPolygonValid(polyVertices)) {
             val startPos: Vector2 = polyVertices.first()
-            if (mousePosWorld.distanceToSqr(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
+            if (mousePosScreen.distanceToSqr(worldToScreen(startPos)) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                 createAndSpawnPolygon()
                 return
             }

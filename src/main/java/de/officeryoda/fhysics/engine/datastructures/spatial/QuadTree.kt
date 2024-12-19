@@ -729,6 +729,10 @@ object QuadTree {
             collection.add(nodes[firstChildIdx + 2]) // Bottom-left
             collection.add(nodes[firstChildIdx + 3]) // Bottom-right
         }
+
+        fun getChildren(node: QTNode): Array<QTNode> {
+            return QuadTree.getChildren(node)
+        }
     }
     /// endregion
     /// endregion

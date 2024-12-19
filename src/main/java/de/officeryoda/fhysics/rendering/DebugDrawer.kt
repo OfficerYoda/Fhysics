@@ -54,15 +54,7 @@ object DebugDrawer {
                 pointSize
             )
 
-            // Update the duration of the point
-            // If the max duration is reached remove the point
-            if (point.durationFrames > 0) {
-                if (FhysicsCore.running) {
-                    point.durationFrames--
-                }
-            } else {
-                debugPoints.remove(point)
-            }
+            updateDuration(point, debugPoints)
         }
     }
 
@@ -71,14 +63,7 @@ object DebugDrawer {
             RenderUtil.setStrokeColor(line.color)
             strokeLine(line.start, line.end)
 
-            // Only decrease the duration if the simulation is running
-            if (line.durationFrames > 0) {
-                if (FhysicsCore.running) {
-                    line.durationFrames--
-                }
-            } else {
-                debugLines.remove(line)
-            }
+            updateDuration(line, debugLines)
         }
     }
 
@@ -88,15 +73,23 @@ object DebugDrawer {
             RenderUtil.setStrokeColor(vector.color)
             drawVector(vector.support, vector.direction)
 
-            // Update the duration of the vector
-            // If the max duration is reached remove the vector
-            if (vector.durationFrames > 0) {
-                if (FhysicsCore.running) {
-                    vector.durationFrames--
-                }
-            } else {
-                debugVectors.remove(vector)
+            updateDuration(vector, debugVectors)
+        }
+    }
+
+    /**
+     * Updates the duration of the given [element] and removes it from the [list] if the duration is 0.
+     */
+    private fun <T : DebugElement> updateDuration(element: T, list: MutableList<T>) {
+        // If the remaining duration is greater than 0, decrease it
+        if (element.durationFrames > 0) {
+            // Only decrease the duration if the simulation is running
+            if (FhysicsCore.running) {
+                element.durationFrames--
             }
+        } else {
+            // If the duration is 0, remove the element from the list
+            list.remove(element)
         }
     }
 
@@ -128,6 +121,9 @@ object DebugDrawer {
         strokeLine(end, arrowHead.rotated((PI + arrowAngle).toFloat()) + end)
     }
 
+    /**
+     * Draws the enabled statistics on the screen.
+     */
     private fun drawStats() {
         val stats: MutableList<String> = mutableListOf()
 
@@ -161,6 +157,9 @@ object DebugDrawer {
         drawStatsList(stats.reversed()) // Reverse to make it same order as in settings
     }
 
+    /**
+     * Draws the given [stats] list as text on the screen.
+     */
     private fun drawStatsList(stats: List<String>) {
         val height: Double = gc.canvas.height - FhysicsObjectDrawer.TITLE_BAR_HEIGHT
         val fontSize: Double = height / 30.0 // Adjust the divisor for the desired scaling
@@ -212,12 +211,13 @@ object DebugDrawer {
         RenderUtil.setFillColor(
             Color(
                 66, 164, 245,
-                // Less transparent if more objects are in the cell
+                // Less transparent if more objects are in the node
                 (count.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)
             )
         )
         gc.fillRect(x, y, width, height)
-        // Write the amount of objects in the cell
+
+        // Write the amount of objects in the node
         drawCenteredText(count.toString(), Rectangle2D.Double(x, y, width, height))
     }
 
@@ -225,12 +225,13 @@ object DebugDrawer {
         val fontSize: Double = (rect.height / 2) // Adjust the divisor for the desired scaling
         val font = Font("Spline Sans", fontSize)
 
-        gc.font = font
+        // Set the font and fill color
         RenderUtil.setFillColor(Color(255, 255, 255, 192))
-
         val textNode = Text(text)
+        gc.font = font
         textNode.font = font
 
+        // The width and height of the text will take up
         val textWidth: Double = textNode.layoutBounds.width
         val textHeight: Double = textNode.layoutBounds.height
 
