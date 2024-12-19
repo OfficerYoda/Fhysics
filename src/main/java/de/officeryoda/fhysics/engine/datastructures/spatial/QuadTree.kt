@@ -614,21 +614,30 @@ object QuadTree {
     /// region =====Rendering=====
     fun drawObjects(drawer: FhysicsObjectDrawer) {
         for (obj: FhysicsObject in objects) {
-            obj.draw(drawer)
+            // Only draw objects that are visible
+            if (obj.boundingBox.overlaps(drawer.viewingFrustum)) {
+                obj.draw(drawer)
+            }
         }
 
         if (UIController.showBoundingBoxes) {
             for (obj: FhysicsObject in objects) {
-                DebugDrawer.drawBoundingBox(obj.boundingBox)
+                // Only draw bounding boxes that are visible
+                if (obj.boundingBox.overlaps(drawer.viewingFrustum)) {
+                    DebugDrawer.drawBoundingBox(obj.boundingBox)
+                }
             }
         }
     }
 
-    fun drawNodes() {
+    fun drawNodes(viewingFrustum: BoundingBox) {
         // Only drawing leaf nodes is enough
         val leaves: List<QTNode> = nodes.filter { it.isLeaf }
         for (leaf: QTNode in leaves) {
-            DebugDrawer.drawQTNode(leaf.bbox, leaf.count)
+            // Only draw nodes that are visible
+            if (leaf.bbox.overlaps(viewingFrustum)) {
+                DebugDrawer.drawQTNode(leaf.bbox, leaf.count)
+            }
         }
     }
     /// endregion

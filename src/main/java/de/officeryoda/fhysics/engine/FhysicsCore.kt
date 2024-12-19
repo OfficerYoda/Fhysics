@@ -4,6 +4,7 @@ import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory
 import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -35,7 +36,7 @@ object FhysicsCore {
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
     var running: Boolean = true
-    val updateStopwatch = Stopwatch(20)
+    val updateStopwatch = Stopwatch()
 
     init {
 //        val objects: List<FhysicsObject> = List(5) { FhysicsObjectFactory.randomCircle() }

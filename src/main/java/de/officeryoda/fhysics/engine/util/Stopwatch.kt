@@ -6,9 +6,9 @@ import java.util.*
  * A stopwatch that can be used to measure the time between two points in the code.
  * The stopwatch stores the last [maxDurations] durations and calculates the average duration.
  */
-class Stopwatch(private val maxDurations: Int = 50) {
+class Stopwatch(private val maxDurations: Int = 32) {
 
-    private val updateDurations: LinkedList<Long> = LinkedList()
+    private val updateDurations: ArrayDeque<Long> = ArrayDeque(maxDurations)
     private var startTime: Long = -1L
 
     /**
@@ -24,12 +24,11 @@ class Stopwatch(private val maxDurations: Int = 50) {
      */
     fun stop() {
         val duration: Long = System.nanoTime() - startTime
-        updateDurations.add(duration)
-        updateDurations.add(duration)
+        updateDurations.addLast(duration)
 
         // Remove the first duration if the list is exceeding the max durations
         if (updateDurations.size > maxDurations) {
-            updateDurations.removeAt(0)
+            updateDurations.removeFirst()
         }
     }
 
