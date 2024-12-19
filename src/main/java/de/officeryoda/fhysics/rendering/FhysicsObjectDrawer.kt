@@ -14,9 +14,9 @@ import de.officeryoda.fhysics.rendering.RenderUtil.lerp
 import de.officeryoda.fhysics.rendering.RenderUtil.lerpV2
 import de.officeryoda.fhysics.rendering.RenderUtil.setFillColor
 import de.officeryoda.fhysics.rendering.RenderUtil.setStrokeColor
-import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreen
-import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenX
-import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenY
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceX
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceY
 import de.officeryoda.fhysics.rendering.SceneListener.POLYGON_CLOSE_RADIUS
 import de.officeryoda.fhysics.rendering.SceneListener.hoveredObject
 import de.officeryoda.fhysics.rendering.SceneListener.mousePosWorld
@@ -48,16 +48,26 @@ class FhysicsObjectDrawer : Application() {
         private set
 
     // Zoom properties
+    /** The targeted zoom level */
     var targetZoom: Double = -1.0
+
+    /** The current zoom level */
     var zoom: Double = targetZoom
+
+    /** The targeted zoom center */
     var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2), (BORDER.height / 2))
+
+    /** The current zoom center */
     var zoomCenter: Vector2 = targetZoomCenter
 
-    // Window size properties
+
+    /** The width of the scene */
     val width: Double get() = stage.scene.width
+
+    /** The height of the scene */
     val height: Double get() = stage.scene.height // Use scene height to prevent including the window's title bar
 
-    // Draw timer
+    /** The stopwatch used to measure the time it takes to draw a frame */
     val drawStopwatch = Stopwatch(20)
 
     /// region =====Start functions=====
@@ -127,9 +137,9 @@ class FhysicsObjectDrawer : Application() {
 
     private fun startAnimationTimer() {
         // Draw functions need to be run on the JavaFX Application Thread
-        // to prevent exceptions (just stopping to update the visuals)
         object : AnimationTimer() {
             override fun handle(now: Long) {
+                // Don't update while rendering to prevent concurrentModificationExceptions
                 FhysicsCore.RENDER_LOCK.lock()
                 drawFrame()
                 FhysicsCore.RENDER_LOCK.unlock()
@@ -141,6 +151,7 @@ class FhysicsObjectDrawer : Application() {
     /// region =====Draw functions=====
     fun drawFrame() {
         drawStopwatch.start()
+        // Update the zoom
         lerpZoom()
 
         // Clear the stage
@@ -152,6 +163,7 @@ class FhysicsObjectDrawer : Application() {
         // Draw the objects
         QuadTree.drawObjects(this)
 
+        // Special draw cases
         if (hoveredObject != null) drawObjectPulsing(hoveredObject!!)
         if (selectedObject != null && selectedObject !== hoveredObject) drawObjectPulsing(selectedObject!!)
 
@@ -163,6 +175,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawObjectPulsing(obj: FhysicsObject) {
+        // Pulsing effect by changing the transparency value
         val alpha: Int = (191 + 64 * sin(PI * System.currentTimeMillis() / 500.0)).toInt()
         val c: Color = obj.color
         val color = Color(c.red, c.green, c.blue, alpha)
@@ -175,6 +188,9 @@ class FhysicsObjectDrawer : Application() {
         }
     }
 
+    /**
+     * Sets the fill color and draws the [circle].
+     */
     fun drawCircle(circle: Circle) {
         // Hovered and selected object will be drawn pulsing
         if (circle == hoveredObject || circle == selectedObject) return
@@ -183,6 +199,9 @@ class FhysicsObjectDrawer : Application() {
         drawCircleShape(circle)
     }
 
+    /**
+     * Sets the fill color and draws the [rectangle][rect].
+     */
     fun drawRectangle(rect: Rectangle) {
         // Hovered and selected object will be drawn pulsing
         if (rect == hoveredObject || rect == selectedObject) return
@@ -191,6 +210,9 @@ class FhysicsObjectDrawer : Application() {
         drawRectangleShape(rect)
     }
 
+    /**
+     * Sets the fill color and draws the [polygon][poly].
+     */
     fun drawPolygon(poly: Polygon) {
         // Hovered and selected object will be drawn pulsing
         if (poly == hoveredObject || poly == selectedObject) return
@@ -199,10 +221,13 @@ class FhysicsObjectDrawer : Application() {
         drawPolygonShape(poly)
     }
 
+    /**
+     * Draws the given [circle] with the current fill color.
+     */
     private fun drawCircleShape(circle: Circle) {
         gc.lineWidth = 2.0 * zoom * 0.05
 
-        val pos: Vector2 = worldToScreen(circle.position)
+        val pos: Vector2 = circle.position.toScreenSpace()
         val radius: Double = circle.radius * zoom
 
         gc.fillOval(
@@ -212,7 +237,7 @@ class FhysicsObjectDrawer : Application() {
 
         // Show rotation
         val end: Vector2 = circle.position + Vector2(cos(circle.angle), sin(circle.angle)) * circle.radius
-        val endScreen: Vector2 = worldToScreen(end)
+        val endScreen: Vector2 = end.toScreenSpace()
 
         // Darken the current fill color and use it as stroke color
         setStrokeColor(darkenColor(RenderUtil.paintToColor(gc.fill)))
@@ -221,8 +246,11 @@ class FhysicsObjectDrawer : Application() {
         gc.lineWidth = 2.0
     }
 
+    /**
+     * Draws the given [rectangle][rect] with the current fill color.
+     */
     private fun drawRectangleShape(rect: Rectangle) {
-        val pos: Vector2 = worldToScreen(rect.position)
+        val pos: Vector2 = rect.position.toScreenSpace()
 
         // Save the current state of the graphics context
         gc.save()
@@ -245,8 +273,12 @@ class FhysicsObjectDrawer : Application() {
         gc.restore()
     }
 
+    /**
+     * Draws the given [polygon][poly] with the current fill color.
+     */
     private fun drawPolygonShape(poly: Polygon) {
-        if (UIController.drawSubPolygons && poly is ConcavePolygon) { // TODO Optimize to not use type checking
+        // Draw subPolygons if the option is enabled
+        if (UIController.showSubPolygons && poly is ConcavePolygon) { // TODO Optimize to not use type checking
             for (subPoly: SubPolygon in poly.subPolygons) {
                 setFillColor(subPoly.color)
                 drawPolygon(subPoly)
@@ -260,8 +292,9 @@ class FhysicsObjectDrawer : Application() {
         val yPoints = DoubleArray(vertices.size)
 
         for (i: Int in vertices.indices) {
-            xPoints[i] = worldToScreenX(vertices[i].x)
-            yPoints[i] = worldToScreenY(vertices[i].y)
+            val screenVertex: Vector2 = vertices[i].toScreenSpace()
+            xPoints[i] = screenVertex.x.toDouble()
+            yPoints[i] = screenVertex.y.toDouble()
         }
 
         gc.fillPolygon(xPoints, yPoints, vertices.size)
@@ -279,29 +312,30 @@ class FhysicsObjectDrawer : Application() {
         val vertices: List<Vector2> = SceneListener.polyVertices.plus(mousePosWorld)
         if (vertices.isEmpty()) return
 
+        // Draw lines between the vertices
         gc.beginPath()
-
         for (i: Int in vertices.indices) {
-            val vertex: Vector2 = worldToScreen(vertices[i])
+            val vertex: Vector2 = vertices[i].toScreenSpace()
             gc.lineTo(vertex.x.toDouble(), vertex.y.toDouble())
         }
 
-        val c: Color = Color.WHITE
-        val transparentC = Color(c.red, c.green, c.blue, 128)
-
-        setStrokeColor(c)
-        setFillColor(transparentC)
-
-        gc.stroke()
-        if (!PolygonFactory.isPolygonValid(vertices)) {
+        if (PolygonFactory.isPolygonValid(vertices)) {
+            // Show valid polygons with a white fill
+            setFillColor(Color(255, 255, 255, 128))
+        } else {
+            // Show invalid polygons with a red fill
             setFillColor(Color(255, 0, 0, 128))
         }
+
+        setStrokeColor(Color.WHITE)
+
+        gc.stroke()
         gc.fill()
 
         // Draw a circle at the first vertex for easier closing
         setFillColor(Color(0, 255, 0, 128))
-        val firstVertex: Vector2 = worldToScreen(vertices.first())
-        val radius: Double = POLYGON_CLOSE_RADIUS.toDouble() * zoom
+        val firstVertex: Vector2 = vertices.first().toScreenSpace()
+        val radius: Double = POLYGON_CLOSE_RADIUS.toDouble()
         gc.fillOval(
             firstVertex.x.toDouble() - radius,
             firstVertex.y.toDouble() - radius,
@@ -312,7 +346,12 @@ class FhysicsObjectDrawer : Application() {
 
     private fun drawBorder() {
         setStrokeColor(Color.GRAY)
-        gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
+        gc.strokeRect(
+            0f.toScreenSpaceX().toDouble(),
+            BORDER.height.toScreenSpaceY().toDouble(),
+            BORDER.width * zoom,
+            BORDER.height * zoom
+        )
     }
     /// endregion
 
@@ -352,6 +391,9 @@ class FhysicsObjectDrawer : Application() {
     /// endregion
 
     /// region =====Utility functions=====
+    /**
+     * Linearly interpolates the zoom level and zoom center.
+     */
     private fun lerpZoom() {
         // A value I think looks good
         val interpolation = 0.12F
@@ -361,6 +403,11 @@ class FhysicsObjectDrawer : Application() {
         zoomCenter = lerpV2(zoomCenter, targetZoomCenter, interpolation)
     }
 
+    /**
+     * Checks if the mouse is hovering over an object.
+     *
+     * @return The object the mouse is hovering over or `null` if no object is hovered.
+     */
     private fun checkForHoveredObject(): FhysicsObject? {
         val pendingRemovals: MutableList<FhysicsObject> = QuadTree.pendingRemovals
 
@@ -379,6 +426,9 @@ class FhysicsObjectDrawer : Application() {
         return obj.takeUnless { pendingRemovals.contains(it) }
     }
 
+    /**
+     * Resets the zoom level and center.
+     */
     fun resetZoom() {
         targetZoom = calculateZoom()
         zoom = targetZoom
@@ -388,6 +438,7 @@ class FhysicsObjectDrawer : Application() {
     /// endregion
 
     companion object {
-        const val TITLE_BAR_HEIGHT: Double = 39.0 // That's the default height of the window's title bar
+        /** The height of the window's title bar */
+        const val TITLE_BAR_HEIGHT: Double = 39.0
     }
 }

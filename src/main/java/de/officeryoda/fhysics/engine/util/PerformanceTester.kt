@@ -96,21 +96,21 @@ private val scenarioListLong: List<PerformanceTestScenario> = listOf(
 )
 
 fun main() {
-    PerformanceTester.testPerformance(
-        listOf(
-            idealPhysicsScenarioSetup(
-                name = "1,000 Circles",
-                objectCreation = { List(1_000) { randomCircle() } },
-            )
-        ), 1000
-    )
+//    PerformanceTester.testPerformance(
+//        listOf(
+//            idealPhysicsScenarioSetup(
+//                name = "1,000 Circles",
+//                objectCreation = { List(1_000) { randomCircle() } },
+//            )
+//        ), 1000
+//    )
 
-//    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListShort)
+    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListLong)
 
     println("============Results============")
-//    for (result: PerformanceTestResult in results) {
-//        println("${result.scenario.name}: ${result.time}ms")
-//    }
+    for (result: PerformanceTestResult in results) {
+        println("${result.scenario.name}: ${result.time}ms")
+    }
 
     exitProcess(0)
 }
@@ -146,7 +146,7 @@ private object PerformanceTester {
                 }
 
         println("\n\n============Average Results============")
-        println("Average time per run: ${averageResults.sumOf { it.time }} ms")
+        println("Average time per run: ${averageResults.sumOf { it.time }}ms")
         println("Average time taken for $iterations iterations over $runs runs:")
 
         return averageResults
@@ -160,6 +160,7 @@ private object PerformanceTester {
 
         for ((index: Int, scenario: PerformanceTestScenario) in scenarioList.withIndex()) {
             println("Running scenario ${index + 1}/${scenarioList.size}: ${scenario.name}")
+            if (scenario.name == "100,000 Circles") continue
 
             // Clear the simulation before each scenario
             FhysicsCore.clear()

@@ -764,6 +764,12 @@
                                         <Tooltip text="Updates per second (based on MSPU and max UPS)" />
                                     </tooltip>
                                 </CheckBox>
+                                <CheckBox fx:id="cbSubSteps" mnemonicParsing="false" onMouseClicked="#onSubStepsClicked"
+                                          prefHeight="17.0" prefWidth="253.0" text="Sub-steps">
+                                    <tooltip>
+                                        <Tooltip text="The amount of smaller steps one simulation step performs"/>
+                                    </tooltip>
+                                </CheckBox>
                                 <CheckBox fx:id="cbObjectCount" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onObjectCountClicked" prefHeight="17.0" prefWidth="228.0" text="Object count">
                                     <tooltip>
                                         <Tooltip text="The amount of objects in the scene" />

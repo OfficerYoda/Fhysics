@@ -2,15 +2,26 @@ package de.officeryoda.fhysics.engine.util
 
 import java.util.*
 
+/**
+ * A stopwatch that can be used to measure the time between two points in the code.
+ * The stopwatch stores the last [maxDurations] durations and calculates the average duration.
+ */
 class Stopwatch(private val maxDurations: Int = 50) {
 
     private val updateDurations: LinkedList<Long> = LinkedList()
     private var startTime: Long = -1L
 
+    /**
+     * Starts the stopwatch
+     */
     fun start() {
         startTime = System.nanoTime()
     }
 
+
+    /**
+     * Stops the stopwatch
+     */
     fun stop() {
         val duration: Long = System.nanoTime() - startTime
         updateDurations.add(duration)
@@ -22,6 +33,9 @@ class Stopwatch(private val maxDurations: Int = 50) {
         }
     }
 
+    /**
+     * Returns the average duration of the last [maxDurations] durations in milliseconds.
+     */
     fun average(): Double {
         return try {
             updateDurations.average() / 1E6
@@ -31,6 +45,9 @@ class Stopwatch(private val maxDurations: Int = 50) {
         }
     }
 
+    /**
+     * Resets the stopwatch by clearing all durations.
+     */
     fun reset() {
         updateDurations.clear()
     }

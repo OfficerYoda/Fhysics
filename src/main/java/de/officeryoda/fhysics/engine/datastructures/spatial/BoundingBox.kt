@@ -70,6 +70,7 @@ data class BoundingBox(
         var minY: Float = Float.MAX_VALUE
         var maxY: Float = Float.MIN_VALUE
 
+        // Find the minimum and maximum x and y values
         for (vector: Vector2 in transformedVertices) {
             minX = min(minX, vector.x)
             maxX = max(maxX, vector.x)

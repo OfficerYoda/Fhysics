@@ -4,6 +4,9 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceX
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceY
 import de.officeryoda.fhysics.rendering.RenderUtil.zoom
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.text.Font
@@ -45,7 +48,7 @@ object DebugDrawer {
         val pointSize = 6.0
 
         for (point: DebugPoint in debugPoints.toList()) {
-            val pos: Vector2 = RenderUtil.worldToScreen(point.position)
+            val pos: Vector2 = point.position.toScreenSpace()
             RenderUtil.setFillColor(point.color)
             gc.fillOval(
                 pos.x - pointSize / 2,
@@ -54,15 +57,7 @@ object DebugDrawer {
                 pointSize
             )
 
-            // Update the duration of the point
-            // If the max duration is reached remove the point
-            if (point.durationFrames > 0) {
-                if (FhysicsCore.running) {
-                    point.durationFrames--
-                }
-            } else {
-                debugPoints.remove(point)
-            }
+            updateDuration(point, debugPoints)
         }
     }
 
@@ -71,14 +66,7 @@ object DebugDrawer {
             RenderUtil.setStrokeColor(line.color)
             strokeLine(line.start, line.end)
 
-            // Only decrease the duration if the simulation is running
-            if (line.durationFrames > 0) {
-                if (FhysicsCore.running) {
-                    line.durationFrames--
-                }
-            } else {
-                debugLines.remove(line)
-            }
+            updateDuration(line, debugLines)
         }
     }
 
@@ -88,21 +76,29 @@ object DebugDrawer {
             RenderUtil.setStrokeColor(vector.color)
             drawVector(vector.support, vector.direction)
 
-            // Update the duration of the vector
-            // If the max duration is reached remove the vector
-            if (vector.durationFrames > 0) {
-                if (FhysicsCore.running) {
-                    vector.durationFrames--
-                }
-            } else {
-                debugVectors.remove(vector)
+            updateDuration(vector, debugVectors)
+        }
+    }
+
+    /**
+     * Updates the duration of the given [element] and removes it from the [list] if the duration is 0.
+     */
+    private fun <T : DebugElement> updateDuration(element: T, list: MutableList<T>) {
+        // If the remaining duration is greater than 0, decrease it
+        if (element.durationFrames > 0) {
+            // Only decrease the duration if the simulation is running
+            if (FhysicsCore.running) {
+                element.durationFrames--
             }
+        } else {
+            // If the duration is 0, remove the element from the list
+            list.remove(element)
         }
     }
 
     private fun strokeLine(start: Vector2, end: Vector2) {
-        val screenStart: Vector2 = RenderUtil.worldToScreen(start)
-        val screenEnd: Vector2 = RenderUtil.worldToScreen(end)
+        val screenStart: Vector2 = start.toScreenSpace()
+        val screenEnd: Vector2 = end.toScreenSpace()
         gc.strokeLine(
             screenStart.x.toDouble(),
             screenStart.y.toDouble(),
@@ -128,32 +124,45 @@ object DebugDrawer {
         strokeLine(end, arrowHead.rotated((PI + arrowAngle).toFloat()) + end)
     }
 
+    /**
+     * Draws the enabled statistics on the screen.
+     */
     private fun drawStats() {
         val stats: MutableList<String> = mutableListOf()
 
-        if (UIController.drawQTCapacity)
+        if (UIController.showQTCapacity) {
             stats.add("QuadTree Capacity: ${QuadTree.capacity}")
+        }
 
-        if (UIController.drawMSPU) {
+        if (UIController.showMSPU) {
             stats.add("MSPU: ${FhysicsCore.updateStopwatch.roundedString()}")
         }
 
-        if (UIController.drawUPS) {
+        if (UIController.showUPS) {
             val mspu: Double = FhysicsCore.updateStopwatch.average()
             val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
             val upsRounded: String = String.format(Locale.US, "%.2f", ups)
             stats.add("UPS: $upsRounded")
         }
 
-        if (UIController.drawObjectCount)
-            stats.add("Objects: ${QuadTree.getObjectCount()}")
+        if (UIController.showSubSteps) {
+            stats.add("Sub-steps: ${FhysicsCore.SUB_STEPS}")
+        }
 
-        if (UIController.drawRenderTime)
+        if (UIController.showObjectCount) {
+            stats.add("Objects: ${QuadTree.getObjectCount()}")
+        }
+
+        if (UIController.showRenderTime) {
             stats.add("Render Time: ${drawer.drawStopwatch.roundedString()}")
+        }
 
         drawStatsList(stats.reversed()) // Reverse to make it same order as in settings
     }
 
+    /**
+     * Draws the given [stats] list as text on the screen.
+     */
     private fun drawStatsList(stats: List<String>) {
         val height: Double = gc.canvas.height - FhysicsObjectDrawer.TITLE_BAR_HEIGHT
         val fontSize: Double = height / 30.0 // Adjust the divisor for the desired scaling
@@ -180,16 +189,16 @@ object DebugDrawer {
     fun drawBoundingBox(boundingBox: BoundingBox) {
         RenderUtil.setStrokeColor(Color.RED)
         gc.strokeRect(
-            RenderUtil.worldToScreenX(boundingBox.x),
-            RenderUtil.worldToScreenY(boundingBox.y + boundingBox.height),
+            boundingBox.x.toScreenSpaceX().toDouble(),
+            (boundingBox.y + boundingBox.height).toScreenSpaceY().toDouble(),
             boundingBox.width * zoom,
             boundingBox.height * zoom
         )
     }
 
     fun drawQTNode(bbox: BoundingBox, count: Int) {
-        val x: Double = RenderUtil.worldToScreenX(bbox.x)
-        val y: Double = RenderUtil.worldToScreenY(bbox.y + bbox.height)
+        val x: Double = bbox.x.toScreenSpaceX().toDouble()
+        val y: Double = (bbox.y + bbox.height).toScreenSpaceY().toDouble()
         val width: Double = bbox.width * zoom
         val height: Double = bbox.height * zoom
 
@@ -205,12 +214,13 @@ object DebugDrawer {
         RenderUtil.setFillColor(
             Color(
                 66, 164, 245,
-                // Less transparent if more objects are in the cell
+                // Less transparent if more objects are in the node
                 (count.toFloat() / quadTreeCapacity * 192).toInt().coerceAtMost(255)
             )
         )
         gc.fillRect(x, y, width, height)
-        // Write the amount of objects in the cell
+
+        // Write the amount of objects in the node
         drawCenteredText(count.toString(), Rectangle2D.Double(x, y, width, height))
     }
 
@@ -218,12 +228,13 @@ object DebugDrawer {
         val fontSize: Double = (rect.height / 2) // Adjust the divisor for the desired scaling
         val font = Font("Spline Sans", fontSize)
 
-        gc.font = font
+        // Set the font and fill color
         RenderUtil.setFillColor(Color(255, 255, 255, 192))
-
         val textNode = Text(text)
+        gc.font = font
         textNode.font = font
 
+        // The width and height of the text will take up
         val textWidth: Double = textNode.layoutBounds.width
         val textHeight: Double = textNode.layoutBounds.height
 

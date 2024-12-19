@@ -15,14 +15,18 @@ abstract class FhysicsObject protected constructor(
     open val position: Vector2,
     val velocity: Vector2 = Vector2.ZERO,
     mass: Float,
-    open var angle: Float = 0f, // In radians
-    var angularVelocity: Float = 0f, // In radians per second
+    /** In radians */
+    open var angle: Float = 0f,
+    /** In radians per second */
+    var angularVelocity: Float = 0f,
 ) {
-    val id: Int = FhysicsCore.nextId()
+    /** Unique id */
+    val id: Int = nextId
     var color: Color = colorFromId()
     val boundingBox: BoundingBox = BoundingBox()
 
     val acceleration: Vector2 = Vector2.ZERO
+
     open var static: Boolean = false
         set(value) {
             field = value
@@ -47,10 +51,16 @@ abstract class FhysicsObject protected constructor(
             inertia = calculateInertia()
             invInertia = if (static) 0f else 1f / inertia
         }
+
+    /** Inverse mass. 0 if the object static */
     var invMass: Float = 1f / mass
         private set
 
-    // Used to avoid multiple updates in the same frame due to multiple quadtree nodes
+    /**
+     * Last frame this object was updated.
+     * This is used to prevent multiple updates in the same
+     * frame due to multiple references in the quadtree
+     */
     private var lastUpdate = -1
 
     var inertia: Float = -1f
@@ -62,6 +72,8 @@ abstract class FhysicsObject protected constructor(
             invInertia = if (static) 0f else 1f / field
             return field
         }
+
+    /** Inverse inertia. 0 if the object static */
     var invInertia: Float = -1f
         get() {
             if (field == -1f) {
@@ -70,22 +82,29 @@ abstract class FhysicsObject protected constructor(
             return field
         }
 
+    /**
+     * Coefficient of restitution.
+     *
+     * The bounciness of the object.
+     */
     var restitution: Float = 0.5f
         set(value) {
             field = Math.clamp(value, 0f, 1f)
         }
+
     var frictionStatic: Float = 0.5f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~1.0)
             field = Math.clamp(value, 0f, 1f)
         }
+
     var frictionDynamic: Float = 0.45f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~0.8)
             field = Math.clamp(value, 0f, 1f)
         }
 
-    private val TWO_PI: Float = Math.PI.toFloat() * 2
+    private val twoPi: Float = Math.TAU.toFloat()
 
     fun update() {
         // Static objects don't move
@@ -106,38 +125,73 @@ abstract class FhysicsObject protected constructor(
         angularVelocity *= (1 - damping)
         angle += angularVelocity * dt
         // Normalize angle for better precision
-        angle %= TWO_PI
+        angle %= twoPi
 
-        // Update bounding box
         updateBoundingBox()
     }
 
+    /**
+     * Projects this object onto the given axis.
+     */
     abstract fun project(axis: Vector2): Projection
 
+    /**
+     * Checks if this object contains the given [position][pos].
+     */
     abstract fun contains(pos: Vector2): Boolean
 
+    /**
+     * Calculates the inertia of this object.
+     */
     abstract fun calculateInertia(): Float
 
+    /**
+     * Tests if this object collides with the given [border].
+     */
     fun testCollision(border: BorderEdge): CollisionInfo {
         return border.testCollision(this)
     }
 
+    /**
+     * Tests if this object collides with the given [object][other].
+     */
     abstract fun testCollision(other: FhysicsObject): CollisionInfo
 
+    /**
+     * Tests if this object collides with the given [circle][other].
+     */
     abstract fun testCollision(other: Circle): CollisionInfo
 
+    /**
+     * Tests if this object collides with the given [polygon][other].
+     */
     abstract fun testCollision(other: Polygon): CollisionInfo
 
-    abstract fun findContactPoints(other: BorderEdge): Array<Vector2>
+    /**
+     * Finds the contact points between this object and the given [border].
+     */
+    abstract fun findContactPoints(border: BorderEdge): Array<Vector2>
 
+    /**
+     * Finds the contact points between this object and the given [object][other].
+     */
     abstract fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
 
+    /**
+     * Finds the contact points between this object and the given [circle][other].
+     */
     abstract fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2>
 
+    /**
+     * Finds the contact points between this object and the given [polygon][other].
+     */
     abstract fun findContactPoints(other: Polygon, info: CollisionInfo): Array<Vector2>
 
     abstract fun updateBoundingBox()
 
+    /**
+     * Draws this object.
+     */
     abstract fun draw(drawer: FhysicsObjectDrawer)
 
     private fun colorFromId(): Color {
@@ -167,5 +221,15 @@ abstract class FhysicsObject protected constructor(
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    companion object {
+        /**
+         * The next free id.
+         *
+         * Getting the next id will increment its value.
+         */
+        private var nextId = 0
+            get() = field++
     }
 }

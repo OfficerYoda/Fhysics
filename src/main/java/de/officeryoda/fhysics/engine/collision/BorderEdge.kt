@@ -4,6 +4,9 @@ import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 
+/**
+ * Represents one edge of the simulation [border][de.officeryoda.fhysics.engine.FhysicsCore.BORDER].
+ */
 data class BorderEdge(
     /**
      * The normal vector of the border edge

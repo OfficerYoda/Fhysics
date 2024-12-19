@@ -37,80 +37,6 @@ object RenderUtil {
         get() = drawer.gc
 
     /**
-     * Transforms a [position][pos] from world coordinates to screen coordinates.
-     */
-    fun worldToScreen(pos: Vector2): Vector2 {
-        val newX: Float = worldToScreenX(pos.x).toFloat()
-        val newY: Float = worldToScreenY(pos.y).toFloat()
-        return Vector2(newX, newY)
-    }
-
-    /**
-     * Transforms an [x-coordinate][x] from world space to screen space.
-     */
-    fun worldToScreenX(x: Double): Double {
-        return (x - zoomCenter.x) * zoom + width / 2
-    }
-
-    /**
-     * Transforms an [x-coordinate][x] from world space to screen space.
-     */
-    fun worldToScreenX(x: Float): Double {
-        return worldToScreenX(x.toDouble())
-    }
-
-    /**
-     * Transforms a [y-coordinate][y] from world space to screen space.
-     */
-    fun worldToScreenY(y: Double): Double {
-        return height - ((y - zoomCenter.y) * zoom + height / 2)
-    }
-
-    /**
-     * Transforms a [y-coordinate][y] from world space to screen space.
-     */
-    fun worldToScreenY(y: Float): Double {
-        return worldToScreenY(y.toDouble())
-    }
-
-    /**
-     * Transforms a [position][pos] from screen coordinates to world coordinates.
-     */
-    fun screenToWorld(pos: Vector2): Vector2 {
-        val newX: Float = screenToWorldX(pos.x).toFloat()
-        val newY: Float = screenToWorldY(pos.y).toFloat()
-        return Vector2(newX, newY)
-    }
-
-    /**
-     * Transforms a [x-coordinate][x] from screen space to world space.
-     */
-    fun screenToWorldX(x: Double): Double {
-        return (x - width / 2 + zoomCenter.x * zoom) / zoom
-    }
-
-    /**
-     * Transforms a [x-coordinate][x] from screen space to world space.
-     */
-    fun screenToWorldX(x: Float): Double {
-        return screenToWorldX(x.toDouble())
-    }
-
-    /**
-     * Transforms a [y-coordinate][y] from screen space to world space.
-     */
-    fun screenToWorldY(y: Double): Double {
-        return (height - y - height / 2 + zoomCenter.y * zoom) / zoom
-    }
-
-    /**
-     * Transforms a [y-coordinate][y] from screen space to world space.
-     */
-    fun screenToWorldY(y: Float): Double {
-        return screenToWorldY(y.toDouble())
-    }
-
-    /**
      * Linearly interpolates between [a] and [b] based on [t].
      */
     fun lerp(a: Float, b: Float, t: Float): Float {
@@ -132,7 +58,6 @@ object RenderUtil {
         val y: Float = lerp(a.y, b.y, t)
         return Vector2(x, y)
     }
-
 
     /**
      * Converts a [java.awt.Color] to [javafx.scene.paint.Color].
@@ -181,5 +106,47 @@ object RenderUtil {
         val green: Int = (color.green * (1 - percentage)).toInt().coerceIn(0, 255)
         val blue: Int = (color.blue * (1 - percentage)).toInt().coerceIn(0, 255)
         return Color(red, green, blue, color.alpha)
+    }
+
+    /**
+     * Converts a [Vector2] to screen space.
+     */
+    fun Vector2.toScreenSpace(): Vector2 {
+        return Vector2(x.toScreenSpaceX(), y.toScreenSpaceY())
+    }
+
+    /**
+     * Converts a [Vector2] to world space.
+     */
+    fun Vector2.toWorldSpace(): Vector2 {
+        return Vector2(x.toWorldSpaceX(), y.toWorldSpaceY())
+    }
+
+    /**
+     * Converts a [Float] x-coordinate to screen space.
+     */
+    fun Float.toScreenSpaceX(): Float {
+        return ((this - zoomCenter.x) * zoom + width / 2).toFloat()
+    }
+
+    /**
+     * Converts a [Float] y-coordinate to screen space.
+     */
+    fun Float.toScreenSpaceY(): Float {
+        return (height - ((this - zoomCenter.y) * zoom + height / 2)).toFloat()
+    }
+
+    /**
+     * Converts a [Float] x-coordinate to world space.
+     */
+    fun Float.toWorldSpaceX(): Float {
+        return ((this - width / 2 + zoomCenter.x * zoom) / zoom).toFloat()
+    }
+
+    /**
+     * Converts a [Float] y-coordinate to world space.
+     */
+    fun Float.toWorldSpaceY(): Float {
+        return ((height - this - height / 2 + zoomCenter.y * zoom) / zoom).toFloat()
     }
 }

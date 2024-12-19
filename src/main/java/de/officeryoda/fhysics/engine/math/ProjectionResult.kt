@@ -16,7 +16,7 @@ data class ProjectionResult(
     /**
      * Whether the projections have an overlap.
      */
-    val hasOverlap: Boolean = projectionA.overlaps(projectionB)
+    val hasOverlap: Boolean get() = projectionA.overlaps(projectionB)
 
     /**
      * Returns the overlap of the projections

@@ -10,6 +10,8 @@ import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
 import de.officeryoda.fhysics.rendering.RenderUtil.drawer
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
+import de.officeryoda.fhysics.rendering.RenderUtil.toWorldSpace
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnColor
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType
 import javafx.scene.input.KeyCode
@@ -63,7 +65,7 @@ object SceneListener {
     var hoveredObject: FhysicsObject? = null
 
     /** The radius around the first polygon vertex where the polygon closes when clicked inside. */
-    const val POLYGON_CLOSE_RADIUS = 1.0f
+    const val POLYGON_CLOSE_RADIUS = 10f
 
     /** The vertices of the polygon being created. */
     var polyVertices: MutableList<Vector2> = ArrayList()
@@ -210,8 +212,9 @@ object SceneListener {
     private fun handlePolygonCreation() {
         // Create the polygon if the polygon is complete
         if (polyVertices.size > 2 && PolygonFactory.isPolygonValid(polyVertices)) {
-            val startPos: Vector2 = polyVertices.first()
-            if (mousePosWorld.distanceToSqr(startPos) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
+            val startPosScreen: Vector2 = polyVertices.first().toScreenSpace()
+
+            if (mousePosScreen.distanceToSqr(startPosScreen) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                 createAndSpawnPolygon()
                 return
             }
@@ -290,7 +293,7 @@ object SceneListener {
      */
     private fun updateMousePos(e: MouseEvent) {
         mousePosScreen.set(getMouseScreenPos(e))
-        mousePosWorld.set(RenderUtil.screenToWorld(mousePosScreen))
+        mousePosWorld.set(mousePosScreen.toWorldSpace())
 
         // Update the spawn preview position if it's not set due to dragging a rectangle
         if (!(leftDragging && selectedSpawnObjectType == SpawnObjectType.RECTANGLE)) {

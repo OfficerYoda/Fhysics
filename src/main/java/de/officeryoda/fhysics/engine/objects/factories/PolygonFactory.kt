@@ -5,6 +5,9 @@ import de.officeryoda.fhysics.engine.objects.ConcavePolygon
 import de.officeryoda.fhysics.engine.objects.ConvexPolygon
 import de.officeryoda.fhysics.engine.objects.Polygon
 
+/**
+ * Factory class to convert a list of vertices into a polygon object.
+ */
 object PolygonFactory {
 
     /**
@@ -65,7 +68,7 @@ object PolygonFactory {
     }
 
     /**
-     * Returns a boolean indicating if the [point] is inside the triangle ([v1], [v2], [v3]).
+     * Returns a boolean indicating if the [point][p] is inside the triangle ([v1], [v2], [v3]).
      */
     private fun isPointInTriangle(p: Vector2, v1: Vector2, v2: Vector2, v3: Vector2): Boolean {
         // WTF is going on here but it works

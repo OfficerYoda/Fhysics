@@ -17,8 +17,10 @@ class Rectangle(
         // Calculate the normals of the rectangle's sides based on its rotation
         val sin: Float = sin(angle)
         val cos: Float = cos(angle)
+
         val axis1 = Vector2(cos, sin)
         val axis2 = Vector2(-sin, cos)
+
         return setOf(axis1, axis2)
     }
 
@@ -53,19 +55,22 @@ class Rectangle(
     override fun toString(): String {
         return "Rectangle(id=$id, position=$position, velocity=$velocity, mass=$mass, angle=$angle, angularVelocity=$angularVelocity, inertia=$inertia,  static=$static, color=$color, width=$width, height=$height, rotation=$angle)"
     }
+
+    companion object {
+        /**
+         * Creates the vertices of a rectangle with the given [width] and [height].
+         */
+        private fun createRectangleVertices(width: Float, height: Float): Array<Vector2> {
+            val halfWidth: Float = width / 2
+            val halfHeight: Float = height / 2
+
+            return arrayOf(
+                Vector2(-halfWidth, -halfHeight),
+                Vector2(halfWidth, -halfHeight),
+                Vector2(halfWidth, halfHeight),
+                Vector2(-halfWidth, halfHeight)
+            )
+        }
+    }
 }
 
-/**
- * Creates the vertices of a rectangle with the given [width] and [height].
- */
-private fun createRectangleVertices(width: Float, height: Float): Array<Vector2> {
-    val halfWidth: Float = width / 2
-    val halfHeight: Float = height / 2
-
-    return arrayOf(
-        Vector2(-halfWidth, -halfHeight),
-        Vector2(halfWidth, -halfHeight),
-        Vector2(halfWidth, halfHeight),
-        Vector2(-halfWidth, halfHeight)
-    )
-}
