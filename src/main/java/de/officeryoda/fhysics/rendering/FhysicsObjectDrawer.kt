@@ -14,9 +14,9 @@ import de.officeryoda.fhysics.rendering.RenderUtil.lerp
 import de.officeryoda.fhysics.rendering.RenderUtil.lerpV2
 import de.officeryoda.fhysics.rendering.RenderUtil.setFillColor
 import de.officeryoda.fhysics.rendering.RenderUtil.setStrokeColor
-import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreen
-import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenX
-import de.officeryoda.fhysics.rendering.RenderUtil.worldToScreenY
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceX
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceY
 import de.officeryoda.fhysics.rendering.SceneListener.POLYGON_CLOSE_RADIUS
 import de.officeryoda.fhysics.rendering.SceneListener.hoveredObject
 import de.officeryoda.fhysics.rendering.SceneListener.mousePosWorld
@@ -227,7 +227,7 @@ class FhysicsObjectDrawer : Application() {
     private fun drawCircleShape(circle: Circle) {
         gc.lineWidth = 2.0 * zoom * 0.05
 
-        val pos: Vector2 = worldToScreen(circle.position)
+        val pos: Vector2 = circle.position.toScreenSpace()
         val radius: Double = circle.radius * zoom
 
         gc.fillOval(
@@ -237,7 +237,7 @@ class FhysicsObjectDrawer : Application() {
 
         // Show rotation
         val end: Vector2 = circle.position + Vector2(cos(circle.angle), sin(circle.angle)) * circle.radius
-        val endScreen: Vector2 = worldToScreen(end)
+        val endScreen: Vector2 = end.toScreenSpace()
 
         // Darken the current fill color and use it as stroke color
         setStrokeColor(darkenColor(RenderUtil.paintToColor(gc.fill)))
@@ -250,7 +250,7 @@ class FhysicsObjectDrawer : Application() {
      * Draws the given [rectangle][rect] with the current fill color.
      */
     private fun drawRectangleShape(rect: Rectangle) {
-        val pos: Vector2 = worldToScreen(rect.position)
+        val pos: Vector2 = rect.position.toScreenSpace()
 
         // Save the current state of the graphics context
         gc.save()
@@ -292,8 +292,9 @@ class FhysicsObjectDrawer : Application() {
         val yPoints = DoubleArray(vertices.size)
 
         for (i: Int in vertices.indices) {
-            xPoints[i] = worldToScreenX(vertices[i].x)
-            yPoints[i] = worldToScreenY(vertices[i].y)
+            val screenVertex: Vector2 = vertices[i].toScreenSpace()
+            xPoints[i] = screenVertex.x.toDouble()
+            yPoints[i] = screenVertex.y.toDouble()
         }
 
         gc.fillPolygon(xPoints, yPoints, vertices.size)
@@ -314,7 +315,7 @@ class FhysicsObjectDrawer : Application() {
         // Draw lines between the vertices
         gc.beginPath()
         for (i: Int in vertices.indices) {
-            val vertex: Vector2 = worldToScreen(vertices[i])
+            val vertex: Vector2 = vertices[i].toScreenSpace()
             gc.lineTo(vertex.x.toDouble(), vertex.y.toDouble())
         }
 
@@ -333,7 +334,7 @@ class FhysicsObjectDrawer : Application() {
 
         // Draw a circle at the first vertex for easier closing
         setFillColor(Color(0, 255, 0, 128))
-        val firstVertex: Vector2 = worldToScreen(vertices.first())
+        val firstVertex: Vector2 = vertices.first().toScreenSpace()
         val radius: Double = POLYGON_CLOSE_RADIUS.toDouble()
         gc.fillOval(
             firstVertex.x.toDouble() - radius,
@@ -345,7 +346,12 @@ class FhysicsObjectDrawer : Application() {
 
     private fun drawBorder() {
         setStrokeColor(Color.GRAY)
-        gc.strokeRect(worldToScreenX(0.0), worldToScreenY(BORDER.height), BORDER.width * zoom, BORDER.height * zoom)
+        gc.strokeRect(
+            0f.toScreenSpaceX().toDouble(),
+            BORDER.height.toScreenSpaceY().toDouble(),
+            BORDER.width * zoom,
+            BORDER.height * zoom
+        )
     }
     /// endregion
 

@@ -4,6 +4,9 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceX
+import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceY
 import de.officeryoda.fhysics.rendering.RenderUtil.zoom
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.text.Font
@@ -45,7 +48,7 @@ object DebugDrawer {
         val pointSize = 6.0
 
         for (point: DebugPoint in debugPoints.toList()) {
-            val pos: Vector2 = RenderUtil.worldToScreen(point.position)
+            val pos: Vector2 = point.position.toScreenSpace()
             RenderUtil.setFillColor(point.color)
             gc.fillOval(
                 pos.x - pointSize / 2,
@@ -94,8 +97,8 @@ object DebugDrawer {
     }
 
     private fun strokeLine(start: Vector2, end: Vector2) {
-        val screenStart: Vector2 = RenderUtil.worldToScreen(start)
-        val screenEnd: Vector2 = RenderUtil.worldToScreen(end)
+        val screenStart: Vector2 = start.toScreenSpace()
+        val screenEnd: Vector2 = end.toScreenSpace()
         gc.strokeLine(
             screenStart.x.toDouble(),
             screenStart.y.toDouble(),
@@ -186,16 +189,16 @@ object DebugDrawer {
     fun drawBoundingBox(boundingBox: BoundingBox) {
         RenderUtil.setStrokeColor(Color.RED)
         gc.strokeRect(
-            RenderUtil.worldToScreenX(boundingBox.x),
-            RenderUtil.worldToScreenY(boundingBox.y + boundingBox.height),
+            boundingBox.x.toScreenSpaceX().toDouble(),
+            (boundingBox.y + boundingBox.height).toScreenSpaceY().toDouble(),
             boundingBox.width * zoom,
             boundingBox.height * zoom
         )
     }
 
     fun drawQTNode(bbox: BoundingBox, count: Int) {
-        val x: Double = RenderUtil.worldToScreenX(bbox.x)
-        val y: Double = RenderUtil.worldToScreenY(bbox.y + bbox.height)
+        val x: Double = bbox.x.toScreenSpaceX().toDouble()
+        val y: Double = (bbox.y + bbox.height).toScreenSpaceY().toDouble()
         val width: Double = bbox.width * zoom
         val height: Double = bbox.height * zoom
 
