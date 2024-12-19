@@ -454,6 +454,13 @@ object QuadTree {
                 stack.removeLast()
             }
         }
+
+        // The remaining objects are not contained by the root
+        for (objIdx: Int in rebuildList) {
+            // Move them to be contained by the root and insert them
+            CollisionSolver.moveInsideBorder(objects[objIdx])
+            insertIteratively(objIdx, objects[objIdx].boundingBox)
+        }
     }
 
     private fun updateLeaf(node: QTNode) {
