@@ -13,6 +13,8 @@ class Rectangle(
     angle: Float = 0f,
 ) : Polygon(createRectangleVertices(width, height).map { it + position }.toTypedArray(), angle) {
 
+    override val type = FhysicsObjectType.RECTANGLE
+
     override fun getAxes(): Set<Vector2> {
         // Calculate the normals of the rectangle's sides based on its rotation
         val sin: Float = sin(angle)

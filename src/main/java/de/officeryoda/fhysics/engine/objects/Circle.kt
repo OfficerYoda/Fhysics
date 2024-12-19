@@ -13,6 +13,8 @@ class Circle(
     val radius: Float,
 ) : FhysicsObject(position, Vector2.ZERO, (Math.PI * radius * radius).toFloat()) {
 
+    override val type = FhysicsObjectType.CIRCLE
+
     override fun project(axis: Vector2): Projection {
         // Project the circle's center onto the axis and add and subtract the radius to get the projection
         val centerProjection: Float = position.dot(axis)

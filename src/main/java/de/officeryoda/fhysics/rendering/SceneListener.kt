@@ -134,7 +134,7 @@ object SceneListener {
         val pos: Vector2 = Vector2(minX, minY) + size / 2f
 
         val rect = Rectangle(pos, size.x, size.y)
-        val color: Color = if (spawnPreview is Rectangle) spawnPreview!!.color else rect.color
+        val color: Color = spawnPreview!!.color
         rect.color = Color(color.red, color.green, color.blue, 128)
 
         spawnPreview = rect

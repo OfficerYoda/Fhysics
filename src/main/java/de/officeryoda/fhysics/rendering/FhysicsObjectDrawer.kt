@@ -181,10 +181,10 @@ class FhysicsObjectDrawer : Application() {
         val color = Color(c.red, c.green, c.blue, alpha)
 
         setFillColor(color)
-        when (obj) {
-            is Circle -> drawCircleShape(obj)
-            is Rectangle -> drawRectangleShape(obj)
-            is Polygon -> drawPolygonShape(obj)
+        when {
+            obj.type == FhysicsObjectType.CIRCLE -> drawCircleShape(obj as Circle)
+            obj.type == FhysicsObjectType.RECTANGLE -> drawRectangleShape(obj as Rectangle)
+            obj.type.value >= 2 -> drawPolygonShape(obj as Polygon)
         }
     }
 
@@ -278,8 +278,8 @@ class FhysicsObjectDrawer : Application() {
      */
     private fun drawPolygonShape(poly: Polygon) {
         // Draw subPolygons if the option is enabled
-        if (UIController.showSubPolygons && poly is ConcavePolygon) { // TODO Optimize to not use type checking
-            for (subPoly: SubPolygon in poly.subPolygons) {
+        if (UIController.showSubPolygons && poly.type == FhysicsObjectType.CONCAVE_POLYGON) {
+            for (subPoly: SubPolygon in (poly as ConcavePolygon).subPolygons) {
                 setFillColor(subPoly.color)
                 drawPolygon(subPoly)
             }

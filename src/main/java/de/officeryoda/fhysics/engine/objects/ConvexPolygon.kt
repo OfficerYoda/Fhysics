@@ -8,6 +8,8 @@ class ConvexPolygon(
     angle: Float = 0f,
 ) : Polygon(vertices, angle) {
 
+    override val type = FhysicsObjectType.CONVEX_POLYGON
+
     override fun testCollision(other: FhysicsObject): CollisionInfo {
         return other.testCollision(this)
     }
