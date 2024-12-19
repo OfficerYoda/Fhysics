@@ -246,7 +246,7 @@ class FhysicsObjectDrawer : Application() {
     }
 
     private fun drawPolygonShape(poly: Polygon) {
-        if (UIController.drawSubPolygons && poly is ConcavePolygon) { // TODO Optimize to not use type checking
+        if (UIController.showSubPolygons && poly is ConcavePolygon) { // TODO Optimize to not use type checking
             for (subPoly: SubPolygon in poly.subPolygons) {
                 setFillColor(subPoly.color)
                 drawPolygon(subPoly)

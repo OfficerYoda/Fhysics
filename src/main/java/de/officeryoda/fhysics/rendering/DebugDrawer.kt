@@ -131,25 +131,32 @@ object DebugDrawer {
     private fun drawStats() {
         val stats: MutableList<String> = mutableListOf()
 
-        if (UIController.drawQTCapacity)
+        if (UIController.showQTCapacity) {
             stats.add("QuadTree Capacity: ${QuadTree.capacity}")
+        }
 
-        if (UIController.drawMSPU) {
+        if (UIController.showMSPU) {
             stats.add("MSPU: ${FhysicsCore.updateStopwatch.roundedString()}")
         }
 
-        if (UIController.drawUPS) {
+        if (UIController.showUPS) {
             val mspu: Double = FhysicsCore.updateStopwatch.average()
             val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
             val upsRounded: String = String.format(Locale.US, "%.2f", ups)
             stats.add("UPS: $upsRounded")
         }
 
-        if (UIController.drawObjectCount)
-            stats.add("Objects: ${QuadTree.getObjectCount()}")
+        if (UIController.showSubSteps) {
+            stats.add("Sub-steps: ${FhysicsCore.SUB_STEPS}")
+        }
 
-        if (UIController.drawRenderTime)
+        if (UIController.showObjectCount) {
+            stats.add("Objects: ${QuadTree.getObjectCount()}")
+        }
+
+        if (UIController.showRenderTime) {
             stats.add("Render Time: ${drawer.drawStopwatch.roundedString()}")
+        }
 
         drawStatsList(stats.reversed()) // Reverse to make it same order as in settings
     }

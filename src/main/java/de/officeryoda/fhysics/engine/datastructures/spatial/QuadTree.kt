@@ -418,6 +418,13 @@ object QuadTree {
      * Updates the objects, checks for collisions and updates the QuadTree structure.
      */
     fun update() {
+        val leaves: List<QTNode> = nodes.filter { it.isLeaf }
+        for (leaf: QTNode in leaves) {
+            updateLeaf(leaf)
+        }
+    }
+
+    fun rebuild() {
         val stack = ArrayDeque<QTNode>()
         val visited: MutableSet<QTNode> = mutableSetOf<QTNode>()
         // A list of object indices that aren't fully contained in their leaf nodes
@@ -428,10 +435,9 @@ object QuadTree {
         while (stack.isNotEmpty()) {
             val current: QTNode = stack.last()
 
-            // If it's a leaf node, process and pop it
+            // If it's a leaf node, add objects that aren't fully contained in the node to the rebuild list
             if (current.isLeaf) {
-                updateLeaf(current)
-                addElementsToRebuildList(current, rebuildList)
+                addNotContainedToList(current, rebuildList)
                 stack.removeLast()
                 continue
             }
@@ -497,9 +503,9 @@ object QuadTree {
     }
 
     /**
-     * Adds objects that aren't fully contained in the [leaf node][node] to the [rebuildList].
+     * Adds objects that aren't fully contained in the [leaf node][node] to the [list].
      */
-    private fun addElementsToRebuildList(node: QTNode, rebuildList: MutableList<Int>) {
+    private fun addNotContainedToList(node: QTNode, list: MutableList<Int>) {
         var current = QTNodeElement(-1, node.firstIdx) // Dummy element
         while (current.next != -1) {
             current = elements[current.next]
@@ -510,7 +516,7 @@ object QuadTree {
             if (node.bbox.contains(obj.boundingBox)) continue
 
             removeFromLeaf(node, objIdx)
-            rebuildList.add(objIdx)
+            list.add(objIdx)
         }
     }
 
@@ -611,7 +617,7 @@ object QuadTree {
             obj.draw(drawer)
         }
 
-        if (UIController.drawBoundingBoxes) {
+        if (UIController.showBoundingBoxes) {
             for (obj: FhysicsObject in objects) {
                 DebugDrawer.drawBoundingBox(obj.boundingBox)
             }

@@ -169,12 +169,14 @@ class UIController {
     private lateinit var cbUPS: CheckBox
 
     @FXML
+    private lateinit var cbSubSteps: CheckBox
+
+    @FXML
     private lateinit var cbObjectCount: CheckBox
 
     @FXML
     private lateinit var cbRenderTime: CheckBox
     /// endregion
-
     /// endregion
 
     /// region ========Methods========
@@ -488,37 +490,42 @@ class UIController {
     /// region =====Methods: Debug=====
     @FXML
     fun onBoundingBoxesClicked() {
-        drawBoundingBoxes = !drawBoundingBoxes
+        showBoundingBoxes = !showBoundingBoxes
     }
 
     @FXML
     fun onSubPolygonsClicked() {
-        drawSubPolygons = cbSubPolygons.isSelected
+        showSubPolygons = cbSubPolygons.isSelected
     }
 
     @FXML
     fun onQTCapacityClicked() {
-        drawQTCapacity = cbQTCapacity.isSelected
+        showQTCapacity = cbQTCapacity.isSelected
     }
 
     @FXML
     fun onMSPUClicked() {
-        drawMSPU = cbMSPU.isSelected
+        showMSPU = cbMSPU.isSelected
     }
 
     @FXML
     fun onUPSClicked() {
-        drawUPS = cbUPS.isSelected
+        showUPS = cbUPS.isSelected
+    }
+
+    @FXML
+    fun onSubStepsClicked() {
+        showSubSteps = cbSubSteps.isSelected
     }
 
     @FXML
     fun onObjectCountClicked() {
-        drawObjectCount = cbObjectCount.isSelected
+        showObjectCount = cbObjectCount.isSelected
     }
 
     @FXML
     fun onRenderTimeClicked() {
-        drawRenderTime = cbRenderTime.isSelected
+        showRenderTime = cbRenderTime.isSelected
     }
     /// endregion
 
@@ -598,11 +605,11 @@ class UIController {
         /// endregion
 
         /// region =====Debug=====
-        cbBoundingBoxes.isSelected = drawBoundingBoxes
-        cbSubPolygons.isSelected = drawSubPolygons
-        cbObjectCount.isSelected = drawObjectCount
-        cbMSPU.isSelected = drawMSPU
-        cbUPS.isSelected = drawUPS
+        cbBoundingBoxes.isSelected = showBoundingBoxes
+        cbSubPolygons.isSelected = showSubPolygons
+        cbObjectCount.isSelected = showObjectCount
+        cbMSPU.isSelected = showMSPU
+        cbUPS.isSelected = showUPS
         /// endregion
     }
 
@@ -712,19 +719,21 @@ class UIController {
         /// endregion
 
         /// region =====Debug=====
-        var drawBoundingBoxes: Boolean = false
+        var showBoundingBoxes: Boolean = false
             private set
-        var drawSubPolygons: Boolean = true
+        var showSubPolygons: Boolean = true
             private set
-        var drawQTCapacity: Boolean = false
+        var showQTCapacity: Boolean = false
             private set
-        var drawMSPU: Boolean = true
+        var showMSPU: Boolean = true
             private set
-        var drawUPS: Boolean = false
+        var showUPS: Boolean = false
             private set
-        var drawObjectCount: Boolean = true
+        var showSubSteps: Boolean = false
             private set
-        var drawRenderTime: Boolean = false
+        var showObjectCount: Boolean = true
+            private set
+        var showRenderTime: Boolean = false
             private set
         /// endregion
     }

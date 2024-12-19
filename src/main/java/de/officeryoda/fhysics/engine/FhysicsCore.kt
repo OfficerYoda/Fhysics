@@ -18,8 +18,8 @@ object FhysicsCore {
 
     // Constants
     val BORDER: BoundingBox = BoundingBox(0f, 0f, 100f, 100f) // x and y must be 0.0
-    const val UPDATES_PER_SECOND: Int = 60 * 4
-    const val SUB_STEPS: Int = 1
+    const val UPDATES_PER_SECOND: Int = 60
+    const val SUB_STEPS: Int = 4
     val RENDER_LOCK = ReentrantLock()
     const val EPSILON: Float = 1E-4f
 
@@ -52,7 +52,9 @@ object FhysicsCore {
 
 
     fun startEverything() {
+        // Start the rendering thread
         Thread { FhysicsObjectDrawer().launch() }.start()
+        // Start the simulation, running on this thread
         startUpdateLoop()
     }
 
@@ -62,6 +64,7 @@ object FhysicsCore {
         Timer("Fhysics-Core", true).scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 if (running) {
+                    // Don't render while updating to prevent concurrentModificationExceptions
                     RENDER_LOCK.lock()
                     update()
                     RENDER_LOCK.unlock()
@@ -74,6 +77,7 @@ object FhysicsCore {
         updateStopwatch.start()
 
         QuadTree.processPendingOperations()
+        QuadTree.rebuild()
 
         repeat(SUB_STEPS) {
             QuadTree.update()
