@@ -42,6 +42,7 @@ object DebugDrawer {
         drawDebugLines()
         drawDebugVectors()
         drawStats()
+        drawPaused()
     }
 
     private fun drawDebugPoints() {
@@ -165,11 +166,7 @@ object DebugDrawer {
      */
     private fun drawStatsList(stats: List<String>) {
         val height: Double = gc.canvas.height - FhysicsObjectDrawer.TITLE_BAR_HEIGHT
-        val fontSize: Double = height / 30.0 // Adjust the divisor for the desired scaling
-        val font = Font("Spline Sans", fontSize)
-        gc.font = font
-        RenderUtil.setFillColor(Color.WHITE)
-        RenderUtil.setStrokeColor(Color.BLACK)
+        val font: Font = setFont(height)
 
         val lineHeight: Double = font.size
         val borderSpacing = 5.0
@@ -184,6 +181,37 @@ object DebugDrawer {
 
             gc.fillText(text, borderSpacing, height - i * lineHeight - borderSpacing)
         }
+    }
+
+    /**
+     * Draws the paused text in the bottom right corner when the simulation is paused.
+     */
+    private fun drawPaused() {
+        // Draw the paused text if the simulation is paused in the bottom right corner
+        if (!FhysicsCore.running) {
+            val height: Double = gc.canvas.height - FhysicsObjectDrawer.TITLE_BAR_HEIGHT
+            val width: Double = gc.canvas.width
+            setFont(height)
+
+            val borderSpacing = 5.0
+
+            val text = "Paused"
+            if (UIController.drawQuadTree) {
+                // Outline the text for better readability
+                gc.strokeText(text, width - 118 - borderSpacing, height - borderSpacing)
+            }
+
+            gc.fillText(text, width - 118 - borderSpacing, height - borderSpacing)
+        }
+    }
+
+    private fun setFont(height: Double): Font {
+        val fontSize: Double = height / 30.0 // Adjust the divisor for the desired scaling
+        val font = Font("Spline Sans", fontSize)
+        gc.font = font
+        RenderUtil.setFillColor(Color.WHITE)
+        RenderUtil.setStrokeColor(Color.BLACK)
+        return font
     }
 
     fun drawBoundingBox(boundingBox: BoundingBox) {
