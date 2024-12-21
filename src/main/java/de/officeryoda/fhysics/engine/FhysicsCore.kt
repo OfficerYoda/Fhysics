@@ -4,7 +4,7 @@ import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -39,7 +39,7 @@ object FhysicsCore {
     val updateStopwatch = Stopwatch()
 
     init {
-//        val objects: List<FhysicsObject> = List(5) { FhysicsObjectFactory.randomCircle() }
+//        val objects: List<FhysicsObject> = List(500) { FhysicsObjectFactory.randomCircle() }
 //        for (it: FhysicsObject in objects) {
 //            it.restitution = 1f
 //            it.frictionDynamic = 0f
@@ -54,6 +54,28 @@ object FhysicsCore {
 //
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomConcavePolygon())
+//        }
+
+        // Three rectangles that act as slides + ground rectangle
+        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).first().static = true
+        spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).first().static = true
+        spawn(Rectangle(Vector2(70.0f, 30.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).first().static = true
+        spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).first().static = true
+
+        // A Big rectangle in the center with an incline of 30 degrees and maximum friction values
+//        spawn(Rectangle(Vector2(50.0f, 50.0f), 100.0f, 10.0f, Math.toRadians(30.0).toFloat())).first().apply {
+//            static = true
+//            frictionStatic = 1.0f
+//            frictionDynamic = 1.0f
+//            restitution = 0.0f
+//        }
+        // A small rectangle on top of the big rectangle
+//        spawn(Rectangle(Vector2(50.0f, 57.0f), 1.0f, 1.0f)).first().apply {
+//            static = false
+//            frictionStatic = 1.0f
+//            frictionDynamic = 1.0f
+//            restitution = 0.0f
+//            angle = Math.toRadians(30.0).toFloat()
 //        }
     }
 
@@ -102,15 +124,17 @@ object FhysicsCore {
         updateStopwatch.stop()
     }
 
-    fun spawn(vararg objects: FhysicsObject) {
-        spawn(objects.toList())
+    fun spawn(vararg objects: FhysicsObject): List<FhysicsObject> {
+        return spawn(objects.toList())
     }
 
-    private fun spawn(objects: List<FhysicsObject>) {
+    private fun spawn(objects: List<FhysicsObject>): List<FhysicsObject> {
         for (obj: FhysicsObject in objects) {
             obj.updateBoundingBox()
             QuadTree.insert(obj)
         }
+
+        return objects
     }
 
     fun clear() {

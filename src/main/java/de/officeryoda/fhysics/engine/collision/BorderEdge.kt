@@ -5,20 +5,19 @@ import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 
 /**
- * Represents one edge of the simulation [border][de.officeryoda.fhysics.engine.FhysicsCore.BORDER].
+ * Represents an edge of the simulation border in [de.officeryoda.fhysics.engine.FhysicsCore.BORDER].
  */
 data class BorderEdge(
     /**
-     * The normal vector of the border edge
-     * Points from the inside to the outside of the border
+     * The normal vector of the border edge, pointing from the inside to the outside of the border.
      */
     val normal: Vector2,
     /**
-     * The distance to move from the origin in direction of the normal to reach the border
+     * The distance from the origin along the normal to the border.
      */
     val borderPosition: Float,
     /**
-     * The corner of the border from where the left perpendicular vector of the normal points towards the center of the edge
+     * The corner of the border from which the left perpendicular vector of the normal points towards the center of the edge.
      */
     val edgeCorner: Vector2,
 ) {

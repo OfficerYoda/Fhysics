@@ -92,13 +92,13 @@ data class Vector2
      * Calculates the Euclidean distance between [this][Vector2] and [other].
      */
     fun distanceTo(other: Vector2): Float {
-        return sqrt(distanceToSqr(other))
+        return sqrt(sqrDistanceTo(other))
     }
 
     /**
      * Calculates the squared Euclidean distance between [this][Vector2] and [other].
      */
-    fun distanceToSqr(other: Vector2): Float {
+    fun sqrDistanceTo(other: Vector2): Float {
         val dx: Float = this.x - other.x
         val dy: Float = this.y - other.y
         return dx * dx + dy * dy
