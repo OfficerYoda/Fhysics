@@ -4,7 +4,7 @@ import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Rectangle
+import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory
 import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -39,28 +39,28 @@ object FhysicsCore {
     val updateStopwatch = Stopwatch()
 
     init {
-//        val objects: List<FhysicsObject> = List(500) { FhysicsObjectFactory.randomCircle() }
-//        for (it: FhysicsObject in objects) {
-//            it.restitution = 1f
-//            it.frictionDynamic = 0f
-//            it.frictionStatic = 0f
-//        }
-//        UIController.setBorderProperties(1f, 1f, 1f)
-//        spawn(objects)
+        val objects: List<FhysicsObject> = List(50) { FhysicsObjectFactory.randomCircle() }
+        for (it: FhysicsObject in objects) {
+            it.restitution = 1f
+            it.frictionDynamic = 0f
+            it.frictionStatic = 0f
+        }
+        UIController.setBorderProperties(1f, 1f, 1f)
+        spawn(objects)
 
-//        repeat(100) {
-//            spawn(FhysicsObjectFactory.randomRectangle())
-//        }
-//
-//        repeat(10) {
-//            spawn(FhysicsObjectFactory.randomConcavePolygon())
-//        }
+        repeat(10) {
+            spawn(FhysicsObjectFactory.randomRectangle())
+        }
+
+        repeat(10) {
+            spawn(FhysicsObjectFactory.randomPolygon())
+        }
 
         // Three rectangles that act as slides + ground rectangle
-        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).first().static = true
-        spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).first().static = true
-        spawn(Rectangle(Vector2(70.0f, 30.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).first().static = true
-        spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).first().static = true
+//        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).first().static = true
+//        spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).first().static = true
+//        spawn(Rectangle(Vector2(70.0f, 30.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).first().static = true
+//        spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).first().static = true
 
         // A Big rectangle in the center with an incline of 30 degrees and maximum friction values
 //        spawn(Rectangle(Vector2(50.0f, 50.0f), 100.0f, 10.0f, Math.toRadians(30.0).toFloat())).first().apply {

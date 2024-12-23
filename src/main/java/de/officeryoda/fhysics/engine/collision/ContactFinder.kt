@@ -64,7 +64,7 @@ object ContactFinder {
                         contactCount++
 
                         if (contactCount == 2) {
-                            // Can't have more than two contact points
+                            // Convex polygons can only have two contact points
                             return
                         }
                     }
@@ -174,7 +174,7 @@ object ContactFinder {
                 contactCount++
 
                 if (contactCount == 2) {
-                    // Can't have more than two contact points
+                    // Convex polygons can only have two contact points
                     break
                 }
             }

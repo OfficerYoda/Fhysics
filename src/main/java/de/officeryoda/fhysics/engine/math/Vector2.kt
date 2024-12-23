@@ -67,7 +67,7 @@ data class Vector2
     /**
      * Calculates the cross product of [this][Vector2] with [other].
      *
-     * To my math teacher Mr. Jungblut: I know that cross products are
+     * To my math teacher: I know that cross products are
      * technically only defined for 3D vectors, but if it works, it works.
      */
     fun cross(other: Vector2): Float {
