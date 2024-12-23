@@ -8,7 +8,6 @@ import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionDynamic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderFrictionStatic
 import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
-import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -44,7 +43,6 @@ object CollisionSolver {
         )
     }
 
-
     /// region =====Object Collision=====
     /**
      * Solves the collision detected by the [collision info][info].
@@ -61,7 +59,7 @@ object CollisionSolver {
         // Solve collision
         val normalForces: FloatArray =
             solveImpulse(objA, objB, contactPoints, info)
-        solveFriction(objA, objB, contactPoints, info, normalForces)
+        solveFriction(objA, objB, contactPoints, normalForces, info.normal)
 
         // Update bounding boxes
         objA.updateBoundingBox()
@@ -80,47 +78,33 @@ object CollisionSolver {
         contactPoints: Array<Vector2>,
         info: CollisionInfo,
     ): FloatArray {
-//        val e: Float = (objA.restitution + objB.restitution) / 2 // Coefficient of restitution <-- bad approximation
-        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution <-- correct formula
+        val impulseList = ArrayList<Vector2>(contactPoints.size)
 
-        val impulseList: ArrayList<Vector2> = ArrayList(contactPoints.size) // Will have a max size of contactPoints
-        val normalForces = FloatArray(contactPoints.size) // Used for friction calculation
-        val normal: Vector2 = info.normal
+        val normalForces: FloatArray =
+            processObjectContactPointsImpulse(contactPoints, objA, objB, info.normal, impulseList)
 
-        var totalA = 0f
-        var totalB = 0f
+        applyImpulses(impulseList, contactPoints, objA, objB)
 
-        for (contactPoint: Vector2 in contactPoints) {
-//            DebugDrawer.addDebugPoint(contactPoint, Color.red)
-            val ra: Vector2 = contactPoint - objA.position
-            val rb: Vector2 = contactPoint - objB.position
+        clampSmallAngularVelocity(objA)
+        clampSmallAngularVelocity(objB)
 
-            val raPerp = Vector2(-ra.y, ra.x)
-            val rbPerp = Vector2(-rb.y, rb.x)
+        return normalForces
+    }
 
-            // Calculate the impulse
-            val raPerpDotNormal: Float = raPerp.dot(normal)
-            val rbPerpDotNormal: Float = rbPerp.dot(normal)
+    private fun processObjectContactPointsImpulse(
+        contactPoints: Array<Vector2>,
+        objA: FhysicsObject,
+        objB: FhysicsObject,
+        normal: Vector2,
+        impulseList: ArrayList<Vector2>,
+    ): FloatArray {
+        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution
+        val normalForces = FloatArray(contactPoints.size)
 
-            totalA += raPerpDotNormal
-            totalB += rbPerpDotNormal
-        }
-
-        // If multi is 0, the collision will not have effect on the angular velocity
-        val multi: Float = if (abs(totalA) < EPSILON || abs(totalB) < EPSILON) 0f else 1f
-
-        // Calculate the impulses for each contact point
         for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
-            val ra: Vector2 = contactPoint - objA.position
-            val rb: Vector2 = contactPoint - objB.position
-
-            val raPerp = Vector2(-ra.y, ra.x)
-            val rbPerp = Vector2(-rb.y, rb.x)
-
-            val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
-            val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
-
-            val relativeVelocity: Vector2 = totalVelocityB - totalVelocityA
+            val raPerp: Vector2 = calculateContactPerpendicular(contactPoint, objA)
+            val rbPerp: Vector2 = calculateContactPerpendicular(contactPoint, objB)
+            val relativeVelocity: Vector2 = calculateRelativeVelocity(objA, objB, raPerp, rbPerp)
 
             // Continue if the objects are already moving away from each other
             val contactVelocityMag: Float = relativeVelocity.dot(normal)
@@ -129,104 +113,79 @@ object CollisionSolver {
                 continue
             }
 
-            // Calculate the impulse
-            val raPerpDotNormal: Float = raPerp.dot(normal)
-            val rbPerpDotNormal: Float = rbPerp.dot(normal)
-
-            var impulseMag: Float = -(1f + e) * contactVelocityMag
-            impulseMag /= objA.invMass + objB.invMass +
-                    multi * ((raPerpDotNormal * raPerpDotNormal) * objA.invInertia
-                    + (rbPerpDotNormal * rbPerpDotNormal) * objB.invInertia)
-            impulseMag /= contactPoints.size // Distribute the impulse over all contact points
-
-            val impulse: Vector2 = impulseMag * normal
-
+            val impulse: Vector2 =
+                calculateImpulse(objA, objB, normal, e, contactPoints.size, contactVelocityMag, raPerp, rbPerp)
             impulseList.add(impulse)
-            normalForces[i] = impulseMag
+            normalForces[i] = impulse.magnitude()
         }
 
-        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
+        return normalForces
+    }
+
+    private fun calculateRelativeVelocity(
+        objA: FhysicsObject,
+        objB: FhysicsObject,
+        raPerp: Vector2,
+        rbPerp: Vector2,
+    ): Vector2 {
+        val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
+        val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
+        return totalVelocityB - totalVelocityA
+    }
+
+    private fun calculateImpulse(
+        objA: FhysicsObject,
+        objB: FhysicsObject,
+        normal: Vector2,
+        e: Float, // Coefficient of restitution
+        contactPointsSize: Int,
+        contactVelocityMag: Float,
+        raPerp: Vector2,
+        rbPerp: Vector2,
+    ): Vector2 {
+        val raPerpDotNormal: Float = raPerp.dot(normal)
+        val rbPerpDotNormal: Float = rbPerp.dot(normal)
+
+        // Calculate the impulse magnitude
+        var impulseMag: Float = -(1f + e) * contactVelocityMag
+        impulseMag /= objA.invMass + objB.invMass +
+                (raPerpDotNormal * raPerpDotNormal) * objA.invInertia +
+                (rbPerpDotNormal * rbPerpDotNormal) * objB.invInertia
+        impulseMag /= contactPointsSize // Distribute the impulse over all contact points
+
+        return impulseMag * normal
+    }
+
+    private fun applyImpulses(
+        impulseList: ArrayList<Vector2>,
+        contactPoints: Array<Vector2>,
+        objA: FhysicsObject,
+        objB: FhysicsObject,
+    ) {
         for ((i: Int, impulse: Vector2) in impulseList.withIndex()) {
             objA.velocity += -impulse * objA.invMass
             objA.angularVelocity += impulse.cross(contactPoints[i] - objA.position) * objA.invInertia
             objB.velocity += impulse * objB.invMass
             objB.angularVelocity += -impulse.cross(contactPoints[i] - objB.position) * objB.invInertia
         }
-
-        // Set angular velocity to 0 if it's very small (this improves stability)
-        if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
-        if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
-
-        return normalForces
     }
 
     /**
      * Solves the friction between [objA] and [objB].
      * @param contactPoints The contact points of the collision
-     * @param info The CollisionInfo object containing information about the collision
      * @param normalForces A list of normal forces for each contact point
      */
     private fun solveFriction(
         objA: FhysicsObject,
         objB: FhysicsObject,
         contactPoints: Array<Vector2>,
-        info: CollisionInfo,
         normalForces: FloatArray,
+        normal: Vector2,
     ) {
-        val sf: Float = (objA.frictionStatic + objB.frictionStatic) / 2 // Coefficient of static friction
-        val df: Float = (objA.frictionDynamic + objB.frictionDynamic) / 2 // Coefficient of dynamic friction
-
         val frictionList: ArrayList<Vector2> = ArrayList(contactPoints.size) // Will have a max size of contactPoints
-        val normal: Vector2 = info.normal
-        val frictionType: ArrayList<Color> = ArrayList() // TODO: Remove this
 
         // Calculate the friction for each contact point
-        for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
-            if (normalForces[i] == 0f) continue
-
-            val ra: Vector2 = contactPoint - objA.position
-            val rb: Vector2 = contactPoint - objB.position
-
-            val raPerp = Vector2(-ra.y, ra.x)
-            val rbPerp = Vector2(-rb.y, rb.x)
-
-            val totalVelocityA: Vector2 = objA.velocity + raPerp * objA.angularVelocity
-            val totalVelocityB: Vector2 = objB.velocity + rbPerp * objB.angularVelocity
-
-            val relativeVelocity: Vector2 = totalVelocityB - totalVelocityA
-
-            // Get the tangent vector of the normal
-            var tangent: Vector2 = relativeVelocity - relativeVelocity.dot(normal) * normal
-            if (tangent.sqrMagnitude() < EPSILON) continue // Continue if there is no tangential velocity
-            tangent = tangent.normalized()
-
-            // Calculate the friction impulse
-            val raPerpDotTangent: Float = raPerp.dot(tangent)
-            val rbPerpDotTangent: Float = rbPerp.dot(tangent)
-
-            var frictionMag: Float = -relativeVelocity.dot(tangent)
-            frictionMag /= objA.invMass + objB.invMass +
-                    (raPerpDotTangent * raPerpDotTangent) * objA.invInertia +
-                    (rbPerpDotTangent * rbPerpDotTangent) * objB.invInertia
-            frictionMag /= contactPoints.size // Distribute the impulse over all contact points
-
-            // Apply Coulomb's law
-            val normalForce: Float = normalForces[i]
-
-            val frictionImpulse: Vector2 =
-                if (abs(frictionMag) <= normalForce * sf) {
-                    frictionMag * tangent // Static friction
-                } else {
-                    -normalForce * df * tangent // Dynamic friction
-                }
-
-            frictionList.add(frictionImpulse)
-            if (abs(frictionMag) <= normalForce * sf) {
-                frictionType.add(Color.red)
-            } else {
-                frictionType.add(Color.blue)
-            }
-        }
+        processObjectContactPointsFriction(contactPoints, objA, objB, normal, frictionList, normalForces)
 
         // This is used so that the rectangle doesn't get a slight tilt when sliding down a slope
         // It is still sliding down the slope, but my current hypothesis is that it's caused by the rectangle slightly clipping into the slope,
@@ -242,17 +201,84 @@ object CollisionSolver {
             if (abs(v1.cross(v2)) < EPSILON) multi = 0f
         }
 
-        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
+        applyFriction(frictionList, contactPoints, objA, objB, multi)
+
+        clampSmallAngularVelocity(objA)
+        clampSmallAngularVelocity(objB)
+    }
+
+    private fun processObjectContactPointsFriction(
+        contactPoints: Array<Vector2>,
+        objA: FhysicsObject,
+        objB: FhysicsObject,
+        normal: Vector2,
+        frictionList: ArrayList<Vector2>,
+        normalForces: FloatArray,
+    ) {
+        val sf: Float = (objA.frictionStatic + objB.frictionStatic) / 2 // Coefficient of static friction
+        val df: Float = (objA.frictionDynamic + objB.frictionDynamic) / 2 // Coefficient of dynamic friction
+
+        for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
+            if (normalForces[i] == 0f) continue
+
+            val raPerp: Vector2 = calculateContactPerpendicular(contactPoint, objA)
+            val rbPerp: Vector2 = calculateContactPerpendicular(contactPoint, objB)
+            val relativeVelocity: Vector2 = calculateRelativeVelocity(objA, objB, raPerp, rbPerp)
+
+            // Get the tangent vector of the normal
+            var tangent: Vector2 = relativeVelocity - relativeVelocity.dot(normal) * normal // Tangential velocity
+            if (tangent.sqrMagnitude() < EPSILON) continue // Continue if there is no tangential velocity
+            tangent = tangent.normalized()
+
+            // Calculate the friction impulse
+            val raPerpDotTangent: Float = raPerp.dot(tangent)
+            val rbPerpDotTangent: Float = rbPerp.dot(tangent)
+
+            var frictionMag: Float =
+                calculateFrictionMagnitude(
+                    relativeVelocity, tangent,
+                    objA, objB,
+                    raPerpDotTangent, rbPerpDotTangent,
+                    contactPoints
+                )
+
+            // Apply Coulomb's law of friction
+            val frictionImpulse: Vector2 = applyCoulombsLaw(normalForces[i], frictionMag, tangent, sf, df)
+            frictionList.add(frictionImpulse)
+        }
+    }
+
+    private fun calculateFrictionMagnitude(
+        relativeVelocity: Vector2,
+        tangent: Vector2,
+        objA: FhysicsObject,
+        objB: FhysicsObject,
+        raPerpDotTangent: Float,
+        rbPerpDotTangent: Float,
+        contactPoints: Array<Vector2>,
+    ): Float {
+        var frictionMag: Float = -relativeVelocity.dot(tangent)
+        frictionMag /= objA.invMass + objB.invMass +
+                (raPerpDotTangent * raPerpDotTangent) * objA.invInertia +
+                (rbPerpDotTangent * rbPerpDotTangent) * objB.invInertia
+        frictionMag /= contactPoints.size // Distribute the impulse over all contact points
+
+        return frictionMag
+    }
+
+    private fun applyFriction(
+        frictionList: ArrayList<Vector2>,
+        contactPoints: Array<Vector2>,
+        objA: FhysicsObject,
+        objB: FhysicsObject,
+        multi: Float,
+    ) {
         for ((i: Int, frictionImpulse: Vector2) in frictionList.withIndex()) {
             objA.velocity += -frictionImpulse * objA.invMass
             objA.angularVelocity += frictionImpulse.cross(contactPoints[i] - objA.position) * objA.invInertia * multi
             objB.velocity += frictionImpulse * objB.invMass
             objB.angularVelocity += -frictionImpulse.cross(contactPoints[i] - objB.position) * objB.invInertia * multi
         }
-
-        // Remove small angular velocities (this improves stability)
-        if (abs(objA.angularVelocity) < EPSILON) objA.angularVelocity = 0f
-        if (abs(objB.angularVelocity) < EPSILON) objB.angularVelocity = 0f
     }
 
     /**
@@ -281,7 +307,7 @@ object CollisionSolver {
         // This is a separate step because the object might be outside two edges at the same time
         val collidingBorders: MutableSet<BorderEdge> = moveInsideBorder(obj)
 
-        // Find contact points and solve collisions
+        // Solve collision with every colliding border
         for (border: BorderEdge in collidingBorders) {
             solveBorderCollision(obj, border)
         }
@@ -296,13 +322,11 @@ object CollisionSolver {
     ) {
         // Find contact points
         val contactPoints: Array<Vector2> = obj.findContactPoints(edge)
-        // Early out
-        if (contactPoints.isEmpty()) return
 
         // Solve collision
         val normalForces: FloatArray =
-            solveBorderImpulse(edge, obj, contactPoints)
-        solveBorderFriction(edge, obj, contactPoints, normalForces)
+            solveImpulseBorder(edge, obj, contactPoints)
+        solveFrictionBorder(edge, obj, contactPoints, normalForces)
     }
 
     /**
@@ -310,22 +334,34 @@ object CollisionSolver {
      * @param contactPoints The contact points of the collision
      * @return A list of normal forces for each contact point
      */
-    private fun solveBorderImpulse(
+    private fun solveImpulseBorder(
         edge: BorderEdge,
         obj: FhysicsObject,
         contactPoints: Array<Vector2>,
     ): FloatArray {
-//        val e: Float = (obj.restitution * borderRestitution) / 2 // Coefficient of restitution <-- bad approximation
-        val e: Float = sqrt(obj.restitution * borderRestitution) // Coefficient of restitution <-- correct formula
         val impulseList: ArrayList<Vector2> = ArrayList(contactPoints.size) // Will have a max size of contactPoints
-        val normalForces = FloatArray(contactPoints.size) // Used for friction calculation
-        val normal: Vector2 = edge.normal
+
+        val normalForces: FloatArray = processBorderContactPointsImpulse(contactPoints, obj, edge.normal, impulseList)
+
+        applyImpulse(impulseList, contactPoints, obj)
+
+        clampSmallAngularVelocity(obj)
+
+        return normalForces
+    }
+
+    private fun processBorderContactPointsImpulse(
+        contactPoints: Array<Vector2>,
+        obj: FhysicsObject,
+        normal: Vector2,
+        impulseList: ArrayList<Vector2>,
+    ): FloatArray {
+        val normalForces = FloatArray(contactPoints.size)
+        val e: Float = sqrt(obj.restitution * borderRestitution) // Coefficient of restitution
 
         // Calculate the impulses for each contact point
         for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
-            val r: Vector2 = contactPoint - obj.position
-
-            val rPerp = Vector2(-r.y, r.x)
+            val rPerp: Vector2 = calculateContactPerpendicular(contactPoint, obj)
 
             val totalVelocity: Vector2 = obj.velocity + rPerp * obj.angularVelocity
 
@@ -350,16 +386,18 @@ object CollisionSolver {
             normalForces[i] = impulseMag
         }
 
-        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
+        return normalForces
+    }
+
+    private fun applyImpulse(
+        impulseList: ArrayList<Vector2>,
+        contactPoints: Array<Vector2>,
+        obj: FhysicsObject,
+    ) {
         for ((i: Int, impulse: Vector2) in impulseList.withIndex()) {
             obj.velocity += -impulse * obj.invMass
             obj.angularVelocity += impulse.cross(contactPoints[i] - obj.position) * obj.invInertia
         }
-
-        // Set angular velocity to 0 if it's very small (this improves stability)
-        if (abs(obj.angularVelocity) < EPSILON) obj.angularVelocity = 0f
-
-        return normalForces
     }
 
     /**
@@ -367,25 +405,39 @@ object CollisionSolver {
      * @param contactPoints The contact points of the collision
      * @param normalForces A list of normal forces for each contact point
      */
-    private fun solveBorderFriction(
+    private fun solveFrictionBorder(
         edge: BorderEdge,
         obj: FhysicsObject,
         contactPoints: Array<Vector2>,
         normalForces: FloatArray,
     ) {
-        val sf: Float = (borderFrictionStatic + obj.frictionStatic) / 2 // Coefficient of static friction
-        val df: Float = (borderFrictionDynamic + obj.frictionDynamic) / 2// Coefficient of dynamic friction
-
         val frictionList: ArrayList<Vector2> = ArrayList(contactPoints.size) // Will have a max size of contactPoints
         val normal: Vector2 = edge.normal
 
         // Calculate the friction for each contact point
+        processBorderContactPointsFriction(contactPoints, obj, normal, frictionList, normalForces)
+
+        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
+        for ((i: Int, frictionImpulse: Vector2) in frictionList.withIndex()) {
+            obj.velocity += -frictionImpulse * obj.invMass
+            obj.angularVelocity += frictionImpulse.cross(contactPoints[i] - obj.position) * obj.invInertia
+        }
+    }
+
+    private fun processBorderContactPointsFriction(
+        contactPoints: Array<Vector2>,
+        obj: FhysicsObject,
+        normal: Vector2,
+        frictionList: ArrayList<Vector2>,
+        normalForces: FloatArray,
+    ) {
+        val sf: Float = (borderFrictionStatic + obj.frictionStatic) / 2 // Coefficient of static friction
+        val df: Float = (borderFrictionDynamic + obj.frictionDynamic) / 2// Coefficient of dynamic friction
+
         for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
             if (normalForces[i] == 0f) continue
 
-            val r: Vector2 = contactPoint - obj.position
-
-            val rPerp = Vector2(-r.y, r.x)
+            val rPerp: Vector2 = calculateContactPerpendicular(contactPoint, obj)
 
             val totalVelocity: Vector2 = obj.velocity + rPerp * obj.angularVelocity
             val relativeVelocity: Vector2 = -totalVelocity
@@ -398,28 +450,28 @@ object CollisionSolver {
             // Calculate the friction impulse
             val rPerpDotTangent: Float = rPerp.dot(tangent)
 
-            var frictionMag: Float = -relativeVelocity.dot(tangent)
-            frictionMag /= obj.invMass +
-                    (rPerpDotTangent * rPerpDotTangent) * obj.invInertia
-            frictionMag /= contactPoints.size // Distribute the impulse over all contact points
+            var frictionMag: Float =
+                calculateFrictionMagnitude(relativeVelocity, tangent, obj, rPerpDotTangent, contactPoints)
 
             // Apply Coulomb's law
-            val normalForce: Float = normalForces[i]
-            val frictionImpulse: Vector2 =
-                if (abs(frictionMag) <= normalForce * sf) {
-                    frictionMag * tangent
-                } else {
-                    -normalForce * df * tangent
-                }
-
+            val frictionImpulse: Vector2 = applyCoulombsLaw(normalForces[i], frictionMag, tangent, sf, df)
             frictionList.add(frictionImpulse)
         }
+    }
 
-        // Apply impulses in separate loop to avoid affecting the calculation of following contact points
-        for ((i: Int, frictionImpulse: Vector2) in frictionList.withIndex()) {
-            obj.velocity += -frictionImpulse * obj.invMass
-            obj.angularVelocity += frictionImpulse.cross(contactPoints[i] - obj.position) * obj.invInertia
-        }
+    private fun calculateFrictionMagnitude(
+        relativeVelocity: Vector2,
+        tangent: Vector2,
+        obj: FhysicsObject,
+        rPerpDotTangent: Float,
+        contactPoints: Array<Vector2>,
+    ): Float {
+        var frictionMag: Float = -relativeVelocity.dot(tangent)
+        frictionMag /= obj.invMass +
+                (rPerpDotTangent * rPerpDotTangent) * obj.invInertia
+        frictionMag /= contactPoints.size // Distribute the impulse over all contact points
+
+        return frictionMag
     }
 
     /**
@@ -433,6 +485,7 @@ object CollisionSolver {
             val info: CollisionInfo = border.testCollision(obj)
             if (!info.hasCollision) continue
 
+            // Move the object inside the border
             obj.position += -info.normal * info.depth
             collidingBorders.add(border)
         }
@@ -441,4 +494,45 @@ object CollisionSolver {
         return collidingBorders
     }
     /// endregion
+
+    /**
+     * Returns the vector perpendicular to the vector from the object's position to the contact point.
+     */
+    private fun calculateContactPerpendicular(
+        contactPoint: Vector2,
+        obj: FhysicsObject,
+    ): Vector2 {
+        val r: Vector2 = contactPoint - obj.position
+        val rPerp = Vector2(-r.y, r.x)
+        return rPerp
+    }
+
+    /**
+     * Returns the friction impulse calculated by applying Coulomb's law.
+     */
+    private fun applyCoulombsLaw(
+        normalForce: Float,
+        frictionMag: Float,
+        tangent: Vector2,
+        sf: Float,
+        df: Float,
+    ): Vector2 {
+        if (frictionMag > 0) {
+            println("FrictionMag: $frictionMag")
+        }
+        // frictionMag is negative
+        return if (abs(frictionMag) >= normalForce * sf) {
+            frictionMag * tangent // Static friction
+        } else {
+            -normalForce * df * tangent // Dynamic friction
+        }
+    }
+
+    /**
+     * Sets the angular velocity of an [object][obj] to 0 if it's very small.
+     */
+    private fun clampSmallAngularVelocity(obj: FhysicsObject) {
+        // Set angular velocity to 0 if it's very small (this improves stability)
+        if (abs(obj.angularVelocity) < EPSILON) obj.angularVelocity = 0f
+    }
 }

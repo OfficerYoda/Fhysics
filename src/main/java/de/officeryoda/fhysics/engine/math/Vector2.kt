@@ -67,7 +67,7 @@ data class Vector2
     /**
      * Calculates the cross product of [this][Vector2] with [other].
      *
-     * To my math teacher Mr. Jungblut: I know that cross products are
+     * To my math teacher: I know that cross products are
      * technically only defined for 3D vectors, but if it works, it works.
      */
     fun cross(other: Vector2): Float {
@@ -92,13 +92,13 @@ data class Vector2
      * Calculates the Euclidean distance between [this][Vector2] and [other].
      */
     fun distanceTo(other: Vector2): Float {
-        return sqrt(distanceToSqr(other))
+        return sqrt(sqrDistanceTo(other))
     }
 
     /**
      * Calculates the squared Euclidean distance between [this][Vector2] and [other].
      */
-    fun distanceToSqr(other: Vector2): Float {
+    fun sqrDistanceTo(other: Vector2): Float {
         val dx: Float = this.x - other.x
         val dy: Float = this.y - other.y
         return dx * dx + dy * dy

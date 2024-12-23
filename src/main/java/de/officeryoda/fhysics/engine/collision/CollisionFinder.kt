@@ -1,10 +1,10 @@
 package de.officeryoda.fhysics.engine.collision
 
+import de.officeryoda.fhysics.engine.collision.ContactFinder.getConvexPolygons
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.ProjectionResult
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
-import kotlin.math.abs
 import kotlin.math.min
 
 object CollisionFinder {
@@ -13,24 +13,24 @@ object CollisionFinder {
      * Returns the [CollisionInfo] of the collision between [circleA] and [circleB].
      */
     fun testCollision(circleA: Circle, circleB: Circle): CollisionInfo {
-        // Calculate squared distance between circle centers
-        val sqrDst: Float = circleA.position.distanceToSqr(circleB.position)
-
+        val sqrDst: Float = circleA.position.sqrDistanceTo(circleB.position)
         val radii: Float = circleA.radius + circleB.radius
 
-        // Check if the circles don't overlap
         if (sqrDst >= radii * radii) return CollisionInfo()
 
-        // Calculate collision normal and overlap
         val collisionNormal: Vector2 = (circleB.position - circleA.position).normalized()
-        val projA: Projection = circleA.project(collisionNormal)
-        val projB: Projection = circleB.project(collisionNormal)
-        val overlap: Float = min(
-            projA.max - projB.min,
-            projB.max - projA.min
-        )
+        val overlap: Float = calculateOverlap(circleA, circleB, collisionNormal)
 
         return CollisionInfo(circleA, circleB, collisionNormal, overlap)
+    }
+
+    /**
+     * Calculates the overlap between two circles along the given [collisionNormal].
+     */
+    private fun calculateOverlap(circleA: Circle, circleB: Circle, collisionNormal: Vector2): Float {
+        val projA: Projection = circleA.project(collisionNormal)
+        val projB: Projection = circleB.project(collisionNormal)
+        return min(projA.max - projB.min, projB.max - projA.min)
     }
 
     /**
@@ -44,18 +44,12 @@ object CollisionFinder {
         }
 
         val axes: Set<Vector2> = poly.getAxes()
-
-        for (axis: Vector2 in axes) {
-            val projResult: ProjectionResult = testProjectionOverlap(axis, poly, circle)
-
-            if (!projResult.hasOverlap) return CollisionInfo()
-        }
+        if (!checkAxesForOverlap(axes, poly, circle)) return CollisionInfo()
 
         val closestPoint: Vector2 = getClosestPoint(poly, circle.position)
-
-        // Do a final check onto the axis from the circle to the closest point
         val finalAxis: Vector2 = (closestPoint - circle.position).normalized()
         val projResult: ProjectionResult = testProjectionOverlap(finalAxis, poly, circle)
+
         if (!projResult.hasOverlap) return CollisionInfo()
 
         // Make sure the normal points in the right direction
@@ -63,9 +57,19 @@ object CollisionFinder {
             finalAxis.negate()
         }
 
-        val targetPoly: Polygon =
-            if (poly.type == FhysicsObjectType.SUB_POLYGON) (poly as SubPolygon).parent else poly
+        val targetPoly: Polygon = if (poly.type == FhysicsObjectType.SUB_POLYGON) (poly as SubPolygon).parent else poly
         return CollisionInfo(circle, targetPoly, finalAxis, projResult.getOverlap())
+    }
+
+    /**
+     * Returns whether the given [polygon][poly] and [circle] overlap on any of the given [axes].
+     */
+    private fun checkAxesForOverlap(axes: Set<Vector2>, poly: Polygon, circle: Circle): Boolean {
+        for (axis: Vector2 in axes) {
+            val projResult: ProjectionResult = testProjectionOverlap(axis, poly, circle)
+            if (!projResult.hasOverlap) return false
+        }
+        return true
     }
 
     /**
@@ -79,17 +83,23 @@ object CollisionFinder {
         }
 
         val axes: Set<Vector2> = polyA.getAxes() + polyB.getAxes()
+        return findCollisionInfo(polyA, polyB, axes)
+    }
+
+    /**
+     * Returns the [CollisionInfo] of the collision between [polyA] and [polyB] on the given [axes].
+     */
+    private fun findCollisionInfo(polyA: Polygon, polyB: Polygon, axes: Set<Vector2>): CollisionInfo {
         var normal: Vector2 = Vector2.ZERO
         var depth: Float = Float.MAX_VALUE
 
+        // Check for overlap on every axis
         for (axis: Vector2 in axes) {
             val projResult: ProjectionResult = testProjectionOverlap(axis, polyA, polyB)
-
             if (!projResult.hasOverlap) return CollisionInfo()
 
-            val overlap: Float = projResult.getOverlap()
-
             // Check if the overlap is the smallest so far
+            val overlap: Float = projResult.getOverlap()
             if (overlap < depth) {
                 depth = overlap
                 normal = axis
@@ -105,17 +115,18 @@ object CollisionFinder {
     }
 
     /**
-     * Returns the [CollisionInfo] of the collision between [poly] (Concave) and [circle].
+     * Returns the [CollisionInfo] of the collision between the given [concave polygon][poly] and [circle].
      */
     private fun testConcavePolygonCollision(poly: ConcavePolygon, circle: Circle): CollisionInfo {
         var deepestCollision = CollisionInfo()
 
-        // Check for collision between the circle and every sub-polygon
+        // Find the deepest collision
         for (subPoly: Polygon in poly.subPolygons) {
-            val collisionInfo: CollisionInfo = testCollision(subPoly, circle)
-            if (!collisionInfo.hasCollision) continue
-            if (abs(deepestCollision.depth) < abs(collisionInfo.depth) || deepestCollision.depth == Float.NEGATIVE_INFINITY) {
-                deepestCollision = collisionInfo
+            val currentCollision: CollisionInfo = testCollision(subPoly, circle)
+            if (!currentCollision.hasCollision) continue
+
+            if (currentCollision.depth > deepestCollision.depth || deepestCollision.depth == Float.POSITIVE_INFINITY) {
+                deepestCollision = currentCollision
             }
         }
 
@@ -123,40 +134,41 @@ object CollisionFinder {
     }
 
     /**
-     * Returns the [CollisionInfo] of the collision between [polyA] and [polyB], where at least one of them is a [ConcavePolygon].
+     * Returns the [CollisionInfo] of the collision between [polyA] and [polyB].
      */
     private fun testConcavePolygonCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
-        var deepestCollision = CollisionInfo()
-
-        val polygonsA: List<Polygon> =
-            if (polyA.type == FhysicsObjectType.CONCAVE_POLYGON) (polyA as ConcavePolygon).subPolygons
-            else listOf(polyA)
-        val polygonsB: List<Polygon> =
-            if (polyB.type == FhysicsObjectType.CONCAVE_POLYGON) (polyB as ConcavePolygon).subPolygons
-            else listOf(polyB)
-
-        // Check for collision between every sub-polygon pair
-        for (subPolyA: Polygon in polygonsA) {
-            for (subPolyB: Polygon in polygonsB) {
-                val info: CollisionInfo = testCollision(subPolyA, subPolyB)
-
-                if (!info.hasCollision) continue
-
-                if (abs(deepestCollision.depth) < abs(info.depth) || deepestCollision.depth == Float.NEGATIVE_INFINITY) {
-                    deepestCollision = info
-                }
-            }
-        }
+        var deepestCollision: CollisionInfo = findDeepestCollision(polyA, polyB)
 
         if (deepestCollision.hasCollision) {
-
             // Make sure the normal points in the right direction
             val normal: Vector2 = deepestCollision.normal
-            if (normal.dot(deepestCollision.objB!!.position - deepestCollision.objA!!.position) < 0) {
+            val bToA: Vector2 = deepestCollision.objB!!.position - deepestCollision.objA!!.position
+            if (normal.dot(bToA) < 0) {
                 normal.negate()
             }
 
             deepestCollision = CollisionInfo(polyA, polyB, normal, deepestCollision.depth)
+        }
+
+        return deepestCollision
+    }
+
+    /**
+     * Returns the deepest collision between the given [polygons][polyA] and [polyB].
+     */
+    private fun findDeepestCollision(polyA: Polygon, polyB: Polygon): CollisionInfo {
+        var deepestCollision = CollisionInfo()
+        val (polygonsA: List<Polygon>, polygonsB: List<Polygon>) = getConvexPolygons(polyA, polyB)
+
+        for (subPolyA: Polygon in polygonsA) {
+            for (subPolyB: Polygon in polygonsB) {
+                val currentCollision: CollisionInfo = testCollision(subPolyA, subPolyB)
+                if (!currentCollision.hasCollision) continue
+
+                if (currentCollision.depth > deepestCollision.depth || deepestCollision.depth == Float.POSITIVE_INFINITY) {
+                    deepestCollision = currentCollision
+                }
+            }
         }
 
         return deepestCollision
@@ -168,27 +180,25 @@ object CollisionFinder {
     private fun testProjectionOverlap(axis: Vector2, objA: FhysicsObject, objB: FhysicsObject): ProjectionResult {
         val projectionA: Projection = objA.project(axis)
         val projectionB: Projection = objB.project(axis)
-
         return ProjectionResult(projectionA, projectionB)
     }
 
     /**
-     * Gets the closest point on the [polygon][poly] to the [external point][point].
+     * Returns the closest point on the given [polygon][poly] to the specified [point].
      */
     private fun getClosestPoint(poly: Polygon, point: Vector2): Vector2 {
         var closestPoint: Vector2 = Vector2.ZERO
         var minDistance: Float = Float.MAX_VALUE
 
         val vertices: Array<Vector2> = poly.getTransformedVertices()
-
         for (i: Int in vertices.indices) {
+            // Find the distance to the closest point on the edge
             val start: Vector2 = vertices[i]
             val end: Vector2 = vertices[(i + 1) % vertices.size]
+            val closestPointOnEdge: Vector2 = getClosestPointOnLine(start, end, point)
+            val distance: Float = closestPointOnEdge.sqrDistanceTo(point)
 
-            // Get the closest point on the current edge to the external point
-            val closestPointOnEdge: Vector2 = getClosestPointOnEdge(start, end, point)
-            val distance: Float = closestPointOnEdge.distanceToSqr(point)
-
+            // Update the closest point if necessary
             if (distance < minDistance) {
                 closestPoint = closestPointOnEdge
                 minDistance = distance
@@ -199,20 +209,16 @@ object CollisionFinder {
     }
 
     /**
-     * Returns the closest point on the edge defined by [start] and [end] to the [external point][point].
+     * Returns the closest point on the line defined by [start] and [end] to the [external point][point].
      */
-    fun getClosestPointOnEdge(start: Vector2, end: Vector2, point: Vector2): Vector2 {
-        // Calculate the closest point on the current edge to the external point
+    fun getClosestPointOnLine(start: Vector2, end: Vector2, point: Vector2): Vector2 {
         val edge: Vector2 = end - start
-        val t: Float = ((point - start).dot(edge)) / edge.sqrMagnitude()
+        val t: Float = (point - start).dot(edge) / edge.sqrMagnitude()
 
-        // Get the closest point on the edge
-        val closestPointOnEdge: Vector2 = when {
+        return when {
             t < 0.0 -> start
             t > 1.0 -> end
             else -> start + edge * t
         }
-
-        return closestPointOnEdge
     }
 }

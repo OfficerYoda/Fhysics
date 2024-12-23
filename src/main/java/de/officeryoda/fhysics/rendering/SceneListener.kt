@@ -214,7 +214,7 @@ object SceneListener {
         if (polyVertices.size > 2 && PolygonFactory.isPolygonValid(polyVertices)) {
             val startPosScreen: Vector2 = polyVertices.first().toScreenSpace()
 
-            if (mousePosScreen.distanceToSqr(startPosScreen) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
+            if (mousePosScreen.sqrDistanceTo(startPosScreen) < POLYGON_CLOSE_RADIUS * POLYGON_CLOSE_RADIUS) {
                 createAndSpawnPolygon()
                 return
             }
