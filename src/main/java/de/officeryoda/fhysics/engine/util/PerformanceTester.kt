@@ -3,6 +3,7 @@ package de.officeryoda.fhysics.engine.util
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.spawn
 import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomCircle
 import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomPolygon
@@ -163,7 +164,8 @@ private object PerformanceTester {
             if (scenario.name == "100,000 Circles") continue
 
             // Clear the simulation before each scenario
-            FhysicsCore.clear()
+            QuadTree.clearFlag = true
+            QuadTree.processPendingOperations()
 
             // Set up the scenario
             // Set up the object properties

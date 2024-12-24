@@ -514,13 +514,9 @@ object CollisionSolver {
         normalForce: Float,
         frictionMag: Float,
         tangent: Vector2,
-        sf: Float,
-        df: Float,
+        sf: Float, // Coefficient of static friction
+        df: Float, // Coefficient of dynamic friction
     ): Vector2 {
-        if (frictionMag > 0) {
-            println("FrictionMag: $frictionMag")
-        }
-        // frictionMag is negative
         return if (abs(frictionMag) >= normalForce * sf) {
             frictionMag * tangent // Static friction
         } else {

@@ -18,7 +18,7 @@ import kotlin.math.max
 object FhysicsCore {
 
     /** The Bounds of the simulation */
-    val BORDER: BoundingBox = BoundingBox(0f, 0f, 100f, 100f) // x and y must be 0.0
+    val BORDER: BoundingBox = BoundingBox(0f, 0f, 1000f, 1000f) // x and y must be 0.0
 
     /** The amount of updates the simulation should perform per second */
     const val UPDATES_PER_SECOND: Int = 60
@@ -35,26 +35,26 @@ object FhysicsCore {
     var updateCount = 0 // Includes all sub steps
 
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
-    var running: Boolean = true
+    var running: Boolean = false
     val updateStopwatch = Stopwatch()
 
     init {
-        val objects: List<FhysicsObject> = List(50) { FhysicsObjectFactory.randomCircle() }
-        for (it: FhysicsObject in objects) {
-            it.restitution = 1f
-            it.frictionDynamic = 0f
-            it.frictionStatic = 0f
-        }
+//        val objects: List<FhysicsObject> = List(50) { FhysicsObjectFactory.randomCircle() }
+//        for (it: FhysicsObject in objects) {
+//            it.restitution = 1f
+//            it.frictionDynamic = 0f
+//            it.frictionStatic = 0f
+//        }
         UIController.setBorderProperties(1f, 1f, 1f)
-        spawn(objects)
+//        spawn(objects)
 
-        repeat(10) {
-            spawn(FhysicsObjectFactory.randomRectangle())
-        }
-
-        repeat(10) {
-            spawn(FhysicsObjectFactory.randomPolygon())
-        }
+//        repeat(10) {
+//            spawn(FhysicsObjectFactory.randomRectangle())
+//        }
+//
+//        repeat(10) {
+//            spawn(FhysicsObjectFactory.randomPolygon())
+//        }
 
         // Three rectangles that act as slides + ground rectangle
 //        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).first().static = true
@@ -108,6 +108,12 @@ object FhysicsCore {
     fun update() {
         updateStopwatch.start()
 
+        if (QuadTree.getObjectCount() < 40_000) {
+            repeat(1000) {
+                spawn(FhysicsObjectFactory.randomCircle())
+            }
+        }
+
         // Rebuild once per update
         QuadTree.processPendingOperations()
         QuadTree.rebuild()
@@ -135,10 +141,6 @@ object FhysicsCore {
         }
 
         return objects
-    }
-
-    fun clear() {
-        QuadTree.clear()
     }
 
     /**
