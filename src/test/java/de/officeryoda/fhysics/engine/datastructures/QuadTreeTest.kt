@@ -26,7 +26,8 @@ class QuadTreeTest {
 
     @BeforeEach
     fun setUp() {
-        QuadTree.clear()
+        QuadTree.clearFlag = true
+        QuadTree.processPendingOperations()
     }
 
     @Test
@@ -34,7 +35,10 @@ class QuadTreeTest {
         val obj1 = Circle(Vector2(5f, 5f), 1f)
         val obj2 = Circle(Vector2(10f, 10f), 1f)
         insertObjects(obj1, obj2)
-        QuadTree.clear()
+
+        QuadTree.clearFlag = true
+        QuadTree.processPendingOperations()
+
         assertEquals(0, QuadTree.getObjectCount())
     }
 
