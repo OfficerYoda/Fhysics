@@ -517,7 +517,7 @@ object CollisionSolver {
         sf: Float, // Coefficient of static friction
         df: Float, // Coefficient of dynamic friction
     ): Vector2 {
-        return if (abs(frictionMag) >= normalForce * sf) {
+        return if (abs(frictionMag) <= normalForce * sf) {
             frictionMag * tangent // Static friction
         } else {
             -normalForce * df * tangent // Dynamic friction
