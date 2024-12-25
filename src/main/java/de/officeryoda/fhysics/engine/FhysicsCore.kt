@@ -114,9 +114,9 @@ object FhysicsCore {
             }
         }
 
-        // Rebuild once per update
-        QuadTree.processPendingOperations()
+        // Rebuild must happen before processing pending operations
         QuadTree.rebuild()
+        QuadTree.processPendingOperations()
 
         // Update objects multiple times per update
         repeat(SUB_STEPS) {
