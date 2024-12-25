@@ -40,6 +40,9 @@ object QuadTree {
     /** List of all objects in the tree */
     private val objects = IndexedFreeList<FhysicsObject>()
 
+    /** A flag indicating whether the QuadTree should be cleared. */
+    var clearFlag: Boolean = false
+
     /** A flag indicating whether the QuadTree should be rebuilt. */
     var rebuildFlag: Boolean = false
 
@@ -308,13 +311,13 @@ object QuadTree {
 
     /// region =====Splitting=====
     private fun trySplitNode(parent: QTNode) {
-        if (!shouldSplitNode(parent)) return
-
-        // Split the node
-        val firstElementIndex: Int = parent.firstIdx
-        val firstChildIdx: Int = createChildNodes(parent.bbox)
-        moveElementsToChildren(firstElementIndex, firstChildIdx)
-        convertToBranch(parent, firstChildIdx)
+        if (shouldSplitNode(parent)) {
+            // Split the node
+            val firstElementIndex: Int = parent.firstIdx
+            val firstChildIdx: Int = createChildNodes(parent.bbox)
+            moveElementsToChildren(firstElementIndex, firstChildIdx)
+            convertToBranch(parent, firstChildIdx)
+        }
     }
 
     private fun shouldSplitNode(node: QTNode): Boolean {
@@ -366,17 +369,24 @@ object QuadTree {
 
     private fun convertToBranch(node: QTNode, firstChildIdx: Int) {
         // Remove the elements from the node
+        freeElements(node)
+
+        // Set the count to -1 to indicate that the node is a branch
+        node.count = -1
+        // Set the first index to the first child node
+        node.firstIdx = firstChildIdx
+    }
+
+    /**
+     * Frees all elements in a [node].
+     */
+    private fun freeElements(node: QTNode) {
         var current = QTNodeElement(-1, node.firstIdx) // Dummy element
         while (current.next != -1) {
             val removeIdx: Int = current.next
             current = elements[current.next]
             elements.free(removeIdx)
         }
-
-        // Set the count to -1 to indicate that the node is a branch
-        node.count = -1
-        // Set the first index to the first child node
-        node.firstIdx = firstChildIdx
     }
     /// endregion
     /// endregion
@@ -390,6 +400,10 @@ object QuadTree {
         if (rebuildFlag) {
             rebuildFlag = false
             totalRebuild()
+        }
+        if (clearFlag) {
+            clearFlag = false
+            clear()
         }
         insertPending()
         removePending()
@@ -552,8 +566,8 @@ object QuadTree {
     private fun tryCollapseBranch(node: QTNode) {
         if (node.isLeaf) return
 
-        var elementsInChildren: Int = getElementsInChildren(node)
-        if (elementsInChildren == -1) return // Node has branch children
+        var elementsInChildren: Int = getElementCountInChildren(node)
+        if (elementsInChildren == -1) return // Node has branch children, don't collapse
 
         if (elementsInChildren <= capacity) {
             collapseBranch(node)
@@ -561,9 +575,7 @@ object QuadTree {
     }
 
     /**
-     * Collapses a [node] into a leaf node.
-     *
-     * Assumes that the node has only leaf children.
+     * Collapses the leaf children of a [node] into the node.
      */
     private fun collapseBranch(node: QTNode) {
         val firstChildIdx: Int = node.firstIdx
@@ -571,12 +583,14 @@ object QuadTree {
         node.firstIdx = -1
         node.count = 0
 
-        // Traverse backwards because the children need to be freed in reverse order
+        // Free in reverse so that the first child is freed last and free indices are reused in the correct order
         for (i: Int in 3 downTo 0) {
             val child: QTNode = nodes[firstChildIdx + i]
             addElementsToNode(child, node)
-            // Child is now empty, free it
+
+            // Free the child and its elements
             nodes.free(firstChildIdx + i)
+            freeElements(child)
         }
     }
 
@@ -591,8 +605,11 @@ object QuadTree {
         }
     }
 
-    /** Returns the number of elements in the children of the [node] or -1 if the node has branch children */
-    fun getElementsInChildren(node: QTNode): Int {
+    /**
+     * Returns the number of elements in the children of the [node]
+     * or -1 if the node has at least one branch child.
+     */
+    fun getElementCountInChildren(node: QTNode): Int {
         val children: Array<QTNode> = getChildren(node)
 
         var elements = 0
@@ -671,7 +688,7 @@ object QuadTree {
          * Points to the first child node in [QuadTree.nodes] when the node is a branch
          * or to the first element in [QuadTree.elements] when the node is a leaf.
          *
-         * Nodes are stored in blocks of 4 in the order: top left, top right, bottom left, bottom right.
+         * Child nodes are stored in blocks of 4 in the order: top left, top right, bottom left, bottom right.
          *
          * Elements are stored as a linked list.
          */
