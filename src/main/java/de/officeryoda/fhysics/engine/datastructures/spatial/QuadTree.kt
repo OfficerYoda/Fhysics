@@ -526,7 +526,7 @@ object QuadTree {
         println("Shutting down thread pool")
         threadPool.shutdownNow()
     }
-    /// endregion
+/// endregion
 
     /// region =====Rendering=====
     fun drawObjects(drawer: FhysicsObjectDrawer) {

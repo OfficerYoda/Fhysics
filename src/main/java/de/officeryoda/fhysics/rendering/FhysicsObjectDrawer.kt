@@ -188,10 +188,11 @@ class FhysicsObjectDrawer : Application() {
         val color = Color(c.red, c.green, c.blue, alpha)
 
         setFillColor(color)
-        when {
-            obj.type == FhysicsObjectType.CIRCLE -> drawCircleShape(obj as Circle)
-            obj.type == FhysicsObjectType.RECTANGLE -> drawRectangleShape(obj as Rectangle)
-            obj.type.value >= 2 -> drawPolygonShape(obj as Polygon)
+        when (obj.type) {
+            FhysicsObjectType.CIRCLE -> drawCircleShape(obj as Circle)
+            FhysicsObjectType.RECTANGLE -> drawRectangleShape(obj as Rectangle)
+            FhysicsObjectType.CONVEX_POLYGON, FhysicsObjectType.CONCAVE_POLYGON -> drawPolygonShape(obj as Polygon)
+            FhysicsObjectType.SUB_POLYGON -> throw IllegalArgumentException("SubPolygons draw should not be called")
         }
     }
 
