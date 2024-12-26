@@ -46,16 +46,7 @@ private val scenarioListLong: List<PerformanceTestScenario> = listOf(
     idealPhysicsScenarioSetup(
         name = "100,000 Circles",
         objectCreation = { List(100_000) { randomCircle() } },
-        boundary = BoundingBox(0f, 0f, 320f, 320f),
-    ),
-    idealPhysicsScenarioSetup(
-        name = "100 Rectangles",
-        objectCreation = { List(100) { randomRectangle() } },
-    ),
-    idealPhysicsScenarioSetup(
-        name = "1,000 Rectangles",
-        objectCreation = { List(1_000) { randomRectangle() } },
-        boundary = BoundingBox(0f, 0f, 320f, 320f),
+        boundary = BoundingBox(0f, 0f, 10000f, 10000f),
     ),
     idealPhysicsScenarioSetup(
         name = "50 Polygons",
@@ -97,14 +88,15 @@ private val scenarioListLong: List<PerformanceTestScenario> = listOf(
 )
 
 fun main() {
-//    PerformanceTester.testPerformance(
-//        listOf(
-//            idealPhysicsScenarioSetup(
-//                name = "1,000 Circles",
-//                objectCreation = { List(1_000) { randomCircle() } },
-//            )
-//        ), 1000
-//    )
+//    val results: List<PerformanceTestResult> =
+//        PerformanceTester.testPerformanceAverage(
+//            listOf(
+//                idealPhysicsScenarioSetup(
+//                    name = "10,000 Circles",
+//                    objectCreation = { List(10_000) { randomCircle() } },
+//                )
+//            ), 1000
+//        )
 
     val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListLong)
 
@@ -161,7 +153,6 @@ private object PerformanceTester {
 
         for ((index: Int, scenario: PerformanceTestScenario) in scenarioList.withIndex()) {
             println("Running scenario ${index + 1}/${scenarioList.size}: ${scenario.name}")
-            if (scenario.name == "100,000 Circles") continue
 
             // Clear the simulation before each scenario
             QuadTree.clearFlag = true

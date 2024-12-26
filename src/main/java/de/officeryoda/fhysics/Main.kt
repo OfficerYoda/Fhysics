@@ -8,8 +8,6 @@ import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 fun main() {
     println("Fhysics")
 
-    FhysicsCore.startEverything()
-
     // Better safe than sorry
     Runtime.getRuntime().addShutdownHook(Thread {
         try {
@@ -18,4 +16,6 @@ fun main() {
             e.printStackTrace()
         }
     })
+
+    FhysicsCore.startEverything()
 }

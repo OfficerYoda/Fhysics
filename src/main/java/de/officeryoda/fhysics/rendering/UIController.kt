@@ -712,7 +712,7 @@ class UIController {
         /// endregion
 
         /// region =====QuadTree=====
-        var drawQuadTree: Boolean = false
+        var drawQuadTree: Boolean = true
             private set
         var drawQTNodeUtilization: Boolean = true
             private set

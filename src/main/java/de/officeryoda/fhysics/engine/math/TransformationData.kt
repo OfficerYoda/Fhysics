@@ -35,7 +35,7 @@ value class TransformationData(
     }
 
     /**
-     * Constructs a transformation data object from an angle and translation.
+     * Constructs a transformation data object from an [angle] and [translation].
      */
     constructor(angle: Float, translation: Vector2) : this(
         floatArrayOf(
