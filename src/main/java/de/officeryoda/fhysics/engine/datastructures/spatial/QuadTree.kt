@@ -11,6 +11,8 @@ import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 import kotlin.collections.ArrayDeque
 import kotlin.math.min
 
@@ -51,6 +53,8 @@ object QuadTree {
 
     /** List of objects to remove, used to mark objects for deletion safely */
     val pendingRemovals: MutableList<FhysicsObject> = ArrayList()
+
+    private val threadPool = Executors.newFixedThreadPool(4) // 4 Threads showed no performance improvement
 
     /// region =====QuadTree Operations=====
     /// region =====Insertion=====
@@ -433,9 +437,14 @@ object QuadTree {
      */
     fun update() {
         val leaves: List<QTNode> = nodes.filter { it.isLeaf }
-        for (leaf: QTNode in leaves) {
-            updateLeaf(leaf)
-        }
+
+        // Update all leaves in parallel
+        threadPool.invokeAll(
+            leaves.map { node ->
+                Callable {
+                    updateLeaf(node)
+                }
+            })
     }
 
     fun rebuild() {
@@ -487,7 +496,7 @@ object QuadTree {
         val objectsInLeaf: MutableList<FhysicsObject> = ArrayList(node.count)
 
         var current = QTNodeElement(-1, node.firstIdx) // Dummy element
-        repeat(node.count) {
+        while (current.next != -1) {
             current = elements[current.next]
             objectsInLeaf.add(objects[current.index])
         }
@@ -495,8 +504,8 @@ object QuadTree {
         return objectsInLeaf
     }
 
-    private fun updateFhysicsObjects(objectsInLeaf: MutableList<FhysicsObject>) {
-        for (obj: FhysicsObject in objectsInLeaf) {
+    private fun updateFhysicsObjects(objects: MutableList<FhysicsObject>) {
+        for (obj: FhysicsObject in objects) {
             obj.update()
         }
     }
@@ -586,7 +595,7 @@ object QuadTree {
         // Free in reverse so that the first child is freed last and free indices are reused in the correct order
         for (i: Int in 3 downTo 0) {
             val child: QTNode = nodes[firstChildIdx + i]
-            addElementsToNode(child, node)
+            moveElements(child, node)
 
             // Free the child and its elements
             nodes.free(firstChildIdx + i)
@@ -595,9 +604,9 @@ object QuadTree {
     }
 
     /**
-     * Adds all elements from a [fromNode] to a [toNode].
+     * Adds all elements from [fromNode] to [toNode].
      */
-    private fun addElementsToNode(fromNode: QTNode, toNode: QTNode) {
+    private fun moveElements(fromNode: QTNode, toNode: QTNode) {
         var current = QTNodeElement(-1, fromNode.firstIdx) // Dummy element
         while (current.next != -1) {
             current = elements[current.next]
@@ -631,7 +640,7 @@ object QuadTree {
 
     fun shutdownThreadPool() {
         println("Shutting down thread pool")
-//        threadPool.shutdownNow() // TODO
+        threadPool.shutdownNow()
     }
     /// endregion
 

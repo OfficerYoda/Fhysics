@@ -4,7 +4,6 @@ import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory
 import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
@@ -32,21 +31,30 @@ object FhysicsCore {
     /** A small value used for floating point comparisons */
     const val EPSILON: Float = 1E-4f
 
+    /**
+     * The amount of updates that have been performed since the start of the simulation.
+     */
     var updateCount = 0 // Includes all sub steps
 
+    /** The time step used for the simulation */
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
-    var running: Boolean = false
+
+    /** Whether the simulation is running */
+    var running: Boolean = true
+
+    /** A stopwatch to measure the time per update */
     val updateStopwatch = Stopwatch()
 
     init {
 //        val objects: List<FhysicsObject> = List(50) { FhysicsObjectFactory.randomCircle() }
 //        for (it: FhysicsObject in objects) {
 //            it.restitution = 1f
-//            it.frictionDynamic = 0f
 //            it.frictionStatic = 0f
+//            it.frictionDynamic = 0f
+//            it.velocity *= 0.45f
 //        }
-        UIController.setBorderProperties(1f, 1f, 1f)
 //        spawn(objects)
+        UIController.setBorderProperties(1f, 1f, 1f)
 
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomRectangle())
@@ -69,21 +77,13 @@ object FhysicsCore {
 //            frictionDynamic = 1.0f
 //            restitution = 0.0f
 //        }
-        // A small rectangle on top of the big rectangle
-//        spawn(Rectangle(Vector2(50.0f, 57.0f), 1.0f, 1.0f)).first().apply {
-//            static = false
-//            frictionStatic = 1.0f
-//            frictionDynamic = 1.0f
-//            restitution = 0.0f
-//            angle = Math.toRadians(30.0).toFloat()
-//        }
     }
 
 
     fun startEverything() {
         // Start the rendering thread
         Thread { FhysicsObjectDrawer().launch() }.start()
-        // Start the simulation, running on this thread
+        // Start the simulation
         startUpdateLoop()
     }
 
@@ -108,11 +108,15 @@ object FhysicsCore {
     fun update() {
         updateStopwatch.start()
 
-        if (QuadTree.getObjectCount() < 40_000) {
-            repeat(1000) {
-                spawn(FhysicsObjectFactory.randomCircle())
-            }
-        }
+//        if (QuadTree.getObjectCount() < 40_000) {
+//            repeat(1000) {
+//                spawn(FhysicsObjectFactory.randomCircle()).forEach {
+//                    it.restitution = 1f
+//                    it.frictionStatic = 0f
+//                    it.frictionDynamic = 0f
+//                }
+//            }
+//        }
 
         // Rebuild must happen before processing pending operations
         QuadTree.rebuild()
