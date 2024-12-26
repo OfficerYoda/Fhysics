@@ -14,10 +14,7 @@ import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
 import de.officeryoda.fhysics.rendering.RenderUtil.toWorldSpace
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnColor
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType
-import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
-import javafx.scene.input.MouseEvent
-import javafx.scene.input.ScrollEvent
+import javafx.scene.input.*
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -180,7 +177,6 @@ object SceneListener {
         // Adjust the target zoom center to zoom towards the mouse position
         drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
     }
-
     /// endregion
 
     /// region =====Other methods=====
@@ -289,10 +285,13 @@ object SceneListener {
     }
 
     /**
-     * Sets the mouse position in world space and updates the spawn preview position based on the [MouseEvent][e].
+     * Sets the mouse position in world space and updates the spawn preview position based on the [InputEvent][e].
      */
-    private fun updateMousePos(e: MouseEvent) {
-        mousePosScreen.set(getMouseScreenPos(e))
+    private fun updateMousePos(e: InputEvent) {
+        when (e) {
+            is MouseEvent -> mousePosScreen.set(getMouseScreenPos(e))
+            is ScrollEvent -> mousePosScreen.set(Vector2(e.x.toFloat(), e.y.toFloat()))
+        }
         mousePosWorld.set(mousePosScreen.toWorldSpace())
 
         // Update the spawn preview position if it's not set due to dragging a rectangle
@@ -372,6 +371,7 @@ object SceneListener {
     }
 
     fun onMouseWheel(e: ScrollEvent) {
+        updateMousePos(e)
         onScroll(e.deltaY)
     }
 
