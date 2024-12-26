@@ -71,8 +71,7 @@ object SceneListener {
     private var pullObject: FhysicsObject? = null
 
     /** The relative position of the object to the mouse when pulling started. */
-    private var pulledRelativePos: Vector2 =
-        Vector2.ZERO
+    private var pulledRelativePos: Vector2 = Vector2.ZERO
 
     /** The angle of the object when pulling started. */
     private var pulledAtAngle = 0.0f
@@ -378,16 +377,7 @@ object SceneListener {
     fun onKeyPressed(event: KeyEvent) {
         when (event.code) {
             KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
-            KeyCode.SPACE -> {
-                DebugDrawer.clearDebug()
-                FhysicsCore.update()
-            }
-
-            KeyCode.ENTER -> {
-                DebugDrawer.clearDebug()
-                FhysicsCore.update()
-            }
-
+            KeyCode.SPACE, KeyCode.ENTER -> DebugDrawer.clearDebug().also { FhysicsCore.update() }
             KeyCode.Q -> QuadTree.QTDebugHelper.printTree()
             KeyCode.Z -> drawer.resetZoom()
             KeyCode.H -> QuadTree.capacity -= 1
@@ -395,6 +385,7 @@ object SceneListener {
             KeyCode.K -> QuadTree.capacity += 5
             KeyCode.L -> QuadTree.capacity += 1
             KeyCode.S -> println(selectedObject)
+            KeyCode.DELETE -> UIController.instance.onPropertyRemoveClicked()
             else -> {}
         }
     }
