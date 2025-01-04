@@ -15,7 +15,7 @@ class Rectangle(
 
     override val type = FhysicsObjectType.RECTANGLE
 
-    override fun getAxes(): Set<Vector2> {
+    override fun getAxes(): List<Vector2> {
         // Calculate the normals of the rectangle's sides based on its rotation
         val sin: Float = sin(angle)
         val cos: Float = cos(angle)
@@ -23,7 +23,7 @@ class Rectangle(
         val axis1 = Vector2(cos, sin)
         val axis2 = Vector2(-sin, cos)
 
-        return setOf(axis1, axis2)
+        return listOf(axis1, axis2)
     }
 
     override fun contains(pos: Vector2): Boolean {

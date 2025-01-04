@@ -33,9 +33,9 @@ abstract class Polygon(
         }
     }
 
-    open fun getAxes(): Set<Vector2> {
-        val axes: MutableSet<Vector2> = mutableSetOf()
+    open fun getAxes(): List<Vector2> {
         val transformedVertices: Array<Vector2> = getTransformedVertices()
+        val axes: MutableList<Vector2> = ArrayList(transformedVertices.size)
 
         // Calculate the normals of the polygon's sides based on its rotation
         for (i: Int in transformedVertices.indices) {

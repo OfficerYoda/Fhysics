@@ -222,7 +222,10 @@ object SceneListener {
     private fun createAndSpawnPolygon() {
         // Create and spawn the polygon
         val polygon: Polygon = PolygonFactory.createPolygon(polyVertices.toTypedArray())
-        FhysicsCore.spawn(polygon)
+        FhysicsCore.spawn(polygon.apply {
+            color = asOpaqueColor(polygon.color)
+            static = UIController.spawnStatic
+        })
 
         // Clear the polygon vertices
         polyVertices.clear()
@@ -377,7 +380,12 @@ object SceneListener {
     fun onKeyPressed(event: KeyEvent) {
         when (event.code) {
             KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
-            KeyCode.SPACE, KeyCode.ENTER -> DebugDrawer.clearDebug().also { FhysicsCore.update() }
+            KeyCode.ENTER ->
+                if (!FhysicsCore.running) {
+                    DebugDrawer.clearDebug()
+                    FhysicsCore.update()
+                }
+
             KeyCode.Q -> QuadTree.QTDebugHelper.printTree()
             KeyCode.Z -> drawer.resetZoom()
             KeyCode.H -> QuadTree.capacity -= 1
