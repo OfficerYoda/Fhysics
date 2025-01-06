@@ -20,6 +20,7 @@ class QuadTreeTest {
         @JvmStatic
         fun initAll() {
             // Make sure BORDER is initialized correctly
+            FhysicsCore.BORDER = BoundingBox(0f, 0f, 100f, 100f)
             assert(FhysicsCore.BORDER == BoundingBox(0f, 0f, 100f, 100f))
         }
     }
@@ -45,6 +46,7 @@ class QuadTreeTest {
     @Test
     fun testInsertAndQuery() {
         val obj = Circle(Vector2(5f, 5f), 1f)
+
         insertObjects(obj)
 
         val result = QuadTree.query(Vector2(5f, 5f))
@@ -55,14 +57,17 @@ class QuadTreeTest {
     @Test
     fun testQueryEmptyTree() {
         val result = QuadTree.query(Vector2(5f, 5f))
+
         assertNull(result)
     }
 
     @Test
     fun testRemove() {
         val obj = Circle(Vector2(5f, 5f), 1f)
+
         insertObjects(obj)
         removeObjects(obj)
+
         val result = QuadTree.query(Vector2(5f, 5f))
         assertNull(result)
     }
@@ -71,7 +76,9 @@ class QuadTreeTest {
     fun testInsertionMultipleObjects() {
         val obj1 = Circle(Vector2(5f, 5f), 1f)
         val obj2 = Circle(Vector2(10f, 10f), 1f)
+
         insertObjects(obj1, obj2)
+
         val result1 = QuadTree.query(Vector2(5f, 5f))
         val result2 = QuadTree.query(Vector2(10f, 10f))
         assertNotNull(result1)
@@ -84,7 +91,9 @@ class QuadTreeTest {
     fun testInsertionMultipleObjectsSamePosition() {
         val obj1 = Circle(Vector2(5f, 5f), 1f)
         val obj2 = Circle(Vector2(5f, 5f), 1f)
+
         insertObjects(obj1, obj2)
+
         val result1 = QuadTree.query(Vector2(5f, 5f))
         assertNotNull(result1)
         assertEquals(obj1, result1)
@@ -94,8 +103,10 @@ class QuadTreeTest {
     fun testInsertionMultipleObjectsSamePositionRemoveOne() {
         val obj1 = Circle(Vector2(5f, 5f), 1f)
         val obj2 = Circle(Vector2(5f, 5f), 1f)
+
         insertObjects(obj1, obj2)
         removeObjects(obj1)
+
         val result1 = QuadTree.query(Vector2(5f, 5f))
         assertNotNull(result1)
         assertEquals(obj2, result1)
@@ -105,8 +116,10 @@ class QuadTreeTest {
     fun testInsertionMultipleObjectsSamePositionRemoveAll() {
         val obj1 = Circle(Vector2(5f, 5f), 1f)
         val obj2 = Circle(Vector2(5f, 5f), 1f)
+
         insertObjects(obj1, obj2)
         removeObjects(obj1, obj2)
+
         val result1 = QuadTree.query(Vector2(5f, 5f))
         assertNull(result1)
     }
@@ -120,21 +133,15 @@ class QuadTreeTest {
         val obj4 = Circle(Vector2(35f, 35f), 1f)
         val obj5 = Circle(Vector2(45f, 45f), 1f)
 
-        val objects = listOf(obj1, obj2, obj3, obj4, obj5)
-        objects.forEach { it.updateBoundingBox() }
-
-        insertObjects(objects)
+        insertObjects(obj1, obj2, obj3, obj4, obj5)
 
         QTDebugHelper.printTree()
-
         val childrenGen1: Array<QTNode> = QTDebugHelper.getChildren(QTDebugHelper.root)
         val childrenBl: Array<QTNode> = QTDebugHelper.getChildren(childrenGen1[2])
-
-        assertEquals(1, childrenBl[0].count)
-        assertEquals(3, childrenBl[1].count)
-        assertEquals(3, childrenBl[2].count)
-        assertEquals(1, childrenBl[3].count)
-
+        assertEquals(1, childrenBl[0].objects.size)
+        assertEquals(3, childrenBl[1].objects.size)
+        assertEquals(3, childrenBl[2].objects.size)
+        assertEquals(1, childrenBl[3].objects.size)
         assertEquals(5, QuadTree.getObjectCount())
         assertTrue(!QTDebugHelper.root.isLeaf)
     }
@@ -148,16 +155,13 @@ class QuadTreeTest {
         val obj4 = Circle(Vector2(35f, 35f), 1f)
         val obj5 = Circle(Vector2(45f, 45f), 1f)
 
-        val objects = listOf(obj1, obj2, obj3, obj4, obj5)
-        objects.forEach { it.updateBoundingBox() }
-        insertObjects(objects)
+        insertObjects(obj1, obj2, obj3, obj4, obj5)
 
         val result1 = QuadTree.query(Vector2(5f, 5f))
         val result2 = QuadTree.query(Vector2(15f, 15f))
         val result3 = QuadTree.query(Vector2(25f, 25f))
         val result4 = QuadTree.query(Vector2(35f, 35f))
         val result5 = QuadTree.query(Vector2(45f, 45f))
-
         assertNotNull(result1)
         assertNotNull(result2)
         assertNotNull(result3)
@@ -179,12 +183,8 @@ class QuadTreeTest {
         val obj4 = Circle(Vector2(35f, 35f), 1f)
         val obj5 = Circle(Vector2(45f, 45f), 1f)
 
-        val objects = listOf(obj1, obj2, obj3, obj4, obj5)
-        objects.forEach { it.updateBoundingBox() }
-
-        insertObjects(objects)
-        removeObjects(objects)
-
+        insertObjects(obj1, obj2, obj3, obj4, obj5)
+        removeObjects(obj1, obj2, obj3, obj4, obj5)
         QuadTree.rebuild()
 
         assertTrue(QTDebugHelper.root.isLeaf)
@@ -200,19 +200,13 @@ class QuadTreeTest {
         val obj4 = Circle(Vector2(45f, 45f), 1f)
         val obj5 = Circle(Vector2(55f, 55f), 1f)
 
-        val objects = listOf(obj1, obj2, obj3, obj4, obj5)
-        objects.forEach { it.updateBoundingBox() }
-
-        insertObjects(objects)
-        removeObjects(objects)
-
+        insertObjects(obj1, obj2, obj3, obj4, obj5)
+        removeObjects(obj1, obj2, obj3, obj4, obj5)
         QuadTree.rebuild()
 
         val rootNode = QTDebugHelper.root
-
         assertTrue(rootNode.isLeaf)
-        assertEquals(0, rootNode.count)
-        assertEquals(-1, rootNode.firstIdx)
+        assertEquals(0, rootNode.objects.size)
     }
 
     private fun insertObjects(vararg objects: FhysicsObject) {
@@ -220,7 +214,10 @@ class QuadTreeTest {
     }
 
     private fun insertObjects(objects: List<FhysicsObject>) {
-        objects.forEach { QuadTree.insert(it) }
+        objects.forEach {
+            it.updateBoundingBox()
+            QuadTree.insert(it)
+        }
         QuadTree.processPendingOperations()
     }
 

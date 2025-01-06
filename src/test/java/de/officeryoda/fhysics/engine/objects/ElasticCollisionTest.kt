@@ -2,10 +2,10 @@
 
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController.Companion.damping
@@ -27,7 +27,7 @@ class ElasticCollisionTest {
 
     @BeforeEach
     fun setup() {
-        FhysicsCore.clear()
+        QuadTree.clear()
     }
 
     @Test
@@ -295,7 +295,7 @@ class ElasticCollisionTest {
                 gravityType == GravityType.DIRECTIONAL && gravityDirection.sqrMagnitude() != 0f -> System.err.println("Gravity is not 0! Tests may fail!")
                 gravityType == GravityType.TOWARDS_POINT && gravityPointStrength != 0f -> System.err.println("Gravity is not 0! Tests may fail!")
             }
-            FhysicsCore.clear()
+            QuadTree.clear()
         }
     }
 }

@@ -17,7 +17,7 @@ import kotlin.math.max
 object FhysicsCore {
 
     /** The Bounds of the simulation */
-    val BORDER: BoundingBox = BoundingBox(0f, 0f, 1000f, 1000f) // x and y must be 0.0
+    var BORDER: BoundingBox = BoundingBox(0f, 0f, 1000f, 1000f) // x and y must be 0.0
 
     /** The amount of updates the simulation should perform per second */
     const val UPDATES_PER_SECOND: Int = 60
