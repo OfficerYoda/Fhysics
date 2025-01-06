@@ -11,6 +11,9 @@ import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.rand
 import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.idealPhysicsScenarioSetup
 import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.randomPhysicsScenarioSetup
 import de.officeryoda.fhysics.rendering.UIController
+import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
@@ -87,22 +90,21 @@ private val scenarioListLong: List<PerformanceTestScenario> = listOf(
     )
 )
 
-fun main() {
-//    val results: List<PerformanceTestResult> =
-//        PerformanceTester.testPerformanceAverage(
-//            listOf(
-//                idealPhysicsScenarioSetup(
-//                    name = "10,000 Circles",
-//                    objectCreation = { List(10_000) { randomCircle() } },
-//                )
-//            ), 1000
-//        )
+fun main(args: Array<String>) {
+    val scenarioList: List<PerformanceTestScenario> =
+        if (args.isNotEmpty() && args[0] == "long") scenarioListLong else scenarioListShort
 
-    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioListLong)
+    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioList)
 
     println("============Results============")
-    for (result: PerformanceTestResult in results) {
-        println("${result.scenario.name}: ${result.time}ms")
+    val timestamp: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
+    val outputFile = File("output-$timestamp.txt")
+    outputFile.printWriter().use { out ->
+        for (result: PerformanceTestResult in results) {
+            val resultString = "${result.scenario.name}: ${result.time}ms"
+            println(resultString)
+            out.println(resultString)
+        }
     }
 
     exitProcess(0)

@@ -90,22 +90,22 @@ abstract class FhysicsObject protected constructor(
      */
     var restitution: Float = 0.5f
         set(value) {
-            field = Math.clamp(value, 0f, 1f)
+            field = value.coerceIn(0f, 1f)
         }
 
     var frictionStatic: Float = 0.5f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~1.0)
-            field = Math.clamp(value, 0f, 1f)
+            field = value.coerceIn(0f, 1f)
         }
 
     var frictionDynamic: Float = 0.45f
         set(value) {
             // Can be over one in real life, but it's very rare (rubber on dry concrete: ~0.8)
-            field = Math.clamp(value, 0f, 1f)
+            field = value.coerceIn(0f, 1f)
         }
 
-    private val twoPi: Float = Math.TAU.toFloat()
+    private val twoPi: Float = Math.PI.toFloat() * 2
 
     fun update() {
         // Static objects don't move
