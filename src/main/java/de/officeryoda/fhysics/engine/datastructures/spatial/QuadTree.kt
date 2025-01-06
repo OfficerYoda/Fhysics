@@ -9,6 +9,7 @@ import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.DebugDrawer
 import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import de.officeryoda.fhysics.rendering.SceneListener
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.*
 import java.util.concurrent.Callable
@@ -211,7 +212,8 @@ object QuadTree {
      */
     private fun queryLeafObjects(node: QTNode, pos: Vector2): FhysicsObject? {
         for (obj: FhysicsObject in node.objects) {
-            if (obj.boundingBox.contains(pos)) {
+            if (!obj.boundingBox.contains(pos)) continue
+            if (obj.contains(pos)) {
                 return obj
             }
         }
@@ -323,6 +325,7 @@ object QuadTree {
         root = QTNode(BORDER)
         nodes.clear()
         nodes.add(root)
+        SceneListener.clearSelection()
     }
 
     /**

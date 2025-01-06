@@ -309,6 +309,14 @@ object SceneListener {
         leftPressed = e.isPrimaryButtonDown
         rightPressed = e.isSecondaryButtonDown
     }
+
+    /**
+     * Clears the selection of the hovered and selected object.
+     */
+    fun clearSelection() {
+        hoveredObject = null
+        selectedObject = null
+    }
     /// endregion
 
     /// region =====Vanilla event handlers=====
