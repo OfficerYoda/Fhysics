@@ -4,10 +4,11 @@ import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
+import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.engine.util.times
-import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
 import de.officeryoda.fhysics.rendering.GravityType
+import de.officeryoda.fhysics.rendering.Renderer
 import de.officeryoda.fhysics.rendering.SceneListener
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.*
@@ -77,12 +78,29 @@ object FhysicsCore {
 //            frictionDynamic = 1.0f
 //            restitution = 0.0f
 //        }
+
+        val rectA: Rectangle = Rectangle(Vector2(55.5f, 48.75f), 10f, 5f).apply {
+            velocity.set(Vector2(10f, 0f))
+            restitution = 1f
+            frictionStatic = 0f
+            frictionDynamic = 0f
+            mass = 2f
+        }
+
+        val rectB: Rectangle = Rectangle(Vector2(75f, 51.25f), 10f, 5f).apply {
+            velocity.set(Vector2(-10f, 0f))
+            restitution = 1f
+            frictionStatic = 0f
+            frictionDynamic = 0f
+            mass = 2f
+        }
+        spawn(rectA, rectB)
     }
 
 
     fun startEverything() {
         // Start the rendering thread
-        Thread { FhysicsObjectDrawer().launch() }.start()
+        Thread { Renderer().launch() }.start()
         // Start the simulation
         startUpdateLoop()
     }

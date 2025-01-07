@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import de.officeryoda.fhysics.rendering.Renderer
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -50,8 +50,8 @@ class Rectangle(
         return other.findContactPoints(this, info)
     }
 
-    override fun draw(drawer: FhysicsObjectDrawer) {
-        drawer.drawRectangle(this)
+    override fun draw(renderer: Renderer) {
+        renderer.drawRectangle(this)
     }
 
     override fun toString(): String {

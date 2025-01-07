@@ -538,7 +538,7 @@ class UIController {
     fun initialize() {
         /// region =====Singleton=====
         instance = this
-        drawer = RenderUtil.drawer
+        renderer = RenderUtil.render
         /// endregion
 
         /// region =====Object Properties=====
@@ -659,7 +659,7 @@ class UIController {
     companion object {
         /// region =====Singleton=====
         lateinit var instance: UIController
-        lateinit var drawer: FhysicsObjectDrawer
+        lateinit var renderer: Renderer
         /// endregion
 
         /// region =====Spawn Object=====

@@ -9,7 +9,7 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
-import de.officeryoda.fhysics.rendering.RenderUtil.drawer
+import de.officeryoda.fhysics.rendering.RenderUtil.render
 import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
 import de.officeryoda.fhysics.rendering.RenderUtil.toWorldSpace
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnColor
@@ -149,32 +149,32 @@ object SceneListener {
     private fun onRightDrag() {
         // Move the camera by the amount the mouse is away from the position where the right mouse button was pressed
         val deltaMousePos: Vector2 = rightPressedPosWorld - mousePosWorld
-        drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos
-        drawer.zoomCenter = drawer.targetZoomCenter
+        render.targetZoomCenter = render.targetZoomCenter + deltaMousePos
+        render.zoomCenter = render.targetZoomCenter
     }
 
     private fun onScroll(direction: Double) {
         // Zoom in or out based on the scroll direction
         val zoomFactor: Float = if (direction > 0) 1.1f else 1 / 1.1f
-        val newTargetZoom: Double = drawer.targetZoom * zoomFactor
+        val newTargetZoom: Double = render.targetZoom * zoomFactor
 
         val minZoom: Double = 200.0 / max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height)
         val maxZoom: Double = max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height) * 2.0
 
         // If the zoom is already at min/max return to not change the zoom center
         if (newTargetZoom !in minZoom..maxZoom // New zoom is not in bounds
-            && (drawer.zoom - minZoom < EPSILON || maxZoom - drawer.zoom < EPSILON)
+            && (render.zoom - minZoom < EPSILON || maxZoom - render.zoom < EPSILON)
         ) // Zoom is already at min/max
             return
 
         // Clamp the zoom level
-        drawer.targetZoom = newTargetZoom.coerceIn(minZoom, maxZoom)
+        render.targetZoom = newTargetZoom.coerceIn(minZoom, maxZoom)
 
         // Calculate the difference between the mouse position and the current zoom center
-        val deltaMousePos: Vector2 = mousePosWorld - drawer.targetZoomCenter
+        val deltaMousePos: Vector2 = mousePosWorld - render.targetZoomCenter
 
         // Adjust the target zoom center to zoom towards the mouse position
-        drawer.targetZoomCenter = drawer.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
+        render.targetZoomCenter = render.targetZoomCenter + deltaMousePos * (1 - 1 / zoomFactor)
     }
     /// endregion
 
@@ -390,12 +390,12 @@ object SceneListener {
             KeyCode.P -> FhysicsCore.running = !FhysicsCore.running
             KeyCode.ENTER ->
                 if (!FhysicsCore.running) {
-                    DebugDrawer.clearDebug()
+                    DebugRenderer.clearDebug()
                     FhysicsCore.update()
                 }
 
             KeyCode.Q -> QuadTree.QTDebugHelper.printTree()
-            KeyCode.Z -> drawer.resetZoom()
+            KeyCode.Z -> render.resetZoom()
             KeyCode.H -> QuadTree.capacity -= 1
             KeyCode.J -> QuadTree.capacity -= 5
             KeyCode.K -> QuadTree.capacity += 5

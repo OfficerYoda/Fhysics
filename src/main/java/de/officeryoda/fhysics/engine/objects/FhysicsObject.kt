@@ -7,7 +7,7 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import de.officeryoda.fhysics.rendering.Renderer
 import de.officeryoda.fhysics.rendering.UIController.Companion.damping
 import java.awt.Color
 
@@ -193,7 +193,7 @@ abstract class FhysicsObject protected constructor(
     /**
      * Draws this object.
      */
-    abstract fun draw(drawer: FhysicsObjectDrawer)
+    abstract fun draw(renderer: Renderer)
 
     private fun colorFromId(): Color {
         val colors: List<Color> =

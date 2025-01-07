@@ -7,34 +7,26 @@ import java.awt.Color
 
 object RenderUtil {
 
-    /** The drawer to use for rendering. */
-    lateinit var drawer: FhysicsObjectDrawer
+    /** The main renderer */
+    lateinit var render: Renderer
 
-    /** The width of the canvas. */
+    /** The width of the canvas */
     private val width: Double
-        get() = drawer.width
+        get() = render.width
 
-    /** The height of the canvas. */
+    /** The height of the canvas */
     private val height: Double
-        get() = drawer.height
+        get() = render.height
 
-    /** The zoom factor of the drawer. */
-    var zoom: Double
-        get() = drawer.zoom
-        set(value) {
-            drawer.zoom = value
-        }
+    /** The zoom factor of the renderer */
+    var zoom: Double by render::zoom
 
-    /** The zoom center of the drawer. */
-    var zoomCenter: Vector2
-        get() = drawer.zoomCenter
-        set(value) {
-            drawer.zoomCenter = value
-        }
+    /** The zoom center of the renderer */
+    var zoomCenter: Vector2 by render::zoomCenter
 
-    /** The graphics context of the drawer. */
+    /** The graphics context of the renderer */
     private val gc: GraphicsContext
-        get() = drawer.gc
+        get() = render.gc
 
     /**
      * Linearly interpolates between [a] and [b] based on [t].

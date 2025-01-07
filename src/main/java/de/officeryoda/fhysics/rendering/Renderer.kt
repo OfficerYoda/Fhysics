@@ -41,7 +41,7 @@ import kotlin.math.sin
 import kotlin.system.exitProcess
 
 // Can't be converted to a singleton because JavaFX won't allow it
-class FhysicsObjectDrawer : Application() {
+class Renderer : Application() {
 
     // Rendering properties
     private lateinit var stage: Stage
@@ -77,13 +77,13 @@ class FhysicsObjectDrawer : Application() {
 
     /// region =====Start functions=====
     fun launch() {
-        launch(FhysicsObjectDrawer::class.java)
+        launch(Renderer::class.java)
     }
 
     override fun start(stage: Stage) {
-        // Set the drawer in the RenderUtil
-        RenderUtil.drawer = this
-        DebugDrawer.drawer = this
+        // Set the renderer in the helper objects
+        RenderUtil.render = this
+        DebugRenderer.renderer = this
 
         this.stage = stage
 
@@ -176,7 +176,7 @@ class FhysicsObjectDrawer : Application() {
         drawSpawnPreview()
         drawBorder()
 
-        DebugDrawer.drawDebug()
+        DebugRenderer.drawDebug()
         drawStopwatch.stop()
     }
 
