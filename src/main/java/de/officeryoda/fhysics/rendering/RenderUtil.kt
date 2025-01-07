@@ -5,6 +5,9 @@ import javafx.scene.canvas.GraphicsContext
 import javafx.scene.paint.Paint
 import java.awt.Color
 
+/**
+ * Contains utility functions for rendering.
+ */
 object RenderUtil {
 
     /** The main renderer */
@@ -19,10 +22,18 @@ object RenderUtil {
         get() = render.height
 
     /** The zoom factor of the renderer */
-    var zoom: Double by render::zoom
+    var zoom: Double
+        get() = render.zoom
+        set(value) {
+            render.zoom = value
+        }
 
     /** The zoom center of the renderer */
-    var zoomCenter: Vector2 by render::zoomCenter
+    var zoomCenter: Vector2
+        get() = render.zoomCenter
+        set(value) {
+            render.zoomCenter = value
+        }
 
     /** The graphics context of the renderer */
     private val gc: GraphicsContext

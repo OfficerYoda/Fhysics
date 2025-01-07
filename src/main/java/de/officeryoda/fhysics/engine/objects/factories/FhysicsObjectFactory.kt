@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.engine.objects.factories
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.Polygon
@@ -15,6 +15,9 @@ import kotlin.math.*
 import kotlin.random.Random.Default as KtRandom
 
 @Suppress("SameParameterValue", "SameParameterValue", "SameParameterValue")
+/**
+ * A factory for creating random [FhysicsObjects][de.officeryoda.fhysics.engine.objects.FhysicsObject].
+ */
 object FhysicsObjectFactory {
 
     private val RANDOM: Random = Random()

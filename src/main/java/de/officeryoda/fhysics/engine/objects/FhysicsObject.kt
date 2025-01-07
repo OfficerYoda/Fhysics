@@ -4,7 +4,7 @@ import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.dt
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
-import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.Renderer

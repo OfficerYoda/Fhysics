@@ -1,10 +1,8 @@
 package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.QTDebugHelper
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.QTNode
+import de.officeryoda.fhysics.engine.datastructures.QuadTree.QTDebugHelper
+import de.officeryoda.fhysics.engine.datastructures.QuadTree.QTNode
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject

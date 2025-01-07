@@ -11,6 +11,10 @@ import de.officeryoda.fhysics.rendering.UIController.Companion.borderRestitution
 import kotlin.math.abs
 import kotlin.math.sqrt
 
+/**
+ * The `CollisionSolver` class is responsible for solving collisions between two objects,
+ * as well as collisions between an object and the border.
+ */
 object CollisionSolver {
 
     private var borderObjects: Array<BorderEdge> = arrayOf()

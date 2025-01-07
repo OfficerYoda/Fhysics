@@ -2,8 +2,8 @@ package de.officeryoda.fhysics.engine.util
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.spawn
-import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomCircle
 import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomPolygon
@@ -17,6 +17,10 @@ import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
+
+/**
+ * A list of performance test scenarios for the Fhysics engine.
+ */
 
 private val scenarioListShort: List<PerformanceTestScenario> = listOf(
     idealPhysicsScenarioSetup(

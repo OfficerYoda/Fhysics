@@ -6,6 +6,9 @@ import de.officeryoda.fhysics.rendering.Renderer
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * You know what a rectangle is.
+ */
 class Rectangle(
     position: Vector2,
     val width: Float,

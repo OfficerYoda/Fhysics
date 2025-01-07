@@ -4,10 +4,7 @@ import de.officeryoda.fhysics.engine.math.Vector2
 import kotlin.math.ceil
 
 /**
- * Extension functions for Float class related to Vector2 operations.
- *
- * @property vector The Vector2 instance to be multiplied.
- * @return A new Vector2 instance resulting from multiplying each component of the vector by the float value.
+ * Multiplies a float with a vector.
  */
 operator fun Float.times(vector: Vector2): Vector2 {
     return Vector2(this * vector.x, this * vector.y)

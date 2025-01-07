@@ -3,6 +3,11 @@ package de.officeryoda.fhysics.engine.objects
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.math.Vector2
 
+/**
+ * A ConcavePolygon is a polygon where at least one interior angle is greater than 180 degrees.
+ *
+ * It is made up of multiple convex [subPolygons].
+ */
 class ConcavePolygon(
     vertices: Array<Vector2>,
     subPolygonIndices: Array<Array<Int>>, // The indices of the vertices that form the convex sub-polygons
@@ -11,9 +16,7 @@ class ConcavePolygon(
 
     override val type = FhysicsObjectType.CONCAVE_POLYGON
 
-    /**
-     * The concave polygons that form this polygon.
-     */
+    /** The convex polygons that form this polygon */
     var subPolygons: MutableList<SubPolygon> = mutableListOf()
 
     init {

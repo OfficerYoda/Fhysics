@@ -7,6 +7,10 @@ import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import kotlin.math.min
 
+/**
+ * The `CollisionFinder` class is responsible for testing whether a collision occurs between
+ * two objects or between an object and a border.
+ */
 object CollisionFinder {
 
     /**

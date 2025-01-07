@@ -10,7 +10,10 @@ import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.Renderer
 import kotlin.math.abs
 
-// primary constructor is used to sync position and velocity from sub-polygons with the main polygon
+/**
+ * A Polygon whose [position] is at the average position of the [vertices].
+ */
+// Primary constructor is used to sync position and velocity from sub-polygons with the main polygon
 abstract class Polygon(
     position: Vector2,
     velocity: Vector2,

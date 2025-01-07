@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
@@ -20,6 +20,9 @@ import kotlin.math.max
 import kotlin.math.min
 import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType as selectedSpawnObjectType
 
+/**
+ * The listener for the scene that handles input events.
+ */
 object SceneListener {
 
     /** The minimum distance the mouse has to be moved in screen space to be registered as a drag. */

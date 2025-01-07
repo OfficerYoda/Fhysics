@@ -3,8 +3,8 @@ package de.officeryoda.fhysics.engine.math
 import kotlin.math.min
 
 /**
- * Represents the result of a projection test.
- * Containing the projection of two objects and whether they overlap.
+ * Represents the result of a projection test,
+ * containing the projections of two objects and indicating whether they overlap.
  */
 data class ProjectionResult(
     /** The first projection */

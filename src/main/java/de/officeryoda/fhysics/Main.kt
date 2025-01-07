@@ -1,9 +1,9 @@
 package de.officeryoda.fhysics
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 
-// needs to be run with special VM options
+// If it doesn't run you might need to change some VM options
 // see https://www.youtube.com/watch?v=hS_6ek9rTco&ab_channel=BoostMyTool
 fun main() {
     println("Fhysics")

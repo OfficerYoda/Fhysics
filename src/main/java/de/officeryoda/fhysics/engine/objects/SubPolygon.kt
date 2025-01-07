@@ -3,6 +3,9 @@ package de.officeryoda.fhysics.engine.objects
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.math.Vector2
 
+/**
+ * A SubPolygon is a convex polygon that is part of a [ConcavePolygon][parent].
+ */
 class SubPolygon(
     position: Vector2,
     center: Vector2,

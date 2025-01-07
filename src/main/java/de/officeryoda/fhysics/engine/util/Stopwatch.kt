@@ -4,11 +4,11 @@ import java.util.*
 
 /**
  * A stopwatch that can be used to measure the time between two points in the code.
- * The stopwatch stores the last [maxDurations] durations and calculates the average duration.
+ * The stopwatch stores the last [cacheSize] durations and calculates the average duration.
  */
-class Stopwatch(private val maxDurations: Int = 32) {
+class Stopwatch(private val cacheSize: Int = 32) {
 
-    private val updateDurations: ArrayDeque<Long> = ArrayDeque(maxDurations)
+    private val updateDurations: ArrayDeque<Long> = ArrayDeque(cacheSize)
     private var startTime: Long = -1L
 
     /**
@@ -27,13 +27,13 @@ class Stopwatch(private val maxDurations: Int = 32) {
         updateDurations.addLast(duration)
 
         // Remove the first duration if the list is exceeding the max durations
-        if (updateDurations.size > maxDurations) {
+        if (updateDurations.size > cacheSize) {
             updateDurations.removeFirst()
         }
     }
 
     /**
-     * Returns the average duration of the last [maxDurations] durations in milliseconds.
+     * Returns the average duration of the last [cacheSize] durations in milliseconds.
      */
     fun average(): Double {
         return try {
