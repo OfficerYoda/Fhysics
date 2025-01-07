@@ -8,6 +8,9 @@ import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.Renderer
 
+/**
+ * You know what a circle is.
+ */
 class Circle(
     position: Vector2,
     val radius: Float,

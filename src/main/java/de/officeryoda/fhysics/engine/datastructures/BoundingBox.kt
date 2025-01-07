@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.engine.datastructures.spatial
+package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle

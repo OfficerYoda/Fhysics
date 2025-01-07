@@ -5,22 +5,17 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 
 /**
  * Data class representing collision information between two physics objects.
- * @property hasCollision Indicates whether a collision has occurred.
- * @property objA The first physics object involved in the collision.
- * @property objB The second physics object involved in the collision.
- * @property normal The normal vector along the line of collision. (Points from objA to objB)
- * @property depth The overlap distance between the objects.
  */
 data class CollisionInfo(
     val objA: FhysicsObject?,
     val objB: FhysicsObject?,
+    /** The normal vector along the line of collision. (Points from objA to objB) */
     val normal: Vector2,
+    /** The overlap distance between the objects. */
     val depth: Float,
 ) {
 
-    /**
-     * Indicates whether a collision has occurred.
-     */
+    /** Indicates whether a collision has occurred */
     val hasCollision: Boolean = depth != Float.POSITIVE_INFINITY
 
     /**
@@ -28,9 +23,6 @@ data class CollisionInfo(
      */
     constructor() : this(null, null, Vector2.ZERO, Float.POSITIVE_INFINITY)
 
-    /**
-     * Returns a string representation of the CollisionInfo object.
-     */
     override fun toString(): String {
         return "CollisionInfo(hasCollision=$hasCollision, normal=$normal, depth=$depth, objA.id=${objA?.id}, objB.id=${objB?.id})"
     }

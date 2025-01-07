@@ -1,8 +1,8 @@
 package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
 import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceX
@@ -17,6 +17,9 @@ import java.util.*
 import kotlin.math.PI
 import kotlin.math.min
 
+/**
+ * Contains functions for rendering debug information.
+ */
 object DebugRenderer {
 
     /** The main renderer */

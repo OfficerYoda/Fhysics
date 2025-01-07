@@ -1,10 +1,9 @@
-package de.officeryoda.fhysics.engine.datastructures.spatial
+package de.officeryoda.fhysics.engine.datastructures
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
-import de.officeryoda.fhysics.engine.datastructures.IndexedFreeList
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.processPendingOperations
+import de.officeryoda.fhysics.engine.datastructures.QuadTree.processPendingOperations
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.rendering.DebugRenderer
@@ -17,6 +16,9 @@ import java.util.concurrent.Executors
 import kotlin.collections.ArrayDeque
 import kotlin.math.min
 
+/**
+ * A QuadTree data structure for efficient spatial partitioning and collision detection.
+ */
 object QuadTree {
     /** The capacity of a node in the QuadTree */
     var capacity: Int = 16

@@ -5,19 +5,16 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
- * A 2D vector class providing basic vector operations.
- *
- * @property x The x-coordinate of the [Vector2].
- * @property y The y-coordinate of the [Vector2].
+ * A class representing a 2D vector provided with various utility functions.
  */
 data class Vector2
 @JvmOverloads constructor(
-    var x: Float = 0.0f,
-    var y: Float = 0.0f,
+    var x: Float = 0f,
+    var y: Float = 0f,
 ) {
 
     /**
-     * Returns a normalized version of the [Vector2].
+     * Returns a version of this [Vector2] with a magnitude of 1.
      */
     fun normalized(): Vector2 {
         val magnitude: Float = magnitude()
@@ -58,14 +55,14 @@ data class Vector2
     }
 
     /**
-     * Calculates the dot product of [this][Vector2] and [other].
+     * Returns the dot product of [this][Vector2] with [other].
      */
     fun dot(other: Vector2): Float {
         return this.x * other.x + this.y * other.y
     }
 
     /**
-     * Calculates the cross product of [this][Vector2] with [other].
+     * Returns the cross product of [this][Vector2] with [other].
      *
      * To my math teacher: I know that cross products are
      * technically only defined for 3D vectors, but if it works, it works.
@@ -75,28 +72,28 @@ data class Vector2
     }
 
     /**
-     * Calculates the magnitude (length) of the [Vector2].
+     * Returns the magnitude (length) of this [Vector2].
      */
     fun magnitude(): Float {
         return sqrt(sqrMagnitude())
     }
 
     /**
-     * Calculates the squared magnitude (length) of the [Vector2].
+     * Returns the squared magnitude (length) of the [Vector2].
      */
     fun sqrMagnitude(): Float {
         return this.x * this.x + this.y * this.y
     }
 
     /**
-     * Calculates the Euclidean distance between [this][Vector2] and [other].
+     * Returns the Euclidean distance between [this][Vector2] and [other].
      */
     fun distanceTo(other: Vector2): Float {
         return sqrt(sqrDistanceTo(other))
     }
 
     /**
-     * Calculates the squared Euclidean distance between [this][Vector2] and [other].
+     * Returns the squared Euclidean distance between [this][Vector2] and [other].
      */
     fun sqrDistanceTo(other: Vector2): Float {
         val dx: Float = this.x - other.x
@@ -121,7 +118,7 @@ data class Vector2
     }
 
     /**
-     * Negates this [Vector2].
+     * Negates this Vector.
      */
     fun negate() {
         this.x = -this.x

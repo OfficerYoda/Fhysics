@@ -8,7 +8,8 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObjectType
 import de.officeryoda.fhysics.engine.objects.Polygon
 
 /**
- * A class containing methods to find contact points of objects and borders.
+ * The `ContactFinder` class is responsible for finding contact points between two objects,
+ * as well as between an object and the border.
  */
 object ContactFinder {
 

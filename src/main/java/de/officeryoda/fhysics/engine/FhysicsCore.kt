@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.engine
 
-import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Rectangle
@@ -15,6 +15,10 @@ import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.max
 
+/**
+ * The core of the Fhysics engine.
+ * This class contains all the important variables and functions for the simulation.
+ */
 object FhysicsCore {
 
     /** The Bounds of the simulation */

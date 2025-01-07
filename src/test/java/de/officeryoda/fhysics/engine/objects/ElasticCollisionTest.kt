@@ -5,7 +5,7 @@ package de.officeryoda.fhysics.engine.objects
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController.Companion.damping

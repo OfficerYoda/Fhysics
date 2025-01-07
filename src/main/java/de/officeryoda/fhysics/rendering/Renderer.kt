@@ -2,8 +2,8 @@ package de.officeryoda.fhysics.rendering
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
-import de.officeryoda.fhysics.engine.datastructures.spatial.BoundingBox
-import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
+import de.officeryoda.fhysics.engine.datastructures.BoundingBox
+import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
@@ -40,6 +40,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.system.exitProcess
 
+/**
+ * The main rendering class.
+ */
 // Can't be converted to a singleton because JavaFX won't allow it
 class Renderer : Application() {
 
@@ -75,6 +78,9 @@ class Renderer : Application() {
     /** The stopwatch used to measure the time it takes to draw a frame */
     val drawStopwatch = Stopwatch()
 
+    init {
+        RenderUtil.render = this
+    }
     /// region =====Start functions=====
     fun launch() {
         launch(Renderer::class.java)
