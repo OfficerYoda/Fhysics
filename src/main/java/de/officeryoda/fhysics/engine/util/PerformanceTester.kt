@@ -90,22 +90,76 @@ private val scenarioListLong: List<PerformanceTestScenario> = listOf(
     )
 )
 
+fun parseArgs(args: Array<String>): Triple<Int, Int, Int> {
+    var scenarioList = 0 // 0 = short, 1 = long
+    var iterations = 1000
+    var runs = 5
+
+    var i = 0
+    while (i < args.size) {
+        when (args[i]) {
+            "--list", "-l" -> {
+                if (i + 1 < args.size) {
+                    scenarioList = when {
+                        args[i + 1] == "short" -> 0
+                        args[i + 1] == "long" -> 1
+                        else -> throw IllegalArgumentException("Invalid value for --list")
+                    }
+                    i++
+                } else {
+                    throw IllegalArgumentException("Missing value for --list")
+                }
+            }
+
+            "--iterations", "-i" -> {
+                if (i + 1 < args.size) {
+                    iterations =
+                        args[i + 1].toIntOrNull() ?: throw IllegalArgumentException("Invalid value for --iterations")
+                    i++
+                } else {
+                    throw IllegalArgumentException("Missing value for --iterations")
+                }
+            }
+
+            "--runs", "-r" -> {
+                if (i + 1 < args.size) {
+                    runs = args[i + 1].toIntOrNull() ?: throw IllegalArgumentException("Invalid value for --runs")
+                    i++
+                } else {
+                    throw IllegalArgumentException("Missing value for --runs")
+                }
+            }
+
+            else -> throw IllegalArgumentException("Unknown argument: ${args[i]}")
+        }
+        i++
+    }
+
+    return Triple(scenarioList, runs, iterations)
+}
+
 fun main(args: Array<String>) {
-    val scenarioList: List<PerformanceTestScenario> =
-        if (args.isNotEmpty() && args[0] == "long") scenarioListLong else scenarioListShort
+    val (scenarioListId: Int, runs: Int, iterations: Int) = parseArgs(args)
+    val scenarioList: List<PerformanceTestScenario> = if (scenarioListId == 0) scenarioListShort else scenarioListLong
 
-    val results: List<PerformanceTestResult> = PerformanceTester.testPerformanceAverage(scenarioList)
-
-    println("============Results============")
     val timestamp: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
     val outputFile = File("output-$timestamp.txt")
-    outputFile.printWriter().use { out ->
-        for (result: PerformanceTestResult in results) {
-            val resultString = "${result.scenario.name}: ${result.time}ms"
-            println(resultString)
-            out.println(resultString)
-        }
+    outputFile.appendText("Performance Test Results: $timestamp\n")
+
+    val results: List<PerformanceTestResult> =
+        PerformanceTester.testPerformanceAverage(scenarioList, outputFile, runs = runs, iterations = iterations)
+
+
+    println("============Results============")
+    outputFile.appendText("============Results============\n")
+    for (result: PerformanceTestResult in results) {
+        val resultString = "${result.scenario.name}: ${result.time}ms"
+        println(resultString)
+        outputFile.appendText("$resultString\n")
     }
+
+    // Write the results to a file
+    println("\nResults written to ${outputFile.absolutePath}")
 
     exitProcess(0)
 }
@@ -114,6 +168,7 @@ private object PerformanceTester {
 
     fun testPerformanceAverage(
         scenarioList: List<PerformanceTestScenario>,
+        outputFile: File,
         iterations: Int = 1000,
         runs: Int = 5,
     ): List<PerformanceTestResult> {
@@ -143,6 +198,9 @@ private object PerformanceTester {
         println("\n\n============Average Results============")
         println("Average time per run: ${averageResults.sumOf { it.time }}ms")
         println("Average time taken for $iterations iterations over $runs runs:")
+        outputFile.appendText("\n============Average Results============\n")
+        outputFile.appendText("Average time per run: ${averageResults.sumOf { it.time }}ms\n")
+        outputFile.appendText("Average time taken for $iterations iterations over $runs runs:\n")
 
         return averageResults
     }
