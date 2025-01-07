@@ -17,19 +17,13 @@ import java.util.*
 import kotlin.math.PI
 import kotlin.math.min
 
-object DebugDrawer {
+object DebugRenderer {
 
-    /**
-     * The drawer used to draw the objects
-     *
-     */
-    lateinit var drawer: FhysicsObjectDrawer
+    /** The main renderer */
+    lateinit var renderer: Renderer
 
-    /**
-     * The graphics context of the drawer
-     */
-    private val gc: GraphicsContext
-        get() = drawer.gc
+    /** The graphics context of the renderer */
+    private val gc: GraphicsContext by lazy { renderer.gc }
 
     private val debugPoints: MutableList<DebugPoint> = ArrayList()
     private val debugLines: MutableList<DebugLine> = ArrayList()
@@ -37,7 +31,7 @@ object DebugDrawer {
 
     /// region =====Draw functions=====
     fun drawDebug() {
-        if (UIController.drawQuadTree) QuadTree.drawNodes(drawer.viewingFrustum)
+        if (UIController.drawQuadTree) QuadTree.drawNodes(renderer.viewingFrustum)
         drawDebugPoints()
         drawDebugLines()
         drawDebugVectors()
@@ -155,7 +149,7 @@ object DebugDrawer {
         }
 
         if (UIController.showRenderTime) {
-            stats.add("Render Time: ${drawer.drawStopwatch.roundedString()}")
+            stats.add("Render Time: ${renderer.drawStopwatch.roundedString()}")
         }
 
         drawStatsList(stats.reversed()) // Reverse to make it same order as in settings
@@ -165,7 +159,7 @@ object DebugDrawer {
      * Draws the given [stats] list as text on the screen.
      */
     private fun drawStatsList(stats: List<String>) {
-        val height: Double = gc.canvas.height - FhysicsObjectDrawer.TITLE_BAR_HEIGHT
+        val height: Double = gc.canvas.height - Renderer.TITLE_BAR_HEIGHT
         val font: Font = setFont(height)
 
         val lineHeight: Double = font.size
@@ -189,7 +183,7 @@ object DebugDrawer {
     private fun drawPaused() {
         // Draw the paused text if the simulation is paused in the bottom right corner
         if (!FhysicsCore.running) {
-            val height: Double = gc.canvas.height - FhysicsObjectDrawer.TITLE_BAR_HEIGHT
+            val height: Double = gc.canvas.height - Renderer.TITLE_BAR_HEIGHT
             val width: Double = gc.canvas.width
             setFont(height)
 

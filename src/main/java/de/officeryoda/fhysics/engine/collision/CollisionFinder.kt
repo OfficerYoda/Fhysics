@@ -43,7 +43,7 @@ object CollisionFinder {
             return testConcavePolygonCollision(poly as ConcavePolygon, circle)
         }
 
-        val axes: Set<Vector2> = poly.getAxes()
+        val axes: List<Vector2> = poly.getAxes()
         if (!checkAxesForOverlap(axes, poly, circle)) return CollisionInfo()
 
         val closestPoint: Vector2 = getClosestPoint(poly, circle.position)
@@ -64,7 +64,7 @@ object CollisionFinder {
     /**
      * Returns whether the given [polygon][poly] and [circle] overlap on any of the given [axes].
      */
-    private fun checkAxesForOverlap(axes: Set<Vector2>, poly: Polygon, circle: Circle): Boolean {
+    private fun checkAxesForOverlap(axes: List<Vector2>, poly: Polygon, circle: Circle): Boolean {
         for (axis: Vector2 in axes) {
             val projResult: ProjectionResult = testProjectionOverlap(axis, poly, circle)
             if (!projResult.hasOverlap) return false
@@ -82,14 +82,31 @@ object CollisionFinder {
             return testConcavePolygonCollision(polyA, polyB)
         }
 
-        val axes: Set<Vector2> = polyA.getAxes() + polyB.getAxes()
+        val axes: List<Vector2> = getUniqueAxes(polyA, polyB)
         return findCollisionInfo(polyA, polyB, axes)
+    }
+
+    /**
+     * Returns the unique axes of the given [polygons][polyA] and [polyB].
+     */
+    private fun getUniqueAxes(polyA: Polygon, polyB: Polygon): List<Vector2> {
+        val axes: MutableList<Vector2> = polyA.getAxes().toMutableList()
+        val axesB: List<Vector2> = polyB.getAxes()
+
+        // Add axes from polyB that are not already in axes
+        for (axis: Vector2 in axesB) {
+            if (axis !in axes) {
+                axes.add(axis)
+            }
+        }
+
+        return axes
     }
 
     /**
      * Returns the [CollisionInfo] of the collision between [polyA] and [polyB] on the given [axes].
      */
-    private fun findCollisionInfo(polyA: Polygon, polyB: Polygon, axes: Set<Vector2>): CollisionInfo {
+    private fun findCollisionInfo(polyA: Polygon, polyB: Polygon, axes: List<Vector2>): CollisionInfo {
         var normal: Vector2 = Vector2.ZERO
         var depth: Float = Float.MAX_VALUE
 

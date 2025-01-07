@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import de.officeryoda.fhysics.rendering.Renderer
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -15,7 +15,7 @@ class Rectangle(
 
     override val type = FhysicsObjectType.RECTANGLE
 
-    override fun getAxes(): Set<Vector2> {
+    override fun getAxes(): List<Vector2> {
         // Calculate the normals of the rectangle's sides based on its rotation
         val sin: Float = sin(angle)
         val cos: Float = cos(angle)
@@ -23,7 +23,7 @@ class Rectangle(
         val axis1 = Vector2(cos, sin)
         val axis2 = Vector2(-sin, cos)
 
-        return setOf(axis1, axis2)
+        return listOf(axis1, axis2)
     }
 
     override fun contains(pos: Vector2): Boolean {
@@ -39,7 +39,7 @@ class Rectangle(
     }
 
     override fun calculateInertia(): Float {
-        return (mass * (width * width + height * height)) / 12f
+        return mass / 12f * (width * width + height * height)
     }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {
@@ -50,8 +50,8 @@ class Rectangle(
         return other.findContactPoints(this, info)
     }
 
-    override fun draw(drawer: FhysicsObjectDrawer) {
-        drawer.drawRectangle(this)
+    override fun draw(renderer: Renderer) {
+        renderer.drawRectangle(this)
     }
 
     override fun toString(): String {

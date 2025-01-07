@@ -7,8 +7,9 @@ import de.officeryoda.fhysics.engine.datastructures.IndexedFreeList
 import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree.processPendingOperations
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.rendering.DebugDrawer
-import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import de.officeryoda.fhysics.rendering.DebugRenderer
+import de.officeryoda.fhysics.rendering.Renderer
+import de.officeryoda.fhysics.rendering.SceneListener
 import de.officeryoda.fhysics.rendering.UIController
 import java.util.*
 import java.util.concurrent.Callable
@@ -20,7 +21,7 @@ object QuadTree {
     /** The capacity of a node in the QuadTree */
     var capacity: Int = 16
         set(value) {
-            field = value.coerceAtLeast(1)
+            field = value.coerceAtLeast(2)
         }
 
     /** The minimum size of a node */
@@ -211,7 +212,8 @@ object QuadTree {
      */
     private fun queryLeafObjects(node: QTNode, pos: Vector2): FhysicsObject? {
         for (obj: FhysicsObject in node.objects) {
-            if (obj.boundingBox.contains(pos)) {
+            if (!obj.boundingBox.contains(pos)) continue
+            if (obj.contains(pos)) {
                 return obj
             }
         }
@@ -323,6 +325,7 @@ object QuadTree {
         root = QTNode(BORDER)
         nodes.clear()
         nodes.add(root)
+        SceneListener.clearSelection()
     }
 
     /**
@@ -526,10 +529,10 @@ object QuadTree {
         println("Shutting down thread pool")
         threadPool.shutdownNow()
     }
-/// endregion
+    /// endregion
 
     /// region =====Rendering=====
-    fun drawObjects(drawer: FhysicsObjectDrawer) {
+    fun drawObjects(renderer: Renderer) {
         // Get all objects
         val objects: Sequence<FhysicsObject> = nodes.asSequence()
             .filter { it.isLeaf }
@@ -537,16 +540,16 @@ object QuadTree {
 
         for (obj: FhysicsObject in objects) {
             // Only draw objects that are visible
-            if (obj.boundingBox.overlaps(drawer.viewingFrustum)) {
-                obj.draw(drawer)
+            if (obj.boundingBox.overlaps(renderer.viewingFrustum)) {
+                obj.draw(renderer)
             }
         }
 
         if (UIController.showBoundingBoxes) {
             for (obj: FhysicsObject in objects) {
                 // Only draw bounding boxes that are visible
-                if (obj.boundingBox.overlaps(drawer.viewingFrustum)) {
-                    DebugDrawer.drawBoundingBox(obj.boundingBox)
+                if (obj.boundingBox.overlaps(renderer.viewingFrustum)) {
+                    DebugRenderer.drawBoundingBox(obj.boundingBox)
                 }
             }
         }
@@ -558,7 +561,7 @@ object QuadTree {
         for (leaf: QTNode in leaves) {
             // Only draw nodes that are visible
             if (leaf.bbox.overlaps(viewingFrustum)) {
-                DebugDrawer.drawQTNode(leaf.bbox, leaf.objects.count())
+                DebugRenderer.drawQTNode(leaf.bbox, leaf.objects.count())
             }
         }
     }

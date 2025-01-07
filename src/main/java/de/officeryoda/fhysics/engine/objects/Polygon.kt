@@ -7,7 +7,7 @@ import de.officeryoda.fhysics.engine.collision.ContactFinder
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.TransformationData
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.FhysicsObjectDrawer
+import de.officeryoda.fhysics.rendering.Renderer
 import kotlin.math.abs
 
 // primary constructor is used to sync position and velocity from sub-polygons with the main polygon
@@ -33,9 +33,9 @@ abstract class Polygon(
         }
     }
 
-    open fun getAxes(): Set<Vector2> {
-        val axes: MutableSet<Vector2> = mutableSetOf()
+    open fun getAxes(): List<Vector2> {
         val transformedVertices: Array<Vector2> = getTransformedVertices()
+        val axes: MutableList<Vector2> = ArrayList(transformedVertices.size)
 
         // Calculate the normals of the polygon's sides based on its rotation
         for (i: Int in transformedVertices.indices) {
@@ -142,8 +142,8 @@ abstract class Polygon(
         boundingBox.setFromPolygon(this)
     }
 
-    override fun draw(drawer: FhysicsObjectDrawer) {
-        drawer.drawPolygon(this)
+    override fun draw(renderer: Renderer) {
+        renderer.drawPolygon(this)
     }
 
     override fun toString(): String {

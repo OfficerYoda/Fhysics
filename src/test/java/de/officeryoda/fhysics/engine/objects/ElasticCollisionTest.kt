@@ -2,10 +2,10 @@
 
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
+import de.officeryoda.fhysics.engine.datastructures.spatial.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.rendering.GravityType
 import de.officeryoda.fhysics.rendering.UIController.Companion.damping
@@ -27,7 +27,7 @@ class ElasticCollisionTest {
 
     @BeforeEach
     fun setup() {
-        FhysicsCore.clear()
+        QuadTree.clear()
     }
 
     @Test
@@ -60,28 +60,35 @@ class ElasticCollisionTest {
     @Test
     fun testPerfectlyElasticCollisionRectangles() {
         // Create two rectangles
-        val rectA: Rectangle = Rectangle(Vector2(60.5f, 50f), 10f, 5f).apply {
+        val rectA: Rectangle = Rectangle(Vector2(60.25f, 50f), 10f, 5f).apply {
             velocity.set(Vector2(10f, 0f))
             mass = 2f
         }
 
-        val rectB: Rectangle = Rectangle(Vector2(70f, 50f), 10f, 5f).apply {
+        val rectB: Rectangle = Rectangle(Vector2(69.75f, 50f), 10f, 5f).apply {
             velocity.set(Vector2(-10f, 0f))
             mass = 2f
         }
-
         // Adjust properties for perfectly elastic collision
         setRestitution(1f, rectA, rectB)
         setZeroFriction(rectA, rectB)
 
+        println("Before collision energies: ${calculateEnergy(rectA)} ${calculateEnergy(rectB)}")
         // Simulate the collision
         handleCollision(rectA, rectB, "testPerfectlyElasticCollisionRectangle")
+        println("After collision energies: ${calculateEnergy(rectA)} ${calculateEnergy(rectB)}")
 
         // Check the velocities after collision
         assertAlmostEquals(Vector2(-10f, 0f), rectA.velocity)
         assertAlmostEquals(Vector2(10f, 0f), rectB.velocity)
         assertEquals(0f, rectA.angularVelocity)
         assertEquals(0f, rectB.angularVelocity)
+    }
+
+    private fun calculateEnergy(obj: FhysicsObject): Float {
+        val kineticEnergy: Float = 0.5f * obj.mass * obj.velocity.sqrMagnitude()
+        val rotationalEnergy: Float = 0.5f * obj.inertia * obj.angularVelocity * obj.angularVelocity
+        return kineticEnergy + rotationalEnergy
     }
 
     @Test
@@ -295,7 +302,7 @@ class ElasticCollisionTest {
                 gravityType == GravityType.DIRECTIONAL && gravityDirection.sqrMagnitude() != 0f -> System.err.println("Gravity is not 0! Tests may fail!")
                 gravityType == GravityType.TOWARDS_POINT && gravityPointStrength != 0f -> System.err.println("Gravity is not 0! Tests may fail!")
             }
-            FhysicsCore.clear()
+            QuadTree.clear()
         }
     }
 }
