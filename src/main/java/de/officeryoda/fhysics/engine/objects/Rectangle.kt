@@ -39,7 +39,7 @@ class Rectangle(
     }
 
     override fun calculateInertia(): Float {
-        return (mass * (width * width + height * height)) / 12f
+        return mass / 12f * (width * width + height * height)
     }
 
     override fun testCollision(other: FhysicsObject): CollisionInfo {

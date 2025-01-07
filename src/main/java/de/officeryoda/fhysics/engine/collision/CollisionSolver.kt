@@ -98,7 +98,6 @@ object CollisionSolver {
         normal: Vector2,
         impulseList: ArrayList<Vector2>,
     ): FloatArray {
-        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution
         val normalForces = FloatArray(contactPoints.size)
 
         for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
@@ -114,7 +113,7 @@ object CollisionSolver {
             }
 
             val impulseMag: Float =
-                calculateImpulseMagnitude(objA, objB, normal, e, contactPoints.size, contactVelocityMag, raPerp, rbPerp)
+                calculateImpulseMagnitude(objA, objB, normal, contactPoints.size, contactVelocityMag, raPerp, rbPerp)
             val impulse: Vector2 = impulseMag * normal
 
             impulseList.add(impulse)
@@ -139,12 +138,12 @@ object CollisionSolver {
         objA: FhysicsObject,
         objB: FhysicsObject,
         normal: Vector2,
-        e: Float, // Coefficient of restitution
         contactPointsSize: Int,
         contactVelocityMag: Float,
         raPerp: Vector2,
         rbPerp: Vector2,
     ): Float {
+        val e: Float = sqrt(objA.restitution * objB.restitution) // Coefficient of restitution
         val raPerpDotNormal: Float = raPerp.dot(normal)
         val rbPerpDotNormal: Float = rbPerp.dot(normal)
 
@@ -359,7 +358,6 @@ object CollisionSolver {
         impulseList: ArrayList<Vector2>,
     ): FloatArray {
         val normalForces = FloatArray(contactPoints.size)
-        val e: Float = sqrt(obj.restitution * borderRestitution) // Coefficient of restitution
 
         // Calculate the impulses for each contact point
         for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
@@ -376,7 +374,7 @@ object CollisionSolver {
 
             // Calculate the impulse
             val impulseMag: Float =
-                calculateImpulseMagnitude(obj, normal, e, rPerp, velAlongNormal, contactPoints.size)
+                calculateImpulseMagnitude(obj, normal, rPerp, velAlongNormal, contactPoints.size)
             val impulse: Vector2 = impulseMag * normal
 
             impulseList.add(impulse)
@@ -389,11 +387,11 @@ object CollisionSolver {
     private fun calculateImpulseMagnitude(
         obj: FhysicsObject,
         normal: Vector2,
-        e: Float,
         rPerp: Vector2,
         velAlongNormal: Float,
         contactPointsSize: Int,
     ): Float {
+        val e: Float = sqrt(obj.restitution * borderRestitution) // Coefficient of restitution
         val rPerpDotNormal: Float = rPerp.dot(normal)
 
         var impulseMag: Float = -(1f + e) * velAlongNormal

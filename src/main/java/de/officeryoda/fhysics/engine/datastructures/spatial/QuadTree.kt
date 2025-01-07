@@ -21,7 +21,7 @@ object QuadTree {
     /** The capacity of a node in the QuadTree */
     var capacity: Int = 16
         set(value) {
-            field = value.coerceAtLeast(1)
+            field = value.coerceAtLeast(2)
         }
 
     /** The minimum size of a node */

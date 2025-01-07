@@ -433,8 +433,9 @@ class UIController {
     }
 
     private fun handleBorderSizeTyped(textField: TextField) {
-        val size: Float = parseTextField(textField, 1f)
-        FhysicsCore.BORDER.height = max(size, 1f) // Minimum border size of 1x1
+        var size: Float = max(parseTextField(textField, 1f), 1f) // Minimum border size of 1x1
+        FhysicsCore.BORDER.width = size
+        FhysicsCore.BORDER.height = size
         CollisionSolver.updateBorderObjects()
         QuadTree.rebuildFlag = true // Rebuild to resize the QTNodes
 
@@ -479,10 +480,13 @@ class UIController {
 
     @FXML
     fun onQuadTreeCapacityTyped() {
-        val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 0
-        if (capacity > 0) {
-            QuadTree.capacity = capacity
-            QuadTree.rebuildFlag = true
+        val capacity: Int = txtQuadTreeCapacity.text.toIntOrNull() ?: 2
+        QuadTree.capacity = capacity.toInt()
+        QuadTree.rebuildFlag = true // Rebuild to resize the QTNodes
+
+        // Make sure the text field matches the actual QuadTree capacity
+        if (capacity < 2) {
+            txtBorderHeight.text = "2.0"
         }
     }
     /// endregion
