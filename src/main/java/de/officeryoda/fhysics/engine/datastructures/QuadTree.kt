@@ -366,6 +366,32 @@ object QuadTree {
      * It collects objects that are not fully contained in their leaf nodes into a rebuild list.
      * As soon as the objects in the rebuild list are fully contained in a node, they are reinserted
      * starting from that node.
+     *
+     * A recursive pseudocode implementation of the algorithm would look like this:
+     * ```
+     * function rebuildRecursive(node):
+     *     // A list of objects that need to be reinserted
+     *     rebuildList = empty list
+     *
+     *     if node is leaf:
+     *         for each object in node:
+     *             if node does not completely contain object:
+     *                 remove object from node
+     *                 add object to rebuildList
+     *     else:
+     *         // Process children recursively
+     *         for each child in child-nodes:
+     *             childRebuildList = rebuildRecursive(child)
+     *             add childRebuildList to rebuildList
+     *
+     *         // Try to reinsert the objects in the rebuild list
+     *         for each object in rebuildList:
+     *             if node completely contains object:
+     *                 insert object into node
+     *                 remove object from rebuildList
+     *
+     *     return rebuildList
+     * ```
      */
     fun rebuild() {
         val stack = ArrayDeque<QTNode>()
