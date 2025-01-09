@@ -23,8 +23,8 @@ class ConcavePolygon(
         // Create the sub-polygons
         for (indices: IntArray in subPolygonIndices) {
             val subVertices: Array<Vector2> = indices.map { vertices[it] + position }.toTypedArray()
-            val center: Vector2 = calculatePolygonCenter(subVertices)
-            subPolygons.add(SubPolygon(position, center, velocity, subVertices, angularVelocity, this))
+            val relativePosition: Vector2 = calculatePolygonCenter(subVertices) - position
+            subPolygons.add(SubPolygon(subVertices, this, relativePosition))
         }
     }
 

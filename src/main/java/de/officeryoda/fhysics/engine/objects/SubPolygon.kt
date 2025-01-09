@@ -7,20 +7,21 @@ import de.officeryoda.fhysics.engine.math.Vector2
  * A SubPolygon is a convex polygon that is part of a [ConcavePolygon][parent].
  */
 class SubPolygon(
-    position: Vector2,
-    center: Vector2,
-    velocity: Vector2,
     vertices: Array<Vector2>,
-    angularVelocity: Float,
     val parent: ConcavePolygon,
-) : Polygon(position, velocity, vertices, parent.angle, angularVelocity) {
+    /** The relative position of the sub-polygon to the parent polygon */
+    val relativePosition: Vector2,
+) : Polygon(
+    // Velocity and angularVelocity are always retrieved from the parent polygon
+    parent.position, parent.velocity,
+    vertices, parent.angle, 0f
+) {
 
     override val type = FhysicsObjectType.SUB_POLYGON
 
-    private val centerOffset: Vector2 = center - position
-
+    /** The position of the sub-polygon in world space */
     override val position: Vector2
-        get() = super.position + centerOffset.rotated(parent.angle)
+        get() = parent.position + relativePosition.rotated(parent.angle)
 
     override var angle: Float
         get() = parent.angle
