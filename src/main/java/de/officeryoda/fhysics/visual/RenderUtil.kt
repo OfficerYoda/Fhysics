@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.rendering
+package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.math.Vector2
 import javafx.scene.canvas.GraphicsContext

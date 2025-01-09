@@ -10,7 +10,7 @@ import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.rand
 import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomRectangle
 import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.idealPhysicsScenarioSetup
 import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.randomPhysicsScenarioSetup
-import de.officeryoda.fhysics.rendering.UIController
+import de.officeryoda.fhysics.visual.UIController
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

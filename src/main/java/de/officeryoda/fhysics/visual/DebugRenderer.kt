@@ -1,13 +1,13 @@
-package de.officeryoda.fhysics.rendering
+package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
-import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceX
-import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceY
-import de.officeryoda.fhysics.rendering.RenderUtil.zoom
+import de.officeryoda.fhysics.visual.RenderUtil.toScreenSpace
+import de.officeryoda.fhysics.visual.RenderUtil.toScreenSpaceX
+import de.officeryoda.fhysics.visual.RenderUtil.toScreenSpaceY
+import de.officeryoda.fhysics.visual.RenderUtil.zoom
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.text.Font
 import javafx.scene.text.Text

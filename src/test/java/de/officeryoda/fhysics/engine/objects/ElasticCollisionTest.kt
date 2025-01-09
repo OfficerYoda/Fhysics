@@ -7,11 +7,11 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.GravityType
-import de.officeryoda.fhysics.rendering.UIController.Companion.damping
-import de.officeryoda.fhysics.rendering.UIController.Companion.gravityDirection
-import de.officeryoda.fhysics.rendering.UIController.Companion.gravityPointStrength
-import de.officeryoda.fhysics.rendering.UIController.Companion.gravityType
+import de.officeryoda.fhysics.visual.GravityType
+import de.officeryoda.fhysics.visual.UIController.Companion.damping
+import de.officeryoda.fhysics.visual.UIController.Companion.gravityDirection
+import de.officeryoda.fhysics.visual.UIController.Companion.gravityPointStrength
+import de.officeryoda.fhysics.visual.UIController.Companion.gravityType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach

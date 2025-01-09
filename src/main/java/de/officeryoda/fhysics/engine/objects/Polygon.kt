@@ -7,7 +7,7 @@ import de.officeryoda.fhysics.engine.collision.ContactFinder
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.TransformationData
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.Renderer
+import de.officeryoda.fhysics.visual.Renderer
 import kotlin.math.abs
 
 /**

@@ -7,8 +7,8 @@ import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.Renderer
-import de.officeryoda.fhysics.rendering.UIController.Companion.damping
+import de.officeryoda.fhysics.visual.Renderer
+import de.officeryoda.fhysics.visual.UIController.Companion.damping
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(

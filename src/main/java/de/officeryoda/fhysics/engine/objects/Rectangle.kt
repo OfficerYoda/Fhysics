@@ -2,7 +2,7 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.Renderer
+import de.officeryoda.fhysics.visual.Renderer
 import kotlin.math.cos
 import kotlin.math.sin
 

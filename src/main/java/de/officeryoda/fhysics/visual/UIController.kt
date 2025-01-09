@@ -1,14 +1,14 @@
-package de.officeryoda.fhysics.rendering
+package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.rendering.SceneListener.polyVertices
-import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
-import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
-import de.officeryoda.fhysics.rendering.SceneListener.updateSpawnPreview
+import de.officeryoda.fhysics.visual.SceneListener.polyVertices
+import de.officeryoda.fhysics.visual.SceneListener.selectedObject
+import de.officeryoda.fhysics.visual.SceneListener.spawnPreview
+import de.officeryoda.fhysics.visual.SceneListener.updateSpawnPreview
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane

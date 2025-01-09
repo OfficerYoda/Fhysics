@@ -1,4 +1,4 @@
-package de.officeryoda.fhysics.rendering
+package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
@@ -9,16 +9,16 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
-import de.officeryoda.fhysics.rendering.RenderUtil.render
-import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
-import de.officeryoda.fhysics.rendering.RenderUtil.toWorldSpace
-import de.officeryoda.fhysics.rendering.UIController.Companion.spawnColor
-import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType
+import de.officeryoda.fhysics.visual.RenderUtil.render
+import de.officeryoda.fhysics.visual.RenderUtil.toScreenSpace
+import de.officeryoda.fhysics.visual.RenderUtil.toWorldSpace
+import de.officeryoda.fhysics.visual.UIController.Companion.spawnColor
+import de.officeryoda.fhysics.visual.UIController.Companion.spawnObjectType
 import javafx.scene.input.*
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
-import de.officeryoda.fhysics.rendering.UIController.Companion.spawnObjectType as selectedSpawnObjectType
+import de.officeryoda.fhysics.visual.UIController.Companion.spawnObjectType as selectedSpawnObjectType
 
 /**
  * The listener for the scene that handles input events.

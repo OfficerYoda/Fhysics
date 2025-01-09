@@ -6,10 +6,10 @@ import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.QuadTree.processPendingOperations
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.rendering.DebugRenderer
-import de.officeryoda.fhysics.rendering.Renderer
-import de.officeryoda.fhysics.rendering.SceneListener
-import de.officeryoda.fhysics.rendering.UIController
+import de.officeryoda.fhysics.visual.DebugRenderer
+import de.officeryoda.fhysics.visual.Renderer
+import de.officeryoda.fhysics.visual.SceneListener
+import de.officeryoda.fhysics.visual.UIController
 import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors

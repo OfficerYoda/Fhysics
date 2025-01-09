@@ -7,10 +7,10 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.engine.util.times
-import de.officeryoda.fhysics.rendering.GravityType
-import de.officeryoda.fhysics.rendering.Renderer
-import de.officeryoda.fhysics.rendering.SceneListener
-import de.officeryoda.fhysics.rendering.UIController
+import de.officeryoda.fhysics.visual.GravityType
+import de.officeryoda.fhysics.visual.Renderer
+import de.officeryoda.fhysics.visual.SceneListener
+import de.officeryoda.fhysics.visual.UIController
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.max
