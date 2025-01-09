@@ -2,6 +2,8 @@ package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
+import de.officeryoda.fhysics.engine.Settings
+import de.officeryoda.fhysics.engine.SpawnObjectType
 import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -292,7 +294,7 @@ class Renderer : Application() {
      */
     private fun drawPolygonShape(poly: Polygon) {
         // Draw subPolygons if the option is enabled
-        if (UIController.showSubPolygons && poly.type == FhysicsObjectType.CONCAVE_POLYGON) {
+        if (Settings.showSubPolygons && poly.type == FhysicsObjectType.CONCAVE_POLYGON) {
             for (subPoly: SubPolygon in (poly as ConcavePolygon).subPolygons) {
                 setFillColor(subPoly.color)
                 drawPolygon(subPoly)
@@ -315,7 +317,7 @@ class Renderer : Application() {
     }
 
     private fun drawSpawnPreview() {
-        when (UIController.spawnObjectType) {
+        when (Settings.spawnObjectType) {
             SpawnObjectType.NOTHING -> return
             SpawnObjectType.POLYGON -> drawPolygonPreview()
             else -> spawnPreview!!.draw(this)

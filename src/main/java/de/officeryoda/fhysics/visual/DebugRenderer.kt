@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.Settings
 import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -34,7 +35,7 @@ object DebugRenderer {
 
     /// region =====Draw functions=====
     fun drawDebug() {
-        if (UIController.drawQuadTree) QuadTree.drawNodes(renderer.viewingFrustum)
+        if (Settings.drawQuadTree) QuadTree.drawNodes(renderer.viewingFrustum)
         drawDebugPoints()
         drawDebugLines()
         drawDebugVectors()
@@ -128,30 +129,30 @@ object DebugRenderer {
     private fun drawStats() {
         val stats: MutableList<String> = mutableListOf()
 
-        if (UIController.showQTCapacity) {
+        if (Settings.showQTCapacity) {
             stats.add("QuadTree Capacity: ${QuadTree.capacity}")
         }
 
-        if (UIController.showMSPU) {
+        if (Settings.showMSPU) {
             stats.add("MSPU: ${FhysicsCore.updateStopwatch.roundedString()}")
         }
 
-        if (UIController.showUPS) {
+        if (Settings.showUPS) {
             val mspu: Double = FhysicsCore.updateStopwatch.average()
             val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
             val upsRounded: String = String.format(Locale.US, "%.2f", ups)
             stats.add("UPS: $upsRounded")
         }
 
-        if (UIController.showSubSteps) {
+        if (Settings.showSubSteps) {
             stats.add("Sub-steps: ${FhysicsCore.SUB_STEPS}")
         }
 
-        if (UIController.showObjectCount) {
+        if (Settings.showObjectCount) {
             stats.add("Objects: ${QuadTree.getObjectCount()}")
         }
 
-        if (UIController.showRenderTime) {
+        if (Settings.showRenderTime) {
             stats.add("Render Time: ${renderer.drawStopwatch.roundedString()}")
         }
 
@@ -171,7 +172,7 @@ object DebugRenderer {
         for (i: Int in stats.indices) {
             val text: String = stats[i]
 
-            if (UIController.drawQuadTree) {
+            if (Settings.drawQuadTree) {
                 // Outline the text for better readability
                 gc.strokeText(text, borderSpacing, height - i * lineHeight - borderSpacing)
             }
@@ -193,7 +194,7 @@ object DebugRenderer {
             val borderSpacing = 5.0
 
             val text = "Paused"
-            if (UIController.drawQuadTree) {
+            if (Settings.drawQuadTree) {
                 // Outline the text for better readability
                 gc.strokeText(text, width - 118 - borderSpacing, height - borderSpacing)
             }
@@ -232,7 +233,7 @@ object DebugRenderer {
         gc.strokeRect(x, y, width, height)
 
         // Only draw the fill if the option is enabled
-        if (!UIController.drawQTNodeUtilization) return
+        if (!Settings.drawQTNodeUtilization) return
 
         // Draw transparent fill
         val quadTreeCapacity: Int = QuadTree.capacity

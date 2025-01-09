@@ -2,6 +2,7 @@ package de.officeryoda.fhysics.engine.util
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.spawn
+import de.officeryoda.fhysics.engine.Settings
 import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
@@ -10,7 +11,6 @@ import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.rand
 import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory.randomRectangle
 import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.idealPhysicsScenarioSetup
 import de.officeryoda.fhysics.engine.util.PerformanceTestScenario.Companion.randomPhysicsScenarioSetup
-import de.officeryoda.fhysics.visual.UIController
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -237,7 +237,7 @@ private object PerformanceTester {
             }
             // Set up the border properties
             val borderProperties: PhysicalProperties = scenario.borderProperties
-            UIController.setBorderProperties(
+            Settings.setBorderProperties(
                 restitution = borderProperties.restitution,
                 frictionStatic = borderProperties.frictionStatic,
                 frictionDynamic = borderProperties.frictionDynamic,

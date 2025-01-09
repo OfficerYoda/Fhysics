@@ -2,6 +2,8 @@ package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
+import de.officeryoda.fhysics.engine.Settings
+import de.officeryoda.fhysics.engine.SpawnObjectType
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
@@ -12,13 +14,10 @@ import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
 import de.officeryoda.fhysics.visual.RenderUtil.render
 import de.officeryoda.fhysics.visual.RenderUtil.toScreenSpace
 import de.officeryoda.fhysics.visual.RenderUtil.toWorldSpace
-import de.officeryoda.fhysics.visual.UIController.Companion.spawnColor
-import de.officeryoda.fhysics.visual.UIController.Companion.spawnObjectType
 import javafx.scene.input.*
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
-import de.officeryoda.fhysics.visual.UIController.Companion.spawnObjectType as selectedSpawnObjectType
 
 /**
  * The listener for the scene that handles input events.
@@ -92,7 +91,7 @@ object SceneListener {
         }
 
         // Handle spawning
-        when (selectedSpawnObjectType) {
+        when (Settings.spawnObjectType) {
             SpawnObjectType.CIRCLE, SpawnObjectType.RECTANGLE -> spawnPreview()
             SpawnObjectType.POLYGON -> handlePolygonCreation()
             else -> {}
@@ -100,14 +99,14 @@ object SceneListener {
     }
 
     private fun onRightClick() {
-        if (selectedSpawnObjectType == SpawnObjectType.POLYGON) {
+        if (Settings.spawnObjectType == SpawnObjectType.POLYGON) {
             polyVertices.clear()
         }
     }
 
     private fun onLeftDragStart() {
         // Only pull when no spawn type is selected
-        if (selectedSpawnObjectType != SpawnObjectType.NOTHING) return
+        if (Settings.spawnObjectType != SpawnObjectType.NOTHING) return
 
         // Find the object under the mouse
         pullObject = QuadTree.query(mousePosWorld) ?: return
@@ -120,7 +119,7 @@ object SceneListener {
 
     private fun onLeftDrag() {
         // Don't create a drag preview if the spawn object type is not a rectangle
-        if (selectedSpawnObjectType != SpawnObjectType.RECTANGLE) return
+        if (Settings.spawnObjectType != SpawnObjectType.RECTANGLE) return
 
         // Calculate the corners of the rectangle
         val minX: Float = min(leftPressedPosWorld.x, mousePosWorld.x)
@@ -140,7 +139,7 @@ object SceneListener {
     }
 
     private fun onLeftDragEnd() {
-        when (selectedSpawnObjectType) {
+        when (Settings.spawnObjectType) {
             SpawnObjectType.CIRCLE, SpawnObjectType.RECTANGLE -> spawnPreview()
             SpawnObjectType.POLYGON -> handlePolygonCreation()
             else -> {}
@@ -189,9 +188,9 @@ object SceneListener {
         // Check if spawn pos is outside the border
         if (!FhysicsCore.BORDER.contains(mousePosWorld)) return
 
-        val validParams: Boolean = when (selectedSpawnObjectType) {
-            SpawnObjectType.CIRCLE -> UIController.spawnRadius > 0.0F
-            SpawnObjectType.RECTANGLE -> UIController.spawnWidth > 0.0F && UIController.spawnHeight > 0.0F
+        val validParams: Boolean = when (Settings.spawnObjectType) {
+            SpawnObjectType.CIRCLE -> Settings.spawnRadius > 0.0F
+            SpawnObjectType.RECTANGLE -> Settings.spawnWidth > 0.0F && Settings.spawnHeight > 0.0F
             else -> false
         }
 
@@ -199,7 +198,7 @@ object SceneListener {
 
         FhysicsCore.spawn(spawnPreview!!.apply {
             color = asOpaqueColor(spawnPreview!!.color)
-            static = UIController.spawnStatic
+            static = Settings.spawnStatic
         })
         updateSpawnPreview()
     }
@@ -227,7 +226,7 @@ object SceneListener {
         val polygon: Polygon = PolygonFactory.createPolygon(polyVertices.toTypedArray())
         FhysicsCore.spawn(polygon.apply {
             color = asOpaqueColor(polygon.color)
-            static = UIController.spawnStatic
+            static = Settings.spawnStatic
         })
 
         // Clear the polygon vertices
@@ -238,21 +237,21 @@ object SceneListener {
      * Updates the spawn preview object based on the current spawn object type and the input fields.
      */
     fun updateSpawnPreview() {
-        if (spawnObjectType == SpawnObjectType.NOTHING) {
+        if (Settings.spawnObjectType == SpawnObjectType.NOTHING) {
             spawnPreview = null
             return
         }
 
-        val obj: FhysicsObject = when (spawnObjectType) {
-            SpawnObjectType.CIRCLE -> Circle(mousePosWorld.copy(), UIController.spawnRadius)
+        val obj: FhysicsObject = when (Settings.spawnObjectType) {
+            SpawnObjectType.CIRCLE -> Circle(mousePosWorld.copy(), Settings.spawnRadius)
             SpawnObjectType.RECTANGLE -> Rectangle(
                 mousePosWorld.copy(),
-                UIController.spawnWidth,
-                UIController.spawnHeight
+                Settings.spawnWidth,
+                Settings.spawnHeight
             )
 
             SpawnObjectType.POLYGON -> {
-                val circle = Circle(mousePosWorld, UIController.spawnRadius)
+                val circle = Circle(mousePosWorld, Settings.spawnRadius)
                 circle.color = Color.PINK
                 circle
             }
@@ -260,7 +259,7 @@ object SceneListener {
             else -> throw IllegalArgumentException("Invalid spawn object type")
         }
 
-        val color: Color = if (UIController.customColor) spawnColor else obj.color
+        val color: Color = if (Settings.useCustomColor) Settings.spawnColor else obj.color
         obj.color = Color(color.red, color.green, color.blue, 128)
         spawnPreview = obj
     }
@@ -300,7 +299,7 @@ object SceneListener {
         mousePosWorld.set(mousePosScreen.toWorldSpace())
 
         // Update the spawn preview position if it's not set due to dragging a rectangle
-        if (!(leftDragging && selectedSpawnObjectType == SpawnObjectType.RECTANGLE)) {
+        if (!(leftDragging && Settings.spawnObjectType == SpawnObjectType.RECTANGLE)) {
             spawnPreview?.position?.set(mousePosWorld)
         }
     }

@@ -2,12 +2,10 @@ package de.officeryoda.fhysics.engine.collision
 
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
+import de.officeryoda.fhysics.engine.Settings
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.util.times
-import de.officeryoda.fhysics.visual.UIController.Companion.borderFrictionDynamic
-import de.officeryoda.fhysics.visual.UIController.Companion.borderFrictionStatic
-import de.officeryoda.fhysics.visual.UIController.Companion.borderRestitution
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -395,7 +393,7 @@ object CollisionSolver {
         velAlongNormal: Float,
         contactPointsSize: Int,
     ): Float {
-        val e: Float = sqrt(obj.restitution * borderRestitution) // Coefficient of restitution
+        val e: Float = sqrt(obj.restitution * Settings.borderRestitution) // Coefficient of restitution
         val rPerpDotNormal: Float = rPerp.dot(normal)
 
         var impulseMag: Float = -(1f + e) * velAlongNormal
@@ -455,8 +453,8 @@ object CollisionSolver {
         frictionList: ArrayList<Vector2>,
         normalForces: FloatArray,
     ) {
-        val sf: Float = (borderFrictionStatic + obj.frictionStatic) / 2 // Coefficient of static friction
-        val df: Float = (borderFrictionDynamic + obj.frictionDynamic) / 2// Coefficient of dynamic friction
+        val sf: Float = (Settings.borderFrictionStatic + obj.frictionStatic) / 2 // Coefficient of static friction
+        val df: Float = (Settings.borderFrictionDynamic + obj.frictionDynamic) / 2// Coefficient of dynamic friction
 
         for ((i: Int, contactPoint: Vector2) in contactPoints.withIndex()) {
             if (normalForces[i] == 0f) continue

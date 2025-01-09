@@ -3,15 +3,12 @@
 package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
+import de.officeryoda.fhysics.engine.GravityType
+import de.officeryoda.fhysics.engine.Settings
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.visual.GravityType
-import de.officeryoda.fhysics.visual.UIController.Companion.damping
-import de.officeryoda.fhysics.visual.UIController.Companion.gravityDirection
-import de.officeryoda.fhysics.visual.UIController.Companion.gravityPointStrength
-import de.officeryoda.fhysics.visual.UIController.Companion.gravityType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -295,12 +292,15 @@ class ElasticCollisionTest {
         @JvmStatic
         @BeforeAll
         fun masterSetup() {
-            if (damping != 0f) {
+            if (Settings.damping != 0f) {
                 System.err.println("Damping is not 0! Tests may fail!")
             }
             when {
-                gravityType == GravityType.DIRECTIONAL && gravityDirection.sqrMagnitude() != 0f -> System.err.println("Gravity is not 0! Tests may fail!")
-                gravityType == GravityType.TOWARDS_POINT && gravityPointStrength != 0f -> System.err.println("Gravity is not 0! Tests may fail!")
+                Settings.gravityType == GravityType.DIRECTIONAL && Settings.gravityDirection.sqrMagnitude() != 0f
+                    -> System.err.println("Gravity is not 0! Tests may fail!")
+
+                Settings.gravityType == GravityType.TOWARDS_POINT && Settings.gravityPointStrength != 0f
+                    -> System.err.println("Gravity is not 0! Tests may fail!")
             }
             QuadTree.clear()
         }
