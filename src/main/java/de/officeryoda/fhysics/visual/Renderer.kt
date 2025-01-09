@@ -1,28 +1,30 @@
-package de.officeryoda.fhysics.rendering
+package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
+import de.officeryoda.fhysics.engine.Settings
+import de.officeryoda.fhysics.engine.SpawnObjectType
 import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.*
 import de.officeryoda.fhysics.engine.objects.factories.PolygonFactory
 import de.officeryoda.fhysics.engine.util.Stopwatch
-import de.officeryoda.fhysics.rendering.RenderUtil.colorToPaint
-import de.officeryoda.fhysics.rendering.RenderUtil.darkenColor
-import de.officeryoda.fhysics.rendering.RenderUtil.lerp
-import de.officeryoda.fhysics.rendering.RenderUtil.lerpV2
-import de.officeryoda.fhysics.rendering.RenderUtil.setFillColor
-import de.officeryoda.fhysics.rendering.RenderUtil.setStrokeColor
-import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpace
-import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceX
-import de.officeryoda.fhysics.rendering.RenderUtil.toScreenSpaceY
-import de.officeryoda.fhysics.rendering.RenderUtil.toWorldSpace
-import de.officeryoda.fhysics.rendering.SceneListener.POLYGON_CLOSE_RADIUS
-import de.officeryoda.fhysics.rendering.SceneListener.hoveredObject
-import de.officeryoda.fhysics.rendering.SceneListener.mousePosWorld
-import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
-import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
+import de.officeryoda.fhysics.visual.RenderUtil.colorToPaint
+import de.officeryoda.fhysics.visual.RenderUtil.darkenColor
+import de.officeryoda.fhysics.visual.RenderUtil.lerp
+import de.officeryoda.fhysics.visual.RenderUtil.lerpV2
+import de.officeryoda.fhysics.visual.RenderUtil.setFillColor
+import de.officeryoda.fhysics.visual.RenderUtil.setStrokeColor
+import de.officeryoda.fhysics.visual.RenderUtil.toScreenSpace
+import de.officeryoda.fhysics.visual.RenderUtil.toScreenSpaceX
+import de.officeryoda.fhysics.visual.RenderUtil.toScreenSpaceY
+import de.officeryoda.fhysics.visual.RenderUtil.toWorldSpace
+import de.officeryoda.fhysics.visual.SceneListener.POLYGON_CLOSE_RADIUS
+import de.officeryoda.fhysics.visual.SceneListener.hoveredObject
+import de.officeryoda.fhysics.visual.SceneListener.mousePosWorld
+import de.officeryoda.fhysics.visual.SceneListener.selectedObject
+import de.officeryoda.fhysics.visual.SceneListener.spawnPreview
 import javafx.animation.AnimationTimer
 import javafx.application.Application
 import javafx.event.EventHandler
@@ -292,7 +294,7 @@ class Renderer : Application() {
      */
     private fun drawPolygonShape(poly: Polygon) {
         // Draw subPolygons if the option is enabled
-        if (UIController.showSubPolygons && poly.type == FhysicsObjectType.CONCAVE_POLYGON) {
+        if (Settings.showSubPolygons && poly.type == FhysicsObjectType.CONCAVE_POLYGON) {
             for (subPoly: SubPolygon in (poly as ConcavePolygon).subPolygons) {
                 setFillColor(subPoly.color)
                 drawPolygon(subPoly)
@@ -315,7 +317,7 @@ class Renderer : Application() {
     }
 
     private fun drawSpawnPreview() {
-        when (UIController.spawnObjectType) {
+        when (Settings.spawnObjectType) {
             SpawnObjectType.NOTHING -> return
             SpawnObjectType.POLYGON -> drawPolygonPreview()
             else -> spawnPreview!!.draw(this)

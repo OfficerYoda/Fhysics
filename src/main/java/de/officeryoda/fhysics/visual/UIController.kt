@@ -1,30 +1,28 @@
-package de.officeryoda.fhysics.rendering
+package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
+import de.officeryoda.fhysics.engine.GravityType
+import de.officeryoda.fhysics.engine.Settings
+import de.officeryoda.fhysics.engine.SpawnObjectType
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
-import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.rendering.SceneListener.polyVertices
-import de.officeryoda.fhysics.rendering.SceneListener.selectedObject
-import de.officeryoda.fhysics.rendering.SceneListener.spawnPreview
-import de.officeryoda.fhysics.rendering.SceneListener.updateSpawnPreview
+import de.officeryoda.fhysics.visual.SceneListener.polyVertices
+import de.officeryoda.fhysics.visual.SceneListener.selectedObject
+import de.officeryoda.fhysics.visual.SceneListener.spawnPreview
+import de.officeryoda.fhysics.visual.SceneListener.updateSpawnPreview
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
-import java.awt.Color
 import java.util.*
 import kotlin.math.max
 
 /**
- * Controller class for the UI.
- *
- * Doubles as a data container for the settings made through the UI. // TODO remove this when Setting class is implemented
+ * Handles the user interface of the Fhysics engine.
  */
 class UIController {
 
     /// region ========Fields========
-
     /// region =====Fields: Spawn Object=====
     @FXML
     private lateinit var cbSpawnStatic: CheckBox
@@ -180,32 +178,31 @@ class UIController {
     /// endregion
 
     /// region ========Methods========
-
     /// region =====Methods: Spawn Object=====
     @FXML
     fun onSpawnNothingClicked() {
-        spawnObjectType = SpawnObjectType.NOTHING
+        Settings.spawnObjectType = SpawnObjectType.NOTHING
         updateSpawnPreview()
         updateSpawnFieldsAvailability()
     }
 
     @FXML
     fun onSpawnCircleClicked() {
-        spawnObjectType = SpawnObjectType.CIRCLE
+        Settings.spawnObjectType = SpawnObjectType.CIRCLE
         updateSpawnPreview()
         updateSpawnFieldsAvailability()
     }
 
     @FXML
     fun onSpawnRectangleClicked() {
-        spawnObjectType = SpawnObjectType.RECTANGLE
+        Settings.spawnObjectType = SpawnObjectType.RECTANGLE
         updateSpawnPreview()
         updateSpawnFieldsAvailability()
     }
 
     @FXML
     fun onSpawnPolygonClicked() {
-        spawnObjectType = SpawnObjectType.POLYGON
+        Settings.spawnObjectType = SpawnObjectType.POLYGON
         updateSpawnPreview()
         updateSpawnFieldsAvailability()
         // Clear the polygon vertices list for a new polygon
@@ -213,48 +210,48 @@ class UIController {
     }
 
     private fun updateSpawnFieldsAvailability() {
-        txtSpawnRadius.isDisable = spawnObjectType != SpawnObjectType.CIRCLE
-        txtSpawnWidth.isDisable = spawnObjectType != SpawnObjectType.RECTANGLE
-        txtSpawnHeight.isDisable = spawnObjectType != SpawnObjectType.RECTANGLE
+        txtSpawnRadius.isDisable = Settings.spawnObjectType != SpawnObjectType.CIRCLE
+        txtSpawnWidth.isDisable = Settings.spawnObjectType != SpawnObjectType.RECTANGLE
+        txtSpawnHeight.isDisable = Settings.spawnObjectType != SpawnObjectType.RECTANGLE
     }
 
     @FXML
     fun onSpawnStaticClicked() {
-        spawnStatic = cbSpawnStatic.isSelected
+        Settings.spawnStatic = cbSpawnStatic.isSelected
     }
 
     @FXML
     fun onSpawnRadiusTyped() {
-        spawnRadius = parseTextField(txtSpawnRadius)
+        Settings.spawnRadius = parseTextField(txtSpawnRadius)
         updateSpawnPreview()
     }
 
     @FXML
     fun onSpawnWidthTyped() {
-        spawnWidth = parseTextField(txtSpawnWidth)
+        Settings.spawnWidth = parseTextField(txtSpawnWidth)
         updateSpawnPreview()
     }
 
     @FXML
     fun onSpawnHeightTyped() {
-        spawnHeight = parseTextField(txtSpawnHeight)
+        Settings.spawnHeight = parseTextField(txtSpawnHeight)
         updateSpawnPreview()
     }
 
     @FXML
     fun onCustomColorClicked() {
-        customColor = cbCustomColor.isSelected
+        Settings.useCustomColor = cbCustomColor.isSelected
         clrSpawnColor.isDisable = !cbCustomColor.isSelected
 
         if (cbCustomColor.isSelected) {
-            spawnPreview?.color = spawnColor
+            spawnPreview?.color = Settings.spawnColor
         }
     }
 
     @FXML
     fun onSpawnColorAction() {
-        spawnColor = RenderUtil.paintToColor(clrSpawnColor.value)
-        spawnPreview?.color = spawnColor
+        Settings.spawnColor = RenderUtil.paintToColor(clrSpawnColor.value)
+        spawnPreview?.color = Settings.spawnColor
     }
     /// endregion
 
@@ -353,54 +350,54 @@ class UIController {
     /// region =====Methods: Forces=====
     @FXML
     fun onGravityDirectionClicked() {
-        gravityType = GravityType.DIRECTIONAL
+        Settings.gravityType = GravityType.DIRECTIONAL
         updateGravityFieldsAvailability()
     }
 
     @FXML
     fun onGravityPointClicked() {
-        gravityType = GravityType.TOWARDS_POINT
+        Settings.gravityType = GravityType.TOWARDS_POINT
         updateGravityFieldsAvailability()
     }
 
     @FXML
     fun onGravityDirectionXTyped() {
-        gravityDirection.x = parseTextField(txtGravityDirectionX)
+        Settings.gravityDirection.x = parseTextField(txtGravityDirectionX)
     }
 
     @FXML
     fun onGravityDirectionYTyped() {
-        gravityDirection.y = parseTextField(txtGravityDirectionY)
+        Settings.gravityDirection.y = parseTextField(txtGravityDirectionY)
     }
 
     @FXML
     fun onGravityPointXTyped() {
-        gravityPoint.x = parseTextField(txtGravityPointX)
+        Settings.gravityPoint.x = parseTextField(txtGravityPointX)
     }
 
     @FXML
     fun onGravityPointYTyped() {
-        gravityPoint.y = parseTextField(txtGravityPointY)
+        Settings.gravityPoint.y = parseTextField(txtGravityPointY)
     }
 
     @FXML
     fun onGravityStrengthTyped() {
-        gravityPointStrength = parseTextField(txtGravityPointStrength)
+        Settings.gravityPointStrength = parseTextField(txtGravityPointStrength)
     }
 
     private fun updateGravityFieldsAvailability() {
-        txtGravityDirectionX.isDisable = gravityType != GravityType.DIRECTIONAL
-        txtGravityDirectionY.isDisable = gravityType != GravityType.DIRECTIONAL
+        txtGravityDirectionX.isDisable = Settings.gravityType != GravityType.DIRECTIONAL
+        txtGravityDirectionY.isDisable = Settings.gravityType != GravityType.DIRECTIONAL
 
-        txtGravityPointX.isDisable = gravityType != GravityType.TOWARDS_POINT
-        txtGravityPointY.isDisable = gravityType != GravityType.TOWARDS_POINT
-        txtGravityPointStrength.isDisable = gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointX.isDisable = Settings.gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointY.isDisable = Settings.gravityType != GravityType.TOWARDS_POINT
+        txtGravityPointStrength.isDisable = Settings.gravityType != GravityType.TOWARDS_POINT
     }
 
     @FXML
     fun onDampingChanged() {
-        damping = sldDamping.value.toFloat()
-        lblDamping.text = roundedToString(damping, 4)
+        Settings.damping = sldDamping.value.toFloat()
+        lblDamping.text = roundedToString(Settings.damping, 4)
     }
     /// endregion
 
@@ -418,8 +415,8 @@ class UIController {
 
     @FXML
     fun onTimeSpeedTyped() {
-        timeSpeed = parseTextField(txtTimeSpeed)
-        FhysicsCore.dt = 1.0f / (FhysicsCore.UPDATES_PER_SECOND * FhysicsCore.SUB_STEPS) * timeSpeed
+        Settings.timeScale = parseTextField(txtTimeSpeed)
+        FhysicsCore.dt = 1.0f / (FhysicsCore.UPDATES_PER_SECOND * FhysicsCore.SUB_STEPS) * Settings.timeScale
     }
 
     @FXML
@@ -447,35 +444,35 @@ class UIController {
 
     @FXML
     fun onBorderRestitutionChanged() {
-        borderRestitution = sldBorderRestitution.value.toFloat()
-        lblBorderRestitution.text = roundedToString(borderRestitution)
+        Settings.borderRestitution = sldBorderRestitution.value.toFloat()
+        lblBorderRestitution.text = roundedToString(Settings.borderRestitution)
     }
 
     @FXML
     fun onBorderFrictionStaticChanged() {
-        borderFrictionStatic = sldBorderFrictionStatic.value.toFloat()
-        lblBorderFrictionStatic.text = roundedToString(borderFrictionStatic)
+        Settings.borderFrictionStatic = sldBorderFrictionStatic.value.toFloat()
+        lblBorderFrictionStatic.text = roundedToString(Settings.borderFrictionStatic)
     }
 
     @FXML
     fun onBorderFrictionDynamicChanged() {
-        borderFrictionDynamic = sldBorderFrictionDynamic.value.toFloat()
-        lblBorderFrictionDynamic.text = roundedToString(borderFrictionDynamic)
+        Settings.borderFrictionDynamic = sldBorderFrictionDynamic.value.toFloat()
+        lblBorderFrictionDynamic.text = roundedToString(Settings.borderFrictionDynamic)
     }
     /// endregion
 
     /// region =====Methods: QuadTree=====
     @FXML
     fun onQuadTreeClicked() {
-        drawQuadTree = cbQuadTree.isSelected
+        Settings.drawQuadTree = cbQuadTree.isSelected
 
         // Node utilization is only drawn if the quad tree is drawn
-        cbQTNodeUtilization.isDisable = !drawQuadTree
+        cbQTNodeUtilization.isDisable = !Settings.drawQuadTree
     }
 
     @FXML
     fun onQTNodeUtilizationClicked() {
-        drawQTNodeUtilization = cbQTNodeUtilization.isSelected
+        Settings.drawQTNodeUtilization = cbQTNodeUtilization.isSelected
     }
 
     @FXML
@@ -494,43 +491,44 @@ class UIController {
     /// region =====Methods: Debug=====
     @FXML
     fun onBoundingBoxesClicked() {
-        showBoundingBoxes = !showBoundingBoxes
+        Settings.showBoundingBoxes = !Settings.showBoundingBoxes
     }
 
     @FXML
     fun onSubPolygonsClicked() {
-        showSubPolygons = cbSubPolygons.isSelected
+        Settings.showSubPolygons = cbSubPolygons.isSelected
     }
 
     @FXML
     fun onQTCapacityClicked() {
-        showQTCapacity = cbQTCapacity.isSelected
+        Settings.showQTCapacity = cbQTCapacity.isSelected
     }
 
     @FXML
     fun onMSPUClicked() {
-        showMSPU = cbMSPU.isSelected
+        Settings.showMSPU = cbMSPU.isSelected
     }
 
     @FXML
     fun onUPSClicked() {
-        showUPS = cbUPS.isSelected
+        Settings.showUPS = cbUPS.isSelected
     }
 
     @FXML
     fun onSubStepsClicked() {
-        showSubSteps = cbSubSteps.isSelected
+        Settings.showSubSteps = cbSubSteps.isSelected
     }
 
     @FXML
     fun onObjectCountClicked() {
-        showObjectCount = cbObjectCount.isSelected
+        Settings.showObjectCount = cbObjectCount.isSelected
     }
 
     @FXML
     fun onRenderTimeClicked() {
-        showRenderTime = cbRenderTime.isSelected
+        Settings.showRenderTime = cbRenderTime.isSelected
     }
+    /// endregion
     /// endregion
 
     /// region =====Initialization and Helper=====
@@ -541,26 +539,27 @@ class UIController {
         renderer = RenderUtil.render
         /// endregion
 
+        // Update the UI to match the current settings
         /// region =====Object Properties=====
         restrictToNumericInput(txtPropertyMass, false)
         restrictToNumericInput(txtPropertyRotation)
         /// endregion
 
         /// region =====Spawn Object=====
-        cbSpawnStatic.isSelected = spawnStatic
-        txtSpawnRadius.text = spawnRadius.toString()
-        txtSpawnWidth.text = spawnWidth.toString()
-        txtSpawnHeight.text = spawnHeight.toString()
+        cbSpawnStatic.isSelected = Settings.spawnStatic
+        txtSpawnRadius.text = Settings.spawnRadius.toString()
+        txtSpawnWidth.text = Settings.spawnWidth.toString()
+        txtSpawnHeight.text = Settings.spawnHeight.toString()
         txtSpawnWidth.isDisable = true
         txtSpawnHeight.isDisable = true
-        cbCustomColor.isSelected = customColor
-        clrSpawnColor.value = RenderUtil.colorToPaint(spawnColor) as javafx.scene.paint.Color
+        cbCustomColor.isSelected = Settings.useCustomColor
+        clrSpawnColor.value = RenderUtil.colorToPaint(Settings.spawnColor) as javafx.scene.paint.Color
 
         restrictToNumericInput(txtSpawnRadius, false)
         restrictToNumericInput(txtSpawnWidth, false)
         restrictToNumericInput(txtSpawnHeight, false)
 
-        when (spawnObjectType) {
+        when (Settings.spawnObjectType) {
             SpawnObjectType.NOTHING -> onSpawnNothingClicked()
             SpawnObjectType.CIRCLE -> onSpawnCircleClicked()
             SpawnObjectType.RECTANGLE -> onSpawnRectangleClicked()
@@ -569,13 +568,13 @@ class UIController {
         /// endregion
 
         /// region =====Forces=====
-        txtGravityDirectionX.text = gravityDirection.x.toString()
-        txtGravityDirectionY.text = gravityDirection.y.toString()
-        txtGravityPointX.text = gravityPoint.x.toString()
-        txtGravityPointY.text = gravityPoint.y.toString()
-        txtGravityPointStrength.text = gravityPointStrength.toString()
+        txtGravityDirectionX.text = Settings.gravityDirection.x.toString()
+        txtGravityDirectionY.text = Settings.gravityDirection.y.toString()
+        txtGravityPointX.text = Settings.gravityPoint.x.toString()
+        txtGravityPointY.text = Settings.gravityPoint.y.toString()
+        txtGravityPointStrength.text = Settings.gravityPointStrength.toString()
         updateGravityFieldsAvailability()
-        setSliderAndLabel(sldDamping, lblDamping, damping, 4)
+        setSliderAndLabel(sldDamping, lblDamping, Settings.damping, 4)
 
         restrictToNumericInput(txtGravityDirectionX)
         restrictToNumericInput(txtGravityDirectionY)
@@ -587,12 +586,12 @@ class UIController {
         /// region =====Miscellaneous=====
         btnTimePause.isSelected = !FhysicsCore.running
         btnTimeStep.isDisable = FhysicsCore.running
-        txtTimeSpeed.text = timeSpeed.toString()
+        txtTimeSpeed.text = Settings.timeScale.toString()
         txtBorderWidth.text = FhysicsCore.BORDER.width.toString()
         txtBorderHeight.text = FhysicsCore.BORDER.height.toString()
-        setSliderAndLabel(sldBorderRestitution, lblBorderRestitution, borderRestitution)
-        setSliderAndLabel(sldBorderFrictionStatic, lblBorderFrictionStatic, borderFrictionStatic)
-        setSliderAndLabel(sldBorderFrictionDynamic, lblBorderFrictionDynamic, borderFrictionDynamic)
+        setSliderAndLabel(sldBorderRestitution, lblBorderRestitution, Settings.borderRestitution)
+        setSliderAndLabel(sldBorderFrictionStatic, lblBorderFrictionStatic, Settings.borderFrictionStatic)
+        setSliderAndLabel(sldBorderFrictionDynamic, lblBorderFrictionDynamic, Settings.borderFrictionDynamic)
 
         restrictToNumericInput(txtTimeSpeed, false)
         restrictToNumericInput(txtBorderWidth, false)
@@ -600,25 +599,25 @@ class UIController {
         /// endregion
 
         /// region =====QuadTree=====
-        cbQuadTree.isSelected = drawQuadTree
-        cbQTNodeUtilization.isDisable = !drawQuadTree
-        cbQTNodeUtilization.isSelected = drawQTNodeUtilization
+        cbQuadTree.isSelected = Settings.drawQuadTree
+        cbQTNodeUtilization.isDisable = !Settings.drawQuadTree
+        cbQTNodeUtilization.isSelected = Settings.drawQTNodeUtilization
         txtQuadTreeCapacity.text = QuadTree.capacity.toString()
 
         restrictToNumericInput(txtQuadTreeCapacity, false)
         /// endregion
 
         /// region =====Debug=====
-        cbBoundingBoxes.isSelected = showBoundingBoxes
-        cbSubPolygons.isSelected = showSubPolygons
-        cbObjectCount.isSelected = showObjectCount
-        cbMSPU.isSelected = showMSPU
-        cbUPS.isSelected = showUPS
+        cbBoundingBoxes.isSelected = Settings.showBoundingBoxes
+        cbSubPolygons.isSelected = Settings.showSubPolygons
+        cbObjectCount.isSelected = Settings.showObjectCount
+        cbMSPU.isSelected = Settings.showMSPU
+        cbUPS.isSelected = Settings.showUPS
         /// endregion
     }
 
     /**
-     * Rounds a float [value] to two decimal places and converts it to a string.
+     * Rounds a float [value] to the specified [decimalPlaces] (default: 2) and converts it to a string.
      */
     private fun roundedToString(value: Float, decimalPlaces: Int = 2): String {
         return String.format(Locale.US, "%.${decimalPlaces}f", value)
@@ -634,7 +633,6 @@ class UIController {
 
     /**
      * Restricts the input of a [text field][textField] to numeric values.
-     * @param allowNegatives Whether negative values are allowed.
      */
     private fun restrictToNumericInput(textField: TextField, allowNegatives: Boolean = true) {
         textField.textProperty().addListener { _, oldValue, newValue ->
@@ -654,103 +652,11 @@ class UIController {
     }
     /// endregion
 
-    /// endregion
-
     companion object {
-        /// region =====Singleton=====
         lateinit var instance: UIController
         lateinit var renderer: Renderer
-        /// endregion
 
-        /// region =====Spawn Object=====
-        var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
-            private set
-        var spawnStatic: Boolean = false
-            private set
-        var spawnRadius: Float = 1.0f
-            private set
-        var spawnWidth: Float = 1.0f
-            private set
-        var spawnHeight: Float = 1.0f
-            private set
-        var customColor: Boolean = false
-            private set
-        var spawnColor: Color = Color(255, 255, 255)
-            private set
-        /// endregion
-
-        /// region =====Object Properties=====
         private const val DEGREES_TO_RADIANS: Float = 0.017453292f
         private const val RADIANS_TO_DEGREES: Float = 57.29578f
-        /// endregion
-
-        /// region =====Forces=====
-        var gravityType: GravityType = GravityType.DIRECTIONAL
-            private set
-        val gravityDirection: Vector2 = Vector2(0.0f, -0.0f)
-        val gravityPoint: Vector2 = Vector2( // Default: The center of the world
-            (FhysicsCore.BORDER.width / 2.0).toFloat(),
-            (FhysicsCore.BORDER.height / 2.0).toFloat()
-        )
-        var gravityPointStrength: Float = 100.0f
-            private set
-        var damping: Float = 0.000f
-            private set
-        /// endregion
-
-        /// region =====Miscellaneous=====
-        var timeSpeed: Float = 1.0f
-            private set
-        var borderRestitution: Float = 0.5f
-            private set
-        var borderFrictionStatic: Float = 0f
-            private set
-        var borderFrictionDynamic: Float = 0f
-            private set
-
-        fun setBorderProperties(restitution: Float, frictionStatic: Float, frictionDynamic: Float) {
-            borderRestitution = restitution
-            borderFrictionStatic = frictionStatic
-            borderFrictionDynamic = frictionDynamic
-        }
-        /// endregion
-
-        /// region =====QuadTree=====
-        var drawQuadTree: Boolean = true
-            private set
-        var drawQTNodeUtilization: Boolean = true
-            private set
-        /// endregion
-
-        /// region =====Debug=====
-        var showBoundingBoxes: Boolean = false
-            private set
-        var showSubPolygons: Boolean = false
-            private set
-        var showQTCapacity: Boolean = false
-            private set
-        var showMSPU: Boolean = true
-            private set
-        var showUPS: Boolean = false
-            private set
-        var showSubSteps: Boolean = false
-            private set
-        var showObjectCount: Boolean = true
-            private set
-        var showRenderTime: Boolean = false
-            private set
-        /// endregion
     }
-}
-
-enum class SpawnObjectType {
-    NOTHING,
-    CIRCLE,
-    RECTANGLE,
-    POLYGON
-}
-
-enum class GravityType {
-    DIRECTIONAL,
-    TOWARDS_POINT
 }

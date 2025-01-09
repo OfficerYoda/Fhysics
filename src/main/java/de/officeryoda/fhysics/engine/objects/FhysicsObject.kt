@@ -2,13 +2,13 @@ package de.officeryoda.fhysics.engine.objects
 
 import de.officeryoda.fhysics.engine.FhysicsCore
 import de.officeryoda.fhysics.engine.FhysicsCore.dt
+import de.officeryoda.fhysics.engine.Settings
 import de.officeryoda.fhysics.engine.collision.BorderEdge
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.math.Projection
 import de.officeryoda.fhysics.engine.math.Vector2
-import de.officeryoda.fhysics.rendering.Renderer
-import de.officeryoda.fhysics.rendering.UIController.Companion.damping
+import de.officeryoda.fhysics.visual.Renderer
 import java.awt.Color
 
 abstract class FhysicsObject protected constructor(
@@ -118,12 +118,12 @@ abstract class FhysicsObject protected constructor(
         acceleration += FhysicsCore.gravityAt(position)
         // Update velocity before position (semi-implicit Euler)
         velocity += acceleration * dt
-        velocity *= (1 - damping)
+        velocity *= (1 - Settings.damping)
         position += velocity * dt
         acceleration.set(Vector2.ZERO)
 
         // Update rotation
-        angularVelocity *= (1 - damping)
+        angularVelocity *= (1 - Settings.damping)
         angle += angularVelocity * dt
         // Normalize angle for better precision
         angle %= twoPi

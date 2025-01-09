@@ -7,10 +7,8 @@ import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.engine.util.times
-import de.officeryoda.fhysics.rendering.GravityType
-import de.officeryoda.fhysics.rendering.Renderer
-import de.officeryoda.fhysics.rendering.SceneListener
-import de.officeryoda.fhysics.rendering.UIController
+import de.officeryoda.fhysics.visual.Renderer
+import de.officeryoda.fhysics.visual.SceneListener
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.max
@@ -42,7 +40,7 @@ object FhysicsCore {
     var updateCount = 0 // Includes all sub steps
 
     /** The time step used for the simulation */
-    var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS)
+    var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS) * Settings.timeScale
 
     /** Whether the simulation is running */
     var running: Boolean = true
@@ -59,7 +57,7 @@ object FhysicsCore {
 //            it.velocity *= 0.45f
 //        }
 //        spawn(objects)
-        UIController.setBorderProperties(1f, 1f, 1f)
+        Settings.setBorderProperties(1f, 1f, 1f)
 
 //        repeat(10) {
 //            spawn(FhysicsObjectFactory.randomRectangle())
@@ -173,13 +171,13 @@ object FhysicsCore {
      * Calculates the gravity at the given [position][pos].
      */
     fun gravityAt(pos: Vector2): Vector2 {
-        if (UIController.gravityType == GravityType.DIRECTIONAL) {
-            return UIController.gravityDirection
+        if (Settings.gravityType == GravityType.DIRECTIONAL) {
+            return Settings.gravityDirection
         } else {
-            val direction: Vector2 = UIController.gravityPoint - pos
+            val direction: Vector2 = Settings.gravityPoint - pos
             val sqrDistance: Float =
                 max(1f, direction.sqrMagnitude()) // Prevent high forces when the object is close to the gravity point
-            return UIController.gravityPointStrength / sqrDistance * direction.normalized()
+            return Settings.gravityPointStrength / sqrDistance * direction.normalized()
         }
     }
 }

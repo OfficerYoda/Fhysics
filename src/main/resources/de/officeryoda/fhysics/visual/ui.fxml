@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <fx:root prefHeight="375.0" prefWidth="250.0" type="Accordion" xmlns="http://javafx.com/javafx/21"
-         xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.rendering.UIController">
+         xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.officeryoda.fhysics.visual.UIController">
     <panes>
         <TitledPane focusTraversable="false" text="Spawn Object">
             <content>

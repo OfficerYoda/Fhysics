@@ -10,7 +10,7 @@ import de.officeryoda.fhysics.engine.math.Vector2
  */
 class ConcavePolygon(
     vertices: Array<Vector2>,
-    subPolygonIndices: Array<Array<Int>>, // The indices of the vertices that form the convex sub-polygons
+    subPolygonIndices: Array<IntArray>, // The indices of the vertices that form the convex sub-polygons
     angle: Float = 0f,
 ) : Polygon(vertices, angle) {
 
@@ -21,10 +21,10 @@ class ConcavePolygon(
 
     init {
         // Create the sub-polygons
-        for (indices: Array<Int> in subPolygonIndices) {
+        for (indices: IntArray in subPolygonIndices) {
             val subVertices: Array<Vector2> = indices.map { vertices[it] + position }.toTypedArray()
-            val center: Vector2 = calculatePolygonCenter(subVertices)
-            subPolygons.add(SubPolygon(position, center, velocity, subVertices, angularVelocity, this))
+            val relativePosition: Vector2 = calculatePolygonCenter(subVertices) - position
+            subPolygons.add(SubPolygon(subVertices, this, relativePosition))
         }
     }
 

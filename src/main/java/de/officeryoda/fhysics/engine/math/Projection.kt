@@ -9,11 +9,12 @@ data class Projection(
     /** The maximum value of the projection */
     val max: Float,
 ) {
+
     /**
      * Returns a boolean indicating whether this projection overlaps with the [other] projection.
      */
     fun overlaps(other: Projection): Boolean {
-        return min <= other.max && other.min <= max
+        return this.min <= other.max && other.min <= this.max
     }
 }
 

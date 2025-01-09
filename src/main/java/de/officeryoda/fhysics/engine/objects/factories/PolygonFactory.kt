@@ -20,7 +20,7 @@ object PolygonFactory {
         // Triangulate the polygon
         val triangles: MutableList<Array<Vector2>> = triangulate(vertices.toMutableList())
         // Merge the triangles to create convex polygons
-        val polygonIndices: Array<Array<Int>> = mergePolygons(vertices, triangles)
+        val polygonIndices: Array<IntArray> = mergePolygons(vertices, triangles)
 
         return ConcavePolygon(vertices, polygonIndices, angle)
     }
@@ -83,7 +83,7 @@ object PolygonFactory {
      * Returns a list of indices that form the convex polygons by merging the [triangles].
      * @param vertices the vertices of the polygon containing the triangles
      */
-    private fun mergePolygons(vertices: Array<Vector2>, triangles: MutableList<Array<Vector2>>): Array<Array<Int>> {
+    private fun mergePolygons(vertices: Array<Vector2>, triangles: MutableList<Array<Vector2>>): Array<IntArray> {
         val polygons: MutableList<Array<Vector2>> = triangles
         var merged = true
 
@@ -108,11 +108,11 @@ object PolygonFactory {
         }
 
         val verticesIndicesMap: Map<Vector2, Int> = vertices.withIndex().associate { it.value to it.index }
-        val polygonIndices: Array<Array<Int>> =
+        val polygonIndices: Array<IntArray> =
             polygons.map { polygon ->
                 polygon.map { vertex ->
                     verticesIndicesMap[vertex]!!
-                }.toTypedArray()
+                }.toIntArray()
             }.toTypedArray()
 
         return polygonIndices
