@@ -21,7 +21,7 @@ object SceneManager {
      * Loads a scene by its name.
      */
     fun loadScene(sceneName: String?) {
-        loadSceneName = sceneName
+        loadSceneName = sceneName?.split("_")?.first()
     }
 
     /**

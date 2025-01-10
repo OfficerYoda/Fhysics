@@ -81,9 +81,6 @@ class UIController {
 
     /// region =====Fields: Scene=====
     @FXML
-    private lateinit var btnSceneLoad: Button
-
-    @FXML
     private lateinit var boxSceneLoadName: ComboBox<String>
     /// endregion
 
@@ -337,7 +334,7 @@ class UIController {
         val obj: FhysicsObject = selectedObject!!
 
         cbPropertyStatic.isSelected = obj.static
-        clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
+        clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as Color
         txtPropertyMass.text = roundedToString(obj.mass)
         txtPropertyRotation.text = roundedToString(selectedObject!!.angle * RADIANS_TO_DEGREES)
         setSliderAndLabel(sldPropertyRestitution, lblPropertyRestitution, obj.restitution)
@@ -550,6 +547,9 @@ class UIController {
         instance = this
         renderer = RenderUtil.render
 
+        // Scene names only need to be loaded once
+        boxSceneLoadName.items.setAll(SceneManager.scenes.map { it.name })
+
         updateUi()
         restrictUI()
     }
@@ -560,11 +560,6 @@ class UIController {
      * This method should only be called from the JavaFX application thread.
      */
     private fun updateUi() {
-        /// region =====Scene=====
-        boxSceneLoadName.items.setAll(SceneManager.scenes.map { it.name })
-        boxSceneLoadName.promptText = boxSceneLoadName.value ?: "Select a scene"
-        /// endregion
-
         /// region =====Spawn Object=====
         cbSpawnStatic.isSelected = Settings.spawnStatic
         txtSpawnRadius.text = Settings.spawnRadius.toString()
