@@ -5,7 +5,7 @@ import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 
 /**
- * Represents an edge of the simulation [border][de.officeryoda.fhysics.engine.FhysicsCore.BORDER].
+ * Represents an edge of the simulation [border][de.officeryoda.fhysics.engine.FhysicsCore.border].
  */
 data class BorderEdge(
     /**

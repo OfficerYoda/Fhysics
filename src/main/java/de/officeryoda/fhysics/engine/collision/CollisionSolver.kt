@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.engine.collision
 
-import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
 import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
+import de.officeryoda.fhysics.engine.FhysicsCore.border
 import de.officeryoda.fhysics.engine.Settings
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
@@ -22,25 +22,25 @@ object CollisionSolver {
     }
 
     /**
-     * Recalculates the border objects based on the current [BORDER].
+     * Recalculates the border objects based on the current [border].
      */
     fun updateBorderObjects() {
         borderObjects = arrayOf(
             BorderEdge( // Right edge
-                Vector2(1f, 0f), BORDER.x + BORDER.width,
-                Vector2(BORDER.x + BORDER.width, BORDER.y)
+                Vector2(1f, 0f), border.x + border.width,
+                Vector2(border.x + border.width, border.y)
             ),
             BorderEdge( // Left edge
-                Vector2(-1f, 0f), BORDER.x,
-                Vector2(BORDER.x, BORDER.y + BORDER.height)
+                Vector2(-1f, 0f), border.x,
+                Vector2(border.x, border.y + border.height)
             ),
             BorderEdge( // Top edge
-                Vector2(0f, 1f), BORDER.y + BORDER.height,
-                Vector2(BORDER.x + BORDER.width, BORDER.y + BORDER.height)
+                Vector2(0f, 1f), border.y + border.height,
+                Vector2(border.x + border.width, border.y + border.height)
             ),
             BorderEdge( // Bottom edge
-                Vector2(0f, -1f), BORDER.y,
-                Vector2(BORDER.x, BORDER.y)
+                Vector2(0f, -1f), border.y,
+                Vector2(border.x, border.y)
             )
         )
     }
@@ -305,7 +305,7 @@ object CollisionSolver {
     fun handleBorderCollisions(obj: FhysicsObject) {
         if (obj.static) return
         // Return if the object is fully inside the border
-        if (BORDER.contains(obj.boundingBox)) return
+        if (border.contains(obj.boundingBox)) return
 
         // This is a separate step because the object might be outside two edges at the same time
         val collidingBorders: MutableSet<BorderEdge> = moveInsideBorder(obj)

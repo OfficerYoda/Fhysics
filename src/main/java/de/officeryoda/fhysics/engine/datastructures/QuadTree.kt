@@ -1,6 +1,6 @@
 package de.officeryoda.fhysics.engine.datastructures
 
-import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
+import de.officeryoda.fhysics.engine.FhysicsCore.border
 import de.officeryoda.fhysics.engine.Settings
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
@@ -33,7 +33,7 @@ object QuadTree {
     private val objectLists = IndexedFreeList<MutableList<FhysicsObject>>()
 
     /** The root node of the QuadTree */
-    private var root: QTNode = QTNode(BORDER)
+    private var root: QTNode = QTNode(border)
 
     /** List of all nodes in the tree (root node is always at index 0) */
     private val nodes = IndexedFreeList<QTNode>(root)
@@ -325,7 +325,7 @@ object QuadTree {
     }
 
     fun clear() {
-        root = QTNode(BORDER)
+        root = QTNode(border)
         nodes.clear()
         nodes.add(root)
         SceneListener.clearSelection()

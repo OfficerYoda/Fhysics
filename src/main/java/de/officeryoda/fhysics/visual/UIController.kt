@@ -441,8 +441,8 @@ class UIController {
 
     private fun handleBorderSizeTyped(textField: TextField) {
         var size: Float = max(parseTextField(textField, 1f), 1f) // Minimum border size of 1x1
-        FhysicsCore.BORDER.width = size
-        FhysicsCore.BORDER.height = size
+        FhysicsCore.border.width = size
+        FhysicsCore.border.height = size
         CollisionSolver.updateBorderObjects()
         QuadTree.rebuildFlag = true // Rebuild to resize the QTNodes
 
@@ -592,8 +592,8 @@ class UIController {
         btnTimePause.isSelected = !FhysicsCore.running
         btnTimeStep.isDisable = FhysicsCore.running
         txtTimeSpeed.text = Settings.timeScale.toString()
-        txtBorderWidth.text = FhysicsCore.BORDER.width.toString()
-        txtBorderHeight.text = FhysicsCore.BORDER.height.toString()
+        txtBorderWidth.text = FhysicsCore.border.width.toString()
+        txtBorderHeight.text = FhysicsCore.border.height.toString()
         setSliderAndLabel(sldBorderRestitution, lblBorderRestitution, Settings.borderRestitution)
         setSliderAndLabel(sldBorderFrictionStatic, lblBorderFrictionStatic, Settings.borderFrictionStatic)
         setSliderAndLabel(sldBorderFrictionDynamic, lblBorderFrictionDynamic, Settings.borderFrictionDynamic)

@@ -1,7 +1,7 @@
 package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.FhysicsCore.BORDER
+import de.officeryoda.fhysics.engine.FhysicsCore.border
 import de.officeryoda.fhysics.engine.Settings
 import de.officeryoda.fhysics.engine.SpawnObjectType
 import de.officeryoda.fhysics.engine.datastructures.BoundingBox
@@ -61,7 +61,7 @@ class Renderer : Application() {
     var zoom: Double = targetZoom
 
     /** The targeted zoom center */
-    var targetZoomCenter: Vector2 = Vector2((BORDER.width / 2), (BORDER.height / 2))
+    var targetZoomCenter: Vector2 = Vector2((border.width / 2), (border.height / 2))
 
     /** The current zoom center */
     var zoomCenter: Vector2 = targetZoomCenter
@@ -69,7 +69,7 @@ class Renderer : Application() {
     /**
      * The area in world space which is visible on the screen.
      */
-    var viewingFrustum: BoundingBox = BORDER
+    var viewingFrustum: BoundingBox = border
 
     /** The width of the scene */
     val width: Double get() = stage.scene.width
@@ -368,9 +368,9 @@ class Renderer : Application() {
         setStrokeColor(Color.GRAY)
         gc.strokeRect(
             0f.toScreenSpaceX().toDouble(),
-            BORDER.height.toScreenSpaceY().toDouble(),
-            BORDER.width * zoom,
-            BORDER.height * zoom
+            border.height.toScreenSpaceY().toDouble(),
+            border.width * zoom,
+            border.height * zoom
         )
     }
     /// endregion
@@ -378,7 +378,7 @@ class Renderer : Application() {
     /// region =====Window size functions=====
     private fun setWindowSize() {
         // Calculate the window size
-        val border: BoundingBox = BORDER
+        val border: BoundingBox = border
         val borderWidth: Float = border.width
         val borderHeight: Float = border.height
 
@@ -403,7 +403,7 @@ class Renderer : Application() {
 
     private fun calculateZoom(): Double {
         // Normal zoom amount
-        val borderHeight: Float = BORDER.height
+        val borderHeight: Float = border.height
         val windowHeight: Double = stage.height - TITLE_BAR_HEIGHT
 
         return windowHeight / borderHeight
@@ -429,7 +429,7 @@ class Renderer : Application() {
     fun resetZoom() {
         targetZoom = calculateZoom()
         zoom = targetZoom
-        targetZoomCenter = Vector2((BORDER.width / 2), (BORDER.height / 2))
+        targetZoomCenter = Vector2((border.width / 2), (border.height / 2))
         zoomCenter = targetZoomCenter
     }
 

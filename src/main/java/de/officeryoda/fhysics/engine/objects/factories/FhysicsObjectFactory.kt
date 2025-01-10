@@ -209,7 +209,7 @@ object FhysicsObjectFactory {
      * @return A random position inside the border.
      */
     private fun randomPosInsideBounds(buffer: Float): Vector2 {
-        val border: BoundingBox = FhysicsCore.BORDER
+        val border: BoundingBox = FhysicsCore.border
         val minX: Float = buffer
         val maxX: Float = border.width - minX - buffer
         val x: Float = RANDOM.nextFloat(minX, maxX)

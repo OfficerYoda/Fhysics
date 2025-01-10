@@ -21,8 +21,8 @@ data object Settings {
         "gravityType" to GravityType.DIRECTIONAL,
         "gravityDirection" to Vector2(0.0f, -0.0f),
         "gravityPoint" to Vector2( // Default: The center of the world
-            (FhysicsCore.BORDER.width / 2.0).toFloat(),
-            (FhysicsCore.BORDER.height / 2.0).toFloat()
+            (FhysicsCore.border.width / 2.0).toFloat(),
+            (FhysicsCore.border.height / 2.0).toFloat()
         ),
         "gravityPointStrength" to 100.0f,
         "damping" to 0.000f,
@@ -59,8 +59,8 @@ data object Settings {
 
     /** The point towards which the gravity pulls when set to [GravityType.TOWARDS_POINT] */
     val gravityPoint: Vector2 = Vector2( // Default: The center of the world
-        (FhysicsCore.BORDER.width / 2.0).toFloat(),
-        (FhysicsCore.BORDER.height / 2.0).toFloat()
+        (FhysicsCore.border.width / 2.0).toFloat(),
+        (FhysicsCore.border.height / 2.0).toFloat()
     )
     var gravityPointStrength: Float = 100.0f
     var damping: Float = 0.000f
@@ -103,30 +103,30 @@ data object Settings {
     fun load(settings: Map<String, Any>) {
         settings["spawnObjectType"]?.let { spawnObjectType = it as SpawnObjectType }
         settings["spawnStatic"]?.let { spawnStatic = it as Boolean }
-        settings["spawnRadius"]?.let { Settings.spawnRadius = (it as Number).toFloat() }
-        settings["spawnWidth"]?.let { Settings.spawnWidth = (it as Number).toFloat() }
-        settings["spawnHeight"]?.let { Settings.spawnHeight = (it as Number).toFloat() }
-        settings["useCustomColor"]?.let { Settings.useCustomColor = it as Boolean }
-        settings["spawnColor"]?.let { Settings.spawnColor = it as Color }
-        settings["gravityType"]?.let { Settings.gravityType = it as GravityType }
-        settings["gravityDirection"]?.let { Settings.gravityDirection.set(it as Vector2) }
-        settings["gravityPoint"]?.let { Settings.gravityPoint.set(it as Vector2) }
-        settings["gravityPointStrength"]?.let { Settings.gravityPointStrength = (it as Number).toFloat() }
-        settings["damping"]?.let { Settings.damping = (it as Number).toFloat() }
-        settings["timeScale"]?.let { Settings.timeScale = (it as Number).toFloat() }
-        settings["borderRestitution"]?.let { Settings.borderRestitution = (it as Number).toFloat() }
-        settings["borderFrictionStatic"]?.let { Settings.borderFrictionStatic = (it as Number).toFloat() }
-        settings["borderFrictionDynamic"]?.let { Settings.borderFrictionDynamic = (it as Number).toFloat() }
-        settings["drawQuadTree"]?.let { Settings.drawQuadTree = it as Boolean }
-        settings["drawQTNodeUtilization"]?.let { Settings.drawQTNodeUtilization = it as Boolean }
-        settings["showBoundingBoxes"]?.let { Settings.showBoundingBoxes = it as Boolean }
-        settings["showSubPolygons"]?.let { Settings.showSubPolygons = it as Boolean }
-        settings["showQTCapacity"]?.let { Settings.showQTCapacity = it as Boolean }
-        settings["showMSPU"]?.let { Settings.showMSPU = it as Boolean }
-        settings["showUPS"]?.let { Settings.showUPS = it as Boolean }
-        settings["showSubSteps"]?.let { Settings.showSubSteps = it as Boolean }
-        settings["showObjectCount"]?.let { Settings.showObjectCount = it as Boolean }
-        settings["showRenderTime"]?.let { Settings.showRenderTime = it as Boolean }
+        settings["spawnRadius"]?.let { spawnRadius = (it as Number).toFloat() }
+        settings["spawnWidth"]?.let { spawnWidth = (it as Number).toFloat() }
+        settings["spawnHeight"]?.let { spawnHeight = (it as Number).toFloat() }
+        settings["useCustomColor"]?.let { useCustomColor = it as Boolean }
+        settings["spawnColor"]?.let { spawnColor = it as Color }
+        settings["gravityType"]?.let { gravityType = it as GravityType }
+        settings["gravityDirection"]?.let { gravityDirection.set(it as Vector2) }
+        settings["gravityPoint"]?.let { gravityPoint.set(it as Vector2) }
+        settings["gravityPointStrength"]?.let { gravityPointStrength = (it as Number).toFloat() }
+        settings["damping"]?.let { damping = (it as Number).toFloat() }
+        settings["timeScale"]?.let { timeScale = (it as Number).toFloat() }
+        settings["borderRestitution"]?.let { borderRestitution = (it as Number).toFloat() }
+        settings["borderFrictionStatic"]?.let { borderFrictionStatic = (it as Number).toFloat() }
+        settings["borderFrictionDynamic"]?.let { borderFrictionDynamic = (it as Number).toFloat() }
+        settings["drawQuadTree"]?.let { drawQuadTree = it as Boolean }
+        settings["drawQTNodeUtilization"]?.let { drawQTNodeUtilization = it as Boolean }
+        settings["showBoundingBoxes"]?.let { showBoundingBoxes = it as Boolean }
+        settings["showSubPolygons"]?.let { showSubPolygons = it as Boolean }
+        settings["showQTCapacity"]?.let { showQTCapacity = it as Boolean }
+        settings["showMSPU"]?.let { showMSPU = it as Boolean }
+        settings["showUPS"]?.let { showUPS = it as Boolean }
+        settings["showSubSteps"]?.let { showSubSteps = it as Boolean }
+        settings["showObjectCount"]?.let { showObjectCount = it as Boolean }
+        settings["showRenderTime"]?.let { showRenderTime = it as Boolean }
 
         UIController.updateUiFlag = true
     }
