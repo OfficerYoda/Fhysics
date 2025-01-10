@@ -83,6 +83,7 @@ class Renderer : Application() {
     init {
         RenderUtil.render = this
     }
+
     /// region =====Start functions=====
     fun launch() {
         launch(Renderer::class.java)
@@ -164,7 +165,10 @@ class Renderer : Application() {
     /// region =====Draw functions=====
     fun drawFrame() {
         drawStopwatch.start()
-        // Update the view
+
+        UIController.updateUi()
+
+        // Update the camera view
         lerpZoom()
         updateCameraFrustum()
 

@@ -128,15 +128,8 @@ object FhysicsCore {
     fun update() {
         updateStopwatch.start()
 
-//        if (QuadTree.getObjectCount() < 40_000) {
-//            repeat(1000) {
-//                spawn(FhysicsObjectFactory.randomCircle()).forEach {
-//                    it.restitution = 1f
-//                    it.frictionStatic = 0f
-//                    it.frictionDynamic = 0f
-//                }
-//            }
-//        }
+        // Load a new scene if requested
+        SceneManager.loadPendingScene()
 
         // Rebuild must happen before processing pending operations
         QuadTree.rebuild()
@@ -160,7 +153,6 @@ object FhysicsCore {
 
     private fun spawn(objects: List<FhysicsObject>): List<FhysicsObject> {
         for (obj: FhysicsObject in objects) {
-            obj.updateBoundingBox()
             QuadTree.insert(obj)
         }
 
