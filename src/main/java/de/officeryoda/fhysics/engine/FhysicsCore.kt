@@ -97,8 +97,10 @@ object FhysicsCore {
             mass = 2f
         }
         spawn(rectA, rectB)
-    }
 
+        // So objects get rendered even when the simulation starts paused
+        QuadTree.processPendingOperations()
+    }
 
     fun startEverything() {
         // Start the rendering thread

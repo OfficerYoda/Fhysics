@@ -105,8 +105,6 @@ abstract class FhysicsObject protected constructor(
             field = value.coerceIn(0f, 1f)
         }
 
-    private val twoPi: Float = Math.PI.toFloat() * 2
-
     fun update() {
         // Static objects don't move
         if (static) return
@@ -126,7 +124,7 @@ abstract class FhysicsObject protected constructor(
         angularVelocity *= (1 - Settings.damping)
         angle += angularVelocity * dt
         // Normalize angle for better precision
-        angle %= twoPi
+        angle %= TWO_PI
 
         updateBoundingBox()
     }
@@ -232,5 +230,8 @@ abstract class FhysicsObject protected constructor(
          */
         private var nextId = 0
             get() = field++
+
+
+        private const val TWO_PI: Float = (Math.PI * 2).toFloat()
     }
 }
