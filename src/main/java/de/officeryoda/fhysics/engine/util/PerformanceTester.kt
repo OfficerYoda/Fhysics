@@ -21,7 +21,6 @@ import kotlin.system.measureTimeMillis
 /**
  * A list of performance test scenarios for the Fhysics engine.
  */
-
 private val scenarioListShort: List<PerformanceTestScenario> = listOf(
     idealPhysicsScenarioSetup(
         name = "1,000 Circles",

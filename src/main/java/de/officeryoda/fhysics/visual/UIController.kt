@@ -1,9 +1,6 @@
 package de.officeryoda.fhysics.visual
 
-import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.GravityType
-import de.officeryoda.fhysics.engine.Settings
-import de.officeryoda.fhysics.engine.SpawnObjectType
+import de.officeryoda.fhysics.engine.*
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
@@ -14,6 +11,7 @@ import de.officeryoda.fhysics.visual.SceneListener.updateSpawnPreview
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
+import javafx.scene.paint.Color
 import java.util.*
 import kotlin.math.max
 
@@ -79,6 +77,11 @@ class UIController {
 
     @FXML
     lateinit var lblPropertyFrictionDynamic: Label
+    /// endregion
+
+    /// region =====Fields: Scene=====
+    @FXML
+    private lateinit var boxSceneLoadName: ComboBox<String>
     /// endregion
 
     /// region =====Fields: Forces=====
@@ -311,7 +314,7 @@ class UIController {
     }
 
     /**
-     * Expands the object properties pane.
+     * Expands the UI pane for object properties.
      */
     fun expandObjectPropertiesPane() {
         tpProperties.isExpanded = true
@@ -331,7 +334,7 @@ class UIController {
         val obj: FhysicsObject = selectedObject!!
 
         cbPropertyStatic.isSelected = obj.static
-        clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as javafx.scene.paint.Color
+        clrPropertyColor.value = RenderUtil.colorToPaint(obj.color) as Color
         txtPropertyMass.text = roundedToString(obj.mass)
         txtPropertyRotation.text = roundedToString(selectedObject!!.angle * RADIANS_TO_DEGREES)
         setSliderAndLabel(sldPropertyRestitution, lblPropertyRestitution, obj.restitution)
@@ -343,7 +346,14 @@ class UIController {
     /// region =====Methods: Scene=====
     @FXML
     fun onSceneClearClicked() {
-        QuadTree.clearFlag = true
+        SceneManager.clearScene()
+    }
+
+    @FXML
+    fun onSceneLoadClicked() {
+        val sceneName: String? = boxSceneLoadName.value
+
+        SceneManager.loadScene(sceneName)
     }
     /// endregion
 
@@ -534,17 +544,22 @@ class UIController {
     /// region =====Initialization and Helper=====
     @FXML // This method is called by the FXMLLoader when initialization is complete
     fun initialize() {
-        /// region =====Singleton=====
         instance = this
         renderer = RenderUtil.render
-        /// endregion
 
-        // Update the UI to match the current settings
-        /// region =====Object Properties=====
-        restrictToNumericInput(txtPropertyMass, false)
-        restrictToNumericInput(txtPropertyRotation)
-        /// endregion
+        // Scenes names only need to be loaded once
+        boxSceneLoadName.items.setAll(SceneManager.scenes.map { it.name })
 
+        updateUi()
+        restrictUI()
+    }
+
+    /**
+     * Updates the UI to match the current settings.
+     *
+     * This method should only be called from the JavaFX application thread.
+     */
+    private fun updateUi() {
         /// region =====Spawn Object=====
         cbSpawnStatic.isSelected = Settings.spawnStatic
         txtSpawnRadius.text = Settings.spawnRadius.toString()
@@ -553,11 +568,7 @@ class UIController {
         txtSpawnWidth.isDisable = true
         txtSpawnHeight.isDisable = true
         cbCustomColor.isSelected = Settings.useCustomColor
-        clrSpawnColor.value = RenderUtil.colorToPaint(Settings.spawnColor) as javafx.scene.paint.Color
-
-        restrictToNumericInput(txtSpawnRadius, false)
-        restrictToNumericInput(txtSpawnWidth, false)
-        restrictToNumericInput(txtSpawnHeight, false)
+        clrSpawnColor.value = RenderUtil.colorToPaint(Settings.spawnColor) as Color
 
         when (Settings.spawnObjectType) {
             SpawnObjectType.NOTHING -> onSpawnNothingClicked()
@@ -575,12 +586,6 @@ class UIController {
         txtGravityPointStrength.text = Settings.gravityPointStrength.toString()
         updateGravityFieldsAvailability()
         setSliderAndLabel(sldDamping, lblDamping, Settings.damping, 4)
-
-        restrictToNumericInput(txtGravityDirectionX)
-        restrictToNumericInput(txtGravityDirectionY)
-        restrictToNumericInput(txtGravityPointX)
-        restrictToNumericInput(txtGravityPointY)
-        restrictToNumericInput(txtGravityPointStrength)
         /// endregion
 
         /// region =====Miscellaneous=====
@@ -592,10 +597,6 @@ class UIController {
         setSliderAndLabel(sldBorderRestitution, lblBorderRestitution, Settings.borderRestitution)
         setSliderAndLabel(sldBorderFrictionStatic, lblBorderFrictionStatic, Settings.borderFrictionStatic)
         setSliderAndLabel(sldBorderFrictionDynamic, lblBorderFrictionDynamic, Settings.borderFrictionDynamic)
-
-        restrictToNumericInput(txtTimeSpeed, false)
-        restrictToNumericInput(txtBorderWidth, false)
-        restrictToNumericInput(txtBorderHeight, false)
         /// endregion
 
         /// region =====QuadTree=====
@@ -603,8 +604,6 @@ class UIController {
         cbQTNodeUtilization.isDisable = !Settings.drawQuadTree
         cbQTNodeUtilization.isSelected = Settings.drawQTNodeUtilization
         txtQuadTreeCapacity.text = QuadTree.capacity.toString()
-
-        restrictToNumericInput(txtQuadTreeCapacity, false)
         /// endregion
 
         /// region =====Debug=====
@@ -613,6 +612,42 @@ class UIController {
         cbObjectCount.isSelected = Settings.showObjectCount
         cbMSPU.isSelected = Settings.showMSPU
         cbUPS.isSelected = Settings.showUPS
+        /// endregion
+
+        updateUiFlag = false
+    }
+
+    /**
+     * Restricts the input of some UI elements to numeric values.
+     */
+    private fun restrictUI() {
+        /// region =====Object Properties=====
+        restrictToNumericInput(txtPropertyMass, false)
+        restrictToNumericInput(txtPropertyRotation)
+        /// endregion
+
+        /// region =====Spawn Object=====
+        restrictToNumericInput(txtSpawnRadius, false)
+        restrictToNumericInput(txtSpawnWidth, false)
+        restrictToNumericInput(txtSpawnHeight, false)
+        /// endregion
+
+        /// region =====Forces=====
+        restrictToNumericInput(txtGravityDirectionX)
+        restrictToNumericInput(txtGravityDirectionY)
+        restrictToNumericInput(txtGravityPointX)
+        restrictToNumericInput(txtGravityPointY)
+        restrictToNumericInput(txtGravityPointStrength)
+        /// endregion
+
+        /// region =====Miscellaneous=====
+        restrictToNumericInput(txtTimeSpeed, false)
+        restrictToNumericInput(txtBorderWidth, false)
+        restrictToNumericInput(txtBorderHeight, false)
+        /// endregion
+
+        /// region =====QuadTree=====
+        restrictToNumericInput(txtQuadTreeCapacity, false)
         /// endregion
     }
 
@@ -656,7 +691,28 @@ class UIController {
         lateinit var instance: UIController
         lateinit var renderer: Renderer
 
+        /** Whether the UI should be updated */
+        var updateUiFlag: Boolean = false
+
         private const val DEGREES_TO_RADIANS: Float = 0.017453292f
         private const val RADIANS_TO_DEGREES: Float = 57.29578f
+
+        /**
+         * Updates the UI to match the current settings.
+         *
+         * This method should only be called from the JavaFX application thread.
+         */
+        fun updateUi() {
+            if (updateUiFlag) {
+                instance.updateUi()
+            }
+        }
+
+        /**
+         * Expands the UI pane for object properties.
+         */
+        fun expandObjectPropertiesPane() {
+            instance.expandObjectPropertiesPane()
+        }
     }
 }

@@ -60,6 +60,7 @@ object QuadTree {
      * Insertion will happen the next time [processPendingOperations] is called.
      */
     fun insert(obj: FhysicsObject) {
+        obj.updateBoundingBox()
         pendingAdditions.add(obj)
     }
 

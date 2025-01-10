@@ -85,7 +85,7 @@ object SceneListener {
             // Select object if hovered, otherwise spawn object
             selectedObject = hoveredObject
             if (selectedObject != null) {
-                UIController.instance.expandObjectPropertiesPane()
+                UIController.expandObjectPropertiesPane()
                 return
             }
         }

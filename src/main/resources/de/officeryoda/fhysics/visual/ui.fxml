@@ -318,9 +318,39 @@
                                 <Insets/>
                             </opaqueInsets>
                             <children>
+                                <Text accessibleText="The Radius of the spawned circle"
+                                      boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE"
+                                      strokeWidth="0.0" text="Load" textOrigin="BOTTOM"
+                                      wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0"/>
+                                    </font>
+                                </Text>
+                                <HBox prefWidth="228.0">
+                                    <children>
+                                        <Button fx:id="btnSceneLoad" mnemonicParsing="false"
+                                                onMouseClicked="#onSceneLoadClicked" prefWidth="53.0" text="LOAD">
+                                            <font>
+                                                <Font name="System Bold" size="12.0"/>
+                                            </font>
+                                        </Button>
+                                        <ComboBox fx:id="boxSceneLoadName" prefWidth="175.0" promptText="SceneName"/>
+                                    </children>
+                                </HBox>
+                                <Text accessibleText="The Radius of the spawned circle"
+                                      boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE"
+                                      strokeWidth="0.0" text="Clear" textOrigin="BOTTOM"
+                                      wrappingWidth="228.72525787353516">
+                                    <font>
+                                        <Font name="System Italic" size="12.0"/>
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets top="5.0"/>
+                                    </VBox.margin>
+                                </Text>
                                 <Button fx:id="btnSceneClear" alignment="CENTER_RIGHT" contentDisplay="CENTER"
-                                        mnemonicParsing="false" onMouseClicked="#onSceneClearClicked" text="CLEAR"
-                                        textFill="#d92114">
+                                        mnemonicParsing="false" onMouseClicked="#onSceneClearClicked" prefWidth="53.0"
+                                        text="CLEAR" textFill="#d92114">
                                     <font>
                                         <Font name="System Bold" size="12.0"/>
                                     </font>
@@ -433,6 +463,9 @@
                                     <font>
                                         <Font name="System Italic" size="12.0"/>
                                     </font>
+                                    <VBox.margin>
+                                        <Insets top="5.0"/>
+                                    </VBox.margin>
                                 </Text>
                                 <HBox>
                                     <children>
@@ -688,14 +721,17 @@
                                     <tooltip>
                                         <Tooltip text="The amount of objects that are in a QT-node" />
                                     </tooltip>
-                                    <padding>
-                                        <Insets bottom="5.0" />
-                                    </padding>
+                                    <VBox.margin>
+                                        <Insets/>
+                                    </VBox.margin>
                                 </CheckBox>
                                 <Text accessibleText="The Radius of the spawned circle" boundsType="LOGICAL_VERTICAL_CENTER" fill="#727272" strokeType="OUTSIDE" strokeWidth="0.0" text="Capacity" textOrigin="BOTTOM" wrappingWidth="228.72525787353516">
                                     <font>
                                         <Font name="System Italic" size="12.0" />
                                     </font>
+                                    <VBox.margin>
+                                        <Insets top="5.0"/>
+                                    </VBox.margin>
                                 </Text>
                                 <HBox alignment="CENTER_LEFT">
                                     <children>
@@ -748,6 +784,9 @@
                                     <font>
                                         <Font name="System Italic" size="12.0" />
                                     </font>
+                                    <VBox.margin>
+                                        <Insets top="5.0"/>
+                                    </VBox.margin>
                                 </Text>
                                 <CheckBox fx:id="cbQTCapacity" mnemonicParsing="false" onMouseClicked="#onQTCapacityClicked" prefHeight="17.0" prefWidth="253.0" text="QuadTree capacity">
                                     <tooltip>
