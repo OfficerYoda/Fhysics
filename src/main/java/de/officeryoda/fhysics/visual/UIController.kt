@@ -81,6 +81,14 @@ class UIController {
     lateinit var lblPropertyFrictionDynamic: Label
     /// endregion
 
+    /// region =====Fields: Scene=====
+    @FXML
+    private lateinit var btnSceneLoad: Button
+
+    @FXML
+    private lateinit var boxSceneLoadName: ComboBox<String>
+    /// endregion
+
     /// region =====Fields: Forces=====
     @FXML
     private lateinit var txtGravityDirectionX: TextField
@@ -345,6 +353,14 @@ class UIController {
     fun onSceneClearClicked() {
         QuadTree.clearFlag = true
     }
+
+    @FXML
+    fun onSceneLoadClicked() {
+        val sceneName: String? = boxSceneLoadName.value
+        if (sceneName == null) return
+
+        println("Loading scene: $sceneName")
+    }
     /// endregion
 
     /// region =====Methods: Forces=====
@@ -544,6 +560,11 @@ class UIController {
         restrictToNumericInput(txtPropertyMass, false)
         restrictToNumericInput(txtPropertyRotation)
         /// endregion
+
+        boxSceneLoadName.promptText = "Load Scene"
+        for (i: Int in 1..5) {
+            boxSceneLoadName.items.add("Scene $i")
+        }
 
         /// region =====Spawn Object=====
         cbSpawnStatic.isSelected = Settings.spawnStatic
