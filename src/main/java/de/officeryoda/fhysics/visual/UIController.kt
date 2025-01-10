@@ -547,7 +547,7 @@ class UIController {
         instance = this
         renderer = RenderUtil.render
 
-        // Scene names only need to be loaded once
+        // Scenes names only need to be loaded once
         boxSceneLoadName.items.setAll(SceneManager.scenes.map { it.name })
 
         updateUi()

@@ -6,16 +6,16 @@ import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory
 
+/**
+ * The scene manager is responsible for loading custom scenes.
+ */
 object SceneManager {
 
-    val scenes: MutableList<Scene> = mutableListOf()
+    /** A list of all scenes that can be loaded */
+    val scenes: List<CustomScene> = createScenes()
 
     /** The name of the scene to load */
     private var loadSceneName: String? = null
-
-    init {
-        createScenes()
-    }
 
     /**
      * Loads a scene by its name.
@@ -43,9 +43,10 @@ object SceneManager {
     /**
      * Creates the custom scenes to be loaded through the UI.
      */
-    private fun createScenes() {
+    private fun createScenes(): List<CustomScene> {
+        val scenes: MutableList<CustomScene> = mutableListOf<CustomScene>()
         scenes.add(
-            Scene(
+            CustomScene(
                 "1000 Circles (perfect)",
                 mapOf(
                     "borderRestitution" to 1f,
@@ -67,7 +68,7 @@ object SceneManager {
         )
 
         scenes.add(
-            Scene(
+            CustomScene(
                 "200 Rectangles (perfect)",
                 mapOf(
                     "borderRestitution" to 1f,
@@ -89,7 +90,7 @@ object SceneManager {
         )
 
         scenes.add(
-            Scene(
+            CustomScene(
                 "100 Polygons (perfect)",
                 mapOf(
                     "borderRestitution" to 1f,
@@ -109,10 +110,12 @@ object SceneManager {
                 }
             }
         )
+
+        return scenes
     }
 }
 
-data class Scene(
+data class CustomScene(
     /** The name shown in the UI */
     val name: String,
     /** The settings that differ from the default settings */
