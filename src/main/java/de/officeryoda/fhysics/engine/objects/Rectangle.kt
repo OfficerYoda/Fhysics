@@ -1,6 +1,5 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.visual.Renderer
 import kotlin.math.cos
@@ -43,14 +42,6 @@ class Rectangle(
 
     override fun calculateInertia(): Float {
         return mass / 12f * (width * width + height * height)
-    }
-
-    override fun testCollision(other: FhysicsObject): CollisionInfo {
-        return other.testCollision(this) // works because FhysicsObject is abstract (aka double dispatch)
-    }
-
-    override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
-        return other.findContactPoints(this, info)
     }
 
     override fun draw(renderer: Renderer) {

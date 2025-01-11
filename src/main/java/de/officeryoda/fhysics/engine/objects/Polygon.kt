@@ -117,7 +117,9 @@ abstract class Polygon(
         return Array(vertices.size) { i -> transformationData.applyTo(vertices[i]) }
     }
 
-    abstract override fun testCollision(other: FhysicsObject): CollisionInfo
+    override fun testCollision(other: FhysicsObject): CollisionInfo {
+        return other.testCollision(this)
+    }
 
     override fun testCollision(other: Circle): CollisionInfo {
         return CollisionFinder.testCollision(this, other)
@@ -131,7 +133,10 @@ abstract class Polygon(
         return ContactFinder.findContactPoints(border, this)
     }
 
-    abstract override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2>
+    // Double dispatch only works in non-abstract classes
+    override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
+        return other.findContactPoints(this, info)
+    }
 
     override fun findContactPoints(other: Circle, info: CollisionInfo): Array<Vector2> {
         return ContactFinder.findContactPoints(other, info)
