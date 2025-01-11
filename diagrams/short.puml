@@ -4,7 +4,11 @@ class de.officeryoda.fhysics.visual.QuadTree {
 
 }
 
-class de.officeryoda.fhysics.visualQTNode {
+
+abstract class de.officeryoda.fhysics.engine.objects.FhysicsObject {
+    {abstract} + type: FhysicsObjectType
+    + color: Color
+    angle: Float
 }
 
 ' QTNode is a inner class of QuadTree

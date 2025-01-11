@@ -119,9 +119,9 @@ data class CustomScene(
     /** The name shown in the UI */
     val name: String,
     /** The settings that differ from the default settings */
-    val settings: Map<String, Any>,
+    private val settings: Map<String, Any>,
     /** The object creation function */
-    val objectCreation: () -> Unit,
+    private val objectCreation: () -> Unit,
 ) {
     fun load() {
         Settings.loadDefault()

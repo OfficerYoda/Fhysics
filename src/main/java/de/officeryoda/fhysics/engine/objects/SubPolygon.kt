@@ -10,7 +10,7 @@ class SubPolygon(
     vertices: Array<Vector2>,
     val parent: ConcavePolygon,
     /** The relative position of the sub-polygon to the parent polygon */
-    val relativePosition: Vector2,
+    private val relativePosition: Vector2,
 ) : Polygon(
     // Velocity and angularVelocity are always retrieved from the parent polygon
     parent.position, parent.velocity,

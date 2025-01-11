@@ -134,7 +134,7 @@ object DebugRenderer {
         }
 
         if (Settings.showMSPU) {
-            stats.add("MSPU: ${FhysicsCore.updateStopwatch.roundedString()}")
+            stats.add("MSPU: ${FhysicsCore.updateStopwatch.toRoundedString()}")
         }
 
         if (Settings.showUPS) {
@@ -153,7 +153,7 @@ object DebugRenderer {
         }
 
         if (Settings.showRenderTime) {
-            stats.add("Render Time: ${renderer.drawStopwatch.roundedString()}")
+            stats.add("Render Time: ${renderer.drawStopwatch.toRoundedString()}")
         }
 
         drawStatsList(stats.reversed()) // Reverse to make it same order as in settings
