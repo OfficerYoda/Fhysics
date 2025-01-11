@@ -1,17 +1,13 @@
 @startuml
 
-class de.officeryoda.fhysics.visual.QuadTree {
-
+class Example {
+    +id: UUID
+    +name: String
+    #type: EntityType
+    -lastModified: DateTime
+    {field} ...
+    foo(): Unit
+    {method} ...
 }
-
-
-abstract class de.officeryoda.fhysics.engine.objects.FhysicsObject {
-    {abstract} + type: FhysicsObjectType
-    + color: Color
-    angle: Float
-}
-
-' QTNode is a inner class of QuadTree
-QuadTree *--  QTNode
 
 @enduml
