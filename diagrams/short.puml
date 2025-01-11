@@ -1,0 +1,13 @@
+@startuml
+
+class de.officeryoda.fhysics.visual.QuadTree {
+
+}
+
+class de.officeryoda.fhysics.visualQTNode {
+}
+
+' QTNode is a inner class of QuadTree
+QuadTree *--  QTNode
+
+@enduml

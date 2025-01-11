@@ -4,25 +4,15 @@
 top to bottom direction
 skinparam linetype ortho
 
-class Circle {
-    + type: FhysicsObjectType
-    + radius: Float
-    + Circle(Vector2, Float):
-    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
-    + updateBoundingBox(): Unit
-    + draw(Renderer): Unit
-    + calculateInertia(): Float
-    + findContactPoints(BorderEdge): Vector2[]
-    + testCollision(Polygon): CollisionInfo
-    + project(Vector2): Projection
-    + contains(Vector2): Boolean
-    + findContactPoints(Polygon, CollisionInfo): Vector2[]
-    + testCollision(Circle): CollisionInfo
+class de.officeryoda.fhysics.engine.collision.BorderEdge << data >> {
+    normal: Vector2
+    edgeCorner: Vector2
+    borderPosition: Float
+    + BorderEdge(Vector2, Float, Vector2):
     + testCollision(FhysicsObject): CollisionInfo
-    + findContactPoints(Circle, CollisionInfo): Vector2[]
 }
 
-class CollisionFinder {
+class de.officeryoda.fhysics.engine.collision.CollisionFinder {
     + testCollision(Circle, Circle): CollisionInfo
     + testCollision(Polygon, Polygon): CollisionInfo
     + testCollision(Polygon, Circle): CollisionInfo
@@ -38,7 +28,17 @@ class CollisionFinder {
     - testConcavePolygonCollision(Polygon, Polygon): CollisionInfo
 }
 
-class CollisionSolver {
+class de.officeryoda.fhysics.engine.collision.CollisionInfo << data >> {
+    normal: Vector2
+    hasCollision: Boolean
+    objA: FhysicsObject?
+    depth: Float
+    objB: FhysicsObject?
+    + CollisionInfo(FhysicsObject?, FhysicsObject?, Vector2, Float):
+    + CollisionInfo():
+}
+
+class de.officeryoda.fhysics.engine.collision.CollisionSolver {
     + moveInsideBorder(FhysicsObject): Set<BorderEdge>
     + updateBorderObjects(): Unit
     + solveCollision(CollisionInfo): Unit
@@ -48,7 +48,7 @@ class CollisionSolver {
     - solveFrictionBorder(BorderEdge, FhysicsObject, Vector2[], Float[]): Unit
     - calculateFrictionMagnitude(Vector2, Vector2, FhysicsObject, FhysicsObject, Vector2, Vector2, Vector2[]): Float
     - applyImpulse(ArrayList<Vector2>, Vector2[], FhysicsObject): Unit
-    - calculateImpulseMagnitude(FhysicsObject, FhysicsObject, Vector2, Int, Float, Vector2, Vector2): Float
+    - calculateImpulseMagnitude(FhysicsObject, FhysiscsObject, Vector2, Int, Float, Vector2, Vector2): Float
     - separateOverlappingObjects(CollisionInfo): Unit
     - calculateImpulseMagnitude(FhysicsObject, Vector2, Vector2, Float, Int): Float
     - calculateRelativeVelocity(FhysicsObject, FhysicsObject, Vector2, Vector2): Vector2
@@ -67,18 +67,7 @@ class CollisionSolver {
     - solveBorderCollision(FhysicsObject, BorderEdge): Unit
 }
 
-class ConcavePolygon {
-    type: FhysicsObjectType
-    subPolygons: List<SubPolygon>
-    + ConcavePolygon(Vector2[], Int[][], Float):
-    + updateBoundingBox(): Unit
-    + testCollision(FhysicsObject): CollisionInfo
-    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
-    {static} # calculatePolygonCenter(Vector2[]): Vector2
-    {static} - calculatePolygonArea(Vector2[]): Float
-}
-
-class ContactFinder {
+class de.officeryoda.fhysics.engine.collision.ContactFinder {
     + findContactPoints(Circle, CollisionInfo): Vector2[]
     + findContactPoints(BorderEdge, Circle): Vector2[]
     + findContactPoints(Polygon, Polygon): Vector2[]
@@ -91,141 +80,21 @@ class ContactFinder {
     - nearlyEquals(Vector2, Vector2): Boolean
 }
 
-class ConvexPolygon {
-    type: FhysicsObjectType
-    + ConvexPolygon(Vector2[], Float):
-    + testCollision(FhysicsObject): CollisionInfo
-    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
-}
-
-class DebugElement {
-    durationFrames: Int
-    color: Color
-    + DebugElement(Color, Int):
-}
-
-class DebugLine {
-    start: Vector2
-    end: Vector2
-    + DebugLine(Vector2, Vector2, Color, Int):
-}
-
-class DebugPoint {
-    position: Vector2
-    + DebugPoint(Vector2, Color, Int):
-}
-
-class DebugRenderer {
-   renderer: Renderer
-   gc: GraphicsContext
-    + drawDebug(): Unit
-    + drawBoundingBox(BoundingBox): Unit
-    + addDebugPoint(Vector2, Color, Int): Unit
-    + addDebugVector(Vector2, Vector2, Color, Int): Unit
-    + clearDebug(): Unit
-    + drawQTNode(BoundingBox, Int): Unit
-    + addDebugLine(Vector2, Vector2, Color, Int): Unit
-    - drawPaused(): Unit
-    - drawCenteredText(String, Rectangle2D): Unit
-    - drawDebugPoints(): Unit
-    - drawStats(): Unit
-    - drawDebugVectors(): Unit
-    - strokeLine(Vector2, Vector2): Unit
-    - drawStatsList(List<String>): Unit
-    - drawVector(Vector2, Vector2): Unit
-    - setFont(Double): Font
-    - updateDuration(T, List<T>): Unit
-    - drawDebugLines(): Unit
-}
-
-class DebugVector {
-    support: Vector2
-    direction: Vector2
-    + DebugVector(Vector2, Vector2, Color, Int):
-}
-
-class ExtensionsKt {
-    + times(Float, Vector2): Vector2
-    + floorToInt(Float): Int
-    + ceilToInt(Float): Int
-}
-
-class FhysicsCore {
-    running: Boolean
-    border: BoundingBox
-    updateCount: Int
-    dt: Float
-    RENDER_LOCK: ReentrantLock
-    updateStopwatch: Stopwatch
-    + startEverything(): Unit
-    + spawn(FhysicsObject[]): List<FhysicsObject>
-    + update(): Unit
-    + gravityAt(Vector2): Vector2
-    - startUpdateLoop(): Unit
-    - spawn(List<FhysicsObject>): List<FhysicsObject>
-}
-
-class FhysicsObject {
-    type: FhysicsObjectType
-    color: Color
-    angle: Float
-    invMass: Float
-    angularVelocity: Float
-    static: Boolean
-    frictionStatic: Float
-    inertia: Float
-    boundingBox: BoundingBox
-    frictionDynamic: Float
-    acceleration: Vector2
-    mass: Float
-    restitution: Float
-    invInertia: Float
-    position: Vector2
-    velocity: Vector2
-    id: Int
-    {static} nextId: Int
-    # FhysicsObject(Vector2, Vector2, Float, Float, Float):
-    + findContactPoints(Polygon, CollisionInfo): Vector2[]
-    + testCollision(BorderEdge): CollisionInfo
-    + draw(Renderer): Unit
-    + findContactPoints(Circle, CollisionInfo): Vector2[]
-    + testCollision(Polygon): CollisionInfo
+class de.officeryoda.fhysics.engine.datastructures.BoundingBox << data >> {
+    width: Float
+    fromPolygon: Polygon
+    fromCircle: Circle
+    height: Float
+    x: Float
+    y: Float
+    + BoundingBox():
+    + BoundingBox(Float, Float, Float, Float):
+    + contains(BoundingBox): Boolean
+    + overlaps(BoundingBox): Boolean
     + contains(Vector2): Boolean
-    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
-    + testCollision(FhysicsObject): CollisionInfo
-    + updateBoundingBox(): Unit
-    + update(): Unit
-    + project(Vector2): Projection
-    + testCollision(Circle): CollisionInfo
-    + findContactPoints(BorderEdge): Vector2[]
-    + calculateInertia(): Float
-    - colorFromId(): Color
 }
 
-class FhysicsObjectFactory {
-    + randomPolygon(): Polygon
-    + randomCircle(): Circle
-    + randomRectangle(): Rectangle
-    - generatePolygon(Vector2, Float, Float, Float, Int): List<Vector2>
-    - nextGaussian(Float, Float): Float
-    - clip(Float, Float, Float): Float
-    - randomPosInsideBounds(Float): Vector2
-    - randomAngleSteps(Int, Double): List<Double>
-    - randomVector2(Float, Float): Vector2
-}
-enum FhysicsObjectType << enumeration >> {
-    CIRCLE
-    RECTANGLE
-    CONVEX_POLYGON
-    CONCAVE_POLYGON
-    SUB_POLYGON
-}
-enum GravityType << enumeration >> {
-    DIRECTIONAL
-    TOWARDS_POINT
-}
-
-class IndexedFreeList<T> {
+class de.officeryoda.fhysics.engine.datastructures.IndexedFreeList<T> {
     + IndexedFreeList():
     + IndexedFreeList(T):
     + free(Int): Unit
@@ -238,71 +107,14 @@ class IndexedFreeList<T> {
     + indexOf(T): Int
 }
 
-class MainKt {
-    + main(): Unit
+class de.officeryoda.fhysics.engine.datastructures.FreeElement<T> << data >> {
+    element: T?
+    next: Int
+    + FreeElement(T?, Int):
+    + FreeElement():
 }
 
-class PerformanceTester {
-    + testPerformanceAverage(List<PerformanceTestScenario>, File, Int, Int): List<PerformanceTestResult>
-    + testPerformance(List<PerformanceTestScenario>, Int): List<PerformanceTestResult>
-    {static} + randomPhysicsScenarioSetup(String, () -> List<FhysicsObject>, BoundingBox): PerformanceTestScenario
-    {static} + idealPhysicsScenarioSetup(String, () -> List<FhysicsObject>, BoundingBox): PerformanceTestScenario
-}
-
-class PerformanceTesterKt {
-    + parseArgs(String[]): Triple<Int, Int, Int>
-    + main(String[]): Unit
-}
-
-class Polygon {
-    vertices: Vector2[]
-    transformedVertices: Vector2[]
-    axes: List<Vector2>
-    + Polygon(Vector2, Vector2, Vector2[], Float, Float):
-    + Polygon(Vector2[], Float):
-    + findContactPoints(Polygon, CollisionInfo): Vector2[]
-    + findContactPoints(Circle, CollisionInfo): Vector2[]
-    + updateBoundingBox(): Unit
-    + contains(Vector2): Boolean
-    + findContactPoints(BorderEdge): Vector2[]
-    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
-    + project(Vector2): Projection
-    + testCollision(Polygon): CollisionInfo
-    + draw(Renderer): Unit
-    + testCollision(FhysicsObject): CollisionInfo
-    + calculateInertia(): Float
-    + testCollision(Circle): CollisionInfo
-    # calculatePolygonCenter(Vector2[]): Vector2
-}
-
-class PolygonFactory {
-    + isPolygonValid(List<Vector2>): Boolean
-    + createPolygon(Vector2[], Float): Polygon
-    - triangulate(List<Vector2>): List<Vector2[]>
-    - ensureCCW(Vector2[]): Unit
-    - mergePolygons(Vector2[], Vector2[], Pair<Int, Int>): Vector2[]
-    - isConcave(Vector2[]): Boolean
-    - isPointInTriangle(Vector2, Vector2, Vector2, Vector2): Boolean
-    - isEar(Vector2, Vector2, Vector2, List<Vector2>): Boolean
-    - isConvex(Vector2, Vector2, Vector2): Boolean
-    - mergePolygons(Vector2[], List<Vector2[]>): Int[][]
-    - calculateSignedArea(Vector2[]): Float
-    - areLinesIntersecting(Pair<Vector2, Vector2>, Pair<Vector2, Vector2>): Boolean
-    - sharedEdge(Vector2[], Vector2[]): Pair<Int, Int>?
-    - areEdgesIntersecting(List<Vector2>): Boolean
-}
-
-class QTDebugHelper {
-    root: QTNode
-    + getChildren(QTNode): QTNode[]
-    + printTree(): Unit
-    - addChildNodesToCollection(Int, Collection<QTNode>): Unit
-    - getChildNodes(QTNode): List<QTNode>
-    - printTree(QTNode, String, Boolean): Unit
-    - printlnNode(QTNode): Unit
-}
-
-class QuadTree {
+class de.officeryoda.fhysics.engine.datastructures.QuadTree {
     objectCount: Int
     clearFlag: Boolean
     rebuildFlag: Boolean
@@ -346,7 +158,198 @@ class QuadTree {
     - collapseBranch(QTNode): Unit
 }
 
-class Rectangle {
+class de.officeryoda.fhysics.engine.datastructures.QTNode << data >> {
+    objects: List<FhysicsObject>
+    leaf: Boolean
+    bbox: BoundingBox
+    index: Int
+    + QTNode(BoundingBox):
+    + convertToBranch(): Unit
+    + convertToLeaf(): Unit
+}
+
+class de.officeryoda.fhysics.engine.math.Projection << data >> {
+    min: Float
+    max: Float
+    + Projection(Float, Float):
+    + overlaps(Projection): Boolean
+}
+
+class de.officeryoda.fhysics.engine.math.ProjectionResult << data >> {
+    overlap: Float
+    hasOverlap: Boolean
+    projectionB: Projection
+    projectionA: Projection
+    + ProjectionResult(Projection, Projection):
+}
+
+class de.officeryoda.fhysics.engine.math.TransformationData {
+    + TransformationData():
+    + TransformationData(Float, Vector2):
+}
+
+class de.officeryoda.fhysics.engine.math.Vector2 << data >> {
+    x: Float
+    y: Float
+    {static} ZERO: Vector2
+    + Vector2(Float, Float):
+    + Vector2(Float):
+    + Vector2():
+    + plus(Vector2): Vector2
+    + timesAssign(Float): Unit
+    + dot(Vector2): Float
+    + cross(Vector2): Float
+    + minus(Vector2): Vector2
+    + set(Vector2): Unit
+    + plusAssign(Vector2): Unit
+    + rotated(Float): Vector2
+    + distanceTo(Vector2): Float
+    + rotatedAround(Float, Vector2): Vector2
+    + normalized(): Vector2
+    + sqrMagnitude(): Float
+    + set(Float, Float): Unit
+    + negate(): Unit
+    + div(Float): Vector2
+    + unaryMinus(): Vector2
+    + divAssign(Float): Unit
+    + sqrDistanceTo(Vector2): Float
+    + minusAssign(Vector2): Unit
+    + magnitude(): Float
+    + times(Float): Vector2
+}
+
+class de.officeryoda.fhysics.engine.objects.factories.FhysicsObjectFactory {
+    + randomPolygon(): Polygon
+    + randomCircle(): Circle
+    + randomRectangle(): Rectangle
+    - generatePolygon(Vector2, Float, Float, Float, Int): List<Vector2>
+    - nextGaussian(Float, Float): Float
+    - clip(Float, Float, Float): Float
+    - randomPosInsideBounds(Float): Vector2
+    - randomAngleSteps(Int, Double): List<Double>
+    - randomVector2(Float, Float): Vector2
+}
+
+class de.officeryoda.fhysics.engine.objects.factories.PolygonFactory {
+    + isPolygonValid(List<Vector2>): Boolean
+    + createPolygon(Vector2[], Float): Polygon
+    - triangulate(List<Vector2>): List<Vector2[]>
+    - ensureCCW(Vector2[]): Unit
+    - mergePolygons(Vector2[], Vector2[], Pair<Int, Int>): Vector2[]
+    - isConcave(Vector2[]): Boolean
+    - isPointInTriangle(Vector2, Vector2, Vector2, Vector2): Boolean
+    - isEar(Vector2, Vector2, Vector2, List<Vector2>): Boolean
+    - isConvex(Vector2, Vector2, Vector2): Boolean
+    - mergePolygons(Vector2[], List<Vector2[]>): Int[][]
+    - calculateSignedArea(Vector2[]): Float
+    - areLinesIntersecting(Pair<Vector2, Vector2>, Pair<Vector2, Vector2>): Boolean
+    - sharedEdge(Vector2[], Vector2[]): Pair<Int, Int>?
+    - areEdgesIntersecting(List<Vector2>): Boolean
+}
+
+class de.officeryoda.fhysics.engine.objects.Circle {
+    + type: FhysicsObjectType << override >>
+    + radius: Float
+    + Circle(Vector2, Float):
+    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+    + updateBoundingBox(): Unit
+    + draw(Renderer): Unit
+    + calculateInertia(): Float
+    + findContactPoints(BorderEdge): Vector2[]
+    + testCollision(Polygon): CollisionInfo
+    + project(Vector2): Projection
+    + contains(Vector2): Boolean
+    + findContactPoints(Polygon, CollisionInfo): Vector2[]
+    + testCollision(Circle): CollisionInfo
+    + testCollision(FhysicsObject): CollisionInfo
+    + findContactPoints(Circle, CollisionInfo): Vector2[]
+}
+
+class de.officeryoda.fhysics.engine.objects.ConcavePolygon {
+    type: FhysicsObjectType
+    subPolygons: List<SubPolygon>
+    + ConcavePolygon(Vector2[], Int[][], Float):
+    + updateBoundingBox(): Unit
+    + testCollision(FhysicsObject): CollisionInfo
+    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+    {static} # calculatePolygonCenter(Vector2[]): Vector2
+    {static} - calculatePolygonArea(Vector2[]): Float
+}
+
+class de.officeryoda.fhysics.engine.objects.ConvexPolygon {
+    + type: FhysicsObjectType
+    + ConvexPolygon(Vector2[], Float):
+    + testCollision(FhysicsObject): CollisionInfo
+    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+}
+
+class de.officeryoda.fhysics.engine.objects.FhysicsObject {
+    type: FhysicsObjectType
+    color: Color
+    angle: Float
+    invMass: Float
+    angularVelocity: Float
+    static: Boolean
+    frictionStatic: Float
+    inertia: Float
+    boundingBox: BoundingBox
+    frictionDynamic: Float
+    acceleration: Vector2
+    mass: Float
+    restitution: Float
+    invInertia: Float
+    position: Vector2
+    velocity: Vector2
+    id: Int
+    {static} nextId: Int
+    # FhysicsObject(Vector2, Vector2, Float, Float, Float):
+    + findContactPoints(Polygon, CollisionInfo): Vector2[]
+    + testCollision(BorderEdge): CollisionInfo
+    + draw(Renderer): Unit
+    + findContactPoints(Circle, CollisionInfo): Vector2[]
+    + testCollision(Polygon): CollisionInfo
+    + contains(Vector2): Boolean
+    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+    + testCollision(FhysicsObject): CollisionInfo
+    + updateBoundingBox(): Unit
+    + update(): Unit
+    + project(Vector2): Projection
+    + testCollision(Circle): CollisionInfo
+    + findContactPoints(BorderEdge): Vector2[]
+    + calculateInertia(): Float
+    - colorFromId(): Color
+}
+
+enum de.officeryoda.fhysics.engine.objects.FhysicsObjectType {
+    CIRCLE
+    RECTANGLE
+    CONVEX_POLYGON
+    CONCAVE_POLYGON
+    SUB_POLYGON
+}
+
+class de.officeryoda.fhysics.engine.objects.Polygon {
+    vertices: Vector2[]
+    transformedVertices: Vector2[]
+    axes: List<Vector2>
+    + Polygon(Vector2, Vector2, Vector2[], Float, Float):
+    + Polygon(Vector2[], Float):
+    + findContactPoints(Polygon, CollisionInfo): Vector2[]
+    + findContactPoints(Circle, CollisionInfo): Vector2[]
+    + updateBoundingBox(): Unit
+    + contains(Vector2): Boolean
+    + findContactPoints(BorderEdge): Vector2[]
+    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+    + project(Vector2): Projection
+    + testCollision(Polygon): CollisionInfo
+    + draw(Renderer): Unit
+    + testCollision(FhysicsObject): CollisionInfo
+    + calculateInertia(): Float
+    + testCollision(Circle): CollisionInfo
+    # calculatePolygonCenter(Vector2[]): Vector2
+}
+
+class de.officeryoda.fhysics.engine.objects.Rectangle {
     width: Float
     type: FhysicsObjectType
     axes: List<Vector2>
@@ -360,30 +363,159 @@ class Rectangle {
     {static} - createRectangleVertices(Float, Float): Vector2[]
 }
 
-class RenderUtil {
-    strokeColor: Color
-    render: Renderer
-    zoom: Double
-    zoomCenter: Vector2
-    fillColor: Color
-    height: Double
-    width: Double
-    gc: GraphicsContext
-    + toScreenSpaceX(Float): Float
-    + darkenColor(Color, Float): Color
-    + colorToPaint(Color): Paint
-    + toWorldSpaceX(Float): Float
-    + toWorldSpace(Vector2): Vector2
-    + paintToColor(Paint): Color
-    + lerp(Float, Float, Float): Float
-    + toScreenSpaceY(Float): Float
-    + toScreenSpace(Vector2): Vector2
-    + lerpV2(Vector2, Vector2, Float): Vector2
-    + toWorldSpaceY(Float): Float
-    + lerp(Double, Double, Double): Double
+class de.officeryoda.fhysics.engine.objects.SubPolygon {
+    type: FhysicsObjectType
+    angle: Float
+    relativePosition: Vector2
+    static: Boolean
+    parent: ConcavePolygon
+    position: Vector2
+    + SubPolygon(Vector2[], ConcavePolygon, Vector2):
+    + testCollision(FhysicsObject): CollisionInfo
+    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
 }
 
-class Renderer {
+class de.officeryoda.fhysics.engine.util.Extensions {
+    + times(Float, Vector2): Vector2
+    + floorToInt(Float): Int
+    + ceilToInt(Float): Int
+}
+
+class de.officeryoda.fhysics.engine.util.Stopwatch {
+    + Stopwatch():
+    + Stopwatch(Int):
+    + average(): Double
+    + reset(): Unit
+    + stop(): Unit
+    + start(): Unit
+    + roundedString(Int): String
+}
+
+class de.officeryoda.fhysics.engine.FhysicsCore {
+    running: Boolean
+    border: BoundingBox
+    updateCount: Int
+    dt: Float
+    RENDER_LOCK: ReentrantLock
+    updateStopwatch: Stopwatch
+    + startEverything(): Unit
+    + spawn(FhysicsObject[]): List<FhysicsObject>
+    + update(): Unit
+    + gravityAt(Vector2): Vector2
+    - startUpdateLoop(): Unit
+    - spawn(List<FhysicsObject>): List<FhysicsObject>
+}
+
+class de.officeryoda.fhysics.engine.SceneManager {
+    scenes: List<CustomScene>
+    + loadPendingScene(): Unit
+    + clearScene(): Unit
+    + loadScene(String?): Unit
+    - createScenes(): List<CustomScene>
+}
+
+class de.officeryoda.fhysics.engine.CustomScene << data >> {
+    settings: Map<String, Object>
+    name: String
+    objectCreation: () -> Unit
+    + CustomScene(String, Map<String, Object>, () -> Unit):
+    + load(): Unit
+}
+
+class de.officeryoda.fhysics.engine.Settings {
+    showRenderTime: Boolean
+    drawQTNodeUtilization: Boolean
+    useCustomColor: Boolean
+    borderFrictionDynamic: Float
+    showSubSteps: Boolean
+    spawnWidth: Float
+    spawnRadius: Float
+    borderFrictionStatic: Float
+    showQTCapacity: Boolean
+    timeScale: Float
+    borderRestitution: Float
+    gravityType: GravityType
+    showUPS: Boolean
+    gravityPoint: Vector2
+    showSubPolygons: Boolean
+    spawnStatic: Boolean
+    spawnHeight: Float
+    showBoundingBoxes: Boolean
+    damping: Float
+    spawnObjectType: SpawnObjectType
+    gravityDirection: Vector2
+    showObjectCount: Boolean
+    showMSPU: Boolean
+    spawnColor: Color
+    gravityPointStrength: Float
+    drawQuadTree: Boolean
+    + setBorderProperties(Float, Float, Float): Unit
+    + load(Map<String, Object>): Unit
+    + loadDefault(): Unit
+}
+
+enum de.officeryoda.fhysics.engine.SpawnObjectType {
+    NOTHING
+    CIRCLE
+    RECTANGLE
+    POLYGON
+}
+
+enum de.officeryoda.fhysics.engine.GravityType {
+    DIRECTIONAL
+    TOWARDS_POINT
+}
+
+class de.officeryoda.fhysics.visual.DebugElement {
+    + durationFrames: Int
+    + color: Color
+    + DebugElement(Color, Int):
+}
+
+class de.officeryoda.fhysics.visual.DebugPoint {
+    + position: Vector2
+    + DebugPoint(Vector2, Color, Int):
+}
+
+class de.officeryoda.fhysics.visual.DebugLine {
+    + start: Vector2
+    + end: Vector2
+    + DebugLine(Vector2, Vector2, Color, Int):
+}
+
+class de.officeryoda.fhysics.visual.DebugVector {
+    support: Vector2
+    direction: Vector2
+    + DebugVector(Vector2, Vector2, Color, Int):
+}
+
+class de.officeryoda.fhysics.visual.DebugRenderer {
+    + renderer: Renderer
+    - gc: GraphicsContext
+    - debugPoints: List<DebugPoint>
+    - debugLines: List<DebugLine>
+    - debugVectors: List<DebugVector>
+    + drawDebug(): Unit
+    + drawBoundingBox(BoundingBox): Unit
+    + addDebugPoint(Vector2, Color, Int): Unit
+    + addDebugVector(Vector2, Vector2, Color, Int): Unit
+    + clearDebug(): Unit
+    + drawQTNode(BoundingBox, Int): Unit
+    + addDebugLine(Vector2, Vector2, Color, Int): Unit
+    - drawPaused(): Unit
+    - drawCenteredText(String, Rectangle2D): Unit
+    - drawDebugPoints(): Unit
+    - drawStats(): Unit
+    - drawDebugVectors(): Unit
+    - strokeLine(Vector2, Vector2): Unit
+    - drawStatsList(List<String>): Unit
+    - drawVector(Vector2, Vector2): Unit
+    - setFont(Double): Font
+    - updateDuration(T, List<T>): Unit
+    - drawDebugLines(): Unit
+}
+
+class de.officeryoda.fhysics.visual.Renderer {
     targetZoomCenter: Vector2
     zoom: Double
     drawStopwatch: Stopwatch
@@ -418,7 +550,30 @@ class Renderer {
     - checkForHoveredObject(): FhysicsObject?
 }
 
-class SceneListener {
+class de.officeryoda.fhysics.visual.RenderUtil {
+    strokeColor: Color
+    render: Renderer
+    zoom: Double
+    zoomCenter: Vector2
+    fillColor: Color
+    height: Double
+    width: Double
+    gc: GraphicsContext
+    + toScreenSpaceX(Float): Float
+    + darkenColor(Color, Float): Color
+    + colorToPaint(Color): Paint
+    + toWorldSpaceX(Float): Float
+    + toWorldSpace(Vector2): Vector2
+    + paintToColor(Paint): Color
+    + lerp(Float, Float, Float): Float
+    + toScreenSpaceY(Float): Float
+    + toScreenSpace(Vector2): Vector2
+    + lerpV2(Vector2, Vector2, Float): Vector2
+    + toWorldSpaceY(Float): Float
+    + lerp(Double, Double, Double): Double
+}
+
+class de.officeryoda.fhysics.visual.SceneListener {
     hoveredObject: FhysicsObject?
     polyVertices: List<Vector2>
     mousePosWorld: Vector2
@@ -449,80 +604,7 @@ class SceneListener {
     - onScroll(Double): Unit
 }
 
-class SceneManager {
-    scenes: List<CustomScene>
-    + loadPendingScene(): Unit
-    + clearScene(): Unit
-    + loadScene(String?): Unit
-    - createScenes(): List<CustomScene>
-}
-
-class Settings {
-    showRenderTime: Boolean
-    drawQTNodeUtilization: Boolean
-    useCustomColor: Boolean
-    borderFrictionDynamic: Float
-    showSubSteps: Boolean
-    spawnWidth: Float
-    spawnRadius: Float
-    borderFrictionStatic: Float
-    showQTCapacity: Boolean
-    timeScale: Float
-    borderRestitution: Float
-    gravityType: GravityType
-    showUPS: Boolean
-    gravityPoint: Vector2
-    showSubPolygons: Boolean
-    spawnStatic: Boolean
-    spawnHeight: Float
-    showBoundingBoxes: Boolean
-    damping: Float
-    spawnObjectType: SpawnObjectType
-    gravityDirection: Vector2
-    showObjectCount: Boolean
-    showMSPU: Boolean
-    spawnColor: Color
-    gravityPointStrength: Float
-    drawQuadTree: Boolean
-    + setBorderProperties(Float, Float, Float): Unit
-    + load(Map<String, Object>): Unit
-    + loadDefault(): Unit
-}
-enum SpawnObjectType << enumeration >> {
-    - SpawnObjectType():
-    + values(): SpawnObjectType[]
-    + valueOf(String): SpawnObjectType
-    entries: EnumEntries<SpawnObjectType>
-}
-
-class Stopwatch {
-    + Stopwatch():
-    + Stopwatch(Int):
-    + average(): Double
-    + reset(): Unit
-    + stop(): Unit
-    + start(): Unit
-    + roundedString(Int): String
-}
-
-class SubPolygon {
-    type: FhysicsObjectType
-    angle: Float
-    relativePosition: Vector2
-    static: Boolean
-    parent: ConcavePolygon
-    position: Vector2
-    + SubPolygon(Vector2[], ConcavePolygon, Vector2):
-    + testCollision(FhysicsObject): CollisionInfo
-    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
-}
-
-class TransformationData {
-    + TransformationData():
-    + TransformationData(Float, Vector2):
-}
-
-class UIController {
+class de.officeryoda.fhysics.visual.UIController {
     sldPropertyFrictionDynamic: Slider
     lblPropertyFrictionDynamic: Label
     sldPropertyFrictionStatic: Slider
@@ -594,129 +676,8 @@ class UIController {
     {static} + updateUi(): Unit
 }
 
-class BorderEdge << data >> {
-    normal: Vector2
-    edgeCorner: Vector2
-    borderPosition: Float
-    + BorderEdge(Vector2, Float, Vector2):
-    + testCollision(FhysicsObject): CollisionInfo
-}
-
-class BoundingBox << data >> {
-    width: Float
-    fromPolygon: Polygon
-    fromCircle: Circle
-    height: Float
-    x: Float
-    y: Float
-    + BoundingBox():
-    + BoundingBox(Float, Float, Float, Float):
-    + contains(BoundingBox): Boolean
-    + overlaps(BoundingBox): Boolean
-    + contains(Vector2): Boolean
-}
-
-class CollisionInfo << data >> {
-    normal: Vector2
-    hasCollision: Boolean
-    objA: FhysicsObject?
-    depth: Float
-    objB: FhysicsObject?
-    + CollisionInfo(FhysicsObject?, FhysicsObject?, Vector2, Float):
-    + CollisionInfo():
-}
-
-class CustomScene << data >> {
-    settings: Map<String, Object>
-    name: String
-    objectCreation: () -> Unit
-    + CustomScene(String, Map<String, Object>, () -> Unit):
-    + load(): Unit
-}
-
-class FreeElement<T> << data >> {
-    element: T?
-    next: Int
-    + FreeElement(T?, Int):
-    + FreeElement():
-}
-
-class PerformanceTestResult << data >> {
-    scenario: PerformanceTestScenario
-    time: Long
-    + PerformanceTestResult(PerformanceTestScenario, Long):
-}
-
-class PerformanceTestScenario << data >> {
-    name: String
-    borderProperties: PhysicalProperties
-    objectProperties: PhysicalProperties
-    objectCreation: () -> List<FhysicsObject>
-    boundary: BoundingBox
-    + PerformanceTestScenario(String, () -> List<FhysicsObject>, BoundingBox, PhysicalProperties, PhysicalProperties):
-}
-
-class PhysicalProperties << data >> {
-    restitution: Float
-    frictionStatic: Float
-    frictionDynamic: Float
-    + PhysicalProperties():
-    + PhysicalProperties(Float, Float, Float):
-}
-
-class Projection << data >> {
-    min: Float
-    max: Float
-    + Projection(Float, Float):
-    + overlaps(Projection): Boolean
-}
-
-class ProjectionResult << data >> {
-    overlap: Float
-    hasOverlap: Boolean
-    projectionB: Projection
-    projectionA: Projection
-    + ProjectionResult(Projection, Projection):
-}
-
-class QTNode << data >> {
-    objects: List<FhysicsObject>
-    leaf: Boolean
-    bbox: BoundingBox
-    index: Int
-    + QTNode(BoundingBox):
-    + convertToBranch(): Unit
-    + convertToLeaf(): Unit
-}
-
-class Vector2 << data >> {
-    x: Float
-    y: Float
-    {static} ZERO: Vector2
-    + Vector2(Float, Float):
-    + Vector2(Float):
-    + Vector2():
-    + plus(Vector2): Vector2
-    + timesAssign(Float): Unit
-    + dot(Vector2): Float
-    + cross(Vector2): Float
-    + minus(Vector2): Vector2
-    + set(Vector2): Unit
-    + plusAssign(Vector2): Unit
-    + rotated(Float): Vector2
-    + distanceTo(Vector2): Float
-    + rotatedAround(Float, Vector2): Vector2
-    + normalized(): Vector2
-    + sqrMagnitude(): Float
-    + set(Float, Float): Unit
-    + negate(): Unit
-    + div(Float): Vector2
-    + unaryMinus(): Vector2
-    + divAssign(Float): Unit
-    + sqrDistanceTo(Vector2): Float
-    + minusAssign(Vector2): Unit
-    + magnitude(): Float
-    + times(Float): Vector2
+class de.officeryoda.fhysics.MainKt {
+    + main(): Unit
 }
 
 Circle                         -[#000082,plain]-^  FhysicsObject
@@ -753,7 +714,7 @@ DebugRenderer                 "1" *-[#595959,plain]-> "renderer\n1" Renderer
 DebugVector                    -[#000082,plain]-^  DebugElement
 DebugVector                    -[#595959,dashed]->  DebugElement                  : "«create»"
 DebugVector                   "1" *-[#595959,plain]-> "support\n1" Vector2
-ExtensionsKt                   -[#595959,dashed]->  Vector2                 : "«create»"
+Extensions                   -[#595959,dashed]->  Vector2                 : "«create»"
 FhysicsCore                    -[#595959,dashed]->  Rectangle                     : "«create»"
 FhysicsCore                    -[#595959,dashed]->  Renderer                      : "«create»"
 FhysicsCore                   "1" *-[#595959,plain]-> "updateStopwatch\n1" Stopwatch
@@ -769,10 +730,6 @@ FhysicsObjectFactory           -[#595959,dashed]->  Rectangle                   
 FhysicsObjectFactory           -[#595959,dashed]->  Vector2                 : "«create»"
 IndexedFreeList                -[#595959,dashed]->  FreeElement             : "«create»"
 IndexedFreeList               "1" *-[#595959,plain]-> "data\n*" FreeElement
-PerformanceTester              -[#595959,dashed]->  PerformanceTestResult   : "«create»"
-PerformanceTester              -[#595959,dashed]->  PerformanceTestScenario : "«create»"
-PerformanceTesterKt            -[#595959,dashed]->  BoundingBox             : "«create»"
-PerformanceTesterKt           "1" *-[#595959,plain]-> "scenarioListShort\n*" PerformanceTestScenario
 Polygon                        -[#000082,plain]-^  FhysicsObject
 Polygon                        -[#595959,dashed]->  FhysicsObject                 : "«create»"
 Polygon                        -[#595959,dashed]->  TransformationData          : "«create»"
@@ -781,7 +738,6 @@ Polygon                        -[#595959,dashed]->  Vector2                 : "�
 Polygon                       "1" *-[#595959,plain]-> "vertices\n*" Vector2
 PolygonFactory                 -[#595959,dashed]->  ConcavePolygon                : "«create»"
 PolygonFactory                 -[#595959,dashed]->  ConvexPolygon                 : "«create»"
-QTDebugHelper                  +-[#820000,plain]-  QuadTree
 QuadTree                      "1" *-[#595959,plain]-> "pendingAdditions\n*" FhysicsObject
 QuadTree                      "1" *-[#595959,plain]-> "objectLists\n1" IndexedFreeList
 QuadTree                       -[#595959,dashed]->  IndexedFreeList               : "«create»"
@@ -823,11 +779,6 @@ BorderEdge              "1" *-[#595959,plain]-> "normal\n1" Vector2
 CollisionInfo           "1" *-[#595959,plain]-> "objA\n1" FhysicsObject
 CollisionInfo           "1" *-[#595959,plain]-> "normal\n1" Vector2
 FreeElement              +-[#820000,plain]-  IndexedFreeList
-PerformanceTestResult   "1" *-[#595959,plain]-> "scenario\n1" PerformanceTestScenario
-PerformanceTestScenario  -[#595959,dashed]->  BoundingBox             : "«create»"
-PerformanceTestScenario "1" *-[#595959,plain]-> "boundary\n1" BoundingBox
-PerformanceTestScenario "1" *-[#595959,plain]-> "objectProperties\n1" PhysicalProperties
-PerformanceTestScenario  -[#595959,dashed]->  PhysicalProperties      : "«create»"
 ProjectionResult        "1" *-[#595959,plain]-> "projectionA\n1" Projection
 QTNode                   +-[#820000,plain]-  QuadTree
 QTNode                  "1" *-[#595959,plain]-> "bbox\n1" BoundingBox
