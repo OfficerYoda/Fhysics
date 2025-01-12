@@ -34,7 +34,7 @@ object FhysicsObjectFactory {
         val pos: Vector2 = randomPosInsideBounds(buffer = radius)
         val circle = Circle(pos, radius)
 
-        circle.velocity.set(randomVector2(-100f, 100f))
+        circle.velocity.set(randomVector2(-10.0f, 10.0f))
 
         return circle
     }
@@ -202,20 +202,17 @@ object FhysicsObjectFactory {
     }
 
     /**
-     * Generates a random position inside the border with a buffer around the edges.
-     * The buffer is used to prevent objects from spawning too close to the border.
-     *
-     * @param buffer The buffer around the border edges.
-     * @return A random position inside the border.
+     * Returns a position inside the border with a [buffer] to the edges
+     * to prevent objects from spawning outside the border.
      */
     private fun randomPosInsideBounds(buffer: Float): Vector2 {
         val border: BoundingBox = FhysicsCore.border
         val minX: Float = buffer
-        val maxX: Float = border.width - minX - buffer
+        val maxX: Float = border.width - buffer
         val x: Float = RANDOM.nextFloat(minX, maxX)
 
         val minY: Float = buffer
-        val maxY: Float = border.height - minY - buffer
+        val maxY: Float = border.height - buffer
         val y: Float = RANDOM.nextFloat(minY, maxY)
 
         return Vector2(x, y)

@@ -69,7 +69,7 @@ object SceneManager {
 
         scenes.add(
             CustomScene(
-                "200 Rectangles (perfect)",
+                "100 Rectangles (perfect)",
                 mapOf(
                     "borderRestitution" to 1f,
                     "borderFrictionStatic" to 0f,
@@ -78,7 +78,7 @@ object SceneManager {
                     "showObjectCount" to true,
                 )
             ) {
-                repeat(200) {
+                repeat(100) {
                     val rectangle: Rectangle = FhysicsObjectFactory.randomRectangle().apply {
                         restitution = 1f
                         frictionStatic = 0f
@@ -124,7 +124,6 @@ data class CustomScene(
     private val objectCreation: () -> Unit,
 ) {
     fun load() {
-        Settings.loadDefault()
         Settings.load(settings)
 
         objectCreation()
