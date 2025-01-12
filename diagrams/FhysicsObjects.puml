@@ -1,0 +1,109 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+abstract class FhysicsObject {
+    + position: Vector2
+    + velocity: Vector2
+    + acceleration: Vector2
+    + angle: Float
+    + angularVelocity: Float
+    + mass: Float
+    + inertia: Float
+    + static: Boolean
+    + restitution: Float
+    + frictionStatic: Float
+    + frictionDynamic: Float
+    + boundingBox: BoundingBox
+    {field} ...
+    ©FhysicsObject(Vector2, Vector2, Float, Float, Float)
+    + update()
+    {abstract} + project(Vector2): Projection
+    {abstract} + contains(Vector2): Boolean
+    {abstract} + updateBoundingBox()
+    {abstract} + findContactPoints(BorderEdge): Vector2[]
+    {abstract} + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+    + testCollision(BorderEdge): CollisionInfo
+    {abstract} + testCollision(FhysicsObject): CollisionInfo
+    {method} ...
+}
+
+class Circle {
+    + radius: Float
+    {field} ...
+    ©Circle(Vector2, Float)
+    + project(Vector2): Projection
+    + contains(Vector2): Boolean
+    + updateBoundingBox()
+    + testCollision(FhysicsObject): CollisionInfo
+    + findContactPoints(BorderEdge): Vector2[]
+    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+    {method} ...
+}
+
+class Polygon {
+    + vertices: Vector2[]
+    {field} ...
+    ©Polygon(Vector2[], Float)
+    ©Polygon(Vector2, Vector2, Vector2[], Float, Float)
+    + project(Vector2): Projection
+    + contains(Vector2): Boolean
+    + updateBoundingBox()
+    + testCollision(FhysicsObject): CollisionInfo
+    + findContactPoints(BorderEdge): Vector2[]
+    + findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+    + getTransformedVertices(): Vector2[]
+    + getAxes(): List<Vector2>
+    {method} ...
+}
+
+class Rectangle {
+    + width: Float
+    + height: Float
+    {field} ...
+    ©Rectangle(Vector2, Float, Float, Float)
+    + contains(Vector2): Boolean
+    + getAxes(): List<Vector2>
+    {method} ...
+}
+
+class ConvexPolygon {
+    {field} ...
+    ©ConvexPolygon(Vector2[], Float)
+    {method} ...
+}
+
+class ConcavePolygon {
+    + subPolygons: List<SubPolygon>
+    {field} ...
+    ©ConcavePolygon(Vector2[], Int[][], Float)
+    + updateBoundingBox()
+    {method} ...
+}
+
+class SubPolygon {
+    + parent: ConcavePolygon
+    - relativePosition: Vector2
+    {field} ...
+    ©SubPolygon(Vector2[], ConcavePolygon, Vector2)
+    {method} ...
+}
+
+'[#000082]
+Circle             -u-|>  FhysicsObject
+ConcavePolygon     -u-|>  Polygon
+ConvexPolygon      -u-|>  Polygon
+Polygon            -u-|>  FhysicsObject
+Rectangle          -u-|>  Polygon
+SubPolygon         -u-|>  Polygon
+ConcavePolygon     -[#000082]- SubPolygon
+@enduml
+
+
+@enduml

@@ -160,8 +160,8 @@ object SceneListener {
         val zoomFactor: Float = if (direction > 0) 1.1f else 1 / 1.1f
         val newTargetZoom: Double = render.targetZoom * zoomFactor
 
-        val minZoom: Double = 200.0 / max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height)
-        val maxZoom: Double = max(FhysicsCore.BORDER.width, FhysicsCore.BORDER.height) * 2.0
+        val minZoom: Double = 200.0 / max(FhysicsCore.border.width, FhysicsCore.border.height)
+        val maxZoom: Double = max(FhysicsCore.border.width, FhysicsCore.border.height) * 2.0
 
         // If the zoom is already at min/max return to not change the zoom center
         if (newTargetZoom !in minZoom..maxZoom // New zoom is not in bounds
@@ -186,7 +186,7 @@ object SceneListener {
      */
     private fun spawnPreview() {
         // Check if spawn pos is outside the border
-        if (!FhysicsCore.BORDER.contains(mousePosWorld)) return
+        if (!FhysicsCore.border.contains(mousePosWorld)) return
 
         val validParams: Boolean = when (Settings.spawnObjectType) {
             SpawnObjectType.CIRCLE -> Settings.spawnRadius > 0.0F

@@ -51,7 +51,7 @@ class Stopwatch(private val cacheSize: Int = 32) {
         updateDurations.clear()
     }
 
-    fun roundedString(decimalPlaces: Int = 2): String {
+    fun toRoundedString(decimalPlaces: Int = 2): String {
         return String.Companion.format(Locale.US, "%.${decimalPlaces}f", average())
     }
 }

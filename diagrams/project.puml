@@ -1,0 +1,76 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!theme plain
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+class FhysicsCore << singleton >> {
+    + dt: Float
+    {field} ...
+    + update()
+    {method} ...
+}
+
+class QuadTree << singleton >> {
+    + capacity: Int
+    - root: QTNode
+    - nodes: List<QTNode>
+    - objectLists: List<List<FhysicsObject>>
+    {field} ...
+    + insert(obj: FhysicsObject)
+    + remove(obj: FhysicsObject)
+    + rebuild()
+    + update()
+    {method} ...
+}
+
+class QTNode {
+    + bbox: BoundingBox
+    + index: Int
+    + isLeaf: Boolean
+    + convertToLeaf()
+    + convertToBranch()
+}
+
+class CollisionFinder << singleton >> {
+    + testCollision(Circle, Circle): CollisionInfo
+    + testCollision(Circle, Polygon): CollisionInfo
+    + testCollision(Polygon, Polygon): CollisionInfo
+    {method} ...
+}
+
+class CollisionSolver << singleton >> {
+    + solveCollisions(CollisionInfo)
+    - solveImpulse(...)
+    - solveFriction(...)
+    {method} ...
+}
+
+class CollisionInfo {
+    + objA: FhysicsObject
+    + objB: FhysicsObject
+    + normal: Vector2
+    + depth: Float
+    ©CollisionInfo(FhysicsObject, FhysicsObject, Vector2, Float)
+    ©CollisionInfo()
+    + hasCollision(): Boolean
+}
+
+class FhysicsObject {
+    + position: Vector2
+    + velocity: Vector2
+    {field} ...
+    + update()
+    {method} ...
+}
+
+FhysicsCore ..> QuadTree : ruft rebuild() & update() auf
+QuadTree --> QTNode
+QuadTree --> FhysicsObject: ruft update() auf
+QuadTree .u.> CollisionFinder : ruft testCollision() auf
+QuadTree .u.> CollisionSolver : ruft solveCollisions() auf
+CollisionFinder .u.> CollisionInfo : verwendet
+CollisionSolver .u.> CollisionInfo : verwendet
+
+@enduml

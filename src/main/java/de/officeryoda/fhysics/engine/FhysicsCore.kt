@@ -19,28 +19,26 @@ import kotlin.math.max
  */
 object FhysicsCore {
 
-    /** The Bounds of the simulation */
-    var BORDER: BoundingBox = BoundingBox(0f, 0f, 100f, 100f) // x and y must be 0.0
-
     /** The amount of updates the simulation should perform per second */
     const val UPDATES_PER_SECOND: Int = 60
 
     /** The amount of sub steps the simulation performs per update */
     const val SUB_STEPS: Int = 4
 
-    /** A Thread lock to prevent simulating and rendering at the same time */
-    val RENDER_LOCK = ReentrantLock()
-
     /** A small value used for floating point comparisons */
     const val EPSILON: Float = 1E-4f
 
-    /**
-     * The amount of updates that have been performed since the start of the simulation.
-     */
-    var updateCount = 0 // Includes all sub steps
+    /** A Thread lock to prevent simulating and rendering at the same time */
+    val RENDER_LOCK = ReentrantLock()
+
+    /** The Bounds of the simulation */
+    var border: BoundingBox = BoundingBox(0f, 0f, 100f, 100f) // x and y must be 0.0
 
     /** The time step used for the simulation */
     var dt: Float = 1.0f / (UPDATES_PER_SECOND * SUB_STEPS) * Settings.timeScale
+
+    /** The amount of updates that have been performed since the start of the simulation */
+    var updateCount = 0 // Includes all sub steps
 
     /** Whether the simulation is running */
     var running: Boolean = true
@@ -97,8 +95,10 @@ object FhysicsCore {
             mass = 2f
         }
         spawn(rectA, rectB)
-    }
 
+        // So objects get rendered even when the simulation starts paused
+        QuadTree.processPendingOperations()
+    }
 
     fun startEverything() {
         // Start the rendering thread

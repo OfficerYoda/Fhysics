@@ -18,8 +18,8 @@ class QuadTreeTest {
         @JvmStatic
         fun initAll() {
             // Make sure BORDER is initialized correctly
-            FhysicsCore.BORDER = BoundingBox(0f, 0f, 100f, 100f)
-            assert(FhysicsCore.BORDER == BoundingBox(0f, 0f, 100f, 100f))
+            FhysicsCore.border = BoundingBox(0f, 0f, 100f, 100f)
+            assert(FhysicsCore.border == BoundingBox(0f, 0f, 100f, 100f))
         }
     }
 

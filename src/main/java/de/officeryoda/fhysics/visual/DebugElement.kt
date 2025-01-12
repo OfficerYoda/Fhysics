@@ -7,7 +7,10 @@ import java.awt.Color
  * A debug element that is drawn for a certain amount
  * of [frames][durationFrames] with a certain [color].
  */
-abstract class DebugElement(val color: Color, var durationFrames: Int = 240)
+abstract class DebugElement(
+    val color: Color,
+    var durationFrames: Int = 240,
+)
 
 /**
  * A point in world space that is drawn for a certain

@@ -1,6 +1,5 @@
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.math.Vector2
 
 /**
@@ -26,14 +25,6 @@ class ConcavePolygon(
             val relativePosition: Vector2 = calculatePolygonCenter(subVertices) - position
             subPolygons.add(SubPolygon(subVertices, this, relativePosition))
         }
-    }
-
-    override fun testCollision(other: FhysicsObject): CollisionInfo {
-        return other.testCollision(this)
-    }
-
-    override fun findContactPoints(other: FhysicsObject, info: CollisionInfo): Array<Vector2> {
-        return other.findContactPoints(this, info)
     }
 
     override fun updateBoundingBox() {
