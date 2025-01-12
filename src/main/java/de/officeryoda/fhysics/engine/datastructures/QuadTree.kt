@@ -18,6 +18,9 @@ import kotlin.math.min
 
 /**
  * A QuadTree data structure for efficient spatial partitioning and collision detection.
+ *
+ * The QuadTree is a tree data structure in which a node is split into four children
+ * whenever it contains more objects than a given capacity.
  */
 object QuadTree {
     /** The capacity of a node in the QuadTree */
