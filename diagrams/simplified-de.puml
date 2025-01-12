@@ -1,9 +1,7 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-!theme plain
 skinparam linetype ortho
-skinparam classAttributeIconSize 0
 
 class FhysicsCore << singleton >> {
     + dt: Float

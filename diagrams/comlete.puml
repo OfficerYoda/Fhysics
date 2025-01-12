@@ -1,9 +1,7 @@
 @startuml
 
-!theme plain
 top to bottom direction
 skinparam linetype ortho
-skinparam classAttributeIconSize 0
 
 class de.officeryoda.fhysics.engine.collision.BorderEdge << data >> {
     + normal: Vector2

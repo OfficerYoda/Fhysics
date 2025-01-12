@@ -3,10 +3,8 @@
 
 @startuml
 
-!theme plain
 top to bottom direction
 skinparam linetype ortho
-skinparam classAttributeIconSize 0
 
 abstract class FhysicsObject {
     + position: Vector2
