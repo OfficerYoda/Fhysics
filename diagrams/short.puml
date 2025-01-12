@@ -1,13 +1,14 @@
 @startuml
 
-class Example {
-    +id: UUID
-    +name: String
-    #type: EntityType
-    -lastModified: DateTime
-    {field} ...
-    foo(): Unit
-    {method} ...
+interface MyInterface
+class BaseClass
+
+class MyObject <<singleton>> {
+  + someProperty: String
+  + someFunction()
 }
+
+MyObject --|> BaseClass
+MyObject ..|> MyInterface
 
 @enduml

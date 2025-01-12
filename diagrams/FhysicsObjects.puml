@@ -22,7 +22,7 @@ abstract class FhysicsObject {
     + frictionDynamic: Float
     + boundingBox: BoundingBox
     {field} ...
-    # FhysicsObject(Vector2, Vector2, Float, Float, Float)
+    ©FhysicsObject(Vector2, Vector2, Float, Float, Float)
     + update()
     {abstract} + project(Vector2): Projection
     {abstract} + contains(Vector2): Boolean
@@ -37,7 +37,7 @@ abstract class FhysicsObject {
 class Circle {
     + radius: Float
     {field} ...
-    + Circle(Vector2, Float)
+    ©Circle(Vector2, Float)
     + project(Vector2): Projection
     + contains(Vector2): Boolean
     + updateBoundingBox()
@@ -50,8 +50,8 @@ class Circle {
 class Polygon {
     + vertices: Vector2[]
     {field} ...
-    + Polygon(Vector2[], Float)
-    + Polygon(Vector2, Vector2, Vector2[], Float, Float)
+    ©Polygon(Vector2[], Float)
+    ©Polygon(Vector2, Vector2, Vector2[], Float, Float)
     + project(Vector2): Projection
     + contains(Vector2): Boolean
     + updateBoundingBox()
@@ -67,31 +67,31 @@ class Rectangle {
     + width: Float
     + height: Float
     {field} ...
+    ©Rectangle(Vector2, Float, Float, Float)
     + contains(Vector2): Boolean
-    + Rectangle(Vector2, Float, Float, Float)
     + getAxes(): List<Vector2>
     {method} ...
 }
 
 class ConvexPolygon {
     {field} ...
-    + ConvexPolygon(Vector2[], Float)
+    ©ConvexPolygon(Vector2[], Float)
     {method} ...
 }
 
 class ConcavePolygon {
     + subPolygons: List<SubPolygon>
     {field} ...
-    + ConcavePolygon(Vector2[], Int[][], Float)
+    ©ConcavePolygon(Vector2[], Int[][], Float)
     + updateBoundingBox()
     {method} ...
 }
 
 class SubPolygon {
-    {field} ...
     + parent: ConcavePolygon
     - relativePosition: Vector2
-    + SubPolygon(Vector2[], ConcavePolygon, Vector2)
+    {field} ...
+    ©SubPolygon(Vector2[], ConcavePolygon, Vector2)
     {method} ...
 }
 
