@@ -44,7 +44,7 @@ data object Settings {
 
     // regions are based on the UI
     /// region =====Spawn Object=====
-    var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
+    var spawnObjectType: SpawnObjectType = SpawnObjectType.NOTHING
     var spawnStatic: Boolean = false
     var spawnRadius: Float = 1.0f
     var spawnWidth: Float = 1.0f
@@ -81,7 +81,7 @@ data object Settings {
     /// endregion
 
     /// region =====QuadTree=====
-    var drawQuadTree: Boolean = true
+    var drawQuadTree: Boolean = false
     var drawQTNodeUtilization: Boolean = true
     /// endregion
 

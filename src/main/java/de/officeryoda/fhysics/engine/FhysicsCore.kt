@@ -4,7 +4,6 @@ import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
-import de.officeryoda.fhysics.engine.objects.Rectangle
 import de.officeryoda.fhysics.engine.util.Stopwatch
 import de.officeryoda.fhysics.engine.util.times
 import de.officeryoda.fhysics.visual.Renderer
@@ -45,60 +44,6 @@ object FhysicsCore {
 
     /** A stopwatch to measure the time per update */
     val updateStopwatch = Stopwatch()
-
-    init {
-//        val objects: List<FhysicsObject> = List(50) { FhysicsObjectFactory.randomCircle() }
-//        for (it: FhysicsObject in objects) {
-//            it.restitution = 1f
-//            it.frictionStatic = 0f
-//            it.frictionDynamic = 0f
-//            it.velocity *= 0.45f
-//        }
-//        spawn(objects)
-        Settings.setBorderProperties(1f, 1f, 1f)
-
-//        repeat(10) {
-//            spawn(FhysicsObjectFactory.randomRectangle())
-//        }
-//
-//        repeat(10) {
-//            spawn(FhysicsObjectFactory.randomPolygon())
-//        }
-
-        // Three rectangles that act as slides + ground rectangle
-//        spawn(Rectangle(Vector2(75.0f, 75.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).first().static = true
-//        spawn(Rectangle(Vector2(30.0f, 50.0f), 45.0f, 5.0f, Math.toRadians(-30.0).toFloat())).first().static = true
-//        spawn(Rectangle(Vector2(70.0f, 30.0f), 45.0f, 5.0f, Math.toRadians(30.0).toFloat())).first().static = true
-//        spawn(Rectangle(Vector2(50.0f, 20.0f), 100.0f, 5.0f)).first().static = true
-
-        // A Big rectangle in the center with an incline of 30 degrees and maximum friction values
-//        spawn(Rectangle(Vector2(50.0f, 50.0f), 100.0f, 10.0f, Math.toRadians(30.0).toFloat())).first().apply {
-//            static = true
-//            frictionStatic = 1.0f
-//            frictionDynamic = 1.0f
-//            restitution = 0.0f
-//        }
-
-        val rectA: Rectangle = Rectangle(Vector2(55.5f, 48.75f), 10f, 5f).apply {
-            velocity.set(Vector2(10f, 0f))
-            restitution = 1f
-            frictionStatic = 0f
-            frictionDynamic = 0f
-            mass = 2f
-        }
-
-        val rectB: Rectangle = Rectangle(Vector2(75f, 51.25f), 10f, 5f).apply {
-            velocity.set(Vector2(-10f, 0f))
-            restitution = 1f
-            frictionStatic = 0f
-            frictionDynamic = 0f
-            mass = 2f
-        }
-        spawn(rectA, rectB)
-
-        // So objects get rendered even when the simulation starts paused
-        QuadTree.processPendingOperations()
-    }
 
     fun startEverything() {
         // Start the rendering thread

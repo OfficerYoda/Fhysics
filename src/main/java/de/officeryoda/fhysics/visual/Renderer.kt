@@ -384,8 +384,8 @@ class Renderer : Application() {
 
         // Calculate the aspect ratio based on world space
         val ratio: Float = borderHeight / borderWidth
-        val maxWidth = 1440.0
-        val maxHeight = 960.0
+        val maxWidth = 1080.0
+        val maxHeight = 720.0
 
         // Calculate the window size
         var windowWidth: Double = maxWidth
