@@ -1,0 +1,37 @@
+@startuml
+
+object QTNode_0
+object QTNode_1 {
+    objects: 2
+}
+object QTNode_2 {
+    objects: 0
+}
+object QTNode_3
+object QTNode_4 {
+    objects: 1
+}
+object QTNode_5 {
+    objects: 0
+}
+object QTNode_6 {
+   objects: 2
+}
+object QTNode_7 {
+   objects: 1
+}
+object QTNode_8 {
+   objects: 0
+}
+
+QTNode_0 -d-> QTNode_1
+QTNode_0 -d-> QTNode_2
+QTNode_0 -d-> QTNode_3
+QTNode_0 -d-> QTNode_4
+QTNode_3 -d-> QTNode_5
+QTNode_3 -d-> QTNode_6
+QTNode_3 -d-> QTNode_7
+QTNode_3 -d-> QTNode_8
+
+
+@enduml
