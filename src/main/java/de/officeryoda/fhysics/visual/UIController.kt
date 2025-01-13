@@ -1,7 +1,6 @@
 package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.*
-import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.visual.SceneListener.polyVertices
@@ -431,19 +430,20 @@ class UIController {
 
     @FXML
     fun onBorderWidthTyped() {
-        handleBorderSizeTyped(txtBorderWidth)
+        var size: Float = max(parseTextField(txtBorderWidth, 1f), 1f) // Minimum border size of 1x1
+        FhysicsCore.border.width = size
+        QuadTree.rebuildFlag = true // Rebuild to resize the QTNodes
+
+        // Make sure the text field matches the actual border height
+        if (size < 1f) {
+            txtBorderHeight.text = "1.0"
+        }
     }
 
     @FXML
     fun onBorderHeightTyped() {
-        handleBorderSizeTyped(txtBorderHeight)
-    }
-
-    private fun handleBorderSizeTyped(textField: TextField) {
-        var size: Float = max(parseTextField(textField, 1f), 1f) // Minimum border size of 1x1
-        FhysicsCore.border.width = size
+        var size: Float = max(parseTextField(txtBorderHeight, 1f), 1f) // Minimum border size of 1x1
         FhysicsCore.border.height = size
-        CollisionSolver.updateBorderObjects()
         QuadTree.rebuildFlag = true // Rebuild to resize the QTNodes
 
         // Make sure the text field matches the actual border height
