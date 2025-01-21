@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" contentStyleType="text/css"
+     height="271px" preserveAspectRatio="none" style="width:504px;height:271px;background:#FFFFFF;" version="1.1"
+     viewBox="0 0 504 271" width="504px" zoomAndPan="magnify">
+    <defs/>
+    <g>
+        <g id="elem_QTNode_0">
+            <rect fill="#F1F1F1" height="38.6211" style="stroke:#181818;stroke-width:0.5;" width="82.4824" x="182"
+                  y="7"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68.4824"
+                  x="189" y="24.1074">QTNode_0
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="183" x2="263.4824" y1="29.6211" y2="29.6211"/>
+        </g>
+        <g id="elem_QTNode_1">
+            <rect fill="#F1F1F1" height="49.2422" style="stroke:#181818;stroke-width:0.5;" width="82.4824" x="7"
+                  y="106"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68.4824"
+                  x="14" y="123.1074">QTNode_1
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="8" x2="88.4824" y1="128.6211" y2="128.6211"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59.9238"
+                  x="13" y="147.7285">objects: 2
+            </text>
+        </g>
+        <g id="elem_QTNode_2">
+            <rect fill="#F1F1F1" height="49.2422" style="stroke:#181818;stroke-width:0.5;" width="82.4824" x="124"
+                  y="106"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68.4824"
+                  x="131" y="123.1074">QTNode_2
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="125" x2="205.4824" y1="128.6211" y2="128.6211"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59.9238"
+                  x="130" y="147.7285">objects: 0
+            </text>
+        </g>
+        <g id="elem_QTNode_3">
+            <rect fill="#F1F1F1" height="38.6211" style="stroke:#181818;stroke-width:0.5;" width="82.4824" x="241"
+                  y="111"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68.4824"
+                  x="248" y="128.1074">QTNode_3
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="242" x2="322.4824" y1="133.6211" y2="133.6211"/>
+        </g>
+        <g id="elem_QTNode_4">
+            <rect fill="#F1F1F1" height="49.2422" style="stroke:#181818;stroke-width:0.5;" width="82.4824" x="358"
+                  y="106"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68.4824"
+                  x="365" y="123.1074">QTNode_4
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="359" x2="439.4824" y1="128.6211" y2="128.6211"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59.9238"
+                  x="364" y="147.7285">objects: 1
+            </text>
+        </g>
+        <g id="elem_QTNode_5">
+            <rect fill="#F1F1F1" height="49.2422" style="stroke:#181818;stroke-width:0.5;" width="82.4824" x="65"
+                  y="215"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68.4824"
+                  x="72" y="232.1074">QTNode_5
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="66" x2="146.4824" y1="237.6211" y2="237.6211"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59.9238"
+                  x="71" y="256.7285">objects: 0
+            </text>
+        </g>
+        <g id="elem_QTNode_6">
+            <rect fill="#F1F1F1" height="49.2422" style="stroke:#181818;stroke-width:0.5;" width="82.4824" x="182"
+                  y="215"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68.4824"
+                  x="189" y="232.1074">QTNode_6
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="183" x2="263.4824" y1="237.6211" y2="237.6211"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59.9238"
+                  x="188" y="256.7285">objects: 2
+            </text>
+        </g>
+        <g id="elem_QTNode_7">
+            <rect fill="#F1F1F1" height="49.2422" style="stroke:#181818;stroke-width:0.5;" width="82.4824" x="299"
+                  y="215"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68.4824"
+                  x="306" y="232.1074">QTNode_7
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="300" x2="380.4824" y1="237.6211" y2="237.6211"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59.9238"
+                  x="305" y="256.7285">objects: 1
+            </text>
+        </g>
+        <g id="elem_QTNode_8">
+            <rect fill="#F1F1F1" height="49.2422" style="stroke:#181818;stroke-width:0.5;" width="82.4824" x="416"
+                  y="215"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="68.4824"
+                  x="423" y="232.1074">QTNode_8
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="417" x2="497.4824" y1="237.6211" y2="237.6211"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59.9238"
+                  x="422" y="256.7285">objects: 0
+            </text>
+        </g><!--link QTNode_0 to QTNode_1-->
+        <g id="link_QTNode_0_QTNode_1">
+            <path codeLine="26" d="M190.9,46.21 C162.09,63 124.8438,84.7086 93.7038,102.8586 " fill="none"
+                  id="QTNode_0-to-QTNode_1" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818" points="88.52,105.88,98.3099,104.8038,92.8398,103.3622,94.2814,97.8921,88.52,105.88"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+        </g><!--link QTNode_0 to QTNode_2-->
+        <g id="link_QTNode_0_QTNode_2">
+            <path codeLine="27" d="M212.36,46.21 C202.81,63 191.7157,82.5142 181.3957,100.6642 " fill="none"
+                  id="QTNode_0-to-QTNode_2" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818"
+                     points="178.43,105.88,186.3557,100.0334,180.9014,101.5335,179.4013,96.0792,178.43,105.88"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+        </g><!--link QTNode_0 to QTNode_3-->
+        <g id="link_QTNode_0_QTNode_3">
+            <path codeLine="28" d="M233.82,46.21 C244.47,64.61 257.6258,87.3563 268.2458,105.7163 " fill="none"
+                  id="QTNode_0-to-QTNode_3" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818"
+                     points="271.25,110.91,270.2062,101.1166,268.7465,106.5819,263.2812,105.1222,271.25,110.91"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+        </g><!--link QTNode_0 to QTNode_4-->
+        <g id="link_QTNode_0_QTNode_4">
+            <path codeLine="29" d="M255.28,46.21 C284.26,63 321.7387,84.7216 353.0587,102.8716 " fill="none"
+                  id="QTNode_0-to-QTNode_4" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818"
+                     points="358.25,105.88,352.4686,97.9066,353.9239,103.373,348.4575,104.8283,358.25,105.88"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+        </g><!--link QTNode_3 to QTNode_5-->
+        <g id="link_QTNode_3_QTNode_5">
+            <path codeLine="30" d="M251.34,150.14 C221.8,168.1 182.107,192.2332 150.047,211.7232 " fill="none"
+                  id="QTNode_3-to-QTNode_5" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818"
+                     points="144.92,214.84,154.6883,213.5828,149.1925,212.2427,150.5326,206.7468,144.92,214.84"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+        </g><!--link QTNode_3 to QTNode_6-->
+        <g id="link_QTNode_3_QTNode_6">
+            <path codeLine="31" d="M271.72,150.14 C261.82,168.1 249.6858,190.095 238.9458,209.585 " fill="none"
+                  id="QTNode_3-to-QTNode_6" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818"
+                     points="236.05,214.84,243.8969,208.8881,238.4631,210.4609,236.8903,205.0271,236.05,214.84"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+        </g><!--link QTNode_3 to QTNode_7-->
+        <g id="link_QTNode_3_QTNode_7">
+            <path codeLine="32" d="M292.1,150.14 C301.84,168.1 313.7517,190.0746 324.3117,209.5646 " fill="none"
+                  id="QTNode_3-to-QTNode_7" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818"
+                     points="327.17,214.84,326.3995,205.0213,324.7881,210.4438,319.3656,208.8324,327.17,214.84"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+        </g><!--link QTNode_3 to QTNode_8-->
+        <g id="link_QTNode_3_QTNode_8">
+            <path codeLine="33" d="M312.48,150.14 C341.86,168.1 381.3113,192.2197 413.1813,211.7097 " fill="none"
+                  id="QTNode_3-to-QTNode_8" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818"
+                     points="418.3,214.84,412.7088,206.732,414.0344,212.2314,408.5351,213.557,418.3,214.84"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+        </g><!--SRC=[oq_AIaqkKGWCySjFIOqtuCf7uHigL7Cf0054jDXAmOYh5as94ReI0mmbncXy4tGjXXXQJ0cRQWPHWiTfvcWgCAsnG5C1ieKB5XOAkYcwTl2Gm2viX5tO6Bkm2KpO64NO5Bkm6NPXS-p25bnS0000]-->
+    </g>
+</svg>

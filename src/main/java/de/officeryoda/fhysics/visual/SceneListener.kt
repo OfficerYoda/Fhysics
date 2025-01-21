@@ -1,8 +1,8 @@
 package de.officeryoda.fhysics.visual
 
 import de.officeryoda.fhysics.engine.FhysicsCore
-import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.Settings
+import de.officeryoda.fhysics.engine.Settings.EPSILON
 import de.officeryoda.fhysics.engine.SpawnObjectType
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2

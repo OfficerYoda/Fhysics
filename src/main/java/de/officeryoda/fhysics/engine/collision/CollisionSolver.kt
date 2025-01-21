@@ -1,8 +1,8 @@
 package de.officeryoda.fhysics.engine.collision
 
-import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.FhysicsCore.border
 import de.officeryoda.fhysics.engine.Settings
+import de.officeryoda.fhysics.engine.Settings.EPSILON
 import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.FhysicsObject
 import de.officeryoda.fhysics.engine.util.times

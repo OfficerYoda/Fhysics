@@ -42,9 +42,20 @@ data object Settings {
         "showRenderTime" to false
     )
 
+    /// region =====General=====
+    /** The amount of updates the simulation should perform per second */
+    const val UPDATES_PER_SECOND: Int = 60
+
+    /** The amount of sub steps the simulation performs per update */
+    const val SUB_STEPS: Int = 4
+
+    /** A small value used for floating point comparisons */
+    const val EPSILON: Float = 1E-4f
+    /// endregion
+
     // regions are based on the UI
     /// region =====Spawn Object=====
-    var spawnObjectType: SpawnObjectType = SpawnObjectType.CIRCLE
+    var spawnObjectType: SpawnObjectType = SpawnObjectType.NOTHING
     var spawnStatic: Boolean = false
     var spawnRadius: Float = 1.0f
     var spawnWidth: Float = 1.0f
@@ -81,7 +92,7 @@ data object Settings {
     /// endregion
 
     /// region =====QuadTree=====
-    var drawQuadTree: Boolean = true
+    var drawQuadTree: Boolean = false
     var drawQTNodeUtilization: Boolean = true
     /// endregion
 

@@ -426,25 +426,28 @@ class UIController {
     @FXML
     fun onTimeSpeedTyped() {
         Settings.timeScale = parseTextField(txtTimeSpeed)
-        FhysicsCore.dt = 1.0f / (FhysicsCore.UPDATES_PER_SECOND * FhysicsCore.SUB_STEPS) * Settings.timeScale
+        FhysicsCore.dt = 1.0f / (Settings.UPDATES_PER_SECOND * Settings.SUB_STEPS) * Settings.timeScale
     }
 
     @FXML
     fun onBorderWidthTyped() {
-        handleBorderSizeTyped(txtBorderWidth)
+        var size: Float = max(parseTextField(txtBorderWidth, 1f), 1f) // Minimum border size of 1x1
+        FhysicsCore.border.width = size
+        QuadTree.rebuildFlag = true // Rebuild to resize the QTNodes
+        CollisionSolver.updateBorderObjects()
+
+        // Make sure the text field matches the actual border height
+        if (size < 1f) {
+            txtBorderHeight.text = "1.0"
+        }
     }
 
     @FXML
     fun onBorderHeightTyped() {
-        handleBorderSizeTyped(txtBorderHeight)
-    }
-
-    private fun handleBorderSizeTyped(textField: TextField) {
-        var size: Float = max(parseTextField(textField, 1f), 1f) // Minimum border size of 1x1
-        FhysicsCore.border.width = size
+        var size: Float = max(parseTextField(txtBorderHeight, 1f), 1f) // Minimum border size of 1x1
         FhysicsCore.border.height = size
-        CollisionSolver.updateBorderObjects()
         QuadTree.rebuildFlag = true // Rebuild to resize the QTNodes
+        CollisionSolver.updateBorderObjects()
 
         // Make sure the text field matches the actual border height
         if (size < 1f) {

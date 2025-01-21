@@ -1,6 +1,7 @@
 package de.officeryoda.fhysics.engine
 
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
+import de.officeryoda.fhysics.engine.math.Vector2
 import de.officeryoda.fhysics.engine.objects.Circle
 import de.officeryoda.fhysics.engine.objects.Polygon
 import de.officeryoda.fhysics.engine.objects.Rectangle
@@ -69,7 +70,7 @@ object SceneManager {
 
         scenes.add(
             CustomScene(
-                "200 Rectangles (perfect)",
+                "100 Rectangles (perfect)",
                 mapOf(
                     "borderRestitution" to 1f,
                     "borderFrictionStatic" to 0f,
@@ -78,7 +79,7 @@ object SceneManager {
                     "showObjectCount" to true,
                 )
             ) {
-                repeat(200) {
+                repeat(100) {
                     val rectangle: Rectangle = FhysicsObjectFactory.randomRectangle().apply {
                         restitution = 1f
                         frictionStatic = 0f
@@ -111,6 +112,71 @@ object SceneManager {
             }
         )
 
+        scenes.add(
+            CustomScene(
+                "Coefficient Demonstration",
+                mapOf(
+                    "gravityType" to GravityType.DIRECTIONAL,
+                    "gravityDirection" to Vector2(0f, -10f),
+                )
+            ) {
+                val rect1: Rectangle = Rectangle(Vector2(25f, 65f), 30f, 10f).apply {
+                    static = true
+                    restitution = 0f
+                    frictionStatic = 0f
+                    frictionDynamic = 0f
+                }
+
+                val rect2: Rectangle = Rectangle(Vector2(75f, 65f), 30f, 10f).apply {
+                    static = true
+                    restitution = 1f
+                    frictionStatic = 0f
+                    frictionDynamic = 0f
+                }
+
+                val rect3: Rectangle = Rectangle(Vector2(25f, 20f), 30f, 10f, Math.toRadians(-30.0).toFloat()).apply {
+                    static = true
+                    restitution = 0f
+                    frictionStatic = 0f
+                    frictionDynamic = 0f
+                }
+
+                val rect4: Rectangle = Rectangle(Vector2(75f, 20f), 30f, 10f, Math.toRadians(-30.0).toFloat()).apply {
+                    static = true
+                    restitution = 0f
+                    frictionStatic = 1f
+                    frictionDynamic = 1f
+                }
+
+                val circle1: Circle = Circle(Vector2(25f, 85f), 1f).apply {
+                    restitution = 0f
+                    frictionStatic = 0f
+                    frictionDynamic = 0f
+                }
+
+                val circle2: Circle = Circle(Vector2(75f, 85f), 1f).apply {
+                    restitution = 1f
+                    frictionStatic = 0f
+                    frictionDynamic = 0f
+                }
+
+                val circle3: Circle = Circle(Vector2(20f, 35f), 1f).apply {
+                    restitution = 0f
+                    frictionStatic = 0f
+                    frictionDynamic = 0f
+                }
+
+                val circle4: Circle = Circle(Vector2(70f, 35f), 1f).apply {
+                    restitution = 0f
+                    frictionStatic = 1f
+                    frictionDynamic = 1f
+                }
+
+                FhysicsCore.running = false
+                FhysicsCore.spawn(rect1, rect2, rect3, rect4, circle1, circle2, circle3, circle4)
+            }
+        )
+
         return scenes
     }
 }
@@ -124,7 +190,6 @@ data class CustomScene(
     private val objectCreation: () -> Unit,
 ) {
     fun load() {
-        Settings.loadDefault()
         Settings.load(settings)
 
         objectCreation()

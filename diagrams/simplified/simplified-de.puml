@@ -1,9 +1,6 @@
 @startuml
-'https://plantuml.com/class-diagram
 
-!theme plain
 skinparam linetype ortho
-skinparam classAttributeIconSize 0
 
 class FhysicsCore << singleton >> {
     + dt: Float
@@ -18,8 +15,6 @@ class QuadTree << singleton >> {
     - nodes: List<QTNode>
     - objectLists: List<List<FhysicsObject>>
     {field} ...
-    + insert(obj: FhysicsObject)
-    + remove(obj: FhysicsObject)
     + rebuild()
     + update()
     {method} ...
@@ -65,7 +60,7 @@ class FhysicsObject {
     {method} ...
 }
 
-FhysicsCore ..> QuadTree : ruft rebuild() & update() auf
+FhysicsCore ..> QuadTree : ruft rebuild() & update() auf\nbei jedem update
 QuadTree --> QTNode
 QuadTree --> FhysicsObject: ruft update() auf
 QuadTree .u.> CollisionFinder : ruft testCollision() auf

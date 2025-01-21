@@ -1,0 +1,310 @@
+<svg xmlns="http://www.w3.org/2000/svg" contentStyleType="text/css"
+     height="858px" preserveAspectRatio="none" style="width:813px;height:858px;background:#FFFFFF;" version="1.1"
+     viewBox="0 0 813 858" width="813px" zoomAndPan="magnify">
+    <defs/>
+    <g><!--class FhysicsCore-->
+        <g id="elem_FhysicsCore">
+            <rect codeLine="4" fill="#F1F1F1" height="135.0664" id="FhysicsCore" rx="2.5" ry="2.5"
+                  style="stroke:#181818;stroke-width:0.5;" width="109.793" x="608" y="245"/>
+            <ellipse cx="623" cy="267.291" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/>
+            <path d="M625.7656,263.166 Q625.9219,262.9473 626.1094,262.8379 Q626.2969,262.7285 626.5156,262.7285 Q626.8906,262.7285 627.125,262.9941 Q627.3594,263.2441 627.3594,263.8535 L627.3594,265.3066 Q627.3594,265.916 627.125,266.1816 Q626.8906,266.4473 626.5156,266.4473 Q626.1719,266.4473 625.9688,266.2441 Q625.7656,266.0566 625.6563,265.541 Q625.6094,265.1816 625.4219,264.9941 Q625.0938,264.6191 624.4844,264.4004 Q623.875,264.1816 623.25,264.1816 Q622.4844,264.1816 621.8438,264.5098 Q621.2188,264.8379 620.7188,265.5879 Q620.2344,266.3379 620.2344,267.3691 L620.2344,268.4629 Q620.2344,269.6973 621.125,270.5254 Q622.0156,271.3379 623.6094,271.3379 Q624.5469,271.3379 625.2031,271.0879 Q625.5938,270.9316 626.0156,270.4941 Q626.2813,270.2285 626.4219,270.1504 Q626.5781,270.0723 626.7813,270.0723 Q627.1094,270.0723 627.3594,270.3379 Q627.625,270.5879 627.625,270.9316 Q627.625,271.2754 627.2813,271.6816 Q626.7813,272.2598 625.9844,272.5879 Q624.9063,273.041 623.6094,273.041 Q622.0938,273.041 620.8906,272.416 Q619.9063,271.916 619.2188,270.8535 Q618.5313,269.7754 618.5313,268.4941 L618.5313,267.3379 Q618.5313,266.0098 619.1406,264.8691 Q619.7656,263.7129 620.8594,263.1035 Q621.9531,262.4785 623.1875,262.4785 Q623.9219,262.4785 624.5625,262.6504 Q625.2188,262.8066 625.7656,263.166 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="61.3828" x="645.2051" y="262.9492">&#171;singleton&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="77.793"
+                  x="637" y="281.0684">FhysicsCore
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="609" x2="716.793" y1="289.582" y2="289.582"/>
+            <ellipse cx="619" cy="304.3926" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50.5791"
+                  x="628" y="308.6895">dt: Float
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6689"
+                  x="628" y="327.3105">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="609" x2="716.793" y1="334.8242" y2="334.8242"/>
+            <ellipse cx="619" cy="349.6348" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.1445"
+                  x="628" y="353.9316">update()
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6689"
+                  x="628" y="372.5527">...
+            </text>
+        </g><!--class QuadTree-->
+        <g id="elem_QuadTree">
+            <rect codeLine="11" fill="#F1F1F1" height="209.5508" id="QuadTree" rx="2.5" ry="2.5"
+                  style="stroke:#181818;stroke-width:0.5;" width="264.1094" x="289" y="440"/>
+            <ellipse cx="385.2876" cy="462.291" fill="#ADD1B2" rx="11" ry="11"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+            <path d="M388.0532,458.166 Q388.2095,457.9473 388.397,457.8379 Q388.5845,457.7285 388.8032,457.7285 Q389.1782,457.7285 389.4126,457.9941 Q389.647,458.2441 389.647,458.8535 L389.647,460.3066 Q389.647,460.916 389.4126,461.1816 Q389.1782,461.4473 388.8032,461.4473 Q388.4595,461.4473 388.2563,461.2441 Q388.0532,461.0566 387.9438,460.541 Q387.897,460.1816 387.7095,459.9941 Q387.3813,459.6191 386.772,459.4004 Q386.1626,459.1816 385.5376,459.1816 Q384.772,459.1816 384.1313,459.5098 Q383.5063,459.8379 383.0063,460.5879 Q382.522,461.3379 382.522,462.3691 L382.522,463.4629 Q382.522,464.6973 383.4126,465.5254 Q384.3032,466.3379 385.897,466.3379 Q386.8345,466.3379 387.4907,466.0879 Q387.8813,465.9316 388.3032,465.4941 Q388.5688,465.2285 388.7095,465.1504 Q388.8657,465.0723 389.0688,465.0723 Q389.397,465.0723 389.647,465.3379 Q389.9126,465.5879 389.9126,465.9316 Q389.9126,466.2754 389.5688,466.6816 Q389.0688,467.2598 388.272,467.5879 Q387.1938,468.041 385.897,468.041 Q384.3813,468.041 383.1782,467.416 Q382.1938,466.916 381.5063,465.8535 Q380.8188,464.7754 380.8188,463.4941 L380.8188,462.3379 Q380.8188,461.0098 381.4282,459.8691 Q382.0532,458.7129 383.147,458.1035 Q384.2407,457.4785 385.4751,457.4785 Q386.2095,457.4785 386.8501,457.6504 Q387.5063,457.8066 388.0532,458.166 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="61.3828" x="406.6133" y="457.9492">&#171;singleton&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="63.0342"
+                  x="405.7876" y="476.0684">QuadTree
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="290" x2="552.1094" y1="484.582" y2="484.582"/>
+            <ellipse cx="300" cy="499.3926" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="74.7031"
+                  x="309" y="503.6895">capacity: Int
+            </text>
+            <rect fill="none" height="6" style="stroke:#C82930;stroke-width:1.0;" width="6" x="297" y="515.0137"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="84.8135"
+                  x="309" y="522.3105">root: QTNode
+            </text>
+            <rect fill="none" height="6" style="stroke:#C82930;stroke-width:1.0;" width="6" x="297" y="533.6348"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="136.9717"
+                  x="309" y="540.9316">nodes: List&lt;QTNode&gt;
+            </text>
+            <rect fill="none" height="6" style="stroke:#C82930;stroke-width:1.0;" width="6" x="297" y="552.2559"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="238.1094"
+                  x="309" y="559.5527">objectLists: List&lt;List&lt;FhysicsObject&gt;&gt;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6689"
+                  x="309" y="578.1738">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="290" x2="552.1094" y1="585.6875" y2="585.6875"/>
+            <ellipse cx="300" cy="600.498" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="51.3516"
+                  x="309" y="604.7949">rebuild()
+            </text>
+            <ellipse cx="300" cy="619.1191" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.1445"
+                  x="309" y="623.416">update()
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6689"
+                  x="309" y="642.0371">...
+            </text>
+        </g><!--class QTNode-->
+        <g id="elem_QTNode">
+            <rect codeLine="22" fill="#F1F1F1" height="141.1055" id="QTNode" rx="2.5" ry="2.5"
+                  style="stroke:#181818;stroke-width:0.5;" width="147.4268" x="260.5" y="710"/>
+            <ellipse cx="303.6325" cy="726" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/>
+            <path d="M306.3981,721.875 Q306.5543,721.6563 306.7418,721.5469 Q306.9293,721.4375 307.1481,721.4375 Q307.5231,721.4375 307.7575,721.7031 Q307.9918,721.9531 307.9918,722.5625 L307.9918,724.0156 Q307.9918,724.625 307.7575,724.8906 Q307.5231,725.1563 307.1481,725.1563 Q306.8043,725.1563 306.6012,724.9531 Q306.3981,724.7656 306.2887,724.25 Q306.2418,723.8906 306.0543,723.7031 Q305.7262,723.3281 305.1168,723.1094 Q304.5075,722.8906 303.8825,722.8906 Q303.1168,722.8906 302.4762,723.2188 Q301.8512,723.5469 301.3512,724.2969 Q300.8668,725.0469 300.8668,726.0781 L300.8668,727.1719 Q300.8668,728.4063 301.7575,729.2344 Q302.6481,730.0469 304.2418,730.0469 Q305.1793,730.0469 305.8356,729.7969 Q306.2262,729.6406 306.6481,729.2031 Q306.9137,728.9375 307.0543,728.8594 Q307.2106,728.7813 307.4137,728.7813 Q307.7418,728.7813 307.9918,729.0469 Q308.2575,729.2969 308.2575,729.6406 Q308.2575,729.9844 307.9137,730.3906 Q307.4137,730.9688 306.6168,731.2969 Q305.5387,731.75 304.2418,731.75 Q302.7262,731.75 301.5231,731.125 Q300.5387,730.625 299.8512,729.5625 Q299.1637,728.4844 299.1637,727.2031 L299.1637,726.0469 Q299.1637,724.7188 299.7731,723.5781 Q300.3981,722.4219 301.4918,721.8125 Q302.5856,721.1875 303.82,721.1875 Q304.5543,721.1875 305.195,721.3594 Q305.8512,721.5156 306.3981,721.875 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.9102"
+                  x="323.8841" y="731.7969">QTNode
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="261.5" x2="406.9268" y1="742" y2="742"/>
+            <ellipse cx="271.5" cy="756.8105" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="121.4268"
+                  x="280.5" y="761.1074">bbox: BoundingBox
+            </text>
+            <ellipse cx="271.5" cy="775.4316" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56.8135"
+                  x="280.5" y="779.7285">index: Int
+            </text>
+            <ellipse cx="271.5" cy="794.0527" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="96.5166"
+                  x="280.5" y="798.3496">isLeaf: Boolean
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="261.5" x2="406.9268" y1="805.8633" y2="805.8633"/>
+            <ellipse cx="271.5" cy="820.6738" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="98.8203"
+                  x="280.5" y="824.9707">convertToLeaf()
+            </text>
+            <ellipse cx="271.5" cy="839.2949" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="115.9307"
+                  x="280.5" y="843.5918">convertToBranch()
+            </text>
+        </g><!--class CollisionFinder-->
+        <g id="elem_CollisionFinder">
+            <rect codeLine="30" fill="#F1F1F1" height="135.0664" id="CollisionFinder" rx="2.5" ry="2.5"
+                  style="stroke:#181818;stroke-width:0.5;" width="303.8057" x="269" y="245"/>
+            <ellipse cx="370.3564" cy="267.291" fill="#ADD1B2" rx="11" ry="11"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+            <path d="M373.1221,263.166 Q373.2783,262.9473 373.4658,262.8379 Q373.6533,262.7285 373.8721,262.7285 Q374.2471,262.7285 374.4814,262.9941 Q374.7158,263.2441 374.7158,263.8535 L374.7158,265.3066 Q374.7158,265.916 374.4814,266.1816 Q374.2471,266.4473 373.8721,266.4473 Q373.5283,266.4473 373.3252,266.2441 Q373.1221,266.0566 373.0127,265.541 Q372.9658,265.1816 372.7783,264.9941 Q372.4502,264.6191 371.8408,264.4004 Q371.2314,264.1816 370.6064,264.1816 Q369.8408,264.1816 369.2002,264.5098 Q368.5752,264.8379 368.0752,265.5879 Q367.5908,266.3379 367.5908,267.3691 L367.5908,268.4629 Q367.5908,269.6973 368.4814,270.5254 Q369.3721,271.3379 370.9658,271.3379 Q371.9033,271.3379 372.5596,271.0879 Q372.9502,270.9316 373.3721,270.4941 Q373.6377,270.2285 373.7783,270.1504 Q373.9346,270.0723 374.1377,270.0723 Q374.4658,270.0723 374.7158,270.3379 Q374.9814,270.5879 374.9814,270.9316 Q374.9814,271.2754 374.6377,271.6816 Q374.1377,272.2598 373.3408,272.5879 Q372.2627,273.041 370.9658,273.041 Q369.4502,273.041 368.2471,272.416 Q367.2627,271.916 366.5752,270.8535 Q365.8877,269.7754 365.8877,268.4941 L365.8877,267.3379 Q365.8877,266.0098 366.4971,264.8691 Q367.1221,263.7129 368.2158,263.1035 Q369.3096,262.4785 370.5439,262.4785 Q371.2783,262.4785 371.9189,262.6504 Q372.5752,262.8066 373.1221,263.166 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="61.3828" x="406.4614" y="262.9492">&#171;singleton&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="92.5928"
+                  x="390.8564" y="281.0684">CollisionFinder
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="270" x2="571.8057" y1="289.582" y2="289.582"/>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="270" x2="571.8057" y1="297.582" y2="297.582"/>
+            <ellipse cx="280" cy="312.3926" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="248.1787"
+                  x="289" y="316.6895">testCollision(Circle, Circle): CollisionInfo
+            </text>
+            <ellipse cx="280" cy="331.0137" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="262.9922"
+                  x="289" y="335.3105">testCollision(Circle, Polygon): CollisionInfo
+            </text>
+            <ellipse cx="280" cy="349.6348" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="277.8057"
+                  x="289" y="353.9316">testCollision(Polygon, Polygon): CollisionInfo
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6689"
+                  x="289" y="372.5527">...
+            </text>
+        </g><!--class CollisionSolver-->
+        <g id="elem_CollisionSolver">
+            <rect codeLine="37" fill="#F1F1F1" height="135.0664" id="CollisionSolver" rx="2.5" ry="2.5"
+                  style="stroke:#181818;stroke-width:0.5;" width="204.1787" x="30" y="245"/>
+            <ellipse cx="81.543" cy="267.291" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/>
+            <path d="M84.3086,263.166 Q84.4648,262.9473 84.6523,262.8379 Q84.8398,262.7285 85.0586,262.7285 Q85.4336,262.7285 85.668,262.9941 Q85.9023,263.2441 85.9023,263.8535 L85.9023,265.3066 Q85.9023,265.916 85.668,266.1816 Q85.4336,266.4473 85.0586,266.4473 Q84.7148,266.4473 84.5117,266.2441 Q84.3086,266.0566 84.1992,265.541 Q84.1523,265.1816 83.9648,264.9941 Q83.6367,264.6191 83.0273,264.4004 Q82.418,264.1816 81.793,264.1816 Q81.0273,264.1816 80.3867,264.5098 Q79.7617,264.8379 79.2617,265.5879 Q78.7773,266.3379 78.7773,267.3691 L78.7773,268.4629 Q78.7773,269.6973 79.668,270.5254 Q80.5586,271.3379 82.1523,271.3379 Q83.0898,271.3379 83.7461,271.0879 Q84.1367,270.9316 84.5586,270.4941 Q84.8242,270.2285 84.9648,270.1504 Q85.1211,270.0723 85.3242,270.0723 Q85.6523,270.0723 85.9023,270.3379 Q86.168,270.5879 86.168,270.9316 Q86.168,271.2754 85.8242,271.6816 Q85.3242,272.2598 84.5273,272.5879 Q83.4492,273.041 82.1523,273.041 Q80.6367,273.041 79.4336,272.416 Q78.4492,271.916 77.7617,270.8535 Q77.0742,269.7754 77.0742,268.4941 L77.0742,267.3379 Q77.0742,266.0098 77.6836,264.8691 Q78.3086,263.7129 79.4023,263.1035 Q80.4961,262.4785 81.7305,262.4785 Q82.4648,262.4785 83.1055,262.6504 Q83.7617,262.8066 84.3086,263.166 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="61.3828" x="117.6479" y="262.9492">&#171;singleton&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="92.5928"
+                  x="102.043" y="281.0684">CollisionSolver
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="31" x2="233.1787" y1="289.582" y2="289.582"/>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="31" x2="233.1787" y1="297.582" y2="297.582"/>
+            <ellipse cx="41" cy="312.3926" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="178.1787"
+                  x="50" y="316.6895">solveCollisions(CollisionInfo)
+            </text>
+            <rect fill="#F24D5C" height="6" style="stroke:#C82930;stroke-width:1.0;" width="6" x="38" y="328.0137"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="102.6963"
+                  x="50" y="335.3105">solveImpulse(...)
+            </text>
+            <rect fill="#F24D5C" height="6" style="stroke:#C82930;stroke-width:1.0;" width="6" x="38" y="346.6348"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="99.5723"
+                  x="50" y="353.9316">solveFriction(...)
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6689"
+                  x="50" y="372.5527">...
+            </text>
+        </g><!--class CollisionInfo-->
+        <g id="elem_CollisionInfo">
+            <rect codeLine="44" fill="#F1F1F1" height="178.3477" id="CollisionInfo" rx="2.5" ry="2.5"
+                  style="stroke:#181818;stroke-width:0.5;" width="400.4316" x="76" y="7"/>
+            <ellipse cx="233.835" cy="23" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/>
+            <path d="M236.6006,18.875 Q236.7568,18.6563 236.9443,18.5469 Q237.1318,18.4375 237.3506,18.4375 Q237.7256,18.4375 237.96,18.7031 Q238.1943,18.9531 238.1943,19.5625 L238.1943,21.0156 Q238.1943,21.625 237.96,21.8906 Q237.7256,22.1563 237.3506,22.1563 Q237.0068,22.1563 236.8037,21.9531 Q236.6006,21.7656 236.4912,21.25 Q236.4443,20.8906 236.2568,20.7031 Q235.9287,20.3281 235.3193,20.1094 Q234.71,19.8906 234.085,19.8906 Q233.3193,19.8906 232.6787,20.2188 Q232.0537,20.5469 231.5537,21.2969 Q231.0693,22.0469 231.0693,23.0781 L231.0693,24.1719 Q231.0693,25.4063 231.96,26.2344 Q232.8506,27.0469 234.4443,27.0469 Q235.3818,27.0469 236.0381,26.7969 Q236.4287,26.6406 236.8506,26.2031 Q237.1162,25.9375 237.2568,25.8594 Q237.4131,25.7813 237.6162,25.7813 Q237.9443,25.7813 238.1943,26.0469 Q238.46,26.2969 238.46,26.6406 Q238.46,26.9844 238.1162,27.3906 Q237.6162,27.9688 236.8193,28.2969 Q235.7412,28.75 234.4443,28.75 Q232.9287,28.75 231.7256,28.125 Q230.7412,27.625 230.0537,26.5625 Q229.3662,25.4844 229.3662,24.2031 L229.3662,23.0469 Q229.3662,21.7188 229.9756,20.5781 Q230.6006,19.4219 231.6943,18.8125 Q232.7881,18.1875 234.0225,18.1875 Q234.7568,18.1875 235.3975,18.3594 Q236.0537,18.5156 236.6006,18.875 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="76.2617"
+                  x="254.335" y="28.7969">CollisionInfo
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="77" x2="475.4316" y1="39" y2="39"/>
+            <ellipse cx="87" cy="53.8105" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="123.71"
+                  x="96" y="58.1074">objA: FhysicsObject
+            </text>
+            <ellipse cx="87" cy="72.4316" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="123.71"
+                  x="96" y="76.7285">objB: FhysicsObject
+            </text>
+            <ellipse cx="87" cy="91.0527" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="98.8203"
+                  x="96" y="95.3496">normal: Vector2
+            </text>
+            <ellipse cx="87" cy="109.6738" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73.9375"
+                  x="96" y="113.9707">depth: Float
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="77" x2="475.4316" y1="121.4844" y2="121.4844"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="374.4316"
+                  x="96" y="140.5918">&#169;CollisionInfo(FhysicsObject, FhysicsObject, Vector2, Float)
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="95.9014"
+                  x="96" y="159.2129">&#169;CollisionInfo()
+            </text>
+            <ellipse cx="87" cy="173.5371" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="143.9648"
+                  x="96" y="177.834">hasCollision(): Boolean
+            </text>
+        </g><!--class FhysicsObject-->
+        <g id="elem_FhysicsObject">
+            <rect codeLine="54" fill="#F1F1F1" height="141.1055" id="FhysicsObject" rx="2.5" ry="2.5"
+                  style="stroke:#181818;stroke-width:0.5;" width="130.2822" x="443" y="710"/>
+            <ellipse cx="462.6674" cy="726" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/>
+            <path d="M465.4331,721.875 Q465.5893,721.6563 465.7768,721.5469 Q465.9643,721.4375 466.1831,721.4375 Q466.5581,721.4375 466.7924,721.7031 Q467.0268,721.9531 467.0268,722.5625 L467.0268,724.0156 Q467.0268,724.625 466.7924,724.8906 Q466.5581,725.1563 466.1831,725.1563 Q465.8393,725.1563 465.6362,724.9531 Q465.4331,724.7656 465.3237,724.25 Q465.2768,723.8906 465.0893,723.7031 Q464.7612,723.3281 464.1518,723.1094 Q463.5424,722.8906 462.9174,722.8906 Q462.1518,722.8906 461.5112,723.2188 Q460.8862,723.5469 460.3862,724.2969 Q459.9018,725.0469 459.9018,726.0781 L459.9018,727.1719 Q459.9018,728.4063 460.7924,729.2344 Q461.6831,730.0469 463.2768,730.0469 Q464.2143,730.0469 464.8706,729.7969 Q465.2612,729.6406 465.6831,729.2031 Q465.9487,728.9375 466.0893,728.8594 Q466.2456,728.7813 466.4487,728.7813 Q466.7768,728.7813 467.0268,729.0469 Q467.2924,729.2969 467.2924,729.6406 Q467.2924,729.9844 466.9487,730.3906 Q466.4487,730.9688 465.6518,731.2969 Q464.5737,731.75 463.2768,731.75 Q461.7612,731.75 460.5581,731.125 Q459.5737,730.625 458.8862,729.5625 Q458.1987,728.4844 458.1987,727.2031 L458.1987,726.0469 Q458.1987,724.7188 458.8081,723.5781 Q459.4331,722.4219 460.5268,721.8125 Q461.6206,721.1875 462.8549,721.1875 Q463.5893,721.1875 464.2299,721.3594 Q464.8862,721.5156 465.4331,721.875 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="87.9102"
+                  x="477.7046" y="731.7969">FhysicsObject
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="444" x2="572.2822" y1="742" y2="742"/>
+            <ellipse cx="454" cy="756.8105" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="104.2822"
+                  x="463" y="761.1074">position: Vector2
+            </text>
+            <ellipse cx="454" cy="775.4316" fill="none" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="102.71"
+                  x="463" y="779.7285">velocity: Vector2
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6689"
+                  x="463" y="798.3496">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.5;" x1="444" x2="572.2822" y1="805.8633" y2="805.8633"/>
+            <ellipse cx="454" cy="820.6738" fill="#84BE84" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52.1445"
+                  x="463" y="824.9707">update()
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="11.6689"
+                  x="463" y="843.5918">...
+            </text>
+        </g><!--link FhysicsCore to QuadTree-->
+        <g id="link_FhysicsCore_QuadTree">
+            <path codeLine="62" d="M663,380.06 C663,448.71 663,545 663,545 C663,545 615.83,545 559.33,545 " fill="none"
+                  id="FhysicsCore-to-QuadTree" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/>
+            <polygon fill="#181818" points="553.33,545,562.33,549,558.33,545,562.33,541,553.33,545"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="141.6162"
+                  x="664" y="496.3983">calls rebuild() &amp; update()
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75.1626"
+                  x="697.2268" y="513.6893">every update
+            </text>
+        </g><!--link QuadTree to QTNode-->
+        <g id="link_QuadTree_QTNode">
+            <path codeLine="63" d="M348.25,650.01 C348.25,670.25 348.25,684.99 348.25,703.82 " fill="none"
+                  id="QuadTree-to-QTNode" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818" points="348.25,709.82,352.25,700.82,348.25,704.82,344.25,700.82,348.25,709.82"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+        </g><!--link QuadTree to FhysicsObject-->
+        <g id="link_QuadTree_FhysicsObject">
+            <path codeLine="64" d="M498,650.01 C498,670.25 498,684.99 498,703.82 " fill="none"
+                  id="QuadTree-to-FhysicsObject" style="stroke:#181818;stroke-width:1.0;"/>
+            <polygon fill="#181818" points="498,709.82,502,700.82,498,704.82,494,700.82,498,709.82"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="78.0381"
+                  x="419" y="675.9383">calls update()
+            </text>
+        </g><!--reverse link CollisionFinder to QuadTree-->
+        <g id="link_CollisionFinder_QuadTree">
+            <path codeLine="65" d="M421,386.06 C421,404.7 421,419.37 421,439.6 " fill="none"
+                  id="CollisionFinder-backto-QuadTree"
+                  style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/>
+            <polygon fill="#181818" points="421,380.06,417,389.06,421,385.06,425,389.06,421,380.06"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="108.3608"
+                  x="312" y="405.8583">calls testCollision()
+            </text>
+        </g><!--reverse link CollisionSolver to QuadTree-->
+        <g id="link_CollisionSolver_QuadTree">
+            <path codeLine="66" d="M132,386.06 C132,454.71 132,545 132,545 C132,545 212.67,545 288.76,545 " fill="none"
+                  id="CollisionSolver-backto-QuadTree"
+                  style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/>
+            <polygon fill="#181818" points="132,380.06,128,389.06,132,385.06,136,389.06,132,380.06"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="124.2554"
+                  x="7" y="536.9383">calls solveCollisions()
+            </text>
+        </g><!--reverse link CollisionInfo to CollisionFinder-->
+        <g id="link_CollisionInfo_CollisionFinder">
+            <path codeLine="67" d="M372.5,191.31 C372.5,211.23 372.5,226.03 372.5,244.9 " fill="none"
+                  id="CollisionInfo-backto-CollisionFinder"
+                  style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/>
+            <polygon fill="#181818" points="372.5,185.31,368.5,194.31,372.5,190.31,376.5,194.31,372.5,185.31"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="27.46"
+                  x="344.5" y="211.1283">uses
+            </text>
+        </g><!--reverse link CollisionInfo to CollisionSolver-->
+        <g id="link_CollisionInfo_CollisionSolver">
+            <path codeLine="68" d="M155,191.31 C155,211.23 155,226.03 155,244.9 " fill="none"
+                  id="CollisionInfo-backto-CollisionSolver"
+                  style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/>
+            <polygon fill="#181818" points="155,185.31,151,194.31,155,190.31,159,194.31,155,185.31"
+                     style="stroke:#181818;stroke-width:1.0;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="27.46"
+                  x="127" y="211.1283">uses
+            </text>
+        </g><!--SRC=[bLJ1Zfim4Btp5NEgG4quz8WYf2PIf4Yhjgj6FVNYm6HnwtYGRQAWLJwelz4lgm5Z0WhPRGu4pvjvCy_CZFxDPSaKEu7W4arT8f0o1GL19fZMi2rgpJEz8OMmMe7cyaMW8Gbf2gy1sDz7o4q2Mq7CjEVN8qUHNo6EOuTNPSuCXb47dz3IE_pQftckMBvNE9yZOoNBkAaJsCakpn8KaStylFz2EJgJjAywWIUkpQe3KeVGuHTcfW5wl7quVLzRD4rd52WyL5paJiBx5BNPVVs70rqIM5CbSojlJHTdvpB7oo3A6lGJicFZIWAPxEMJFACoUsf0NuQthXMJMM7jFls6XE2Qazms6TJilHhKnlk66wuoWGle_gDaeDd98pqC-KQYVY7vhXZd-pZe_hLwl-yapWzqwGRspZeSyKUk9rgdtQciXCRGfXdPjufdfgdM0szKr33x_BRTFYSmwgu1MTz79AaJ4mdyi2PId_hfmj8KjmFszyyePJYYMi3awCWM7K5qbw7lfuBfuID5GmzU9zkWu_PQIzAykQbfvMSKrCtihVq_zyFj0ehZTDWKYTq9GkXXDk63P_efqJP7xSw1ZrakqtvVZ6mZNJsnBykxnfKjO3fPlVkunMUZND_sKTC-ZO8f_pYyRR84Aeqwc7BEU_u3]-->
+    </g>
+</svg>

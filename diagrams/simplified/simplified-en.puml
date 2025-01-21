@@ -1,0 +1,71 @@
+@startuml
+
+skinparam linetype ortho
+
+class FhysicsCore << singleton >> {
+    + dt: Float
+    {field} ...
+    + update()
+    {method} ...
+}
+
+class QuadTree << singleton >> {
+    + capacity: Int
+    - root: QTNode
+    - nodes: List<QTNode>
+    - objectLists: List<List<FhysicsObject>>
+    {field} ...
+    + rebuild()
+    + update()
+    {method} ...
+}
+
+class QTNode {
+    + bbox: BoundingBox
+    + index: Int
+    + isLeaf: Boolean
+    + convertToLeaf()
+    + convertToBranch()
+}
+
+class CollisionFinder << singleton >> {
+    + testCollision(Circle, Circle): CollisionInfo
+    + testCollision(Circle, Polygon): CollisionInfo
+    + testCollision(Polygon, Polygon): CollisionInfo
+    {method} ...
+}
+
+class CollisionSolver << singleton >> {
+    + solveCollisions(CollisionInfo)
+    - solveImpulse(...)
+    - solveFriction(...)
+    {method} ...
+}
+
+class CollisionInfo {
+    + objA: FhysicsObject
+    + objB: FhysicsObject
+    + normal: Vector2
+    + depth: Float
+    ©CollisionInfo(FhysicsObject, FhysicsObject, Vector2, Float)
+    ©CollisionInfo()
+    + hasCollision(): Boolean
+}
+
+class FhysicsObject {
+    + position: Vector2
+    + velocity: Vector2
+    {field} ...
+    + update()
+    {method} ...
+}
+
+FhysicsCore ..> QuadTree : calls rebuild() & update()\nevery update
+QuadTree --> QTNode
+QuadTree --> FhysicsObject: calls update()
+QuadTree .u.> CollisionFinder : calls testCollision()
+QuadTree .u.> CollisionSolver : calls solveCollisions()
+CollisionFinder .u.> CollisionInfo : uses
+CollisionSolver .u.> CollisionInfo : uses
+
+@enduml

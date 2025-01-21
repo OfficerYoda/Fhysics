@@ -3,10 +3,8 @@
 
 @startuml
 
-!theme plain
 top to bottom direction
 skinparam linetype ortho
-skinparam classAttributeIconSize 0
 
 abstract class FhysicsObject {
     + position: Vector2
@@ -47,7 +45,7 @@ class Circle {
     {method} ...
 }
 
-class Polygon {
+abstract class Polygon {
     + vertices: Vector2[]
     {field} ...
     ©Polygon(Vector2[], Float)
@@ -63,6 +61,12 @@ class Polygon {
     {method} ...
 }
 
+class ConvexPolygon {
+    {field} ...
+    ©ConvexPolygon(Vector2[], Float)
+    {method} ...
+}
+
 class Rectangle {
     + width: Float
     + height: Float
@@ -70,12 +74,6 @@ class Rectangle {
     ©Rectangle(Vector2, Float, Float, Float)
     + contains(Vector2): Boolean
     + getAxes(): List<Vector2>
-    {method} ...
-}
-
-class ConvexPolygon {
-    {field} ...
-    ©ConvexPolygon(Vector2[], Float)
     {method} ...
 }
 
@@ -101,8 +99,8 @@ ConcavePolygon     -u-|>  Polygon
 ConvexPolygon      -u-|>  Polygon
 Polygon            -u-|>  FhysicsObject
 Rectangle          -u-|>  Polygon
-SubPolygon         -u-|>  Polygon
-ConcavePolygon     -[#000082]- SubPolygon
+SubPolygon         -u-|>  ConvexPolygon
+ConcavePolygon     -l[#000082]- SubPolygon
 @enduml
 
 

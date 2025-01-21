@@ -1,0 +1,433 @@
+<svg xmlns="http://www.w3.org/2000/svg" contentStyleType="text/css"
+     height="1023.2px" preserveAspectRatio="none" style="width:868px;height:1023px;background:#FFFFFF;" version="1.1"
+     viewBox="0 0 868 1023" width="868px" zoomAndPan="magnify">
+    <defs/>
+    <g><!--class FhysicsObject-->
+        <g id="elem_FhysicsObject">
+            <rect codeLine="8" fill="#F1F1F1" height="381.0281" id="FhysicsObject" rx="2" ry="2"
+                  style="stroke:#181818;stroke-width:0.4000000000000001;" width="304.65" x="392" y="5.6"/>
+            <ellipse cx="505.7609" cy="18.4" fill="#A9DCDF" rx="8.8" ry="8.8"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <path d="M507.5109,19.8125 L504.1984,19.8125 L503.8609,20.6375 L504.1984,20.6375 Q504.6859,20.6375 504.8984,20.825 Q505.1109,21.0125 505.1109,21.325 Q505.1109,21.625 504.8984,21.8125 Q504.6859,22 504.1984,22 L502.3609,22 Q501.8734,22 501.6734,21.8125 Q501.4609,21.625 501.4609,21.3125 Q501.4609,21.0125 501.6859,20.825 Q501.8984,20.625 502.3984,20.6375 L504.5359,15.3125 L503.6484,15.3125 Q503.1609,15.3125 502.9484,15.125 Q502.7359,14.9375 502.7359,14.625 Q502.7359,14.325 502.9484,14.1375 Q503.1609,13.95 503.6484,13.95 L506.5859,13.95 L509.2984,20.6375 Q509.7734,20.6375 509.9234,20.75 Q510.2359,20.9625 510.2359,21.325 Q510.2359,21.625 510.0234,21.8125 Q509.8234,22 509.3359,22 L507.4984,22 Q507.0109,22 506.7984,21.8125 Q506.5859,21.625 506.5859,21.3125 Q506.5859,21.0125 506.7984,20.825 Q507.0109,20.6375 507.4984,20.6375 L507.8359,20.6375 L507.5109,19.8125 Z M506.9359,18.45 L505.8484,15.75 L504.7484,18.45 L506.9359,18.45 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" font-style="italic" lengthAdjust="spacing"
+                  textLength="70.3281" x="522.1609" y="23.0375">FhysicsObject
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="392.8" x2="695.85" y1="31.2" y2="31.2"/>
+            <ellipse cx="400.8" cy="43.0484" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="83.4258"
+                  x="408" y="46.4859">position: Vector2
+            </text>
+            <ellipse cx="400.8" cy="57.9453" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="82.168"
+                  x="408" y="61.3828">velocity: Vector2
+            </text>
+            <ellipse cx="400.8" cy="72.8422" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="105.2133"
+                  x="408" y="76.2797">acceleration: Vector2
+            </text>
+            <ellipse cx="400.8" cy="87.7391" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="58.5266"
+                  x="408" y="91.1766">angle: Float
+            </text>
+            <ellipse cx="400.8" cy="102.6359" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="107.7016"
+                  x="408" y="106.0734">angularVelocity: Float
+            </text>
+            <ellipse cx="400.8" cy="117.5328" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="57.8813"
+                  x="408" y="120.9703">mass: Float
+            </text>
+            <ellipse cx="400.8" cy="132.4297" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="61.6273"
+                  x="408" y="135.8672">inertia: Float
+            </text>
+            <ellipse cx="400.8" cy="147.3266" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="73.4672"
+                  x="408" y="150.7641">static: Boolean
+            </text>
+            <ellipse cx="400.8" cy="162.2234" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="79.6797"
+                  x="408" y="165.6609">restitution: Float
+            </text>
+            <ellipse cx="400.8" cy="177.1203" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="92.1211"
+                  x="408" y="180.5578">frictionStatic: Float
+            </text>
+            <ellipse cx="400.8" cy="192.0172" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="107.6742"
+                  x="408" y="195.4547">frictionDynamic: Float
+            </text>
+            <ellipse cx="400.8" cy="206.9141" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="138.2445"
+                  x="408" y="210.3516">boundingBox: BoundingBox
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="408" y="225.2484">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="392.8" x2="695.85" y1="231.2594"
+                  y2="231.2594"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="262.8281"
+                  x="408" y="246.5453">&#169;FhysicsObject(Vector2, Vector2, Float, Float, Float)
+            </text>
+            <ellipse cx="400.8" cy="258.0047" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="41.7156"
+                  x="408" y="261.4422">update()
+            </text>
+            <ellipse cx="400.8" cy="272.9016" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" font-style="italic" lengthAdjust="spacing"
+                  textLength="135.7016" x="408" y="276.3391">project(Vector2): Projection
+            </text>
+            <ellipse cx="400.8" cy="287.7984" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" font-style="italic" lengthAdjust="spacing"
+                  textLength="135.1" x="408" y="291.2359">contains(Vector2): Boolean
+            </text>
+            <ellipse cx="400.8" cy="302.6953" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" font-style="italic" lengthAdjust="spacing"
+                  textLength="108.3469" x="408" y="306.1328">updateBoundingBox()
+            </text>
+            <ellipse cx="400.8" cy="317.5922" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" font-style="italic" lengthAdjust="spacing"
+                  textLength="206.0625" x="408" y="321.0297">findContactPoints(BorderEdge): Vector2[]
+            </text>
+            <ellipse cx="400.8" cy="332.4891" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" font-style="italic" lengthAdjust="spacing"
+                  textLength="283.85" x="408" y="335.9266">findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+            </text>
+            <ellipse cx="400.8" cy="347.3859" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="194.8461"
+                  x="408" y="350.8234">testCollision(BorderEdge): CollisionInfo
+            </text>
+            <ellipse cx="400.8" cy="362.2828" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" font-style="italic" lengthAdjust="spacing"
+                  textLength="205.4008" x="408" y="365.7203">testCollision(FhysicsObject): CollisionInfo
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="408" y="380.6172">...
+            </text>
+        </g><!--class Circle-->
+        <g id="elem_Circle">
+            <rect codeLine="34" fill="#F1F1F1" height="187.3688" id="Circle" rx="2" ry="2"
+                  style="stroke:#181818;stroke-width:0.4000000000000001;" width="304.65" x="558.4" y="456.8"/>
+            <ellipse cx="693.0133" cy="469.6" fill="#ADD1B2" rx="8.8" ry="8.8"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <path d="M695.2258,466.3 Q695.3508,466.125 695.5008,466.0375 Q695.6508,465.95 695.8258,465.95 Q696.1258,465.95 696.3133,466.1625 Q696.5008,466.3625 696.5008,466.85 L696.5008,468.0125 Q696.5008,468.5 696.3133,468.7125 Q696.1258,468.925 695.8258,468.925 Q695.5508,468.925 695.3883,468.7625 Q695.2258,468.6125 695.1383,468.2 Q695.1008,467.9125 694.9508,467.7625 Q694.6883,467.4625 694.2008,467.2875 Q693.7133,467.1125 693.2133,467.1125 Q692.6008,467.1125 692.0883,467.375 Q691.5883,467.6375 691.1883,468.2375 Q690.8008,468.8375 690.8008,469.6625 L690.8008,470.5375 Q690.8008,471.525 691.5133,472.1875 Q692.2258,472.8375 693.5008,472.8375 Q694.2508,472.8375 694.7758,472.6375 Q695.0883,472.5125 695.4258,472.1625 Q695.6383,471.95 695.7508,471.8875 Q695.8758,471.825 696.0383,471.825 Q696.3008,471.825 696.5008,472.0375 Q696.7133,472.2375 696.7133,472.5125 Q696.7133,472.7875 696.4383,473.1125 Q696.0383,473.575 695.4008,473.8375 Q694.5383,474.2 693.5008,474.2 Q692.2883,474.2 691.3258,473.7 Q690.5383,473.3 689.9883,472.45 Q689.4383,471.5875 689.4383,470.5625 L689.4383,469.6375 Q689.4383,468.575 689.9258,467.6625 Q690.4258,466.7375 691.3008,466.25 Q692.1758,465.75 693.1633,465.75 Q693.7508,465.75 694.2633,465.8875 Q694.7883,466.0125 695.2258,466.3 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="28.6234"
+                  x="709.4133" y="474.2375">Circle
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="559.2" x2="862.25" y1="482.4" y2="482.4"/>
+            <ellipse cx="567.2" cy="494.2484" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="61.6273"
+                  x="574.4" y="497.6859">radius: Float
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="574.4" y="512.5828">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="559.2" x2="862.25" y1="518.5938"
+                  y2="518.5938"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="114.0563"
+                  x="574.4" y="533.8797">&#169;Circle(Vector2, Float)
+            </text>
+            <ellipse cx="567.2" cy="545.3391" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="135.7016"
+                  x="574.4" y="548.7766">project(Vector2): Projection
+            </text>
+            <ellipse cx="567.2" cy="560.2359" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="135.1"
+                  x="574.4" y="563.6734">contains(Vector2): Boolean
+            </text>
+            <ellipse cx="567.2" cy="575.1328" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="108.3469"
+                  x="574.4" y="578.5703">updateBoundingBox()
+            </text>
+            <ellipse cx="567.2" cy="590.0297" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="205.4008"
+                  x="574.4" y="593.4672">testCollision(FhysicsObject): CollisionInfo
+            </text>
+            <ellipse cx="567.2" cy="604.9266" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="206.0625"
+                  x="574.4" y="608.3641">findContactPoints(BorderEdge): Vector2[]
+            </text>
+            <ellipse cx="567.2" cy="619.8234" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="283.85"
+                  x="574.4" y="623.2609">findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="574.4" y="638.1578">...
+            </text>
+        </g><!--class Polygon-->
+        <g id="elem_Polygon">
+            <rect codeLine="47" fill="#F1F1F1" height="232.0594" id="Polygon" rx="2" ry="2"
+                  style="stroke:#181818;stroke-width:0.4000000000000001;" width="304.65" x="225.6" y="434.4"/>
+            <ellipse cx="354.2879" cy="447.2" fill="#A9DCDF" rx="8.8" ry="8.8"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <path d="M356.0379,448.6125 L352.7254,448.6125 L352.3879,449.4375 L352.7254,449.4375 Q353.2129,449.4375 353.4254,449.625 Q353.6379,449.8125 353.6379,450.125 Q353.6379,450.425 353.4254,450.6125 Q353.2129,450.8 352.7254,450.8 L350.8879,450.8 Q350.4004,450.8 350.2004,450.6125 Q349.9879,450.425 349.9879,450.1125 Q349.9879,449.8125 350.2129,449.625 Q350.4254,449.425 350.9254,449.4375 L353.0629,444.1125 L352.1754,444.1125 Q351.6879,444.1125 351.4754,443.925 Q351.2629,443.7375 351.2629,443.425 Q351.2629,443.125 351.4754,442.9375 Q351.6879,442.75 352.1754,442.75 L355.1129,442.75 L357.8254,449.4375 Q358.3004,449.4375 358.4504,449.55 Q358.7629,449.7625 358.7629,450.125 Q358.7629,450.425 358.5504,450.6125 Q358.3504,450.8 357.8629,450.8 L356.0254,450.8 Q355.5379,450.8 355.3254,450.6125 Q355.1129,450.425 355.1129,450.1125 Q355.1129,449.8125 355.3254,449.625 Q355.5379,449.4375 356.0254,449.4375 L356.3629,449.4375 L356.0379,448.6125 Z M355.4629,447.25 L354.3754,444.55 L353.2754,447.25 L355.4629,447.25 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" font-style="italic" lengthAdjust="spacing"
+                  textLength="40.4742" x="370.6879" y="451.8375">Polygon
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="226.4" x2="529.45" y1="460" y2="460"/>
+            <ellipse cx="234.4" cy="471.8484" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="89.6328"
+                  x="241.6" y="475.2859">vertices: Vector2[]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="241.6" y="490.1828">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="226.4" x2="529.45" y1="496.1938"
+                  y2="496.1938"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="132.1305"
+                  x="241.6" y="511.4797">&#169;Polygon(Vector2[], Float)
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="252.8969"
+                  x="241.6" y="526.3766">&#169;Polygon(Vector2, Vector2, Vector2[], Float, Float)
+            </text>
+            <ellipse cx="234.4" cy="537.8359" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="135.7016"
+                  x="241.6" y="541.2734">project(Vector2): Projection
+            </text>
+            <ellipse cx="234.4" cy="552.7328" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="135.1"
+                  x="241.6" y="556.1703">contains(Vector2): Boolean
+            </text>
+            <ellipse cx="234.4" cy="567.6297" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="108.3469"
+                  x="241.6" y="571.0672">updateBoundingBox()
+            </text>
+            <ellipse cx="234.4" cy="582.5266" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="205.4008"
+                  x="241.6" y="585.9641">testCollision(FhysicsObject): CollisionInfo
+            </text>
+            <ellipse cx="234.4" cy="597.4234" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="206.0625"
+                  x="241.6" y="600.8609">findContactPoints(BorderEdge): Vector2[]
+            </text>
+            <ellipse cx="234.4" cy="612.3203" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="283.85"
+                  x="241.6" y="615.7578">findContactPoints(FhysicsObject, CollisionInfo): Vector2[]
+            </text>
+            <ellipse cx="234.4" cy="627.2172" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="178.0188"
+                  x="241.6" y="630.6547">getTransformedVertices(): Vector2[]
+            </text>
+            <ellipse cx="234.4" cy="642.1141" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="123.2602"
+                  x="241.6" y="645.5516">getAxes(): List&lt;Vector2&gt;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="241.6" y="660.4484">...
+            </text>
+        </g><!--class ConvexPolygon-->
+        <g id="elem_ConvexPolygon">
+            <rect codeLine="63" fill="#F1F1F1" height="83.0906" id="ConvexPolygon" rx="2" ry="2"
+                  style="stroke:#181818;stroke-width:0.4000000000000001;" width="179.7055" x="120" y="744"/>
+            <ellipse cx="167.2281" cy="756.8" fill="#ADD1B2" rx="8.8" ry="8.8"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <path d="M169.4406,753.5 Q169.5656,753.325 169.7156,753.2375 Q169.8656,753.15 170.0406,753.15 Q170.3406,753.15 170.5281,753.3625 Q170.7156,753.5625 170.7156,754.05 L170.7156,755.2125 Q170.7156,755.7 170.5281,755.9125 Q170.3406,756.125 170.0406,756.125 Q169.7656,756.125 169.6031,755.9625 Q169.4406,755.8125 169.3531,755.4 Q169.3156,755.1125 169.1656,754.9625 Q168.9031,754.6625 168.4156,754.4875 Q167.9281,754.3125 167.4281,754.3125 Q166.8156,754.3125 166.3031,754.575 Q165.8031,754.8375 165.4031,755.4375 Q165.0156,756.0375 165.0156,756.8625 L165.0156,757.7375 Q165.0156,758.725 165.7281,759.3875 Q166.4406,760.0375 167.7156,760.0375 Q168.4656,760.0375 168.9906,759.8375 Q169.3031,759.7125 169.6406,759.3625 Q169.8531,759.15 169.9656,759.0875 Q170.0906,759.025 170.2531,759.025 Q170.5156,759.025 170.7156,759.2375 Q170.9281,759.4375 170.9281,759.7125 Q170.9281,759.9875 170.6531,760.3125 Q170.2531,760.775 169.6156,761.0375 Q168.7531,761.4 167.7156,761.4 Q166.5031,761.4 165.5406,760.9 Q164.7531,760.5 164.2031,759.65 Q163.6531,758.7875 163.6531,757.7625 L163.6531,756.8375 Q163.6531,755.775 164.1406,754.8625 Q164.6406,753.9375 165.5156,753.45 Q166.3906,752.95 167.3781,752.95 Q167.9656,752.95 168.4781,753.0875 Q169.0031,753.2125 169.4406,753.5 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="78.4492"
+                  x="183.6281" y="761.4375">ConvexPolygon
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="120.8" x2="298.9055" y1="769.6"
+                  y2="769.6"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="124.8" y="784.8859">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="120.8" x2="298.9055" y1="790.8969"
+                  y2="790.8969"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="170.1055"
+                  x="124.8" y="806.1828">&#169;ConvexPolygon(Vector2[], Float)
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="124.8" y="821.0797">...
+            </text>
+        </g><!--class Rectangle-->
+        <g id="elem_Rectangle">
+            <rect codeLine="69" fill="#F1F1F1" height="142.6781" id="Rectangle" rx="2" ry="2"
+                  style="stroke:#181818;stroke-width:0.4000000000000001;" width="218.9109" x="420.4" y="714.4"/>
+            <ellipse cx="501.2391" cy="727.2" fill="#ADD1B2" rx="8.8" ry="8.8"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <path d="M503.4516,723.9 Q503.5766,723.725 503.7266,723.6375 Q503.8766,723.55 504.0516,723.55 Q504.3516,723.55 504.5391,723.7625 Q504.7266,723.9625 504.7266,724.45 L504.7266,725.6125 Q504.7266,726.1 504.5391,726.3125 Q504.3516,726.525 504.0516,726.525 Q503.7766,726.525 503.6141,726.3625 Q503.4516,726.2125 503.3641,725.8 Q503.3266,725.5125 503.1766,725.3625 Q502.9141,725.0625 502.4266,724.8875 Q501.9391,724.7125 501.4391,724.7125 Q500.8266,724.7125 500.3141,724.975 Q499.8141,725.2375 499.4141,725.8375 Q499.0266,726.4375 499.0266,727.2625 L499.0266,728.1375 Q499.0266,729.125 499.7391,729.7875 Q500.4516,730.4375 501.7266,730.4375 Q502.4766,730.4375 503.0016,730.2375 Q503.3141,730.1125 503.6516,729.7625 Q503.8641,729.55 503.9766,729.4875 Q504.1016,729.425 504.2641,729.425 Q504.5266,729.425 504.7266,729.6375 Q504.9391,729.8375 504.9391,730.1125 Q504.9391,730.3875 504.6641,730.7125 Q504.2641,731.175 503.6266,731.4375 Q502.7641,731.8 501.7266,731.8 Q500.5141,731.8 499.5516,731.3 Q498.7641,730.9 498.2141,730.05 Q497.6641,729.1875 497.6641,728.1625 L497.6641,727.2375 Q497.6641,726.175 498.1516,725.2625 Q498.6516,724.3375 499.5266,723.85 Q500.4016,723.35 501.3891,723.35 Q501.9766,723.35 502.4891,723.4875 Q503.0141,723.6125 503.4516,723.9 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="50.4328"
+                  x="517.6391" y="731.8375">Rectangle
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="421.2" x2="638.5109" y1="740" y2="740"/>
+            <ellipse cx="429.2" cy="751.8484" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="57.2688"
+                  x="436.4" y="755.2859">width: Float
+            </text>
+            <ellipse cx="429.2" cy="766.7453" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="61.6383"
+                  x="436.4" y="770.1828">height: Float
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="436.4" y="785.0797">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="421.2" x2="638.5109" y1="791.0906"
+                  y2="791.0906"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="198.1109"
+                  x="436.4" y="806.3766">&#169;Rectangle(Vector2, Float, Float, Float)
+            </text>
+            <ellipse cx="429.2" cy="817.8359" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="135.1"
+                  x="436.4" y="821.2734">contains(Vector2): Boolean
+            </text>
+            <ellipse cx="429.2" cy="832.7328" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="123.2602"
+                  x="436.4" y="836.1703">getAxes(): List&lt;Vector2&gt;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="436.4" y="851.0672">...
+            </text>
+        </g><!--class ConcavePolygon-->
+        <g id="elem_ConcavePolygon">
+            <rect codeLine="79" fill="#F1F1F1" height="112.8844" id="ConcavePolygon" rx="2" ry="2"
+                  style="stroke:#181818;stroke-width:0.4000000000000001;" width="228.257" x="300" y="904.8"/>
+            <ellipse cx="368.3895" cy="917.6" fill="#ADD1B2" rx="8.8" ry="8.8"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <path d="M370.602,914.3 Q370.727,914.125 370.877,914.0375 Q371.027,913.95 371.202,913.95 Q371.502,913.95 371.6895,914.1625 Q371.877,914.3625 371.877,914.85 L371.877,916.0125 Q371.877,916.5 371.6895,916.7125 Q371.502,916.925 371.202,916.925 Q370.927,916.925 370.7645,916.7625 Q370.602,916.6125 370.5145,916.2 Q370.477,915.9125 370.327,915.7625 Q370.0645,915.4625 369.577,915.2875 Q369.0895,915.1125 368.5895,915.1125 Q367.977,915.1125 367.4645,915.375 Q366.9645,915.6375 366.5645,916.2375 Q366.177,916.8375 366.177,917.6625 L366.177,918.5375 Q366.177,919.525 366.8895,920.1875 Q367.602,920.8375 368.877,920.8375 Q369.627,920.8375 370.152,920.6375 Q370.4645,920.5125 370.802,920.1625 Q371.0145,919.95 371.127,919.8875 Q371.252,919.825 371.4145,919.825 Q371.677,919.825 371.877,920.0375 Q372.0895,920.2375 372.0895,920.5125 Q372.0895,920.7875 371.8145,921.1125 Q371.4145,921.575 370.777,921.8375 Q369.9145,922.2 368.877,922.2 Q367.6645,922.2 366.702,921.7 Q365.9145,921.3 365.3645,920.45 Q364.8145,919.5875 364.8145,918.5625 L364.8145,917.6375 Q364.8145,916.575 365.302,915.6625 Q365.802,914.7375 366.677,914.25 Q367.552,913.75 368.5395,913.75 Q369.127,913.75 369.6395,913.8875 Q370.1645,914.0125 370.602,914.3 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="84.6781"
+                  x="384.7895" y="922.2375">ConcavePolygon
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="300.8" x2="527.457" y1="930.4"
+                  y2="930.4"/>
+            <ellipse cx="308.8" cy="942.2484" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="161.268"
+                  x="316" y="945.6859">subPolygons: List&lt;SubPolygon&gt;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="316" y="960.5828">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="300.8" x2="527.457" y1="966.5938"
+                  y2="966.5938"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="207.457"
+                  x="316" y="981.8797">&#169;ConcavePolygon(Vector2[], Int[][], Float)
+            </text>
+            <ellipse cx="308.8" cy="993.3391" fill="#84BE84" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="108.3469"
+                  x="316" y="996.7766">updateBoundingBox()
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="316" y="1011.6734">...
+            </text>
+        </g><!--class SubPolygon-->
+        <g id="elem_SubPolygon">
+            <rect codeLine="87" fill="#F1F1F1" height="112.8844" id="SubPolygon" rx="2" ry="2"
+                  style="stroke:#181818;stroke-width:0.4000000000000001;" width="266.2594" x="5.6" y="904.8"/>
+            <ellipse cx="105.1285" cy="917.6" fill="#ADD1B2" rx="8.8" ry="8.8"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <path d="M107.341,914.3 Q107.466,914.125 107.616,914.0375 Q107.766,913.95 107.941,913.95 Q108.241,913.95 108.4285,914.1625 Q108.616,914.3625 108.616,914.85 L108.616,916.0125 Q108.616,916.5 108.4285,916.7125 Q108.241,916.925 107.941,916.925 Q107.666,916.925 107.5035,916.7625 Q107.341,916.6125 107.2535,916.2 Q107.216,915.9125 107.066,915.7625 Q106.8035,915.4625 106.316,915.2875 Q105.8285,915.1125 105.3285,915.1125 Q104.716,915.1125 104.2035,915.375 Q103.7035,915.6375 103.3035,916.2375 Q102.916,916.8375 102.916,917.6625 L102.916,918.5375 Q102.916,919.525 103.6285,920.1875 Q104.341,920.8375 105.616,920.8375 Q106.366,920.8375 106.891,920.6375 Q107.2035,920.5125 107.541,920.1625 Q107.7535,919.95 107.866,919.8875 Q107.991,919.825 108.1535,919.825 Q108.416,919.825 108.616,920.0375 Q108.8285,920.2375 108.8285,920.5125 Q108.8285,920.7875 108.5535,921.1125 Q108.1535,921.575 107.516,921.8375 Q106.6535,922.2 105.616,922.2 Q104.4035,922.2 103.441,921.7 Q102.6535,921.3 102.1035,920.45 Q101.5535,919.5875 101.5535,918.5625 L101.5535,917.6375 Q101.5535,916.575 102.041,915.6625 Q102.541,914.7375 103.416,914.25 Q104.291,913.75 105.2785,913.75 Q105.866,913.75 106.3785,913.8875 Q106.9035,914.0125 107.341,914.3 Z "
+                  fill="#000000"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="60.4023"
+                  x="121.5285" y="922.2375">SubPolygon
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="6.4" x2="271.0594" y1="930.4" y2="930.4"/>
+            <ellipse cx="14.4" cy="942.2484" fill="none" rx="2.4" ry="2.4"
+                     style="stroke:#038048;stroke-width:0.8000000000000002;"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="122.6586"
+                  x="21.6" y="945.6859">parent: ConcavePolygon
+            </text>
+            <rect fill="none" height="4.8" style="stroke:#C82930;stroke-width:0.8000000000000002;" width="4.8" x="12"
+                  y="954.7453"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="120.7719"
+                  x="21.6" y="960.5828">relativePosition: Vector2
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="21.6" y="975.4797">...
+            </text>
+            <line style="stroke:#181818;stroke-width:0.4000000000000001;" x1="6.4" x2="271.0594" y1="981.4906"
+                  y2="981.4906"/>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="256.6594"
+                  x="10.4" y="996.7766">&#169;SubPolygon(Vector2[], ConcavePolygon, Vector2)
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="11.2" lengthAdjust="spacing" textLength="9.3352"
+                  x="10.4" y="1011.6734">...
+            </text>
+        </g><!--reverse link FhysicsObject to Circle-->
+        <g id="link_FhysicsObject_Circle">
+            <path codeLine="96" d="M627.6,400.824 C627.6,425.184 627.6,434.808 627.6,456.64 " fill="none"
+                  id="FhysicsObject-backto-Circle" style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <polygon fill="none" points="627.6,386.424,622.8,400.824,632.4,400.824,627.6,386.424"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+        </g><!--reverse link Polygon to ConcavePolygon-->
+        <g id="link_Polygon_ConcavePolygon">
+            <path codeLine="97" d="M360.2,680.872 C360.2,758.816 360.2,843.664 360.2,904.8 " fill="none"
+                  id="Polygon-backto-ConcavePolygon" style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <polygon fill="none" points="360.2,666.472,355.4,680.872,365,680.872,360.2,666.472"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+        </g><!--reverse link Polygon to ConvexPolygon-->
+        <g id="link_Polygon_ConvexPolygon">
+            <path codeLine="98" d="M262.8,681.024 C262.8,708.68 262.8,722.048 262.8,743.784 " fill="none"
+                  id="Polygon-backto-ConvexPolygon" style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <polygon fill="none" points="262.8,666.624,258,681.024,267.6,681.024,262.8,666.624"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+        </g><!--reverse link FhysicsObject to Polygon-->
+        <g id="link_FhysicsObject_Polygon">
+            <path codeLine="99" d="M461.2,400.824 C461.2,417.144 461.2,418.92 461.2,434.376 " fill="none"
+                  id="FhysicsObject-backto-Polygon" style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <polygon fill="none" points="461.2,386.424,456.4,400.824,466,400.824,461.2,386.424"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+        </g><!--reverse link Polygon to Rectangle-->
+        <g id="link_Polygon_Rectangle">
+            <path codeLine="100" d="M475.4,681.024 C475.4,697.224 475.4,699.064 475.4,714.104 " fill="none"
+                  id="Polygon-backto-Rectangle" style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <polygon fill="none" points="475.4,666.624,470.6,681.024,480.2,681.024,475.4,666.624"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+        </g><!--reverse link ConvexPolygon to SubPolygon-->
+        <g id="link_ConvexPolygon_SubPolygon">
+            <path codeLine="101" d="M196,841.616 C196,864.736 196,879.44 196,904.608 " fill="none"
+                  id="ConvexPolygon-backto-SubPolygon" style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+            <polygon fill="none" points="196,827.216,191.2,841.616,200.8,841.616,196,827.216"
+                     style="stroke:#181818;stroke-width:0.8000000000000002;"/>
+        </g><!--link SubPolygon to ConcavePolygon-->
+        <g id="link_SubPolygon_ConcavePolygon">
+            <path codeLine="102" d="M272.168,961.6 C281.424,961.6 290.696,961.6 299.832,961.6 " fill="none"
+                  id="SubPolygon-ConcavePolygon" style="stroke:#000082;stroke-width:0.8000000000000002;"/>
+        </g><!--SRC=[xLRDZjem4BxdAIprqA1TKBMd2bL8XNQbbIeLTIikAmx6CS6juq7sX88e3zJNw9FL-S7OIO3TzjfS8FFppVZxF7OGrWI1B00HCf88pHaAK97vBjIQQfeHAHJ7tPeJqBY2AA8BWveo94nIOyZzQcS4CvyNtsmcsKV4FZTa3KOKE4CoisRGTxLzmoKmWRkcdJB69TUqAuUgLF8XkPT0yMJA9TKpX-OxCzjMQB4hq2XeQ3Hegx4X6GD8JbLjrToWmBpgmmzVQb4oyrYdTVa-x1JDciu5v2eHAXt3jYZcNahtVYcuJ0vaC1YKxxz_1Np6DHEtnFqfeSEVNbqfNoSKULozxeyw7GevDFXmlI6PLfP2wbOq0uLKAEE5-oG5iLLDRrbTvPT29PC2bE4KX48JZq4dN7zCKjvpSZ_DdvCPy7DB9Y2bC7OP3se9BQmRWbPF5nEM3LBRfSFCe6ntSiRjVDHQ7gAe6e-9q4noDnUQ9Y8FTcTx1rGfSQZuKUEhIbwLxxncBr_p2wNzPpsR73VEeYd8NGhAiRqfnfvnqu9fSLvdnYukeBtbz-QncV5Vhm0WvVXLKsMMe3EUp6f1ukx8zzlAzKaOV5VxHvU62zI6RqFLE-R9ZpgZS3V-5njRtZvkH_qG2Qx2ytt5HRh2ooFjWEBddEDNDyJVKSNeXZSdnEIBscHgh4Td6PtdquFo2NrG-3HlC7lXYkXiz5J_z351DLSuRAoXTFRjXItjXLnOkxuusjsVyFtEGsWtrTsDldvwzSO-R-_cKNsy-qy_x_ySaV2xA6hGxyKTLnFkvQw8m7UXrcdNDkEEI1x7ZOYWYywkfLjytzFg3m00]-->
+    </g>
+</svg>
