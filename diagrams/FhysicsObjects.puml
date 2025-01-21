@@ -45,7 +45,7 @@ class Circle {
     {method} ...
 }
 
-class Polygon {
+abstract class Polygon {
     + vertices: Vector2[]
     {field} ...
     ©Polygon(Vector2[], Float)
@@ -99,7 +99,7 @@ ConcavePolygon     -u-|>  Polygon
 ConvexPolygon      -u-|>  Polygon
 Polygon            -u-|>  FhysicsObject
 Rectangle          -u-|>  Polygon
-SubPolygon         -u-|>  Polygon
+SubPolygon         -u-|>  ConvexPolygon
 ConcavePolygon     -l[#000082]- SubPolygon
 @enduml
 

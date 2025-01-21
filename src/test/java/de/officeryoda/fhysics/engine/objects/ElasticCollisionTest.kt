@@ -2,9 +2,9 @@
 
 package de.officeryoda.fhysics.engine.objects
 
-import de.officeryoda.fhysics.engine.FhysicsCore.EPSILON
 import de.officeryoda.fhysics.engine.GravityType
 import de.officeryoda.fhysics.engine.Settings
+import de.officeryoda.fhysics.engine.Settings.EPSILON
 import de.officeryoda.fhysics.engine.collision.CollisionInfo
 import de.officeryoda.fhysics.engine.collision.CollisionSolver
 import de.officeryoda.fhysics.engine.datastructures.QuadTree

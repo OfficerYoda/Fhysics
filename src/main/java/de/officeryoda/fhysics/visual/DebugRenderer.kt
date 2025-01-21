@@ -139,13 +139,13 @@ object DebugRenderer {
 
         if (Settings.showUPS) {
             val mspu: Double = FhysicsCore.updateStopwatch.average()
-            val ups: Double = min(FhysicsCore.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
+            val ups: Double = min(Settings.UPDATES_PER_SECOND.toDouble(), 1000.0 / mspu)
             val upsRounded: String = String.format(Locale.US, "%.2f", ups)
             stats.add("UPS: $upsRounded")
         }
 
         if (Settings.showSubSteps) {
-            stats.add("Sub-steps: ${FhysicsCore.SUB_STEPS}")
+            stats.add("Sub-steps: ${Settings.SUB_STEPS}")
         }
 
         if (Settings.showObjectCount) {
