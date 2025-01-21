@@ -60,12 +60,12 @@ class FhysicsObject {
     {method} ...
 }
 
-FhysicsCore ..> QuadTree : ruft rebuild() & update() auf\nbei jedem update
+FhysicsCore ..> QuadTree : calls rebuild() & update()\nevery update
 QuadTree --> QTNode
-QuadTree --> FhysicsObject: ruft update() auf
-QuadTree .u.> CollisionFinder : ruft testCollision() auf
-QuadTree .u.> CollisionSolver : ruft solveCollisions() auf
-CollisionFinder .u.> CollisionInfo : verwendet
-CollisionSolver .u.> CollisionInfo : verwendet
+QuadTree --> FhysicsObject: calls update()
+QuadTree .u.> CollisionFinder : calls testCollision()
+QuadTree .u.> CollisionSolver : calls solveCollisions()
+CollisionFinder .u.> CollisionInfo : uses
+CollisionSolver .u.> CollisionInfo : uses
 
 @enduml
