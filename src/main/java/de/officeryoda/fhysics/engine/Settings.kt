@@ -42,6 +42,17 @@ data object Settings {
         "showRenderTime" to false
     )
 
+    /// region =====General=====
+    /** The amount of updates the simulation should perform per second */
+    const val UPDATES_PER_SECOND: Int = 60
+
+    /** The amount of sub steps the simulation performs per update */
+    const val SUB_STEPS: Int = 4
+
+    /** A small value used for floating point comparisons */
+    const val EPSILON: Float = 1E-4f
+    /// endregion
+
     // regions are based on the UI
     /// region =====Spawn Object=====
     var spawnObjectType: SpawnObjectType = SpawnObjectType.NOTHING

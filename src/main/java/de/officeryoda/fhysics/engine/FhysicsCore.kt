@@ -1,5 +1,7 @@
 package de.officeryoda.fhysics.engine
 
+import de.officeryoda.fhysics.engine.Settings.SUB_STEPS
+import de.officeryoda.fhysics.engine.Settings.UPDATES_PER_SECOND
 import de.officeryoda.fhysics.engine.datastructures.BoundingBox
 import de.officeryoda.fhysics.engine.datastructures.QuadTree
 import de.officeryoda.fhysics.engine.math.Vector2
@@ -17,15 +19,6 @@ import kotlin.math.max
  * This class contains all the important variables and functions for the simulation.
  */
 object FhysicsCore {
-
-    /** The amount of updates the simulation should perform per second */
-    const val UPDATES_PER_SECOND: Int = 60
-
-    /** The amount of sub steps the simulation performs per update */
-    const val SUB_STEPS: Int = 4
-
-    /** A small value used for floating point comparisons */
-    const val EPSILON: Float = 1E-4f
 
     /** A Thread lock to prevent simulating and rendering at the same time */
     val RENDER_LOCK = ReentrantLock()
